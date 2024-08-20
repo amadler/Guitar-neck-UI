@@ -1,0 +1,12 @@
+/* You can add global styles to this file, and also import other style files */
+.flex-container{
+    display: flex;
+    flex-direction: column;
+    //lelementy dzieci mają być owycentrowane i do góry
+    align-items: center;
+    justify-content: flex-start;
+    //rozstawienie elementów
+    gap: 10px;
+    //wysokość kontenera
+    height: 100vh;
+}
