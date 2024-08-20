@@ -20,7 +20,6 @@ export class GuitarNeckComponent {
     this.guitarNotes = this.noteService.getAllnotes();
   }
 
-
   @ViewChild(FreatboardComponent) freatboardComponent!: FreatboardComponent;
 
   onNoteClicked(note: GuitarNote): void {

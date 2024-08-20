@@ -19,5 +19,11 @@
         <div class="guitar-neck__selected" *ngIf="isNoteOnFret(string, fret) && isNoteSelected(string, fret)"> </div>
       </div>
     </div>
+    <div >
+      <button (click)="selectNotes([notes[62], notes[111],  notes[11]])">selectNotes</button>
+      <button (click)="hideAllNotes()">hideAll</button>
+      <button (click)="showAllNotes()">showAll</button>
+
+    </div>
 </div>
 

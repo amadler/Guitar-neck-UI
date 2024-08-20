@@ -37,8 +37,6 @@ export class NoteService {
   }
 
   getNoteByFret(string: number, fret: number) {
-
-
     return this.guitarNotes.find(note => note.string === string && note.fret === fret);
   }
 

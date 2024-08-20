@@ -14,15 +14,6 @@ export class GuitarNeckService {
     return this.notes.some(note => this.isMatchingNoteOnFret(note, string, fret));
   }
 
-  getNoteName(string: string, fret: number): string {
-    const note = this.notes.find(note => this.isMatchingNoteOnFret(note, string, fret));
-    return note ? note.note : '';
-  }
-
-  getNote(string: string, fret: number): GuitarNote | undefined {
-    return this.notes.find(note => this.isMatchingNoteOnFret(note, string, fret));
-  }
-
   isMarkedFret(string: string, fret: number): boolean{
     const markedFrets = neckConfig.markedFrets;
     return string === 'D' && markedFrets.includes(fret + 1);
@@ -33,10 +24,28 @@ export class GuitarNeckService {
     return string === 'D' && markedFrets.includes(fret + 1);
   }
 
+  private isMatchingNoteOnFret(note: GuitarNote, string: string, fret: number) {
+    return this.strings[this.strings.length - note.string] === string && note.fret === fret && note.visible;
+  }
+
+
+
+  getNote(string: string, fret: number): GuitarNote | undefined {
+    return this.notes.find(note => this.isMatchingNoteOnFret(note, string, fret));
+  }
+  getNoteName(string: string, fret: number): string {
+    const note = this.notes.find(note => this.isMatchingNoteOnFret(note, string, fret));
+    return note ? note.note : '';
+  }
+
+
   fretNoteClicked(string: string, fret: number): GuitarNote | null {
     return this.notes.find(note => this.isMatchingNoteOnFret(note, string, fret)) || null;
   }
 
+  getStringNameByNumber(string: number): string {
+    return this.strings[this.strings.length - string];
+  }
   hideAllNotes() {
     this.notes.forEach(note => note.visible = false);
   }
@@ -59,11 +68,5 @@ export class GuitarNeckService {
     );
     return notes;
   }
-  getStringNameByNumber(string: number): string {
-    return this.strings[this.strings.length - string];
-  }
 
-  private isMatchingNoteOnFret(note: GuitarNote, string: string, fret: number) {
-    return this.strings[this.strings.length - note.string] === string && note.fret === fret && note.visible;
-  }
 }
