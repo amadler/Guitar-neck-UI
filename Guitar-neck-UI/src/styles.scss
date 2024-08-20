@@ -10,3 +10,55 @@
     //wysokość kontenera
     height: 100vh;
 }
+
+
+// globals
+
+// zmienne css dla colorów i nagłówków
+:root {
+    --primary-color: #007bff;
+    --secondary-color: #6c757d;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
+    --white-color: #fff;
+    --black-color: #000;
+    --font-size: 1rem;
+    --font-weight: 400;
+    --line-height: 1.5;
+    --border-radius: 0.25rem;
+
+    //guitar neck theme
+    --guitar-neck-bg-color: #333;
+    --guitar-neck-fret-color: #ddd;
+    --guitar-neck-string-color: #ddd;
+    --guitar-neck-dot-color: #fff;
+    --guitar-neck-dot-label-color: #aaa;
+    // siodełko
+    --guitar-neck-open-string-color: #bf500b;
+    --guitar-neck-dot-size: 20px;
+    --guitar-neck-dot-border-radius: 50%;
+
+    // markery
+    --guitar-neck-marker-bg-color: rgb(168, 110, 110);
+    --guitar-neck-marker--color: rgb(255, 255, 255);
+
+
+}
+
+// resetowanie css
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+}
+

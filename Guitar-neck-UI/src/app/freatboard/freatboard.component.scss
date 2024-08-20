@@ -9,9 +9,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: #704214 ;
-//   background: #704214;
-// background: linear-gradient(0deg, rgb(148, 106, 63) 0%, rgba(193,162,87,1) 49%, rgba(148, 106, 63) 100%);
+  background-color: var(--guitar-neck-bg-color);
   width:100%;
   padding: 1em 0;
 }
@@ -22,29 +20,8 @@
   align-items: center;
   flex-direction: row;
   min-width: 100%;
-  outline: 1px  #e8e2dcaa solid;
+  outline: 1px  var(--guitar-neck-string-color) solid;
   outline-offset: -12px;
-}
-.guitar-neck__marker{
-  top: 50%;
-  position: absolute;
-  background-color: #eeeaeac2;
-  border-radius: 50%;
-  color: #fff;
-  font-size: 12px;
-  font-weight: bold;
-  height: 20px;
-  width: 20px;
-}
-
-.guitar-neck__fret-number {
-  color: #aaa;
-  font-size: 14px;
-  font-weight: bold;
-  width: 22px;
-  text-align: center;
-  background-color: #261903;
-  position: relative;
 }
 
 .guitar-neck__fret {
@@ -55,39 +32,46 @@
   align-items: center;
   position: relative;
   flex-grow: 1;
-  border-right: 1px solid #c28d58aa ;
-  z-index: 1;
+  border-right: 1px solid var(--guitar-neck-fret-color);
 }
+
+.guitar-neck__marker{
+  top: 50%;
+  margin-top: -20px;
+  position: absolute;
+  background-color: var(--guitar-neck-dot-color);
+  border-radius: var(--guitar-neck-dot-border-radius);
+  height: var(--guitar-neck-dot-size);
+  width: var(--guitar-neck-dot-size);
+}
+
 .guitar-neck__marker_12{
   position:absolute;
-  top:-10px;
-  left:15px;
+  top: 50%;
+  margin-top: -42px;
+  width: var(--guitar-neck-dot-size);
   &::before, &::after{
     content: "";
     position: absolute;
-    background-color: #eeeaeac2;
-    border-radius: 50%;
-    color: #fff;
-    font-size: 12px;
-    font-weight: bold;
-    height: 20px;
-    width: 20px;
+    background-color: var(--guitar-neck-dot-color);
+    border-radius: var(--guitar-neck-dot-border-radius);
+    height: var(--guitar-neck-dot-size);
+    width: var(--guitar-neck-dot-size);
 
   }
   &::after{
     top: 45px;
   }
-  z-index: 1;
 }
 .guitar-neck__dot,
 .guitar-neck__selected{
-  background-color: #333;
-  border-radius: 50%;
-  color: #fff;
+  background-color: var(--guitar-neck-marker-bg-color);
+  border-radius: var(--guitar-neck-dot-border-radius);
+  color: var(--guitar-neck-marker--color);
   font-size: 12px;
   font-weight: bold;
-  height: 20px;
-  width: 20px;
+  height: var(--guitar-neck-dot-size);
+  width: var(--guitar-neck-dot-size);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -95,10 +79,20 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  z-index: 3;
   cursor: pointer;
+  z-index: 1;
 }
 .guitar-neck__selected{
   background-color: green;
+}
 
+.guitar-neck__string{
+  .guitar-neck__fret{
+    &:first-child{
+      border-right: none;
+      width: 0px;
+      background-color: var(--guitar-neck-open-string-color);
+      border-right: 1px outset var(--guitar-neck-fret-color);
+    }
+  }
 }

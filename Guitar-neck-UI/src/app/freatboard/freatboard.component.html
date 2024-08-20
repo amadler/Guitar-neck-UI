@@ -1,13 +1,20 @@
 <div class="guitar-neck" *ngIf="notes.length">
   <div class="guitar-neck__fretboard">
     <div *ngFor="let string of strings" class="guitar-neck__string">
-      <div class="guitar-neck__fret-number">{{ string }}</div>  <!-- siodełko - puste struny -->
       <div *ngFor="let fret of frets" class="guitar-neck__fret">
         <div class="guitar-neck__marker" *ngIf="isMarkedFret(string, fret)"></div>
         <div class="guitar-neck__marker_12" *ngIf="isMarkedTwelffeFret(string, fret)"></div>
-        <button class="guitar-neck__dot" *ngIf="isNoteOnFret(string, fret) && !isNoteSelected(string, fret)" (click)="fretNoteClicked(string, fret)">
-          {{ getNoteName(string, fret) }}
-        </button>
+        @if (fret===0) {
+          <button class="guitar-neck__fret-number guitar-neck__dot" *ngIf="isNoteOnFret(string, fret) && !isNoteSelected(string, fret)" (click)="fretNoteClicked(string, fret)">
+            {{ getNoteName(string, fret) }}
+          </button>
+        }
+        @else {
+          <button class="guitar-neck__dot" *ngIf="isNoteOnFret(string, fret) && !isNoteSelected(string, fret)" (click)="fretNoteClicked(string, fret)">
+            {{ getNoteName(string, fret) }}
+          </button>
+        }
+
 
         <div class="guitar-neck__selected" *ngIf="isNoteOnFret(string, fret) && isNoteSelected(string, fret)"> </div>
       </div>

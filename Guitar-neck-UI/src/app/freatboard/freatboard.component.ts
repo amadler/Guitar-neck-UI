@@ -36,11 +36,11 @@ export class FreatboardComponent implements OnInit {
   }
 
   isMarkedFret(string: string, fret: number) {
-    return this.guitarNeckService.isMarkedFret(string, fret);
+    return this.guitarNeckService.isMarkedFret(string, fret-1);
   }//
 
   isMarkedTwelffeFret(string: string, fret: number) {
-    return this.guitarNeckService.isMarkedTwelffeFret(string, fret);
+    return this.guitarNeckService.isMarkedTwelffeFret(string, fret-1);
   }//
 
   // hideAllNotes() {
