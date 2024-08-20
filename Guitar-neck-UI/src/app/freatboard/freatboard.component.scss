@@ -1,0 +1,104 @@
+.guitar-neck {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.guitar-neck__fretboard {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #704214 ;
+//   background: #704214;
+// background: linear-gradient(0deg, rgb(148, 106, 63) 0%, rgba(193,162,87,1) 49%, rgba(148, 106, 63) 100%);
+  width:100%;
+  padding: 1em 0;
+}
+
+.guitar-neck__string {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  min-width: 100%;
+  outline: 1px  #e8e2dcaa solid;
+  outline-offset: -12px;
+}
+.guitar-neck__marker{
+  top: 50%;
+  position: absolute;
+  background-color: #eeeaeac2;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 12px;
+  font-weight: bold;
+  height: 20px;
+  width: 20px;
+}
+
+.guitar-neck__fret-number {
+  color: #aaa;
+  font-size: 14px;
+  font-weight: bold;
+  width: 22px;
+  text-align: center;
+  background-color: #261903;
+  position: relative;
+}
+
+.guitar-neck__fret {
+  height: 22px;
+  width: 22px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  flex-grow: 1;
+  border-right: 1px solid #c28d58aa ;
+  z-index: 1;
+}
+.guitar-neck__marker_12{
+  position:absolute;
+  top:-10px;
+  left:15px;
+  &::before, &::after{
+    content: "";
+    position: absolute;
+    background-color: #eeeaeac2;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 12px;
+    font-weight: bold;
+    height: 20px;
+    width: 20px;
+
+  }
+  &::after{
+    top: 45px;
+  }
+  z-index: 1;
+}
+.guitar-neck__dot,
+.guitar-neck__selected{
+  background-color: #333;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 12px;
+  font-weight: bold;
+  height: 20px;
+  width: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  cursor: pointer;
+}
+.guitar-neck__selected{
+  background-color: green;
+
+}
