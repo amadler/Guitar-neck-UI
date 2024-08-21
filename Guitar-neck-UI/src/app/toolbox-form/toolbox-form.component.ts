@@ -1,6 +1,7 @@
 import { NgFor } from '@angular/common';
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { SCALE_PATTERNS } from '../shared/model/scales';
 
 @Component({
   selector: 'app-toolbox-form',
@@ -12,7 +13,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 export class ToolboxFormComponent{
   @Output() onSubmit$: EventEmitter<any> = new EventEmitter<any>();
   guitarForm: FormGroup;
-  musicElements = ['Single note', 'All notes', 'Major Triad', 'Minor Triad', 'Major 7th', 'Minor 7th', 'Dominant 7th', 'Diminished 7th', 'Augmented 7th'];
+  musicElements = ['Single note', 'All notes',...SCALE_PATTERNS.map((scale) => scale.name)];
   keys = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
 
   constructor(private fb: FormBuilder) {

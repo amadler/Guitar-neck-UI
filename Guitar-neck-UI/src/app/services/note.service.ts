@@ -1,12 +1,17 @@
 import { Injectable } from '@angular/core';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { neckConfig } from '../shared/model/neckConfig';
+import { ScaleService } from './scales.service';
 
 @Injectable({ providedIn: 'root' })
 export class NoteService {
   guitarStrings = neckConfig.stringNotes; // Nazwy strun od najgrubszej do najcieńszej
   fretsCount = neckConfig.numberOfFrets; // Liczba progów
   guitarNotes: GuitarNote[] = [];
+
+  constructor(
+    private scaleService: ScaleService
+  ) { }
 
   private getFretboard() {
     for (let stringIndex = 0; stringIndex < this.guitarStrings.length; stringIndex++) {
@@ -39,5 +44,10 @@ export class NoteService {
 
   getNotesByNoteName(noteName: string) {
     return this.guitarNotes.filter(note => note.note === noteName);
+  }
+
+  getNotesByScale(scaleName: string, rootNote: string) {
+    const scaleNotes = this.scaleService.generateScale(scaleName, rootNote);
+    return this.guitarNotes.filter(note => scaleNotes.includes(note.note));
   }
 }

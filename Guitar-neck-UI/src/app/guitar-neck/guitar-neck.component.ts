@@ -31,4 +31,5 @@ export class GuitarNeckComponent {
   onNoteClicked(note: GuitarNote): void {
     console.log('onNoteClicked$', note);
   }
+
 }

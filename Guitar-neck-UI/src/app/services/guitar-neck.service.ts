@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { neckConfig } from '../shared/model/neckConfig';
 import { GuitarNote } from '../shared/model/guitarNote';
+import { NoteService } from './note.service';
 
 @Injectable({
   providedIn: 'root'
@@ -9,6 +10,10 @@ export class GuitarNeckService {
   notes!: GuitarNote[];
   strings = neckConfig.stringNotes;
   frets = Array.from({ length: neckConfig.numberOfFrets - 1 }, (_, i) => i);
+
+  constructor(
+    private noteService: NoteService
+  ) { }
 
   isNoteOnFret(string: string, fret: number): boolean {
     return this.notes.some(note => this.isMatchingNoteOnFret(note, string, fret));
@@ -57,8 +62,12 @@ export class GuitarNeckService {
         noteToHighlight.selected = true;
       });
     });
-
     return this.notes.filter(note => note.selected);
+  }
+
+  selectScale(scaleName: string, rootNote: string): GuitarNote[] {
+    const scaleNotes = this.noteService.getNotesByScale(scaleName, rootNote);
+    return this.selectNotes(scaleNotes);
   }
 
   clearFretboard() {
