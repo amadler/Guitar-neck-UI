@@ -1,4 +1,4 @@
-<div class="guitar-neck" *ngIf="notes.length">
+<div class="guitar-neck" *ngIf="notes">
   <div class="guitar-neck__fretboard">
     <div *ngFor="let string of strings" class="guitar-neck__string">
       <div *ngFor="let fret of frets" class="guitar-neck__fret">
@@ -14,16 +14,8 @@
             {{ getNoteName(string, fret) }}
           </button>
         }
-
-
-        <div class="guitar-neck__selected" *ngIf="isNoteOnFret(string, fret) && isNoteSelected(string, fret)"> </div>
+        <div class="guitar-neck__selected" *ngIf="isNoteOnFret(string, fret) && isNoteSelected(string, fret)">{{ getNoteName(string, fret) }}</div>
       </div>
-    </div>
-    <div >
-      <button (click)="selectNotes([notes[62], notes[111],  notes[11]])">selectNotes</button>
-      <button (click)="hideAllNotes()">hideAll</button>
-      <button (click)="showAllNotes()">showAll</button>
-
     </div>
 </div>
 

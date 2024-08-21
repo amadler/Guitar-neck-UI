@@ -14,21 +14,9 @@ export class GuitarNeckService {
     return this.notes.some(note => this.isMatchingNoteOnFret(note, string, fret));
   }
 
-  isMarkedFret(string: string, fret: number): boolean{
-    const markedFrets = neckConfig.markedFrets;
-    return string === 'D' && markedFrets.includes(fret + 1);
-  }
-
-  isMarkedTwelffeFret(string: string, fret: number): boolean {
-    const markedFrets = neckConfig.markedTwelffeFrets;
-    return string === 'D' && markedFrets.includes(fret + 1);
-  }
-
   private isMatchingNoteOnFret(note: GuitarNote, string: string, fret: number) {
     return this.strings[this.strings.length - note.string] === string && note.fret === fret && note.visible;
   }
-
-
 
   getNote(string: string, fret: number): GuitarNote | undefined {
     return this.notes.find(note => this.isMatchingNoteOnFret(note, string, fret));
@@ -38,7 +26,6 @@ export class GuitarNeckService {
     return note ? note.note : '';
   }
 
-
   fretNoteClicked(string: string, fret: number): GuitarNote | null {
     return this.notes.find(note => this.isMatchingNoteOnFret(note, string, fret)) || null;
   }
@@ -46,6 +33,11 @@ export class GuitarNeckService {
   getStringNameByNumber(string: number): string {
     return this.strings[this.strings.length - string];
   }
+
+  removeSelections() {
+    this.notes.forEach(note => note.selected = false);
+  }
+
   hideAllNotes() {
     this.notes.forEach(note => note.visible = false);
   }
@@ -55,18 +47,23 @@ export class GuitarNeckService {
   }
 
   selectNotes(notes: GuitarNote[]): GuitarNote[] {
-   //return selected notes and hide all other notes
-
+    //return selected notes and hide all other notes
     this.hideAllNotes();
+
     notes.forEach(note => {
-      const noteToHighlight = this.notes.find(n => n.note === note.note && n.string === note.string);
-      if (noteToHighlight) {
+      const notesToHighlight = this.notes.filter(n => n.note === note.note && n.string === note.string);
+      notesToHighlight.forEach(noteToHighlight => {
         noteToHighlight.visible = true;
         noteToHighlight.selected = true;
-      }
-    }
-    );
-    return notes;
+      });
+    });
+
+    return this.notes.filter(note => note.selected);
   }
 
+  clearFretboard() {
+    this.hideAllNotes();
+    this.removeSelections();
+
+  }
 }

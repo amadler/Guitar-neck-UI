@@ -1,6 +1,5 @@
 import { NgFor } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-
+import { Component, EventEmitter, Output } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
@@ -11,8 +10,9 @@ import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
   styleUrl: './toolbox-form.component.scss'
 })
 export class ToolboxFormComponent{
+  @Output() onSubmit$: EventEmitter<any> = new EventEmitter<any>();
   guitarForm: FormGroup;
-  musicElements = ['Major Triad', 'Minor Triad', 'Major 7th', 'Minor 7th', 'Dominant 7th', 'Diminished 7th', 'Augmented 7th'];
+  musicElements = ['Single note', 'All notes', 'Major Triad', 'Minor Triad', 'Major 7th', 'Minor 7th', 'Dominant 7th', 'Diminished 7th', 'Augmented 7th'];
   keys = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
 
   constructor(private fb: FormBuilder) {
@@ -25,6 +25,6 @@ export class ToolboxFormComponent{
   }
 
   onSubmit(): void {
-    console.log(this.guitarForm.value);
+    this.onSubmit$.emit(this.guitarForm.value);
   }
 }

@@ -4,6 +4,7 @@ import { neckConfig } from '../shared/model/neckConfig';
 import { FreatboardComponent } from '../freatboard/freatboard.component';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { NoteService } from '../services/note.service';
+import { GuitarNeckService } from '../services/guitar-neck.service';
 
 @Component({
   selector: 'app-guitar-neck',
@@ -16,8 +17,13 @@ export class GuitarNeckComponent {
   neckConfig = neckConfig;
   neck= new GuitarNeck(neckConfig);
   guitarNotes: GuitarNote[];
-  constructor(private noteService: NoteService) {
+  constructor(
+    private noteService: NoteService,
+    private guitarNeckService: GuitarNeckService
+  ) {
     this.guitarNotes = this.noteService.getAllnotes();
+    this.guitarNeckService.notes = this.guitarNotes;
+    this.guitarNeckService.hideAllNotes();
   }
 
   @ViewChild(FreatboardComponent) freatboardComponent!: FreatboardComponent;
