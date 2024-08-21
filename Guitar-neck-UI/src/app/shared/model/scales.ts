@@ -74,3 +74,28 @@ export const SCALE_PATTERNS: ScalePattern[] = [
   // Dodaj inne wzorce skal według potrzeb
 
 ];
+
+
+export interface TriadPattern {
+  name: string;
+  intervals: number[];
+}
+
+export const TRIAD_PATTERNS: TriadPattern[] = [
+  {
+    name: 'Major Triad',
+    intervals: [4, 3], // Wzorzec interwałów dla trójdźwięku durowego
+  },
+  {
+    name: 'Minor Triad',
+    intervals: [3, 4], // Wzorzec interwałów dla trójdźwięku molowego
+  },
+  {
+    name: 'Augmented Triad',
+    intervals: [4, 4], // Wzorzec interwałów dla trójdźwięku zwiększonego
+  },
+  {
+    name: 'Diminished Triad',
+    intervals: [3, 3], // Wzorzec interwałów dla trójdźwięku zmniejszonego
+  }
+];

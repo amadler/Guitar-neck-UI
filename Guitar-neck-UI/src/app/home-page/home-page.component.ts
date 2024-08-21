@@ -3,7 +3,7 @@ import { ToolboxFormComponent } from '../toolbox-form/toolbox-form.component';
 import { GuitarNeckComponent } from '../guitar-neck/guitar-neck.component';
 import { NoteService } from '../services/note.service';
 import { GuitarNeckService } from '../services/guitar-neck.service';
-import { SCALE_PATTERNS } from '../shared/model/scales';
+import { SCALE_PATTERNS, TRIAD_PATTERNS } from '../shared/model/scales';
 
 @Component({
   selector: 'app-home-page',
@@ -15,7 +15,7 @@ import { SCALE_PATTERNS } from '../shared/model/scales';
 export class HomePageComponent {
   constructor(
     private noteService: NoteService,
-    private guitarNeckService: GuitarNeckService
+    private guitarNeckService: GuitarNeckService,
 
   ) { }
   toolboxSubmit(event:any): void {
@@ -29,7 +29,17 @@ export class HomePageComponent {
     } else if (event.musicElements === 'All notes') {
       console.log('All notes', event.keys);
       this.guitarNeckService.showAllNotes();
-    } else {
+    }
+    else if (event.musicElements.includes('Triad')) {
+      const triadPattern = TRIAD_PATTERNS.find(pattern => pattern.name === event.musicElements);
+      if (triadPattern) {
+        console.log(triadPattern.name, event.keys);
+        this.guitarNeckService.selectTriad(triadPattern.name, event.keys);
+      } else {
+        console.log('Unknown music element');
+      }
+    }
+    else {
       const scalePattern = SCALE_PATTERNS.find(pattern => pattern.name === event.musicElements);
       if (scalePattern) {
         console.log(scalePattern.name, event.keys);

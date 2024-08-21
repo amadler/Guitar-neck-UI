@@ -50,4 +50,9 @@ export class NoteService {
     const scaleNotes = this.scaleService.generateScale(scaleName, rootNote);
     return this.guitarNotes.filter(note => scaleNotes.includes(note.note));
   }
+
+  getNotesByTriad(triadType: string, rootNote: string) {
+    const triadNotes = this.scaleService.generateTriad(triadType, rootNote);
+    return this.guitarNotes.filter(note => triadNotes.includes(note.note));
+  }
 }

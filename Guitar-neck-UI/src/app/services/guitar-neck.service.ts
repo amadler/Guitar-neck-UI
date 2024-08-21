@@ -69,6 +69,10 @@ export class GuitarNeckService {
     const scaleNotes = this.noteService.getNotesByScale(scaleName, rootNote);
     return this.selectNotes(scaleNotes);
   }
+  selectTriad(triadType: string, rootNote: string): GuitarNote[] {
+    const triadNotes = this.noteService.getNotesByTriad(triadType, rootNote);
+    return this.selectNotes(triadNotes);
+  }
 
   clearFretboard() {
     this.hideAllNotes();
