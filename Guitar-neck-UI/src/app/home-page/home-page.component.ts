@@ -3,7 +3,8 @@ import { ToolboxFormComponent } from '../toolbox-form/toolbox-form.component';
 import { GuitarNeckComponent } from '../guitar-neck/guitar-neck.component';
 import { NoteService } from '../services/note.service';
 import { GuitarNeckService } from '../services/guitar-neck.service';
-import { SCALE_PATTERNS, TRIAD_PATTERNS } from '../shared/model/scales';
+import { Command, DisplayAllNotesCommand, DisplayScaleCommand, DisplaySingleNoteCommand, DisplayTriadCommand } from '../shared/UICommands';
+import { ToolboxSearchQuery } from '../shared/model/musicElements';
 
 @Component({
   selector: 'app-home-page',
@@ -18,35 +19,23 @@ export class HomePageComponent {
     private guitarNeckService: GuitarNeckService,
 
   ) { }
-  toolboxSubmit(event:any): void {
-    console.log('toolboxSubmit', event.musicElement, event.keys);
+
+  toolboxSubmit(event:ToolboxSearchQuery): void {
+    console.log('toolboxSubmit', event.musicElements, event.keys);
     this.guitarNeckService.clearFretboard();
 
+    let command: Command;
+
     if (event.musicElements === 'Single note') {
-      console.log('Single note', event.keys);
-      const notes = this.noteService.getNotesByNoteName(event.keys);
-      this.guitarNeckService.selectNotes(notes);
+      command = new DisplaySingleNoteCommand(this.noteService, this.guitarNeckService, event.keys);
     } else if (event.musicElements === 'All notes') {
-      console.log('All notes', event.keys);
-      this.guitarNeckService.showAllNotes();
+      command = new DisplayAllNotesCommand(this.guitarNeckService);
+    } else if (event.musicElements.includes('Triad')) {
+      command = new DisplayTriadCommand(this.guitarNeckService, event.musicElements, event.keys);
+    } else {
+      command = new DisplayScaleCommand(this.guitarNeckService, event.musicElements, event.keys);
     }
-    else if (event.musicElements.includes('Triad')) {
-      const triadPattern = TRIAD_PATTERNS.find(pattern => pattern.name === event.musicElements);
-      if (triadPattern) {
-        console.log(triadPattern.name, event.keys);
-        this.guitarNeckService.selectTriad(triadPattern.name, event.keys);
-      } else {
-        console.log('Unknown music element');
-      }
-    }
-    else {
-      const scalePattern = SCALE_PATTERNS.find(pattern => pattern.name === event.musicElements);
-      if (scalePattern) {
-        console.log(scalePattern.name, event.keys);
-        this.guitarNeckService.selectScale(scalePattern.name, event.keys);
-      } else {
-        console.log('Unknown music element');
-      }
-    }
+
+    command.execute();
   }
 }

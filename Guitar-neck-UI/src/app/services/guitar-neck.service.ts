@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { neckConfig } from '../shared/model/neckConfig';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { NoteService } from './note.service';
-
 @Injectable({
   providedIn: 'root'
 })
@@ -43,12 +42,48 @@ export class GuitarNeckService {
     this.notes.forEach(note => note.selected = false);
   }
 
+  removeIntervals() {
+    this.notes.forEach(note => note.isRoot = false);
+    this.notes.forEach(note => note.isFifth = false);
+    this.notes.forEach(note => note.isThird = false);
+  }
+
+
   hideAllNotes() {
     this.notes.forEach(note => note.visible = false);
   }
 
   showAllNotes() {
     this.notes.forEach(note => note.visible = true);
+  }
+  private isMajorScale(scaleName: string): boolean {
+    return scaleName.includes('Major');
+  }
+  private markRootThirdFifth(rootNote: string, scaleName: string, selectedNotes: GuitarNote[]) {
+    const rootNoteIndex = neckConfig.chromaticNotes.indexOf(rootNote);
+
+    const isMajor = this.isMajorScale(scaleName); // Zmień na false dla molowej tercji
+
+    const thirdNoteIndex = isMajor
+      ? (rootNoteIndex + 4) % neckConfig.chromaticNotes.length // Major third
+      : (rootNoteIndex + 3) % neckConfig.chromaticNotes.length; // Min
+
+    const fifthNoteIndex = (rootNoteIndex + 7) % neckConfig.chromaticNotes.length; // Perfect fifth
+
+    const thirdNote = neckConfig.chromaticNotes[thirdNoteIndex];
+    const fifthNote = neckConfig.chromaticNotes[fifthNoteIndex];
+
+    selectedNotes.forEach(note => {
+      if (note.note === rootNote) {
+        note.isRoot = true;
+      }
+      if (note.note === thirdNote) {
+        note.isThird = true;
+      }
+      if (note.note === fifthNote) {
+        note.isFifth = true;
+      }
+    });
   }
 
   selectNotes(notes: GuitarNote[]): GuitarNote[] {
@@ -67,16 +102,22 @@ export class GuitarNeckService {
 
   selectScale(scaleName: string, rootNote: string): GuitarNote[] {
     const scaleNotes = this.noteService.getNotesByScale(scaleName, rootNote);
-    return this.selectNotes(scaleNotes);
+    const selectedNotes = this.selectNotes(scaleNotes);
+    this.markRootThirdFifth(rootNote, scaleName, selectedNotes);
+    return selectedNotes;
   }
+
   selectTriad(triadType: string, rootNote: string): GuitarNote[] {
     const triadNotes = this.noteService.getNotesByTriad(triadType, rootNote);
-    return this.selectNotes(triadNotes);
+    const selectedNotes = this.selectNotes(triadNotes);
+    this.markRootThirdFifth(rootNote, triadType, selectedNotes);
+    return selectedNotes;
   }
 
+
   clearFretboard() {
+    this.removeIntervals();
     this.hideAllNotes();
     this.removeSelections();
-
   }
 }

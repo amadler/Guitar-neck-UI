@@ -33,6 +33,23 @@ export class FreatboardComponent implements OnInit {
     const note = this.getNote(string, fret);
     return note ? note.selected : false;
   }
+
+  protected isNoteRootNote(string: string, fret: number): boolean | undefined {
+    const note = this.getNote(string, fret);
+    return note ? note.isRoot : false;
+  }
+
+  protected isNoteFifth(string: string, fret: number): boolean | undefined {
+    const note = this.getNote(string, fret);
+    return note ? note.isFifth : false;
+  }
+
+
+  protected isNoteThird(string: string, fret: number): boolean | undefined {
+    const note = this.getNote(string, fret);
+    return note ? note.isThird : false;
+  }
+
   protected isMarkedFret(string: string, fret: number) {
     const markedFrets = neckConfig.markedFrets;
     return string === 'D' && markedFrets.includes(fret);

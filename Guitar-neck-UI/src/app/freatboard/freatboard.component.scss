@@ -83,7 +83,19 @@
   z-index: 1;
 }
 .guitar-neck__selected{
-  background-color: green;
+  background-color: rgb(32, 1, 27);
+}
+
+.guitar-neck__root{
+  background-color: rgb(128, 0, 15);
+}
+
+.guitar-neck__third{
+  background-color: rgb(0, 128, 58);
+}
+
+.guitar-neck__fifth{
+  background-color: rgb(128, 124, 0);
 }
 
 .guitar-neck__string{
@@ -94,5 +106,31 @@
       background-color: var(--guitar-neck-open-string-color);
       border-right: 1px outset var(--guitar-neck-fret-color);
     }
+  }
+}
+
+.symbols {
+  display: flex;
+  width: 30%;
+  justify-content:  space-between;
+  align-items: flex-start;
+  margin-top: 10px;
+
+}
+.symbols > div{
+  border-radius: var(--guitar-neck-dot-border-radius);
+  color: var(--guitar-neck-marker--color);
+  font-size: 12px;
+  font-weight: bold;
+  padding: 12px;
+  box-sizing: content-box;
+  &.symbols__root{
+    background-color: rgb(128, 0, 15);
+  }
+  &.symbols__third{
+    background-color: rgb(0, 128, 58);
+  }
+  &.symbols__fifth{
+    background-color: rgb(128, 124, 0);
   }
 }

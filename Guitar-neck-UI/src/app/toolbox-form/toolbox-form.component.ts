@@ -1,7 +1,9 @@
 import { NgFor } from '@angular/common';
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { SCALE_PATTERNS, TRIAD_PATTERNS } from '../shared/model/scales';
+import { SCALE_PATTERNS } from '../shared/model/scaleTypes';
+import { ToolboxSearchQuery } from '../shared/model/musicElements';
+import { TRIAD_PATTERNS } from '../shared/model/triadTypes';
 
 @Component({
   selector: 'app-toolbox-form',
@@ -11,7 +13,7 @@ import { SCALE_PATTERNS, TRIAD_PATTERNS } from '../shared/model/scales';
   styleUrl: './toolbox-form.component.scss'
 })
 export class ToolboxFormComponent {
-  @Output() onSubmit$: EventEmitter<any> = new EventEmitter<any>();
+  @Output() onSubmit$: EventEmitter<ToolboxSearchQuery> = new EventEmitter<ToolboxSearchQuery>();
   guitarForm: FormGroup;
   musicElements = [
     'Single note',

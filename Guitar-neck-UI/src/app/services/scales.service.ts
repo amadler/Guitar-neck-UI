@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { neckConfig } from '../shared/model/neckConfig';
-import { SCALE_PATTERNS, TRIAD_PATTERNS } from '../shared/model/scales';
+import { SCALE_PATTERNS } from '../shared/model/scaleTypes';
+import { TRIAD_PATTERNS } from '../shared/model/triadTypes';
 
 /**
  * Service for generating scales and triads based on given patterns, root note, and scale/triad type.
