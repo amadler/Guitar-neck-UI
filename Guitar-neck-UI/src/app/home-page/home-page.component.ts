@@ -5,6 +5,7 @@ import { NoteService } from '../services/note.service';
 import { GuitarNeckService } from '../services/guitar-neck.service';
 import { Command, DisplayAllNotesCommand, DisplayScaleCommand, DisplaySingleNoteCommand, DisplayTriadCommand } from '../shared/UICommands';
 import { ToolboxSearchQuery } from '../shared/model/musicElements';
+import { NoteSelectionService } from '../services/note-selection.service';
 
 @Component({
   selector: 'app-home-page',
@@ -17,6 +18,7 @@ export class HomePageComponent {
   constructor(
     private noteService: NoteService,
     private guitarNeckService: GuitarNeckService,
+    private noteSelectionService: NoteSelectionService,
 
   ) { }
 

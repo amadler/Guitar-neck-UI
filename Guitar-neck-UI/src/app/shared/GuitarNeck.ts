@@ -8,7 +8,7 @@ class GuitarNeck {
   private neckConfig: NeckConfig;
   private stringNotes: string[];
   private frets: number;
-  private frettedNotes: string[];
+  private chromaticNotes: string[];
   public guitarNeckArray: string[][]
 
 
@@ -16,7 +16,7 @@ class GuitarNeck {
     this.neckConfig = neckConfig;
     this.stringNotes = this.neckConfig.stringNotes;
     this.frets = this.neckConfig.numberOfFrets;
-    this.frettedNotes = this.neckConfig.chromaticNotes;
+    this.chromaticNotes = this.neckConfig.chromaticNotes;
     this.guitarNeckArray = this.createguitarNeckArray();
     console.log("guitarNeckArray", this.guitarNeckArray);
   }
@@ -31,10 +31,10 @@ class GuitarNeck {
     for (let i = 0; i < this.stringNotes.length; i++) {
       const stringNote = this.stringNotes[i];
       const string: string[] = [];
-      const startNoteIndex = this.frettedNotes.indexOf(stringNote);
+      const startNoteIndex = this.chromaticNotes.indexOf(stringNote);
       for (let j = 0; j < this.frets; j++) {
-        const noteIndex = (startNoteIndex + j) % this.frettedNotes.length;
-        const note = this.frettedNotes[noteIndex];
+        const noteIndex = (startNoteIndex + j) % this.chromaticNotes.length;
+        const note = this.chromaticNotes[noteIndex];
         string.push(note);
       }
       neck.push(string);

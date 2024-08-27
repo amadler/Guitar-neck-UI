@@ -1,4 +1,5 @@
 import { GuitarNeckService } from "../services/guitar-neck.service";
+import { NoteSelectionService } from "../services/note-selection.service";
 import { NoteService } from "../services/note.service";
 import { SCALE_PATTERNS } from "./model/scaleTypes";
 import { TRIAD_PATTERNS } from "./model/triadTypes";
@@ -8,7 +9,10 @@ export interface Command {
 }
 
 export class DisplaySingleNoteCommand implements Command {
-  constructor(private noteService: NoteService, private guitarNeckService: GuitarNeckService, private keys: string) {}
+  constructor(
+    private noteService: NoteService,
+    private guitarNeckService: GuitarNeckService,
+    private keys: string) {}
 
   execute(): void {
     const notes = this.noteService.getNotesByNoteName(this.keys);

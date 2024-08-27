@@ -9,6 +9,8 @@ export class GuitarNote {
   isRoot: boolean;
   isFifth: boolean;
   isThird: boolean;
+  /// TODO: interwały jako literały
+
 
 
   constructor(string: number, fret: number, note: string, visible: boolean = true) {
