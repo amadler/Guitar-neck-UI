@@ -1,10 +1,11 @@
+/* IntervalService oznacza nuty jako root, third, fifth.
+*/
+
 import { Injectable } from '@angular/core';
 import { neckConfig } from '../shared/model/neckConfig';
 import { GuitarNote } from '../shared/model/guitarNote';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class IntervalService {
   private isMajorScale(scaleName: string): boolean {
     return scaleName.includes('Major');
@@ -15,10 +16,10 @@ export class IntervalService {
     const isMajor = this.isMajorScale(scaleName);
 
     const thirdNoteIndex = isMajor
-      ? (rootNoteIndex + 4) % neckConfig.chromaticNotes.length // Major third
-      : (rootNoteIndex + 3) % neckConfig.chromaticNotes.length; // Minor third
+      ? (rootNoteIndex + 4) % neckConfig.chromaticNotes.length
+      : (rootNoteIndex + 3) % neckConfig.chromaticNotes.length;
 
-    const fifthNoteIndex = (rootNoteIndex + 7) % neckConfig.chromaticNotes.length; // Perfect fifth
+    const fifthNoteIndex = (rootNoteIndex + 7) % neckConfig.chromaticNotes.length;
 
     const thirdNote = neckConfig.chromaticNotes[thirdNoteIndex];
     const fifthNote = neckConfig.chromaticNotes[fifthNoteIndex];
@@ -36,12 +37,11 @@ export class IntervalService {
     });
   }
 
-  removeIntervals(notes:GuitarNote[]) {
-    //  console.log('removeIntervals');
-      notes.forEach(note => {
-        note.isRoot = false;
-        note.isFifth = false;
-        note.isThird = false;
-      });
-    }
+  removeIntervals(notes: GuitarNote[]) {
+    notes.forEach(note => {
+      note.isRoot = false;
+      note.isFifth = false;
+      note.isThird = false;
+    });
+  }
 }

@@ -1,16 +1,16 @@
+/**
+ * ScaleAndTriadService generuje skale i trójdźwięki.
+ **/
+
 import { Injectable } from '@angular/core';
 import { neckConfig } from '../shared/model/neckConfig';
 import { SCALE_PATTERNS } from '../shared/model/scaleTypes';
 import { TRIAD_PATTERNS } from '../shared/model/triadTypes';
 
-/**
- * Service for generating scales and triads based on given patterns, root note, and scale/triad type.
- */
-@Injectable({
-  providedIn: 'root'
-})
-export class ScaleService {
+@Injectable({ providedIn: 'root' })
+export class ScaleAndTriadService {
   private chromaticNotes = neckConfig.chromaticNotes;
+
   constructor() {}
 
   private generateNotes(patterns: any[], patternName: string, rootNote: string): string[] {

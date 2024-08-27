@@ -21,7 +21,7 @@ export class GuitarNeckComponent {
     private noteService: NoteService,
     private guitarNeckService: GuitarNeckService
   ) {
-    this.guitarNotes = this.noteService.getAllnotes();
+    this.guitarNotes =  this.noteService.getAllNotes();
     this.guitarNeckService.notes = this.guitarNotes;
     this.guitarNeckService.hideAllNotes();
   }

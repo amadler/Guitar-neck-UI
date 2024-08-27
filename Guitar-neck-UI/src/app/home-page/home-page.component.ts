@@ -33,9 +33,9 @@ export class HomePageComponent {
     } else if (event.musicElements === 'All notes') {
       command = new DisplayAllNotesCommand(this.guitarNeckService);
     } else if (event.musicElements.includes('Triad')) {
-      command = new DisplayTriadCommand(this.guitarNeckService, event.musicElements, event.keys);
+      command = new DisplayTriadCommand(this.noteSelectionService, event.musicElements, event.keys);
     } else {
-      command = new DisplayScaleCommand(this.guitarNeckService, event.musicElements, event.keys);
+      command = new DisplayScaleCommand(this.noteSelectionService, event.musicElements, event.keys);
     }
 
     command.execute();

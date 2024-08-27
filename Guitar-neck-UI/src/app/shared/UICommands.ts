@@ -29,25 +29,31 @@ export class DisplayAllNotesCommand implements Command {
 }
 
 export class DisplayScaleCommand implements Command {
-  constructor(private guitarNeckService: GuitarNeckService, private scaleName: string, private keys: string) {}
+  constructor(
+    private noteSelectionService: NoteSelectionService,
+    private scaleName: string,
+    private keys: string) {}
 
-  execute(): void {
-    const scalePattern = SCALE_PATTERNS.find(pattern => pattern.name === this.scaleName);
-    if (scalePattern) {
-      this.guitarNeckService.selectScale(scalePattern.name, this.keys);
-    } else {
-      console.error(`Scale pattern not found: ${this.scaleName}`);
+    execute(): void {
+      const scalePattern = SCALE_PATTERNS.find(pattern => pattern.name === this.scaleName);
+      if (scalePattern) {
+        const selectedNotes = this.noteSelectionService.selectScale(scalePattern.name, this.keys);
+      } else {
+        console.error(`Scale pattern not found: ${this.scaleName}`);
+      }
     }
-  }
 }
 
 export class DisplayTriadCommand implements Command {
-  constructor(private guitarNeckService: GuitarNeckService, private triadName: string, private keys: string) {}
+  constructor(
+    private noteSelectionService: NoteSelectionService,
+    private triadName: string,
+    private keys: string) {}
 
   execute(): void {
     const triadPattern = TRIAD_PATTERNS.find(pattern => pattern.name === this.triadName);
     if (triadPattern) {
-      this.guitarNeckService.selectTriad(triadPattern.name, this.keys);
+      const selectedNotes = this.noteSelectionService.selectTriad(triadPattern.name, this.keys);
     } else {
       console.error(`Triad pattern not found: ${this.triadName}`);
     }

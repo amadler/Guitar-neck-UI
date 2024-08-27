@@ -1,58 +1,55 @@
+/**
+ * NoteService zarządza nutami na gryfie.
+ **/
+
 import { Injectable } from '@angular/core';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { neckConfig } from '../shared/model/neckConfig';
-import { ScaleService } from './scales.service';
 
 @Injectable({ providedIn: 'root' })
 export class NoteService {
-  guitarStrings = neckConfig.stringNotes; // Nazwy strun od najgrubszej do najcieńszej
-  fretsCount = neckConfig.numberOfFrets; // Liczba progów
+  guitarStrings = neckConfig.stringNotes;
+  fretsCount = neckConfig.numberOfFrets;
   guitarNotes: GuitarNote[] = [];
 
-  constructor(
-    private scaleService: ScaleService
-  ) { }
+  constructor() {
+    this.generateFretboard();
+  }
 
-  private getFretboard() {
+  private generateFretboard() {
     for (let stringIndex = 0; stringIndex < this.guitarStrings.length; stringIndex++) {
-      const openNote = this.guitarStrings[stringIndex]; // Dźwięk struny bez zadziałania na progu
-      // Przejście przez każdy próg
+      const openNote = this.guitarStrings[stringIndex];
       for (let fretIndex = 0; fretIndex <= this.fretsCount; fretIndex++) {
-        const note = this.calculateNoteOnFret(openNote, fretIndex); // Obliczanie dźwięku na danym progu
-        this.guitarNotes.push( new GuitarNote(
-          this.guitarStrings.length - stringIndex, // Numer struny (liczonej od dołu)
-          fretIndex, // Numer progu
-          note // Nazwa dźwięku
+        const note = this.calculateNoteOnFret(openNote, fretIndex);
+        this.guitarNotes.push(new GuitarNote(
+          this.guitarStrings.length - stringIndex,
+          fretIndex,
+          note
         ));
       }
     }
-    return this.guitarNotes;
   }
-  // Funkcja obliczająca nazwę dźwięku na danym progu
+
   private calculateNoteOnFret(openNote: any, fretIndex: number) {
-    const notesOrder = neckConfig.chromaticNotes; // Nazwy dźwięków
-    const openNoteIndex = notesOrder.indexOf(openNote); // Indeks dźwięku struny bez zadziałania na progu
-    const noteIndex = (openNoteIndex + fretIndex) % notesOrder.length; // Indeks dźwięku na danym progu
-    const note = notesOrder[noteIndex]; // Nazwa dźwięku na danym progu
-    return note;
+    const notesOrder = neckConfig.chromaticNotes;
+    const openNoteIndex = notesOrder.indexOf(openNote);
+    const noteIndex = (openNoteIndex + fretIndex) % notesOrder.length;
+    return notesOrder[noteIndex];
   }
 
-  getAllnotes() {
-    this.getFretboard();
+  getAllNotes(): GuitarNote[] {
     return this.guitarNotes;
   }
 
-  getNotesByNoteName(noteName: string) {
+  getNotesByNoteName(noteName: string): GuitarNote[] {
     return this.guitarNotes.filter(note => note.note === noteName);
   }
 
-  getNotesByScale(scaleName: string, rootNote: string) {
-    const scaleNotes = this.scaleService.generateScale(scaleName, rootNote);
+  getNotesByScale(scaleNotes: string[]): GuitarNote[] {
     return this.guitarNotes.filter(note => scaleNotes.includes(note.note));
   }
 
-  getNotesByTriad(triadType: string, rootNote: string) {
-    const triadNotes = this.scaleService.generateTriad(triadType, rootNote);
+  getNotesByTriad(triadNotes: string[]): GuitarNote[] {
     return this.guitarNotes.filter(note => triadNotes.includes(note.note));
   }
 }
