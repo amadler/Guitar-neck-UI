@@ -6,9 +6,9 @@ export class GuitarNote {
   note: string;
   visible: boolean;
   selected: boolean;
-  isRoot: boolean;
-  isFifth: boolean;
-  isThird: boolean;
+  isRoot?: boolean;
+  isFifth?: boolean;
+  isThird?: boolean;
   /// TODO: interwały jako literały
 
 

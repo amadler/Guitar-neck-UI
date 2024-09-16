@@ -1,19 +1,20 @@
 <div class="guitar-neck" *ngIf="notes">
+  <app-string-selector [strings]="strings" (stringSelected$)="stringSelected($event)"></app-string-selector>
   <div class="guitar-neck__fretboard">
-    <div *ngFor="let string of strings" class="guitar-neck__string">
+    <div *ngFor="let string of strings; let i = index" [class]="'guitar-neck__string '+ string">
       <div *ngFor="let fret of frets" class="guitar-neck__fret">
         <div class="guitar-neck__marker" *ngIf="isMarkedFret(string, fret)"></div>
         <div class="guitar-neck__marker_12" *ngIf="isMarkedTwelffeFret(string, fret)"></div>
-        @if (fret===0) {
+        <ng-container *ngIf="fret === 0">
           <button class="guitar-neck__fret-number guitar-neck__dot" *ngIf="isNoteOnFret(string, fret) && !isNoteSelected(string, fret)" (click)="fretNoteClicked(string, fret)">
             {{ getNoteName(string, fret) }}
           </button>
-        }
-        @else {
+        </ng-container>
+        <ng-container *ngIf="fret !== 0">
           <button class="guitar-neck__dot" *ngIf="isNoteOnFret(string, fret) && !isNoteSelected(string, fret)" (click)="fretNoteClicked(string, fret)">
             {{ getNoteName(string, fret) }}
           </button>
-        }
+        </ng-container>
         <ng-container *ngIf="isNoteOnFret(string, fret) && isNoteSelected(string, fret)">
           <div class="guitar-neck__selected">{{ getNoteName(string, fret) }}</div>
         </ng-container>
@@ -27,11 +28,12 @@
           <div class="guitar-neck__dot guitar-neck__third">{{ getNoteName(string, fret) }}</div>
         </ng-container>
       </div>
+      <div>String index: {{ i + 1 }}</div> <!-- Dodano logowanie do debugowania -->
     </div>
     <div class="symbols">
       <div class="symbols__root">Root</div>
       <div class="symbols__third">Third</div>
       <div class="symbols__fifth">Fifth</div>
     </div>
+  </div>
 </div>
-

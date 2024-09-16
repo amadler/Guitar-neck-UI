@@ -1,0 +1,7 @@
+<div class="string-selector">
+  <form [formGroup]="formGroup" (change)="selectString()">
+    <label *ngFor="let string of strings; let i = index">
+      <input type="checkbox" [formControlName]="i"> String {{ i + 1 }}
+    </label>
+  </form>
+</div>

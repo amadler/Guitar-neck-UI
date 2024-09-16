@@ -2,35 +2,43 @@
  * NoteService zarządza nutami na gryfie.
  **/
 
-import { Injectable } from '@angular/core';
+import { EventEmitter, Injectable } from '@angular/core';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { neckConfig } from '../shared/model/neckConfig';
+import { Subject } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class NoteService {
+
+
   guitarStrings = neckConfig.stringNotes;
   fretsCount = neckConfig.numberOfFrets;
   guitarNotes: GuitarNote[] = [];
+  selectedStringsSubject = new Subject<Record<number, boolean>>();
+  selectedStrings$ = this.selectedStringsSubject.asObservable();
 
   constructor() {
     this.generateFretboard();
   }
 
-  private generateFretboard() {
-    for (let stringIndex = 0; stringIndex < this.guitarStrings.length; stringIndex++) {
-      const openNote = this.guitarStrings[stringIndex];
-      for (let fretIndex = 0; fretIndex <= this.fretsCount; fretIndex++) {
-        const note = this.calculateNoteOnFret(openNote, fretIndex);
-        this.guitarNotes.push(new GuitarNote(
-          this.guitarStrings.length - stringIndex,
-          fretIndex,
-          note
-        ));
+   private generateFretboard() {
+      this.guitarNotes = []; // Resetowanie tablicy nut
+      for (let stringIndex = 0; stringIndex < this.guitarStrings.length; stringIndex++) {
+        const openNote = this.guitarStrings[stringIndex];
+        for (let fretIndex = 0; fretIndex <= this.fretsCount; fretIndex++) {
+          const note = this.calculateNoteOnFret(openNote, fretIndex);
+          const guitarNote = new GuitarNote(
+            stringIndex + 1, // Zmieniono indeksowanie strun
+            fretIndex,
+            note
+          );
+          this.guitarNotes.push(guitarNote);
+          console.log(`Generated note: ${guitarNote.string} - ${guitarNote.fret} - ${guitarNote.note}`); // Dodano logowanie do debugowania
+        }
       }
-    }
   }
 
-  private calculateNoteOnFret(openNote: any, fretIndex: number) {
+  private calculateNoteOnFret(openNote:string, fretIndex: number): string {
     const notesOrder = neckConfig.chromaticNotes;
     const openNoteIndex = notesOrder.indexOf(openNote);
     const noteIndex = (openNoteIndex + fretIndex) % notesOrder.length;
@@ -52,4 +60,6 @@ export class NoteService {
   getNotesByTriad(triadNotes: string[]): GuitarNote[] {
     return this.guitarNotes.filter(note => triadNotes.includes(note.note));
   }
+
+
 }

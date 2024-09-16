@@ -4,6 +4,7 @@ import { neckConfig } from '../shared/model/neckConfig';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { NoteService } from './note.service';
 import { IntervalService } from './interval.service';
+import { switchMap } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class GuitarNeckService {
@@ -16,6 +17,12 @@ export class GuitarNeckService {
     private intervalService: IntervalService
   ) {
     this.notes = this.noteService.getAllNotes();
+    this.noteService.selectedStrings$.subscribe(selectedStrings => {
+      // TODO BUG odwrotne numerowanie strun w notes i w selectedStrings
+      this.notes = this.noteService.getAllNotes();
+      console.log('selectedStrings', selectedStrings)
+      this.notes = this.notes.filter(note => selectedStrings[note.string - 1]);
+    });
   }
 
   private isMatchingNoteOnFret(note: GuitarNote, string: string, fret: number) {
@@ -36,6 +43,7 @@ export class GuitarNeckService {
       return note ? note.note : '';
     }
   selectNotes(notes: GuitarNote[]): GuitarNote[] {
+
     this.notes.forEach(note => note.visible = false);
     notes.forEach(note => {
       const notesToHighlight = this.notes.filter(n => n.note === note.note && n.string === note.string);
@@ -52,6 +60,7 @@ export class GuitarNeckService {
   }
 
   showAllNotes() {
+    console.log('showAllNotes')
     this.notes.forEach(note => note.visible = true);
   }
 

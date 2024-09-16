@@ -1,58 +1,34 @@
 import { NoteService } from './note.service';
-import { ScaleService } from './scales.service';
 import { GuitarNote } from '../shared/model/guitarNote';
+import { Subject } from 'rxjs';
+import { TestBed } from '@angular/core/testing';
 
 describe('NoteService', () => {
   let noteService: NoteService;
-  let scaleService: ScaleService;
-
+  let mockSubject: Subject<GuitarNote[]>;
+  let testNotes: GuitarNote[];
   beforeEach(() => {
-    scaleService = new ScaleService();
-    noteService = new NoteService(scaleService);
+    mockSubject = new Subject<GuitarNote[]>();
+    TestBed.configureTestingModule({
+      providers: [
+        NoteService,
+        {provide: Subject, useValue: mockSubject}
+      ]
+    });
+    noteService = TestBed.inject(NoteService);
+    testNotes = [new GuitarNote(1, 1, 'A'), new GuitarNote(2, 2, 'B')];
+    noteService['guitarNotes'] = testNotes;
   });
 
-  it('should generate all notes on the fretboard', () => {
-    const expectedNotes: GuitarNote[] = [
-      // Define your expected notes here
-    ];
 
-    const allNotes = noteService.getAllnotes();
 
-    expect(allNotes).toEqual(expectedNotes);
-  });
+  it('should return notes in getAllNotes', ()=>{
+    const notes = noteService.getAllNotes();
+    expect(notes).toEqual(testNotes);
+  })
 
-  it('should filter notes by note name', () => {
-    const noteName = 'C';
-    const expectedNotes: GuitarNote[] = [
-      // Define your expected notes here
-    ];
-
-    const filteredNotes = noteService.getNotesByNoteName(noteName);
-
-    expect(filteredNotes).toEqual(expectedNotes);
-  });
-
-  it('should filter notes by scale', () => {
-    const scaleName = 'Major scale';
-    const rootNote = 'C';
-    const expectedNotes: GuitarNote[] = [
-      // Define your expected notes here
-    ];
-
-    const filteredNotes = noteService.getNotesByScale(scaleName, rootNote);
-
-    expect(filteredNotes).toEqual(expectedNotes);
-  });
-
-  it('should filter notes by triad', () => {
-    const triadType = 'Major Triad';
-    const rootNote = 'C';
-    const expectedNotes: GuitarNote[] = [
-      // Define your expected notes here
-    ];
-
-    const filteredNotes = noteService.getNotesByTriad(triadType, rootNote);
-
-    expect(filteredNotes).toEqual(expectedNotes);
-  });
+  it('should return notes by names', ()=>{
+    const notes = noteService.getNotesByNoteName('B');
+    expect(notes).toEqual([testNotes[1]]);
+  })
 });
