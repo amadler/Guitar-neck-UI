@@ -22,18 +22,18 @@ export class NoteService {
   }
 
    private generateFretboard() {
-      this.guitarNotes = []; // Resetowanie tablicy nut
+      this.guitarNotes = [];
       for (let stringIndex = 0; stringIndex < this.guitarStrings.length; stringIndex++) {
         const openNote = this.guitarStrings[stringIndex];
         for (let fretIndex = 0; fretIndex <= this.fretsCount; fretIndex++) {
           const note = this.calculateNoteOnFret(openNote, fretIndex);
           const guitarNote = new GuitarNote(
-            stringIndex + 1, // Zmieniono indeksowanie strun
+            stringIndex + 1,
             fretIndex,
             note
           );
           this.guitarNotes.push(guitarNote);
-          console.log(`Generated note: ${guitarNote.string} - ${guitarNote.fret} - ${guitarNote.note}`); // Dodano logowanie do debugowania
+       //   console.log(`Generated note: ${guitarNote.string} - ${guitarNote.fret} - ${guitarNote.note}`);
         }
       }
   }
