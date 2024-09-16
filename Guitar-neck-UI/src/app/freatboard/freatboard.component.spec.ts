@@ -6,7 +6,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { StringSelectorComponent } from './string-selector/string-selector.component';
 
-fdescribe('FreatboardComponent', () => {
+describe('FreatboardComponent', () => {
   let component: FreatboardComponent;
   let fixture: ComponentFixture<FreatboardComponent>;
   let guitarNeckService: GuitarNeckService;

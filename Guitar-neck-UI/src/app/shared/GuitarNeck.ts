@@ -18,7 +18,7 @@ class GuitarNeck {
     this.frets = this.neckConfig.numberOfFrets;
     this.chromaticNotes = this.neckConfig.chromaticNotes;
     this.guitarNeckArray = this.createguitarNeckArray();
-    console.log("guitarNeckArray", this.guitarNeckArray);
+    //console.log("guitarNeckArray", this.guitarNeckArray);
   }
 
   /**
