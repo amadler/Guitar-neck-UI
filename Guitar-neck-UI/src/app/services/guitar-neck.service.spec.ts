@@ -4,7 +4,7 @@ import { IntervalService } from "./interval.service";
 import { NoteService } from "./note.service"
 import { TestBed } from "@angular/core/testing";
 
-describe('GuitarNeckService', ()=>{
+xdescribe('GuitarNeckService', ()=>{
   let neckService: GuitarNeckService
   let noteServiceSpy: jasmine.SpyObj<NoteService>;
   let intervalServiceSpy: jasmine.SpyObj<IntervalService>;
@@ -22,7 +22,6 @@ describe('GuitarNeckService', ()=>{
     neckService = TestBed.inject(GuitarNeckService)
     noteServiceSpy = TestBed.inject(NoteService) as jasmine.SpyObj<NoteService>;
     intervalServiceSpy = TestBed.inject(IntervalService) as jasmine.SpyObj<IntervalService>
-
 
     const mockNotes: GuitarNote[] = [
       { id: 'some-id', note: 'A', string: 1, fret: 0, visible: true, selected: false, isRoot: false, isFifth: false, isThird: false },

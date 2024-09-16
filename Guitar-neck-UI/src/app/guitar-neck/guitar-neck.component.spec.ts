@@ -6,7 +6,7 @@ import { FreatboardComponent } from '../freatboard/freatboard.component';
 import { By } from '@angular/platform-browser';
 import { GuitarNote } from '../shared/model/guitarNote';
 
-fdescribe('GuitarNeckComponent', () => {
+describe('GuitarNeckComponent', () => {
   let component: GuitarNeckComponent;
   let fixture: ComponentFixture<GuitarNeckComponent>;
   let guitarNeckService: GuitarNeckService;
