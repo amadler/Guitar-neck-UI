@@ -1,16 +1,25 @@
 import { Component } from '@angular/core';
-import { ToolboxFormComponent } from '../toolbox-form/toolbox-form.component';
-import { GuitarNeckComponent } from '../guitar-neck/guitar-neck.component';
 import { NoteService } from '../services/note.service';
 import { GuitarNeckService } from '../services/guitar-neck.service';
 import { Command, DisplayAllNotesCommand, DisplayScaleCommand, DisplaySingleNoteCommand, DisplayTriadCommand } from '../shared/UICommands';
 import { ToolboxSearchQuery } from '../shared/model/musicElements';
 import { NoteSelectionService } from '../services/note-selection.service';
+import { AISuggestionService } from '../services/ai-suggestion.service';
+import { ToolboxFormComponent } from '../toolbox-form/toolbox-form.component';
+import { GuitarNeckComponent } from '../guitar-neck/guitar-neck.component';
+import { AISuggestionsComponent } from '../ai-suggestions/ai-suggestions.component';
+import { ChatComponent } from '../chat/chat.component';
+import { AIResponse } from '../shared/model/ai-response.model';
 
 @Component({
   selector: 'app-home-page',
   standalone: true,
-  imports: [ToolboxFormComponent, GuitarNeckComponent],
+  imports: [
+    ToolboxFormComponent,
+    GuitarNeckComponent,
+    AISuggestionsComponent,
+    ChatComponent
+  ],
   templateUrl: './home-page.component.html',
   styleUrl: './home-page.component.scss'
 })
@@ -19,7 +28,7 @@ export class HomePageComponent {
     private noteService: NoteService,
     private guitarNeckService: GuitarNeckService,
     private noteSelectionService: NoteSelectionService,
-
+    private aiSuggestionService: AISuggestionService,
   ) { }
 
   toolboxSubmit(event:ToolboxSearchQuery): void {
@@ -39,5 +48,9 @@ export class HomePageComponent {
     }
 
     command.execute();
+  }
+
+  handleAIResponse(aiResponse: AIResponse) {
+    this.aiSuggestionService.setResponse(aiResponse);
   }
 }
