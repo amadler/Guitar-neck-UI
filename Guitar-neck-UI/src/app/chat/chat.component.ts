@@ -2,7 +2,8 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AISuggestionService } from '../services/ai-suggestion.service';
-import { AIResponse } from '../shared/model/ai-response.model';
+import { AIService } from '../services/ai.service';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-chat',
@@ -113,45 +114,40 @@ export class ChatComponent {
     suggestions?: Array<{displayName: string, notes: string[]}>
   }> = [];
   currentMessage = '';
+  isLoading = false;
 
-  constructor(private aiSuggestionService: AISuggestionService) {}
+  constructor(
+    private aiSuggestionService: AISuggestionService,
+    private aiService: AIService
+  ) {}
 
   sendMessage() {
-    if (!this.currentMessage.trim()) return;
+    if (!this.currentMessage.trim() || this.isLoading) return;
 
-    // Add user message
-    this.messages.push({
-      text: this.currentMessage,
-      isUser: true
-    });
-
-    // Simulate AI response (replace with actual API call)
-    const mockResponse: AIResponse = {
-      textResponse: "You can use either C major or A minor scale:",
-      suggestions: [
-        {
-          displayName: "Major scale",
-          notes: ["C"]
-        },
-        {
-          displayName: "Minor scale",
-          notes: ["A"]
-        }
-      ]
-    };
-
-    // Add AI response with suggestions
-    this.messages.push({
-      text: mockResponse.textResponse,
-      isUser: false,
-      suggestions: mockResponse.suggestions
-    });
-
-    // Send to suggestion service
-    this.aiSuggestionService.setResponse(mockResponse);
-
-    // Clear input
+    const userMessage = this.currentMessage;
+    this.messages.push({ text: userMessage, isUser: true });
     this.currentMessage = '';
+    this.isLoading = true;
+
+    this.aiService.generateResponse(userMessage)
+      .pipe(finalize(() => this.isLoading = false))
+      .subscribe({
+        next: (response) => {
+          this.messages.push({
+            text: response.textResponse,
+            isUser: false,
+            suggestions: response.suggestions
+          });
+          this.aiSuggestionService.setResponse(response);
+        },
+        error: (error) => {
+          this.messages.push({
+            text: "Sorry, I couldn't process your request. Please try again.",
+            isUser: false
+          });
+          console.error('AI Service error:', error);
+        }
+      });
   }
 
   applySuggestion(suggestion: {displayName: string, notes: string[]}) {

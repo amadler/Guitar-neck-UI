@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { AIResponse, MusicalSuggestion } from '../shared/model/ai-response.model';
 import { MusicTheoryFacadeService } from './music-theory-facade.service';
+import { SCALE_PATTERNS, ScalePattern } from '../shared/model/scaleTypes';
 
 @Injectable({ providedIn: 'root' })
 export class AISuggestionService {
@@ -15,11 +16,21 @@ export class AISuggestionService {
   }
 
   applySuggestion(suggestion: MusicalSuggestion) {
-    if (suggestion.notes && suggestion.notes.length > 0) {
-      // Najpierw wyczyść gryf
-      this.musicTheoryFacade.clearFretboard();
-      // Następnie zaznacz nową skalę
-      this.musicTheoryFacade.selectScale(suggestion.displayName, suggestion.notes[0]);
+    if (!suggestion.notes || suggestion.notes.length === 0) {
+      return;
     }
+
+    this.musicTheoryFacade.clearFretboard();
+
+    setTimeout(() => {
+      // Sprawdzamy czy nazwa wzorca istnieje w SCALE_PATTERNS
+      const isScale = SCALE_PATTERNS.some((pattern: ScalePattern) => pattern.name === suggestion.displayName);
+
+      if (isScale) {
+        this.musicTheoryFacade.selectScale(suggestion.displayName, suggestion.notes[0]);
+      } else {
+        this.musicTheoryFacade.selectTriad(suggestion.displayName, suggestion.notes[0]);
+      }
+    }, 50);
   }
 }

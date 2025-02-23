@@ -23,6 +23,10 @@ export class MusicTheoryFacadeService {
   }
 
   selectTriad(triadType: string, rootNote: string): GuitarNote[] {
+    // Najpierw czyścimy
+    this.clearFretboard();
+
+    // Generujemy nowy triad
     const triadNotes = this.scaleAndTriadService.generateTriad(triadType, rootNote);
     const selectedNotes = this.noteService.getNotesByTriad(triadNotes);
     const highlightedNotes = this.guitarNeckService.selectNotes(selectedNotes);
@@ -30,7 +34,7 @@ export class MusicTheoryFacadeService {
     return highlightedNotes;
   }
 
-  clearFretboard() {
+  clearFretboard(): void {
     this.guitarNeckService.clearFretboard();
   }
 }
