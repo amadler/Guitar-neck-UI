@@ -10,27 +10,28 @@ import { CommonModule } from '@angular/common';
     <div class="fret-range-controls">
       <div class="range-inputs">
         <div class="input-group">
-          <label for="minFret">Od progu:</label>
+          <label for="minFret">From:</label>
           <input
             type="number"
             id="minFret"
-            [min]="0"
-            [max]="maxFret"
             [(ngModel)]="selectedMinFret"
+            min="0"
+            [max]="maxFret"
             (ngModelChange)="onRangeChange()"
           >
         </div>
         <div class="input-group">
-          <label for="maxFret">Do progu:</label>
+          <label for="maxFret">To:</label>
           <input
             type="number"
             id="maxFret"
-            [min]="selectedMinFret"
-            [max]="24"
             [(ngModel)]="selectedMaxFret"
+            [min]="selectedMinFret"
+            [max]="maxFret"
             (ngModelChange)="onRangeChange()"
           >
         </div>
+        <button class="show-all-btn" (click)="showAll()">Show All</button>
       </div>
       <div class="position-buttons">
         <button
@@ -38,7 +39,7 @@ import { CommonModule } from '@angular/common';
           (click)="selectPosition(position)"
           [class.active]="isPositionActive(position)"
         >
-          Pozycja {{position}}
+          Position {{position}}
         </button>
       </div>
     </div>
@@ -102,6 +103,20 @@ import { CommonModule } from '@angular/common';
       color: white;
       border-color: var(--primary-color);
     }
+
+    .show-all-btn {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .show-all-btn:hover {
+      background-color: var(--primary-color-dark);
+    }
   `]
 })
 export class FretRangeSelectorComponent {
@@ -110,16 +125,21 @@ export class FretRangeSelectorComponent {
   selectedMinFret = 0;
   selectedMaxFret = 24;
   maxFret = 24;
-  commonPositions = [1, 3, 5, 7, 9, 12]; // Typowe pozycje na gryfie
+  commonPositions = [1, 3, 5, 7, 9, 12, 15, 17, 19, 21, 24]; // Dodane pozycje do końca gryfu
 
   selectPosition(position: number) {
     this.selectedMinFret = position;
     this.selectedMaxFret = position + 4; // Standardowo 4 progi na pozycję
+    if (this.selectedMaxFret > this.maxFret) {
+      this.selectedMaxFret = this.maxFret;
+    }
     this.onRangeChange();
   }
 
-  isPositionActive(position: number): boolean {
-    return this.selectedMinFret === position && this.selectedMaxFret === position + 4;
+  showAll() {
+    this.selectedMinFret = 0;
+    this.selectedMaxFret = this.maxFret;
+    this.onRangeChange();
   }
 
   onRangeChange() {
@@ -127,5 +147,9 @@ export class FretRangeSelectorComponent {
       minFret: this.selectedMinFret,
       maxFret: this.selectedMaxFret
     });
+  }
+
+  isPositionActive(position: number): boolean {
+    return this.selectedMinFret === position;
   }
 }

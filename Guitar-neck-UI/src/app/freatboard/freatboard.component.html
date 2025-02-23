@@ -2,37 +2,41 @@
   <app-fret-range-selector (rangeChange)="fretRange = $event"></app-fret-range-selector>
   <div class="guitar-neck__fretboard">
     <div *ngFor="let string of strings; let i = index" [class]="'guitar-neck__string '+ string">
-      <div *ngFor="let fret of frets" class="guitar-neck__fret" [class.hidden]="!isNoteInRange(fret)">
+      <div *ngFor="let fret of frets" class="guitar-neck__fret">
         <div class="guitar-neck__marker" *ngIf="isMarkedFret(string, fret)"></div>
         <div class="guitar-neck__marker_12" *ngIf="isMarkedTwelffeFret(string, fret)"></div>
         <ng-container *ngIf="fret === 0">
-          <button class="guitar-neck__fret-number guitar-neck__dot" *ngIf="isNoteOnFret(string, fret) && !isNoteSelected(string, fret)" (click)="fretNoteClicked(string, fret)">
+          <button class="guitar-neck__fret-number guitar-neck__dot"
+                  *ngIf="isNoteOnFret(string, fret) && !isNoteSelected(string, fret) && isNoteInRange(fret)"
+                  (click)="fretNoteClicked(string, fret)">
             {{ getNoteName(string, fret) }}
           </button>
         </ng-container>
         <ng-container *ngIf="fret !== 0">
-          <button class="guitar-neck__dot" *ngIf="isNoteOnFret(string, fret) && !isNoteSelected(string, fret)" (click)="fretNoteClicked(string, fret)">
+          <button class="guitar-neck__dot"
+                  *ngIf="isNoteOnFret(string, fret) && !isNoteSelected(string, fret) && isNoteInRange(fret)"
+                  (click)="fretNoteClicked(string, fret)">
             {{ getNoteName(string, fret) }}
           </button>
         </ng-container>
-        <ng-container *ngIf="isNoteOnFret(string, fret) && isNoteSelected(string, fret)">
+        <ng-container *ngIf="isNoteOnFret(string, fret) && isNoteSelected(string, fret) && isNoteInRange(fret)">
           <div class="guitar-neck__selected">{{ getNoteName(string, fret) }}</div>
         </ng-container>
-        <ng-container *ngIf="isNoteOnFret(string, fret) && isNoteRootNote(string, fret)">
+        <ng-container *ngIf="isNoteOnFret(string, fret) && isNoteRootNote(string, fret) && isNoteInRange(fret)">
           <div class="guitar-neck__dot guitar-neck__root">{{ getNoteName(string, fret) }}</div>
         </ng-container>
-        <ng-container *ngIf="isNoteOnFret(string, fret) && isNoteFifth(string, fret)">
+        <ng-container *ngIf="isNoteOnFret(string, fret) && isNoteFifth(string, fret) && isNoteInRange(fret)">
           <div class="guitar-neck__dot guitar-neck__fifth">{{ getNoteName(string, fret) }}</div>
         </ng-container>
-        <ng-container *ngIf="isNoteOnFret(string, fret) && isNoteThird(string, fret)">
+        <ng-container *ngIf="isNoteOnFret(string, fret) && isNoteThird(string, fret) && isNoteInRange(fret)">
           <div class="guitar-neck__dot guitar-neck__third">{{ getNoteName(string, fret) }}</div>
         </ng-container>
       </div>
     </div>
-    <div class="symbols">
-      <div class="symbols__root">Root</div>
-      <div class="symbols__third">Third</div>
-      <div class="symbols__fifth">Fifth</div>
-    </div>
+  </div>
+  <div class="symbols">
+    <div class="symbols__root">Root</div>
+    <div class="symbols__third">Third</div>
+    <div class="symbols__fifth">Fifth</div>
   </div>
 </div>
