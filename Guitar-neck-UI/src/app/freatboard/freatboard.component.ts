@@ -3,11 +3,13 @@ import { GuitarNote } from '../shared/model/guitarNote';
 import { GuitarNeckService } from '../services/guitar-neck.service';
 import { NgIf, NgFor } from '@angular/common';
 import { neckConfig } from '../shared/model/neckConfig';
+import { FretRangeSelectorComponent } from '../fret-range-selector/fret-range-selector.component';
+
 @Component({
   selector: 'app-freatboard',
   templateUrl: './freatboard.component.html',
   standalone: true,
-  imports: [NgIf, NgFor],
+  imports: [NgIf, NgFor, FretRangeSelectorComponent],
   styleUrls: ['./freatboard.component.scss']
 })
 export class FreatboardComponent implements OnInit {
@@ -15,6 +17,7 @@ export class FreatboardComponent implements OnInit {
   @Input({required: true}) notes: GuitarNote[] = []; // Initialize with empty array
   strings: string[] = [];
   frets: number[] = [];
+  private _fretRange = { minFret: 0, maxFret: 24 };
 
   constructor(
     private guitarNeckService: GuitarNeckService
@@ -27,6 +30,25 @@ export class FreatboardComponent implements OnInit {
     if (this.notes) {
       this.guitarNeckService.notes = this.notes;
     }
+  }
+
+  get fretRange() {
+    return this._fretRange;
+  }
+
+  set fretRange(range: { minFret: number, maxFret: number }) {
+    this._fretRange = range;
+    // Opcjonalnie: odśwież wyświetlanie nut w nowym zakresie
+    this.refreshNotesInRange();
+  }
+
+  protected isNoteInRange(fret: number): boolean {
+    return fret >= this._fretRange.minFret && fret <= this._fretRange.maxFret;
+  }
+
+  private refreshNotesInRange() {
+    // Tutaj logika odświeżania wyświetlanych nut w zakresie
+    // Możesz to zaimplementować według potrzeb
   }
 
   protected isNoteOnFret(string: string, fret: number) {
