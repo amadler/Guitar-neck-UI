@@ -3,13 +3,11 @@ import { GuitarNote } from '../shared/model/guitarNote';
 import { GuitarNeckService } from '../services/guitar-neck.service';
 import { NgIf, NgFor } from '@angular/common';
 import { neckConfig } from '../shared/model/neckConfig';
-import { StringSelectorComponent } from './string-selector/string-selector.component';
-import { NoteService } from '../services/note.service';
 @Component({
   selector: 'app-freatboard',
   templateUrl: './freatboard.component.html',
   standalone: true,
-  imports: [NgIf, NgFor, StringSelectorComponent],
+  imports: [NgIf, NgFor],
   styleUrls: ['./freatboard.component.scss']
 })
 export class FreatboardComponent implements OnInit {
@@ -19,8 +17,7 @@ export class FreatboardComponent implements OnInit {
   frets: number[] = [];
 
   constructor(
-    private guitarNeckService: GuitarNeckService,
-    private noteService: NoteService
+    private guitarNeckService: GuitarNeckService
   ) {
     this.strings = guitarNeckService.strings;
     this.frets = guitarNeckService.frets;
@@ -78,9 +75,5 @@ export class FreatboardComponent implements OnInit {
 
   protected getNote(string: string, fret: number): GuitarNote | undefined {
     return this.guitarNeckService.getNote(string, fret);
-  }
-
-  protected stringSelected(event: Record<number, boolean>) {
-    this.noteService.selectedStringsSubject.next(event);
   }
 }

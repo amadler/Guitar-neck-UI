@@ -1,5 +1,4 @@
 <div class="guitar-neck" *ngIf="notes">
-  <app-string-selector [strings]="strings" (stringSelected$)="stringSelected($event)"></app-string-selector>
   <div class="guitar-neck__fretboard">
     <div *ngFor="let string of strings; let i = index" [class]="'guitar-neck__string '+ string">
       <div *ngFor="let fret of frets" class="guitar-neck__fret">
@@ -28,7 +27,6 @@
           <div class="guitar-neck__dot guitar-neck__third">{{ getNoteName(string, fret) }}</div>
         </ng-container>
       </div>
-      <div>String index: {{ i + 1 }}</div> <!-- Dodano logowanie do debugowania -->
     </div>
     <div class="symbols">
       <div class="symbols__root">Root</div>

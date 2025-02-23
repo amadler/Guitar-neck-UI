@@ -5,15 +5,13 @@
 import { Injectable } from '@angular/core';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { neckConfig } from '../shared/model/neckConfig';
-import { Subject } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class NoteService {
   guitarStrings = neckConfig.stringNotes;
   fretsCount = neckConfig.numberOfFrets;
   guitarNotes: GuitarNote[] = [];
-  selectedStringsSubject = new Subject<Record<number, boolean>>();
-  selectedStrings$ = this.selectedStringsSubject.asObservable();
 
   constructor() {
     this.generateFretboard();

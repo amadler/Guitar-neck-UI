@@ -17,16 +17,10 @@ export class GuitarNeckService {
     private intervalService: IntervalService
   ) {
     this.notes = this.noteService.getAllNotes();
-    this.noteService.selectedStrings$.subscribe(selectedStrings => {
-      // TODO BUG odwrotne numerowanie strun w notes i w selectedStrings
-      this.notes = this.noteService.getAllNotes();
-      console.log('selectedStrings', selectedStrings)
-      this.notes = this.notes.filter(note => selectedStrings[note.string - 1]);
-    });
   }
 
   private isMatchingNoteOnFret(note: GuitarNote, string: string, fret: number) {
-    return this.strings[this.strings.length - note.string] === string && note.fret === fret && note.visible;
+    return this.strings[note.string - 1] === string && note.fret === fret && note.visible;
   }
 
   isNoteOnFret(string: string, fret: number): boolean {
@@ -34,24 +28,32 @@ export class GuitarNeckService {
   }
 
   getNote(string: string, fret: number): GuitarNote | undefined {
-    // console.log('getNote');
-     return this.notes.find(note => this.isMatchingNoteOnFret(note, string, fret));
-   }
-  getNoteName(string: string, fret: number): string {
-    //  console.log('getNoteName');
-      const note = this.notes.find(note => this.isMatchingNoteOnFret(note, string, fret));
-      return note ? note.note : '';
-    }
-  selectNotes(notes: GuitarNote[]): GuitarNote[] {
+    return this.notes.find(note => this.isMatchingNoteOnFret(note, string, fret));
+  }
 
-    this.notes.forEach(note => note.visible = false);
-    notes.forEach(note => {
-      const notesToHighlight = this.notes.filter(n => n.note === note.note && n.string === note.string);
-      notesToHighlight.forEach(noteToHighlight => {
-        noteToHighlight.visible = true;
-        noteToHighlight.selected = true;
-      });
+  getNoteName(string: string, fret: number): string {
+    const note = this.notes.find(note => this.isMatchingNoteOnFret(note, string, fret));
+    return note ? note.note : '';
+  }
+
+  selectNotes(notes: GuitarNote[]): GuitarNote[] {
+    this.notes.forEach(note => {
+        note.visible = false;
+        note.selected = false;
     });
+
+    notes.forEach(noteToShow => {
+        const matchingNotes = this.notes.filter(n =>
+            n.note === noteToShow.note &&
+            n.string === noteToShow.string
+        );
+
+        matchingNotes.forEach(note => {
+            note.visible = true;
+            note.selected = true;
+        });
+    });
+
     return this.notes.filter(note => note.selected);
   }
 
@@ -60,7 +62,6 @@ export class GuitarNeckService {
   }
 
   showAllNotes() {
-    console.log('showAllNotes')
     this.notes.forEach(note => note.visible = true);
   }
 
@@ -69,7 +70,6 @@ export class GuitarNeckService {
   }
 
   fretNoteClicked(string: string, fret: number): GuitarNote | null {
-  //  console.log('fretNoteClicked');
     return this.notes.find(note => this.isMatchingNoteOnFret(note, string, fret)) || null;
   }
 
