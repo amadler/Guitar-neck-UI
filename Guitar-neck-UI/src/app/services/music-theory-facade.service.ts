@@ -4,6 +4,7 @@ import { NoteService } from './note.service';
 import { IntervalService } from './interval.service';
 import { GuitarNeckService } from './guitar-neck.service';
 import { ScaleAndTriadService } from './scales-and-triads.service';
+import { EXTENDED_CHORD_PATTERNS } from '../shared/model/extendedChordTypes';
 
 @Injectable({ providedIn: 'root' })
 export class MusicTheoryFacadeService {
@@ -23,14 +24,17 @@ export class MusicTheoryFacadeService {
   }
 
   selectTriad(triadType: string, rootNote: string): GuitarNote[] {
-    // Najpierw czyścimy
     this.clearFretboard();
 
-    // Generujemy nowy triad
-    const triadNotes = this.scaleAndTriadService.generateTriad(triadType, rootNote);
-    const selectedNotes = this.noteService.getNotesByTriad(triadNotes);
+    const isExtendedChord = EXTENDED_CHORD_PATTERNS.some(p => p.name === triadType);
+    const chordNotes = this.scaleAndTriadService.generateTriad(triadType, rootNote);
+    const selectedNotes = this.noteService.getNotesByTriad(chordNotes);
     const highlightedNotes = this.guitarNeckService.selectNotes(selectedNotes);
-    this.intervalService.markRootThirdFifth(rootNote, triadType, highlightedNotes);
+
+    if (!isExtendedChord) {
+      this.intervalService.markRootThirdFifth(rootNote, triadType, highlightedNotes);
+    }
+
     return highlightedNotes;
   }
 

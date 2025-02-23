@@ -1,4 +1,4 @@
 export interface ToolboxSearchQuery {
-  keys: string;
   musicElements: string;
+  keys: string;
 }

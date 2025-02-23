@@ -141,8 +141,11 @@ export class AIService {
            AVAILABLE_PATTERNS.triads.includes(displayName);
   }
 
-  private getSuggestionType(displayName: string): 'scale' | 'triad' {
-    return AVAILABLE_PATTERNS.scales.includes(displayName) ? 'scale' : 'triad';
+  private getSuggestionType(displayName: string): 'scale' | 'triad' | 'extendedChord' {
+    if (AVAILABLE_PATTERNS.scales.includes(displayName)) return 'scale';
+    if (AVAILABLE_PATTERNS.triads.includes(displayName)) return 'triad';
+    if (AVAILABLE_PATTERNS.extendedChords.includes(displayName)) return 'extendedChord';
+    return 'triad'; // fallback do istniejącego zachowania
   }
 
   private createPrompt(userInput: string): string {

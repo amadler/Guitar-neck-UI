@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { AISuggestionService } from '../services/ai-suggestion.service';
 import { AIService } from '../services/ai.service';
 import { finalize } from 'rxjs/operators';
+import { MusicalSuggestion } from '../shared/model/ai-response.model';
 
 @Component({
   selector: 'app-chat',
@@ -111,7 +112,7 @@ export class ChatComponent {
   messages: Array<{
     text: string;
     isUser: boolean;
-    suggestions?: Array<{displayName: string, notes: string[]}>
+    suggestions?: MusicalSuggestion[] // Używamy pełnego typu MusicalSuggestion zamiast częściowego obiektu
   }> = [];
   currentMessage = '';
   isLoading = false;
@@ -136,7 +137,7 @@ export class ChatComponent {
           this.messages.push({
             text: response.textResponse,
             isUser: false,
-            suggestions: response.suggestions
+            suggestions: response.suggestions // Te sugestie będą już miały właściwy typ
           });
           this.aiSuggestionService.setResponse(response);
         },
@@ -150,7 +151,7 @@ export class ChatComponent {
       });
   }
 
-  applySuggestion(suggestion: {displayName: string, notes: string[]}) {
+  applySuggestion(suggestion: MusicalSuggestion) {
     this.aiSuggestionService.applySuggestion(suggestion);
   }
 }

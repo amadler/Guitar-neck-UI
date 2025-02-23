@@ -7,15 +7,11 @@ import { MusicTheoryFacadeService } from './music-theory-facade.service';
 export class NoteSelectionService {
   constructor(private musicTheoryFacade: MusicTheoryFacadeService) {}
 
-  selectScale(scaleName: string, rootNote: string): GuitarNote[] {
-    return this.musicTheoryFacade.selectScale(scaleName, rootNote);
+  selectTriad(rootNote: string, triadName: string): void {
+    this.musicTheoryFacade.selectTriad(triadName, rootNote);
   }
 
-  selectTriad(rootNote: string, triadType: string): GuitarNote[] {
-    return this.musicTheoryFacade.selectTriad(rootNote, triadType);
-  }
-
-  clearFretboard() {
-    this.musicTheoryFacade.clearFretboard();
+  selectScale(scaleName: string, rootNote: string): void {
+    this.musicTheoryFacade.selectScale(scaleName, rootNote);
   }
 }

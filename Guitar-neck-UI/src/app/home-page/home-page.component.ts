@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
 import { NoteService } from '../services/note.service';
 import { GuitarNeckService } from '../services/guitar-neck.service';
-import { Command, DisplayAllNotesCommand, DisplayScaleCommand, DisplaySingleNoteCommand, DisplayTriadCommand } from '../shared/UICommands';
+import { Command, DisplayAllNotesCommand, DisplayScaleCommand, DisplaySingleNoteCommand, DisplayTriadCommand, DisplayExtendedChordCommand } from '../shared/UICommands';
 import { ToolboxSearchQuery } from '../shared/model/musicElements';
 import { NoteSelectionService } from '../services/note-selection.service';
 import { AISuggestionService } from '../services/ai-suggestion.service';
+import { ExtendedChordService } from '../services/extended-chord.service';
 import { ToolboxFormComponent } from '../toolbox-form/toolbox-form.component';
 import { GuitarNeckComponent } from '../guitar-neck/guitar-neck.component';
 import { AISuggestionsComponent } from '../ai-suggestions/ai-suggestions.component';
@@ -29,9 +30,10 @@ export class HomePageComponent {
     private guitarNeckService: GuitarNeckService,
     private noteSelectionService: NoteSelectionService,
     private aiSuggestionService: AISuggestionService,
+    private extendedChordService: ExtendedChordService,
   ) { }
 
-  toolboxSubmit(event:ToolboxSearchQuery): void {
+  toolboxSubmit(event: ToolboxSearchQuery): void {
     console.log('toolboxSubmit', event.musicElements, event.keys);
     this.guitarNeckService.clearFretboard();
 
@@ -43,6 +45,8 @@ export class HomePageComponent {
       command = new DisplayAllNotesCommand(this.guitarNeckService);
     } else if (event.musicElements.includes('Triad')) {
       command = new DisplayTriadCommand(this.noteSelectionService, event.musicElements, event.keys);
+    } else if (this.extendedChordService.isExtendedChord(event.musicElements)) {
+      command = new DisplayExtendedChordCommand(this.extendedChordService, event.musicElements, event.keys);
     } else {
       command = new DisplayScaleCommand(this.noteSelectionService, event.musicElements, event.keys);
     }
