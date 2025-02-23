@@ -1,40 +1,101 @@
-import { GuitarNote } from "../shared/model/guitarNote";
-import { GuitarNeckService } from "./guitar-neck.service"
-import { IntervalService } from "./interval.service";
-import { NoteService } from "./note.service"
-import { TestBed } from "@angular/core/testing";
+import { TestBed } from '@angular/core/testing';
+import { GuitarNeckService } from './guitar-neck.service';
+import { NoteService } from './note.service';
+import { IntervalService } from './interval.service';
+import { GuitarNote } from '../shared/model/guitarNote';
+import { neckConfig } from '../shared/model/neckConfig';
 
-xdescribe('GuitarNeckService', ()=>{
-  let neckService: GuitarNeckService
+describe('GuitarNeckService', () => {
+  let service: GuitarNeckService;
   let noteServiceSpy: jasmine.SpyObj<NoteService>;
   let intervalServiceSpy: jasmine.SpyObj<IntervalService>;
+  let mockNotes: GuitarNote[];
 
-  beforeEach(()=>{
+  beforeEach(() => {
+    mockNotes = [
+      { string: 1, fret: 0, note: 'E', selected: false, isRoot: false, isFifth: false, isThird: false, visible: true },
+      { string: 2, fret: 0, note: 'A', selected: false, isRoot: false, isFifth: false, isThird: false, visible: true },
+      { string: 1, fret: 5, note: 'A', selected: false, isRoot: false, isFifth: false, isThird: false, visible: true }
+    ];
+
+    noteServiceSpy = jasmine.createSpyObj('NoteService', ['getAllNotes']);
+    intervalServiceSpy = jasmine.createSpyObj('IntervalService', ['removeIntervals']);
+
+    noteServiceSpy.getAllNotes.and.returnValue(mockNotes);
 
     TestBed.configureTestingModule({
       providers: [
         GuitarNeckService,
-        {privide: NoteService, useValue: noteServiceSpy },
-        {privide: IntervalService, useValue: intervalServiceSpy }
+        { provide: NoteService, useValue: noteServiceSpy },
+        { provide: IntervalService, useValue: intervalServiceSpy }
       ]
     });
 
-    neckService = TestBed.inject(GuitarNeckService)
-    noteServiceSpy = TestBed.inject(NoteService) as jasmine.SpyObj<NoteService>;
-    intervalServiceSpy = TestBed.inject(IntervalService) as jasmine.SpyObj<IntervalService>
+    service = TestBed.inject(GuitarNeckService);
+  });
 
-    const mockNotes: GuitarNote[] = [
-      { id: 'some-id', note: 'A', string: 1, fret: 0, visible: true, selected: false, isRoot: false, isFifth: false, isThird: false },
-      { id: '49dac623-4654-429e-8901-e62eb65510e5', note: 'D', string: 2, fret: 5, visible: true, selected: false, isRoot: false, isFifth: false, isThird: false },
-    ];
+  it('should be created', () => {
+    expect(service).toBeTruthy();
+  });
 
-    neckService.notes = mockNotes;
-   // noteServiceSpy.getAllNotes.and.returnValue(mockNotes);
-  })
-  it('should get note from guitar neck.', ()=>{
-    const result: GuitarNote= {  id: 'some-id', note: 'A', string: 1, fret: 0, visible: true, selected: false, isRoot: false, isFifth: false, isThird: false  }
-    const note = neckService.getNote('A', 0);
-    expect(note).toEqual(result);
+  it('should initialize with correct strings and frets', () => {
+    expect(service.strings).toEqual(neckConfig.stringNotes);
+    expect(service.frets.length).toBe(neckConfig.numberOfFrets - 1);
+  });
 
-  })
-})
+  it('should check if note exists on specific fret', () => {
+    expect(service.isNoteOnFret('E', 0)).toBeTrue();
+    expect(service.isNoteOnFret('E', 1)).toBeFalse();
+  });
+
+  it('should get note from specific position', () => {
+    const note = service.getNote('E', 0);
+    expect(note).toEqual(mockNotes[0]);
+  });
+
+  it('should get note name from specific position', () => {
+    // Test a position where a note exists
+    expect(service.getNoteName('E', 0)).toBe('E');
+    // Test a position where no note exists
+    expect(service.getNoteName('C', 0)).toBe('');  // Changed from 'B' to 'C' since 'C' is not in mockNotes
+  });
+
+  it('should select specific notes', () => {
+    const notesToSelect = [mockNotes[0]];
+    const selectedNotes = service.selectNotes(notesToSelect);
+
+    expect(selectedNotes.length).toBe(1);
+    expect(selectedNotes[0].selected).toBeTrue();
+    expect(selectedNotes[0].visible).toBeTrue();
+  });
+
+  it('should hide all notes', () => {
+    service.hideAllNotes();
+    expect(service.notes.every(note => !note.visible)).toBeTrue();
+  });
+
+  it('should show all notes', () => {
+    service.hideAllNotes();
+    service.showAllNotes();
+    expect(service.notes.every(note => note.visible)).toBeTrue();
+  });
+
+  it('should remove all selections', () => {
+    service.selectNotes([mockNotes[0]]);
+    service.removeSelections();
+    expect(service.notes.every(note => !note.selected)).toBeTrue();
+  });
+
+  it('should return note when fret is clicked', () => {
+    const clickedNote = service.fretNoteClicked('E', 0);
+    expect(clickedNote).toEqual(mockNotes[0]);
+  });
+
+  it('should clear fretboard', () => {
+    service.clearFretboard();
+
+    expect(intervalServiceSpy.removeIntervals).toHaveBeenCalledWith(service.notes);
+    expect(service.notes.every(note => !note.visible)).toBeTrue();
+    expect(service.notes.every(note => !note.selected)).toBeTrue();
+  });
+});

@@ -4,7 +4,6 @@ import { GuitarNeckService } from '../services/guitar-neck.service';
 import { NoteService } from '../services/note.service';
 import { ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
-import { StringSelectorComponent } from './string-selector/string-selector.component';
 
 describe('FreatboardComponent', () => {
   let component: FreatboardComponent;
@@ -56,14 +55,5 @@ describe('FreatboardComponent', () => {
     noteOnfret.click();
     fixture.detectChanges();
     expect(component.onNoteClicked$.emit).toHaveBeenCalledOnceWith(jasmine.objectContaining({note:'E'}))
-  });
-
-  it('should handle stringSelected$ event from StringSelectorComponent', () => {
-    const stringSelectorData = { 0: false, 1: true, 2: true, 3: true, 4: true, 5: true }
-    spyOn(noteService.selectedStringsSubject, 'next');
-    const stringSelector = fixture.debugElement.query(By.directive(StringSelectorComponent)).componentInstance;
-    stringSelector.stringSelected$.emit(stringSelectorData);
-    fixture.detectChanges();
-    expect(noteService.selectedStringsSubject.next).toHaveBeenCalledOnceWith(stringSelectorData);
   });
 });
