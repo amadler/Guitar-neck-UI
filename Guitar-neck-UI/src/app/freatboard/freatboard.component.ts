@@ -14,9 +14,9 @@ import { NoteService } from '../services/note.service';
 })
 export class FreatboardComponent implements OnInit {
   @Output() onNoteClicked$: EventEmitter<GuitarNote> = new EventEmitter<GuitarNote>();
-  @Input() notes!: GuitarNote[];
-  strings: string[];
-  frets: number[];
+  @Input({required: true}) notes: GuitarNote[] = []; // Initialize with empty array
+  strings: string[] = [];
+  frets: number[] = [];
 
   constructor(
     private guitarNeckService: GuitarNeckService,
@@ -27,7 +27,9 @@ export class FreatboardComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.guitarNeckService.notes = this.notes;
+    if (this.notes) {
+      this.guitarNeckService.notes = this.notes;
+    }
   }
 
   protected isNoteOnFret(string: string, fret: number) {

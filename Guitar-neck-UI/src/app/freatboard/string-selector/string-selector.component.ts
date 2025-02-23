@@ -10,7 +10,7 @@ import {  FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
   styleUrl: './string-selector.component.scss'
 })
 export class StringSelectorComponent {
-  @Input() strings!: string[]; // strings to display
+  @Input({required: true}) strings!: string[]; // strings to display
   @Output() stringSelected$: EventEmitter< Record<number, boolean>> = new EventEmitter< Record<number, boolean>>();
 
   formGroup: FormGroup = new FormGroup({});

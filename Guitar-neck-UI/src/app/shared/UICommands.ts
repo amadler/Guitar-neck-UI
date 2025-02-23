@@ -37,7 +37,7 @@ export class DisplayScaleCommand implements Command {
     execute(): void {
       const scalePattern = SCALE_PATTERNS.find(pattern => pattern.name === this.scaleName);
       if (scalePattern) {
-        const selectedNotes = this.noteSelectionService.selectScale(scalePattern.name, this.keys);
+        this.noteSelectionService.selectScale(this.scaleName, this.keys);
       } else {
         console.error(`Scale pattern not found: ${this.scaleName}`);
       }
@@ -53,7 +53,7 @@ export class DisplayTriadCommand implements Command {
   execute(): void {
     const triadPattern = TRIAD_PATTERNS.find(pattern => pattern.name === this.triadName);
     if (triadPattern) {
-      const selectedNotes = this.noteSelectionService.selectTriad(triadPattern.name, this.keys);
+      this.noteSelectionService.selectTriad(this.keys, this.triadName);
     } else {
       console.error(`Triad pattern not found: ${this.triadName}`);
     }

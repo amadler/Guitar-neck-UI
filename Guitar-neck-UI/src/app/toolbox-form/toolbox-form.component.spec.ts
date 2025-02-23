@@ -5,7 +5,7 @@ import { ToolboxFormComponent } from './toolbox-form.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ToolboxSearchQuery } from '../shared/model/musicElements';
 
-fdescribe('StringSelectorComponent', () => {
+describe('StringSelectorComponent', () => {
   let component: ToolboxFormComponent;
   let fixture: ComponentFixture<ToolboxFormComponent>;
 
