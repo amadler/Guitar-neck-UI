@@ -27,11 +27,17 @@ export class MusicTheoryFacadeService {
     this.clearFretboard();
 
     const isExtendedChord = EXTENDED_CHORD_PATTERNS.some(p => p.name === triadType);
+    console.log('Chord type:', triadType, 'Is extended:', isExtendedChord); // Debugging
+
     const chordNotes = this.scaleAndTriadService.generateTriad(triadType, rootNote);
     const selectedNotes = this.noteService.getNotesByTriad(chordNotes);
     const highlightedNotes = this.guitarNeckService.selectNotes(selectedNotes);
 
-    if (!isExtendedChord) {
+    if (isExtendedChord) {
+      console.log('Marking extended chord intervals for:', triadType); // Debugging
+      this.intervalService.markExtendedChordIntervals(rootNote, triadType, highlightedNotes);
+    } else {
+      console.log('Marking basic triad intervals for:', triadType); // Debugging
       this.intervalService.markRootThirdFifth(rootNote, triadType, highlightedNotes);
     }
 

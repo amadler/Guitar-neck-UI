@@ -1,5 +1,5 @@
 import { NgFor } from '@angular/common';
-import { Component, EventEmitter, Output, OnInit } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { SCALE_PATTERNS } from '../shared/model/scaleTypes';
 import { ToolboxSearchQuery } from '../shared/model/musicElements';
@@ -13,34 +13,50 @@ import { EXTENDED_CHORD_PATTERNS } from '../shared/model/extendedChordTypes';
   templateUrl: './toolbox-form.component.html',
   styleUrls: ['./toolbox-form.component.scss']
 })
-export class ToolboxFormComponent implements OnInit {
+export class ToolboxFormComponent {
   @Output() onSubmit$: EventEmitter<ToolboxSearchQuery> = new EventEmitter<ToolboxSearchQuery>();
-  guitarForm: FormGroup;
+  guitarForm!: FormGroup;
 
   keys = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
 
-  musicElements = [
-    'Single note',
-    'All notes',
-    ...SCALE_PATTERNS.map((scale) => scale.name),
-    ...TRIAD_PATTERNS.map((triad) => triad.name),
-    ...EXTENDED_CHORD_PATTERNS.map((chord) => chord.name)
+  elementTypes = [
+    { id: 'basic', name: 'Basic' },
+    { id: 'scale', name: 'Scale' },
+    { id: 'triad', name: 'Chord' },
+    { id: 'extended', name: 'Extended Chord' }
   ];
+
+  patterns: { [key: string]: string[] } = {
+    basic: ['Single note', 'All notes'],
+    scale: SCALE_PATTERNS.map(scale => scale.name),
+    triad: TRIAD_PATTERNS.map(triad => triad.name),
+    extended: EXTENDED_CHORD_PATTERNS.map(chord => chord.name)
+  };
+
+  availablePatterns: string[] = this.patterns['basic'];  // Fixed: using bracket notation
 
   constructor(private fb: FormBuilder) {
     this.guitarForm = this.fb.group({
-      musicElements: ['Single note'],
-      keys: ['A']
+      elementType: ['basic'],
+      pattern: ['Single note'],
+      key: ['A']
     });
-  }
 
-  ngOnInit() {
-    // Additional initialization if needed
+    // React to element type changes
+    this.guitarForm.get('elementType')?.valueChanges.subscribe(type => {
+      this.availablePatterns = this.patterns[type];
+      this.guitarForm.patchValue({ pattern: this.availablePatterns[0] });
+    });
   }
 
   onSubmit() {
     if (this.guitarForm.valid) {
-      this.onSubmit$.emit(this.guitarForm.value);
+      const formValue = this.guitarForm.value;
+      const query: ToolboxSearchQuery = {
+        musicElements: formValue.pattern,
+        keys: formValue.key
+      };
+      this.onSubmit$.emit(query);
     }
   }
 }

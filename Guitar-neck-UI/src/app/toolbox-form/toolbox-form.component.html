@@ -1,15 +1,22 @@
 <h2 class="section-title">Select, what you want to see on guitar neck.</h2>
 <form [formGroup]="guitarForm" (ngSubmit)="onSubmit()">
   <div class="form-row">
-    <label for="scale">Scale, chord tone etc...</label>
-    <select class="form-select" id="scale" formControlName="musicElements">
-      <option *ngFor="let element of musicElements" [value]="element">{{element}}</option>
+    <label for="elementType">Type:</label>
+    <select class="form-select" id="elementType" formControlName="elementType">
+      <option *ngFor="let type of elementTypes" [value]="type.id">{{type.name}}</option>
+    </select>
+  </div>
+
+  <div class="form-row">
+    <label for="pattern">Pattern:</label>
+    <select class="form-select" id="pattern" formControlName="pattern">
+      <option *ngFor="let pattern of availablePatterns" [value]="pattern">{{pattern}}</option>
     </select>
   </div>
 
   <div class="form-row">
     <label for="key">Key of:</label>
-    <select class="form-select" id="key" formControlName="keys">
+    <select class="form-select" id="key" formControlName="key">
       <option *ngFor="let key of keys" [value]="key">{{key}}</option>
     </select>
   </div>
