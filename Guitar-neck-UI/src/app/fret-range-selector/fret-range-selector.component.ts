@@ -52,10 +52,12 @@ import { CommonModule } from '@angular/common';
       background-color: var(--guitar-neck-bg-color);
       border-radius: 4px;
       margin-bottom: 1rem;
+      width: 100%; // Dodane dla lepszego dopasowania szerokości
     }
 
     .range-inputs {
       display: flex;
+      justify-content: center; // Wycentrowanie inputów
       gap: 2rem;
       align-items: center;
     }
@@ -75,6 +77,7 @@ import { CommonModule } from '@angular/common';
 
     .position-buttons {
       display: flex;
+      justify-content: center; // Wycentrowanie przycisków
       gap: 0.5rem;
       flex-wrap: wrap;
     }
@@ -88,14 +91,16 @@ import { CommonModule } from '@angular/common';
       transition: all 0.2s;
     }
 
-    button:hover {
-      background: #f0f0f0;
+    button.active {
+      background: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
     }
 
-    button.active {
-      background: #007bff;
+    button:hover {
+      background: var(--primary-color);
       color: white;
-      border-color: #0056b3;
+      border-color: var(--primary-color);
     }
   `]
 })
