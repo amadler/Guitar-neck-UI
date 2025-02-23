@@ -43,59 +43,105 @@ describe('GuitarNeckService', () => {
     expect(service.frets.length).toBe(neckConfig.numberOfFrets - 1);
   });
 
-  it('should check if note exists on specific fret', () => {
-    expect(service.isNoteOnFret('E', 0)).toBeTrue();
-    expect(service.isNoteOnFret('E', 1)).toBeFalse();
+  it('should initialize notes from NoteService', () => {
+    expect(noteServiceSpy.getAllNotes).toHaveBeenCalled();
+    expect(service.notes).toEqual(mockNotes);
   });
 
-  it('should get note from specific position', () => {
-    const note = service.getNote('E', 0);
-    expect(note).toEqual(mockNotes[0]);
+  describe('isNoteOnFret', () => {
+    it('should return true when note exists on specific fret', () => {
+      expect(service.isNoteOnFret('E', 0)).toBeTrue();
+    });
+
+    it('should return false when note does not exist on specific fret', () => {
+      expect(service.isNoteOnFret('E', 1)).toBeFalse();
+    });
   });
 
-  it('should get note name from specific position', () => {
-    // Test a position where a note exists
-    expect(service.getNoteName('E', 0)).toBe('E');
-    // Test a position where no note exists
-    expect(service.getNoteName('C', 0)).toBe('');  // Changed from 'B' to 'C' since 'C' is not in mockNotes
+  describe('getNote', () => {
+    it('should return note when it exists at position', () => {
+      const note = service.getNote('E', 0);
+      expect(note).toEqual(mockNotes[0]);
+    });
+
+    it('should return undefined when note does not exist at position', () => {
+      const note = service.getNote('E', 1);
+      expect(note).toBeUndefined();
+    });
   });
 
-  it('should select specific notes', () => {
-    const notesToSelect = [mockNotes[0]];
-    const selectedNotes = service.selectNotes(notesToSelect);
+  describe('getNoteName', () => {
+    it('should return note name when note exists at position', () => {
+      expect(service.getNoteName('E', 0)).toBe('E');
+    });
 
-    expect(selectedNotes.length).toBe(1);
-    expect(selectedNotes[0].selected).toBeTrue();
-    expect(selectedNotes[0].visible).toBeTrue();
+    it('should return empty string when note does not exist at position', () => {
+      expect(service.getNoteName('E', 1)).toBe('');
+    });
   });
 
-  it('should hide all notes', () => {
-    service.hideAllNotes();
-    expect(service.notes.every(note => !note.visible)).toBeTrue();
+  describe('selectNotes', () => {
+    it('should select and make visible specified notes', () => {
+      const notesToSelect = [mockNotes[0]];
+      const selectedNotes = service.selectNotes(notesToSelect);
+
+      expect(selectedNotes.length).toBe(1);
+      expect(selectedNotes[0].selected).toBeTrue();
+      expect(selectedNotes[0].visible).toBeTrue();
+    });
+
+    it('should deselect and hide unspecified notes', () => {
+      const notesToSelect = [mockNotes[0]];
+      service.selectNotes(notesToSelect);
+
+      const unselectedNotes = service.notes.filter(note => note !== mockNotes[0]);
+      unselectedNotes.forEach(note => {
+        expect(note.selected).toBeFalse();
+        expect(note.visible).toBeFalse();
+      });
+    });
   });
 
-  it('should show all notes', () => {
-    service.hideAllNotes();
-    service.showAllNotes();
-    expect(service.notes.every(note => note.visible)).toBeTrue();
+  describe('hideAllNotes and showAllNotes', () => {
+    it('should hide all notes', () => {
+      service.hideAllNotes();
+      expect(service.notes.every(note => !note.visible)).toBeTrue();
+    });
+
+    it('should show all notes', () => {
+      service.hideAllNotes();
+      service.showAllNotes();
+      expect(service.notes.every(note => note.visible)).toBeTrue();
+    });
   });
 
-  it('should remove all selections', () => {
-    service.selectNotes([mockNotes[0]]);
-    service.removeSelections();
-    expect(service.notes.every(note => !note.selected)).toBeTrue();
+  describe('removeSelections', () => {
+    it('should remove all selections', () => {
+      service.notes[0].selected = true;
+      service.removeSelections();
+      expect(service.notes.every(note => !note.selected)).toBeTrue();
+    });
   });
 
-  it('should return note when fret is clicked', () => {
-    const clickedNote = service.fretNoteClicked('E', 0);
-    expect(clickedNote).toEqual(mockNotes[0]);
+  describe('fretNoteClicked', () => {
+    it('should return note when clicked on existing note', () => {
+      const clickedNote = service.fretNoteClicked('E', 0);
+      expect(clickedNote).toEqual(mockNotes[0]);
+    });
+
+    it('should return null when clicked on non-existing note', () => {
+      const clickedNote = service.fretNoteClicked('E', 1);
+      expect(clickedNote).toBeNull();
+    });
   });
 
-  it('should clear fretboard', () => {
-    service.clearFretboard();
+  describe('clearFretboard', () => {
+    it('should clear all fretboard state', () => {
+      service.clearFretboard();
 
-    expect(intervalServiceSpy.removeIntervals).toHaveBeenCalledWith(service.notes);
-    expect(service.notes.every(note => !note.visible)).toBeTrue();
-    expect(service.notes.every(note => !note.selected)).toBeTrue();
+      expect(intervalServiceSpy.removeIntervals).toHaveBeenCalledWith(service.notes);
+      expect(service.notes.every(note => !note.visible)).toBeTrue();
+      expect(service.notes.every(note => !note.selected)).toBeTrue();
+    });
   });
 });

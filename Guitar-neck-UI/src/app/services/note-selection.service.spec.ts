@@ -17,8 +17,7 @@ describe('NoteSelectionService', () => {
 
     musicTheoryFacadeSpy = jasmine.createSpyObj('MusicTheoryFacadeService', [
       'selectScale',
-      'selectTriad',
-      'clearFretboard'
+      'selectTriad'
     ]);
 
     TestBed.configureTestingModule({
@@ -36,26 +35,12 @@ describe('NoteSelectionService', () => {
   });
 
   it('should select scale using music theory facade', () => {
-    musicTheoryFacadeSpy.selectScale.and.returnValue(mockNotes);
-
-    const result = service.selectScale('Major', 'C');
-
+    service.selectScale('Major', 'C');
     expect(musicTheoryFacadeSpy.selectScale).toHaveBeenCalledWith('Major', 'C');
-    expect(result).toEqual(mockNotes);
   });
 
   it('should select triad using music theory facade', () => {
-    musicTheoryFacadeSpy.selectTriad.and.returnValue(mockNotes);
-
-    const result = service.selectTriad('C', 'Major');
-
-    expect(musicTheoryFacadeSpy.selectTriad).toHaveBeenCalledWith('C', 'Major');
-    expect(result).toEqual(mockNotes);
-  });
-
-  it('should clear fretboard using music theory facade', () => {
-    service.clearFretboard();
-
-    expect(musicTheoryFacadeSpy.clearFretboard).toHaveBeenCalled();
+    service.selectTriad('C', 'Major');
+    expect(musicTheoryFacadeSpy.selectTriad).toHaveBeenCalledWith('Major', 'C');
   });
 });

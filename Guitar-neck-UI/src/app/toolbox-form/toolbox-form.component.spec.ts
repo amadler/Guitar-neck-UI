@@ -1,11 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { By } from '@angular/platform-browser';
 import { ToolboxFormComponent } from './toolbox-form.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ToolboxSearchQuery } from '../shared/model/musicElements';
 
-describe('StringSelectorComponent', () => {
+describe('ToolboxFormComponent', () => {
   let component: ToolboxFormComponent;
   let fixture: ComponentFixture<ToolboxFormComponent>;
 
@@ -25,39 +24,43 @@ describe('StringSelectorComponent', () => {
   });
 
   it('should initialize formGroup with Single note control', () => {
-    const mockControls:ToolboxSearchQuery = {
+    const mockControls: ToolboxSearchQuery = {
       keys: 'A',
       musicElements: 'Single note'
     };
-    expect(component.guitarForm.value).toEqual(mockControls);
-
+    expect(component.guitarForm.value).toEqual({
+      elementType: 'basic',
+      pattern: 'Single note',
+      key: 'A'
+    });
   });
 
-  it('should render the correct number of options for musicElements', () => {
-   const options = fixture.debugElement.queryAll(By.css('#scale option'));
-   expect(options.length).toBe(component.musicElements.length);
+  it('should render the correct number of options for patterns', () => {
+    const options = fixture.debugElement.queryAll(By.css('#pattern option'));
+    expect(options.length).toBe(component.availablePatterns.length);
   });
 
   it('should render the correct number of options for keys', () => {
     const options = fixture.debugElement.queryAll(By.css('#key option'));
     expect(options.length).toBe(component.keys.length);
-   });
+  });
 
-  it('should emit the correct value when a form is changed ', () => {
+  it('should emit the correct value when form is submitted', () => {
     spyOn(component.onSubmit$, 'emit');
-    component.guitarForm.controls['keys'].setValue('A');
-    component.guitarForm.controls['musicElements'].setValue('All Notes');
+    component.guitarForm.patchValue({
+      elementType: 'basic',
+      pattern: 'Single note',
+      key: 'A'
+    });
     fixture.detectChanges();
 
     const form = fixture.debugElement.query(By.css('form')).nativeElement;
     form.dispatchEvent(new Event('submit'));
     fixture.detectChanges();
 
-    expect(component.onSubmit$.emit).toHaveBeenCalledOnceWith(
-      {
-        keys:'A',
-        musicElements: 'All Notes'
-      }
-    )
+    expect(component.onSubmit$.emit).toHaveBeenCalledOnceWith({
+      musicElements: 'Single note',
+      keys: 'A'
+    });
   });
 });
