@@ -4,7 +4,6 @@ import { neckConfig } from '../shared/model/neckConfig';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { NoteService } from './note.service';
 import { IntervalService } from './interval.service';
-import { switchMap } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class GuitarNeckService {

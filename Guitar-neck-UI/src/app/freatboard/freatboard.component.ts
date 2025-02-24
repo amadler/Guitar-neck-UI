@@ -70,7 +70,6 @@ export class FreatboardComponent implements OnInit {
     return note ? note.isFifth : false;
   }
 
-
   protected isNoteThird(string: string, fret: number): boolean | undefined {
     const note = this.getNote(string, fret);
     return note ? note.isThird : false;
@@ -99,3 +98,9 @@ export class FreatboardComponent implements OnInit {
     return this.guitarNeckService.getNote(string, fret);
   }
 }
+
+
+/*
+
+
+*/

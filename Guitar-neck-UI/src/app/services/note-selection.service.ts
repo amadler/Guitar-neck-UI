@@ -1,6 +1,5 @@
 /* NoteSelectionService koordynuje wybór nut na podstawie skali lub trójdźwięku. */
 import { Injectable } from '@angular/core';
-import { GuitarNote } from '../shared/model/guitarNote';
 import { MusicTheoryFacadeService } from './music-theory-facade.service';
 
 @Injectable({ providedIn: 'root' })

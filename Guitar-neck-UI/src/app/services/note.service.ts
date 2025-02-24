@@ -5,7 +5,6 @@
 import { Injectable } from '@angular/core';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { neckConfig } from '../shared/model/neckConfig';
-import { BehaviorSubject } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class NoteService {
