@@ -4,14 +4,11 @@ import { GuitarNeckService } from '../services/guitar-neck.service';
 import { Command, DisplayAllNotesCommand, DisplayScaleCommand, DisplaySingleNoteCommand, DisplayTriadCommand, DisplayExtendedChordCommand } from '../shared/UICommands';
 import { ToolboxSearchQuery } from '../shared/model/musicElements';
 import { NoteSelectionService } from '../services/note-selection.service';
-import { AISuggestionService } from '../ai/services/ai-suggestion.service';
 import { ExtendedChordService } from '../services/extended-chord.service';
 import { ToolboxFormComponent } from '../toolbox-form/toolbox-form.component';
 import { GuitarNeckComponent } from '../guitar-neck/guitar-neck.component';
-import { AISuggestionsComponent } from '../ai-suggestions/ai-suggestions.component';
-import { ChatComponent } from '../chat/chat.component';
-import { AIResponse } from '../ai/models/ai-response.model';
 import { TRIAD_PATTERNS } from '../shared/model/triadTypes';
+import { GuitarChatModule } from '@guitar-ui/chat';
 
 @Component({
   selector: 'app-home-page',
@@ -19,8 +16,7 @@ import { TRIAD_PATTERNS } from '../shared/model/triadTypes';
   imports: [
     ToolboxFormComponent,
     GuitarNeckComponent,
-    AISuggestionsComponent,
-    ChatComponent
+    GuitarChatModule
   ],
   templateUrl: './home-page.component.html',
   styleUrl: './home-page.component.scss'
@@ -30,7 +26,6 @@ export class HomePageComponent {
     private noteService: NoteService,
     private guitarNeckService: GuitarNeckService,
     private noteSelectionService: NoteSelectionService,
-    private aiSuggestionService: AISuggestionService,
     private extendedChordService: ExtendedChordService,
   ) { }
 
@@ -58,9 +53,5 @@ export class HomePageComponent {
   private isTriad(name: string): boolean {
     return TRIAD_PATTERNS.some(pattern => pattern.name === name) ||
            name.includes('Triad');
-  }
-
-  handleAIResponse(aiResponse: AIResponse) {
-    this.aiSuggestionService.setResponse(aiResponse);
   }
 }
