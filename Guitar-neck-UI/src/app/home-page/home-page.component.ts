@@ -4,13 +4,13 @@ import { GuitarNeckService } from '../services/guitar-neck.service';
 import { Command, DisplayAllNotesCommand, DisplayScaleCommand, DisplaySingleNoteCommand, DisplayTriadCommand, DisplayExtendedChordCommand } from '../shared/UICommands';
 import { ToolboxSearchQuery } from '../shared/model/musicElements';
 import { NoteSelectionService } from '../services/note-selection.service';
-import { AISuggestionService } from '../services/ai-suggestion.service';
+import { AISuggestionService } from '../ai/services/ai-suggestion.service';
 import { ExtendedChordService } from '../services/extended-chord.service';
 import { ToolboxFormComponent } from '../toolbox-form/toolbox-form.component';
 import { GuitarNeckComponent } from '../guitar-neck/guitar-neck.component';
 import { AISuggestionsComponent } from '../ai-suggestions/ai-suggestions.component';
 import { ChatComponent } from '../chat/chat.component';
-import { AIResponse } from '../shared/model/ai-response.model';
+import { AIResponse } from '../ai/models/ai-response.model';
 import { TRIAD_PATTERNS } from '../shared/model/triadTypes';
 
 @Component({

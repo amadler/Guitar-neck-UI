@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AISuggestionService } from '../services/ai-suggestion.service';
-import { AIService } from '../services/ai.service';
+import { AISuggestionService } from '../ai/services/ai-suggestion.service';
+import { AIService } from '../ai/services/ai.service';
 import { finalize } from 'rxjs/operators';
-import { MusicalSuggestion } from '../shared/model/ai-response.model';
+import { AIResponse, MusicalSuggestion } from '../ai/models/ai-response.model';
 
 @Component({
   selector: 'app-chat',
@@ -26,12 +26,11 @@ import { MusicalSuggestion } from '../shared/model/ai-response.model';
         </div>
       </div>
       <div class="chat-input">
-        <input #messageInput
-               type="text"
-               [(ngModel)]="currentMessage"
+        <input [(ngModel)]="currentMessage"
                (keyup.enter)="sendMessage()"
-               placeholder="Ask about music theory...">
-        <button (click)="sendMessage()">Send</button>
+               placeholder="Type your message...">
+        <button (click)="sendMessage()"
+                [disabled]="isLoading">Send</button>
       </div>
     </div>
   `,
@@ -112,7 +111,7 @@ export class ChatComponent {
   messages: Array<{
     text: string;
     isUser: boolean;
-    suggestions?: MusicalSuggestion[] // Używamy pełnego typu MusicalSuggestion zamiast częściowego obiektu
+    suggestions?: MusicalSuggestion[];
   }> = [];
   currentMessage = '';
   isLoading = false;
@@ -133,15 +132,15 @@ export class ChatComponent {
     this.aiService.generateResponse(userMessage)
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
-        next: (response) => {
+        next: (response: AIResponse) => {
           this.messages.push({
             text: response.textResponse,
             isUser: false,
-            suggestions: response.suggestions // Te sugestie będą już miały właściwy typ
+            suggestions: response.suggestions
           });
           this.aiSuggestionService.setResponse(response);
         },
-        error: (error) => {
+        error: (error: Error) => {
           this.messages.push({
             text: "Sorry, I couldn't process your request. Please try again.",
             isUser: false
@@ -152,6 +151,6 @@ export class ChatComponent {
   }
 
   applySuggestion(suggestion: MusicalSuggestion) {
-    this.aiSuggestionService.applySuggestion(suggestion);
+    this.aiSuggestionService.updateSuggestions([suggestion]);
   }
 }

@@ -1,8 +1,8 @@
 import { Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
-import { AISuggestionService } from '../services/ai-suggestion.service';
-import { AIResponse, MusicalSuggestion } from '../shared/model/ai-response.model';
+import { AISuggestionService } from '../ai/services/ai-suggestion.service';
+import { AIResponse, MusicalSuggestion } from '../ai/models/ai-response.model';
 
 @Component({
   selector: 'app-ai-suggestions',
@@ -48,13 +48,13 @@ export class AISuggestionsComponent implements OnDestroy {
 
   constructor(private aiSuggestionService: AISuggestionService) {
     this.subscription = this.aiSuggestionService.currentResponse$
-      .subscribe(response => {
+      .subscribe((response: AIResponse | null) => {
         this.currentResponse = response;
       });
   }
 
   applySuggestion(suggestion: MusicalSuggestion) {
-    this.aiSuggestionService.applySuggestion(suggestion);
+    this.aiSuggestionService.updateSuggestions([suggestion]);
   }
 
   ngOnDestroy() {
