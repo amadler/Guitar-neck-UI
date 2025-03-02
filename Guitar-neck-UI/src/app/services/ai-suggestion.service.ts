@@ -20,16 +20,17 @@ export class AISuggestionService {
       return;
     }
 
-    this.musicTheoryFacade.clearFretboard();
+    this.musicTheoryFacade.resetFretboard();
 
     setTimeout(() => {
-      // Sprawdzamy czy nazwa wzorca istnieje w SCALE_PATTERNS
       const isScale = SCALE_PATTERNS.some((pattern: ScalePattern) => pattern.name === suggestion.displayName);
 
       if (isScale) {
-        this.musicTheoryFacade.selectScale(suggestion.displayName, suggestion.notes[0]);
+        this.musicTheoryFacade.selectScale(suggestion.displayName, suggestion.notes[0])
+          .subscribe(notes => console.log('Scale applied:', notes));
       } else {
-        this.musicTheoryFacade.selectTriad(suggestion.displayName, suggestion.notes[0]);
+        this.musicTheoryFacade.selectTriad(suggestion.displayName, suggestion.notes[0])
+          .subscribe(notes => console.log('Chord applied:', notes));
       }
     }, 50);
   }

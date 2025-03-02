@@ -1,64 +1,50 @@
-/**
- * ScaleAndTriadService generuje skale i trójdźwięki.
- **/
-
-import { inject, Injectable } from '@angular/core';
-import { neckConfig } from '../shared/model/neckConfig';
-import { SCALE_PATTERNS } from '../shared/model/scaleTypes';
-import { TRIAD_PATTERNS } from '../shared/model/triadTypes';
-import { EXTENDED_CHORD_PATTERNS } from '../shared/model/extendedChordTypes';
+import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { catchError } from 'rxjs/operators';
-import { throwError } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class ScaleAndTriadService {
-  private chromaticNotes = neckConfig.chromaticNotes;
+  private readonly API_URL = 'http://localhost:3000/api';
 
-  constructor(private ht: HttpClient) {}
+  constructor(private http: HttpClient) {}
 
-  private generateNotes(patterns: any[], patternName: string, rootNote: string): string[] {
-    const pattern = patterns.find(p => p.name === patternName);
-
-    if (!pattern) {
-      throw new Error(`Pattern "${patternName}" not found`);
-    }
-
-    const rootNoteIndex = this.chromaticNotes.indexOf(rootNote);
-    if (rootNoteIndex === -1) {
-      throw new Error(`Root note "${rootNote}" not found in chromatic scale`);
-    }
-
-    const notes = [rootNote];
-    let currentIndex = rootNoteIndex;
-
-    for (const interval of pattern.intervals) {
-      currentIndex = (currentIndex + interval) % this.chromaticNotes.length;
-      notes.push(this.chromaticNotes[currentIndex]);
-    }
-
-    return notes;
-  }
-
-  generateScale(scaleName: string, rootNote: string): string[] {
-    return this.generateNotes(SCALE_PATTERNS, scaleName, rootNote);
-  }
-
-  generateTriad(triadType: string, rootNote: string): string[] {
-    const isExtendedChord = EXTENDED_CHORD_PATTERNS.some(p => p.name === triadType);
-    const patterns = isExtendedChord ? EXTENDED_CHORD_PATTERNS : TRIAD_PATTERNS;
-    return this.generateNotes(patterns, triadType, rootNote);
-  }
-
-  getScaleReq(text: string): Observable<any> {
-    return this.ht.get('http://localhost:3000/scale/', {
-      params: { text: text }
-    }).pipe(
-      catchError(error => {
-        console.error('Error fetching scale:', error);
-        return throwError(() => new Error('Failed to fetch scale'));
-      })
+  getAvailableScales(): Observable<string[]> {
+    return this.http.get<{scales: string[]}>(`${this.API_URL}/scales`).pipe(
+      map(response => response.scales),
+      catchError(this.handleError)
     );
+  }
+
+  getAvailableTriads(): Observable<string[]> {
+    return this.http.get<{chords: string[]}>(`${this.API_URL}/triads`).pipe(
+      map(response => response.chords),
+      catchError(this.handleError)
+    );
+  }
+
+  generateScale(scaleName: string, rootNote: string): Observable<string[]> {
+    const formattedName = this.formatName(scaleName);
+    return this.http.get<{notes: string[]}>(`${this.API_URL}/scales/${formattedName}/${rootNote}`).pipe(
+      map(response => response.notes),
+      catchError(this.handleError)
+    );
+  }
+
+  generateTriad(triadType: string, rootNote: string): Observable<string[]> {
+    const formattedName = this.formatName(triadType);
+    return this.http.get<{notes: string[]}>(`${this.API_URL}/triads/${formattedName}/${rootNote}`).pipe(
+      map(response => response.notes),
+      catchError(this.handleError)
+    );
+  }
+
+  private formatName(name: string): string {
+    return name.toLowerCase().replace(/\s+/g, '-');
+  }
+
+  private handleError(error: any) {
+    console.error('An error occurred:', error);
+    return throwError(() => new Error(error.error?.error || 'An error occurred'));
   }
 }

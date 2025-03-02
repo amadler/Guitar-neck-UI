@@ -1,8 +1,6 @@
 import { GuitarNeckService } from "../services/guitar-neck.service";
 import { NoteSelectionService } from "../services/note-selection.service";
 import { NoteService } from "../services/note.service";
-import { SCALE_PATTERNS } from "./model/scaleTypes";
-import { TRIAD_PATTERNS } from "./model/triadTypes";
 import { ExtendedChordService } from '../services/extended-chord.service';
 
 export interface Command {
@@ -33,15 +31,15 @@ export class DisplayScaleCommand implements Command {
   constructor(
     private noteSelectionService: NoteSelectionService,
     private scaleName: string,
-    private keys: string) {}
+    private rootNote: string
+  ) {}
 
   execute(): void {
-    const scalePattern = SCALE_PATTERNS.find(pattern => pattern.name === this.scaleName);
-    if (scalePattern) {
-      this.noteSelectionService.selectScale(this.scaleName, this.keys);
-    } else {
-      console.error(`Scale pattern not found: ${this.scaleName}`);
-    }
+    this.noteSelectionService.selectScale(this.scaleName, this.rootNote)
+      .subscribe({
+        next: (notes) => console.log('Scale displayed:', notes),
+        error: (error) => console.error('Error displaying scale:', error)
+      });
   }
 }
 
@@ -49,16 +47,15 @@ export class DisplayTriadCommand implements Command {
   constructor(
     private noteSelectionService: NoteSelectionService,
     private triadName: string,
-    private keys: string) {}
+    private rootNote: string
+  ) {}
 
   execute(): void {
-    const triadPattern = TRIAD_PATTERNS.find(pattern => pattern.name === this.triadName);
-    if (triadPattern) {
-      // Zmiana kolejności argumentów - najpierw nuta podstawowa (keys), potem nazwa akordu
-      this.noteSelectionService.selectTriad(this.keys, this.triadName);
-    } else {
-      console.error(`Triad pattern not found: ${this.triadName}`);
-    }
+    this.noteSelectionService.selectTriad(this.triadName, this.rootNote)
+      .subscribe({
+        next: (notes) => console.log('Triad displayed:', notes),
+        error: (error) => console.error('Error displaying triad:', error)
+      });
   }
 }
 
@@ -70,6 +67,10 @@ export class DisplayExtendedChordCommand implements Command {
   ) {}
 
   execute(): void {
-    this.extendedChordService.selectExtendedChord(this.chordName, this.rootNote);
+    this.extendedChordService.selectExtendedChord(this.chordName, this.rootNote)
+      .subscribe({
+        next: (notes) => console.log('Extended chord displayed:', notes),
+        error: (error) => console.error('Error displaying extended chord:', error)
+      });
   }
 }

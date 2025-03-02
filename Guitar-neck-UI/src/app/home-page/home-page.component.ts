@@ -11,6 +11,7 @@ import { GuitarNeckComponent } from '../guitar-neck/guitar-neck.component';
 import { AISuggestionsComponent } from '../ai-suggestions/ai-suggestions.component';
 import { ChatComponent } from '../chat/chat.component';
 import { AIResponse } from '../shared/model/ai-response.model';
+import { TRIAD_PATTERNS } from '../shared/model/triadTypes';
 
 @Component({
   selector: 'app-home-page',
@@ -43,7 +44,7 @@ export class HomePageComponent {
       command = new DisplaySingleNoteCommand(this.noteService, this.guitarNeckService, event.keys);
     } else if (event.musicElements === 'All notes') {
       command = new DisplayAllNotesCommand(this.guitarNeckService);
-    } else if (event.musicElements.includes('Triad')) {
+    } else if (this.isTriad(event.musicElements)) {
       command = new DisplayTriadCommand(this.noteSelectionService, event.musicElements, event.keys);
     } else if (this.extendedChordService.isExtendedChord(event.musicElements)) {
       command = new DisplayExtendedChordCommand(this.extendedChordService, event.musicElements, event.keys);
@@ -52,6 +53,11 @@ export class HomePageComponent {
     }
 
     command.execute();
+  }
+
+  private isTriad(name: string): boolean {
+    return TRIAD_PATTERNS.some(pattern => pattern.name === name) ||
+           name.includes('Triad');
   }
 
   handleAIResponse(aiResponse: AIResponse) {

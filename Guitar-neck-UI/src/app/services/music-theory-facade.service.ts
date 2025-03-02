@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Observable, catchError, map, of } from 'rxjs';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { NoteService } from './note.service';
 import { IntervalService } from './interval.service';
@@ -15,46 +16,53 @@ export class MusicTheoryFacadeService {
     private guitarNeckService: GuitarNeckService
   ) {}
 
-  selectScale(scaleName: string, rootNote: string): GuitarNote[] {
-    try {
-      const scaleNotes = this.scaleAndTriadService.generateScale(scaleName, rootNote);
-      const selectedNotes = this.noteService.getNotesByScale(scaleNotes);
-      const highlightedNotes = this.guitarNeckService.selectNotes(selectedNotes);
-      this.intervalService.markRootThirdFifth(rootNote, scaleName, highlightedNotes);
-      return highlightedNotes;
-    } catch (error) {
-      console.error('Error selecting scale:', error);
-      return [];
-    }
+  selectScale(scaleName: string, rootNote: string): Observable<GuitarNote[]> {
+    return this.scaleAndTriadService.generateScale(scaleName, rootNote).pipe(
+      map(scaleNotes => {
+        const selectedNotes = this.noteService.getNotesByScale(scaleNotes);
+        const highlightedNotes = this.guitarNeckService.selectNotes(selectedNotes);
+        this.intervalService.markRootThirdFifth(rootNote, scaleName, highlightedNotes);
+        return highlightedNotes;
+      }),
+      catchError(error => {
+        console.error('Error selecting scale:', error);
+        return of([]);
+      })
+    );
   }
 
-  selectTriad(triadType: string, rootNote: string): GuitarNote[] {
-    try {
-      this.clearFretboard();
+  selectTriad(triadType: string, rootNote: string): Observable<GuitarNote[]> {
+    this.clearFretboard();
 
-      const isExtendedChord = EXTENDED_CHORD_PATTERNS.some(p => p.name === triadType);
-      console.log('Chord type:', triadType, 'Is extended:', isExtendedChord);
+    const isExtendedChord = EXTENDED_CHORD_PATTERNS.some(p => p.name === triadType);
+    console.log('Chord type:', triadType, 'Is extended:', isExtendedChord);
 
-      const chordNotes = this.scaleAndTriadService.generateTriad(triadType, rootNote);
-      const selectedNotes = this.noteService.getNotesByTriad(chordNotes);
-      const highlightedNotes = this.guitarNeckService.selectNotes(selectedNotes);
+    return this.scaleAndTriadService.generateTriad(triadType, rootNote).pipe(
+      map(chordNotes => {
+        const selectedNotes = this.noteService.getNotesByTriad(chordNotes);
+        const highlightedNotes = this.guitarNeckService.selectNotes(selectedNotes);
 
-      if (isExtendedChord) {
-        console.log('Marking extended chord intervals for:', triadType);
-        this.intervalService.markExtendedChordIntervals(rootNote, triadType, highlightedNotes);
-      } else {
-        console.log('Marking basic triad intervals for:', triadType);
-        this.intervalService.markRootThirdFifth(rootNote, triadType, highlightedNotes);
-      }
+        if (isExtendedChord) {
+          console.log('Marking extended chord intervals for:', triadType);
+          this.intervalService.markExtendedChordIntervals(rootNote, triadType, highlightedNotes);
+        } else {
+          this.intervalService.markRootThirdFifth(rootNote, triadType, highlightedNotes);
+        }
 
-      return highlightedNotes;
-    } catch (error) {
-      console.error('Error selecting triad:', error);
-      return [];
-    }
+        return highlightedNotes;
+      }),
+      catchError(error => {
+        console.error('Error selecting triad:', error);
+        return of([]);
+      })
+    );
   }
 
-  clearFretboard(): void {
+  public resetFretboard(): void {
+    this.guitarNeckService.clearFretboard();
+  }
+
+  private clearFretboard(): void {
     this.guitarNeckService.clearFretboard();
   }
 }
