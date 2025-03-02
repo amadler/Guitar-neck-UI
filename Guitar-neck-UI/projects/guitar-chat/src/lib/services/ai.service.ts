@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AIResponse } from '../models/ai-response.model';
-import { aiConfig } from '../../shared/config/ai-config';
+import { aiConfig } from '../../ai-config';
 
 @Injectable({
   providedIn: 'root'

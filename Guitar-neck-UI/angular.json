@@ -94,6 +94,39 @@
           }
         }
       }
+    },
+    "guitar-chat": {
+      "projectType": "library",
+      "root": "projects/guitar-chat",
+      "sourceRoot": "projects/guitar-chat/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/guitar-chat/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/guitar-chat/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/guitar-chat/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "tsConfig": "projects/guitar-chat/tsconfig.spec.json",
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ]
+          }
+        }
+      }
     }
   }
 }

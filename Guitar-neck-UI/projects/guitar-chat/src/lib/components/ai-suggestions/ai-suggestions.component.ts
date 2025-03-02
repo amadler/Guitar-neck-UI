@@ -1,8 +1,8 @@
 import { Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
-import { AISuggestionService } from '../ai/services/ai-suggestion.service';
-import { AIResponse, MusicalSuggestion } from '../ai/models/ai-response.model';
+import { AISuggestionService } from '../../services/ai-suggestion.service';
+import { AIResponse, MusicalSuggestion } from '../../models/ai-response.model';
 
 @Component({
   selector: 'app-ai-suggestions',

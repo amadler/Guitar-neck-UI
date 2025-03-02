@@ -2,6 +2,7 @@
   "name": "guitar-neck-ui",
   "version": "0.0.0",
   "scripts": {
+    "build-chat": "ng build guitar-chat",
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",

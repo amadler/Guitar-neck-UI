@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AISuggestionService } from '../ai/services/ai-suggestion.service';
-import { AIService } from '../ai/services/ai.service';
+import { AIService } from '../../services/ai.service';
 import { finalize } from 'rxjs/operators';
-import { AIResponse, MusicalSuggestion } from '../ai/models/ai-response.model';
+import { AIResponse, MusicalSuggestion } from '../../models/ai-response.model';
+import { AISuggestionService } from '../../services/ai-suggestion.service';
 
 @Component({
   selector: 'app-chat',
