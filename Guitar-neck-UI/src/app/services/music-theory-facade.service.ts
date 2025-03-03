@@ -60,13 +60,11 @@ export class MusicTheoryFacadeService {
 
   selectNote(noteName: string){
     const selectedNotes = this.noteService.getNotesByNoteName(noteName);
-    const highlightedNotes = this.guitarNeckService.selectNotes(selectedNotes);
+   this.guitarNeckService.selectNotes(selectedNotes);
   }
 
-  selectAllNotes(noteName: string): GuitarNote[] {
-    const selectedNotes = this.noteService.getNotesByNoteName(noteName);
-    const highlightedNotes = this.guitarNeckService.showAllNotes();
-    return selectedNotes;
+  selectAllNotes() {
+    this.guitarNeckService.showAllNotes();
   }
   public resetFretboard(): void {
     this.guitarNeckService.clearFretboard();

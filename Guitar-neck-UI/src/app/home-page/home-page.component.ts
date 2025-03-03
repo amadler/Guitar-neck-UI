@@ -36,7 +36,7 @@ export class HomePageComponent {
     let command: Command;
 
     if (event.musicElements === 'Single note') {
-      command = new DisplaySingleNoteCommand(this.noteService, this.noteSelectionService, event.keys);
+      command = new DisplaySingleNoteCommand(this.noteSelectionService, event.keys);
     } else if (event.musicElements === 'All notes') {
       command = new DisplayAllNotesCommand(this.noteSelectionService);
     } else if (this.isTriad(event.musicElements)) {

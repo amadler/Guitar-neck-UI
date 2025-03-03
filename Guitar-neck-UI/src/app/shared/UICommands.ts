@@ -1,6 +1,4 @@
-import { GuitarNeckService } from "../services/guitar-neck.service";
 import { NoteSelectionService } from "../services/note-selection.service";
-import { NoteService } from "../services/note.service";
 import { ExtendedChordService } from '../services/extended-chord.service';
 
 export interface Command {
@@ -9,7 +7,6 @@ export interface Command {
 
 export class DisplaySingleNoteCommand implements Command {
   constructor(
-    private noteService: NoteService,
     private noteSelectionService: NoteSelectionService,
     private keys: string) {}
 

@@ -21,6 +21,6 @@ export class NoteSelectionService {
   }
 
   selectAllNotes(){
-    this.musicTheoryFacade.selectAllNotes('C');
+    this.musicTheoryFacade.selectAllNotes();
   }
 }
