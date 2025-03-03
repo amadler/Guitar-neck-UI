@@ -20,7 +20,7 @@ export class MusicTheoryFacadeService {
       map(scaleNotes => {
         const selectedNotes = this.noteService.getNotesByScale(scaleNotes);
         const highlightedNotes = this.guitarNeckService.selectNotes(selectedNotes);
-        this.intervalService.markRootThirdFifth(rootNote, scaleName, highlightedNotes);
+        this.intervalService.markIntervals(rootNote, scaleName, highlightedNotes);
         return highlightedNotes;
       }),
       catchError(error => {
@@ -30,14 +30,14 @@ export class MusicTheoryFacadeService {
     );
   }
 
-  selectTriad(triadType: string, rootNote: string): Observable<GuitarNote[]> {
+  selectChord(triadType: string, rootNote: string): Observable<GuitarNote[]> {
     this.clearFretboard();
 
     return this.scaleAndTriadService.generateTriad(triadType, rootNote).pipe(
       map(chordNotes => {
         const selectedNotes = this.noteService.getNotesByTriad(chordNotes);
         const highlightedNotes = this.guitarNeckService.selectNotes(selectedNotes);
-        this.intervalService.markRootThirdFifth(rootNote, triadType, highlightedNotes);
+        this.intervalService.markIntervals(rootNote, triadType, highlightedNotes);
 
         return highlightedNotes;
       }),

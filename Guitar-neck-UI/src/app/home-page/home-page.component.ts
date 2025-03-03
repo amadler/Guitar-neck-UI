@@ -30,9 +30,9 @@ export class HomePageComponent {
     let command: Command;
     console.log('musicElements', event);
     if (event.type === 'basic' && event.musicElements === 'All notes') {
-      command = new DisplaySingleNoteCommand(this.noteSelectionService, event.keys);
-    } else if (event.type === 'basic' ) {
       command = new DisplayAllNotesCommand(this.noteSelectionService);
+    } else if (event.type === 'basic' ) {
+      command = new DisplaySingleNoteCommand(this.noteSelectionService, event.keys);
     } else if ((event.type === 'chord')) {
       command = new DisplayChordCommand(this.noteSelectionService, event.musicElements, event.keys);
     } else {

@@ -9,7 +9,7 @@ export class NoteSelectionService {
   constructor(private musicTheoryFacade: MusicTheoryFacadeService) {}
 
   selectChord(triadName: string, rootNote: string): Observable<GuitarNote[]> {
-    return this.musicTheoryFacade.selectTriad(triadName, rootNote);
+    return this.musicTheoryFacade.selectChord(triadName, rootNote);
   }
 
   selectScale(scaleName: string, rootNote: string): Observable<GuitarNote[]> {

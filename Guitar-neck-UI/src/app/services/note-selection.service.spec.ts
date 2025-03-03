@@ -41,6 +41,6 @@ describe('NoteSelectionService', () => {
 
   it('should select triad using music theory facade', () => {
     service.selectChord('C', 'Major');
-    expect(musicTheoryFacadeSpy.selectTriad).toHaveBeenCalledWith('Major', 'C');
+    expect(musicTheoryFacadeSpy.selectChord).toHaveBeenCalledWith('Major', 'C');
   });
 });
