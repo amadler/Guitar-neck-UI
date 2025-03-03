@@ -8,7 +8,7 @@ import { MusicTheoryFacadeService } from './music-theory-facade.service';
 export class NoteSelectionService {
   constructor(private musicTheoryFacade: MusicTheoryFacadeService) {}
 
-  selectTriad(triadName: string, rootNote: string): Observable<GuitarNote[]> {
+  selectChord(triadName: string, rootNote: string): Observable<GuitarNote[]> {
     return this.musicTheoryFacade.selectTriad(triadName, rootNote);
   }
 

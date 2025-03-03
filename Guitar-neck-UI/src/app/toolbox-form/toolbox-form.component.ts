@@ -2,9 +2,8 @@ import { NgFor } from '@angular/common';
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { SCALE_PATTERNS } from '../shared/model/scaleTypes';
-import { ToolboxSearchQuery } from '../shared/model/musicElements';
-import { TRIAD_PATTERNS } from '../shared/model/triadTypes';
-import { EXTENDED_CHORD_PATTERNS } from '../shared/model/extendedChordTypes';
+import { QueryTypes, ToolboxSearchQuery } from '../shared/model/musicElements';
+import { CHORD_PATTERNS } from '../shared/model/chordTypes';
 import { neckConfig } from '../shared/model/neckConfig';
 
 @Component({
@@ -23,18 +22,17 @@ export class ToolboxFormComponent {
   elementTypes = [
     { id: 'basic', name: 'Basic' },
     { id: 'scale', name: 'Scale' },
-    { id: 'triad', name: 'Chord' },
-    { id: 'extended', name: 'Extended Chord' }
+    { id: 'chord', name: 'Chord' },
   ];
 
   patterns: { [key: string]: string[] } = {
     basic: ['Single note', 'All notes'],
     scale: SCALE_PATTERNS.map(scale => scale.name),
-    triad: TRIAD_PATTERNS.map(triad => triad.name),
-    extended: EXTENDED_CHORD_PATTERNS.map(chord => chord.name)
+    chord: CHORD_PATTERNS.map(chord => chord.name),
   };
 
   availablePatterns: string[] = this.patterns['basic'];  // Fixed: using bracket notation
+  selectedElementType: QueryTypes = 'basic';
 
   constructor(private fb: FormBuilder) {
     this.guitarForm = this.fb.group({
@@ -46,6 +44,7 @@ export class ToolboxFormComponent {
     // React to element type changes
     this.guitarForm.get('elementType')?.valueChanges.subscribe(type => {
       this.availablePatterns = this.patterns[type];
+      this.selectedElementType = type;
       this.guitarForm.patchValue({ pattern: this.availablePatterns[0] });
     });
   }
@@ -55,7 +54,8 @@ export class ToolboxFormComponent {
       const formValue = this.guitarForm.value;
       const query: ToolboxSearchQuery = {
         musicElements: formValue.pattern,
-        keys: formValue.key
+        keys: formValue.key,
+        type: this.selectedElementType
       };
       this.onSubmit$.emit(query);
     }

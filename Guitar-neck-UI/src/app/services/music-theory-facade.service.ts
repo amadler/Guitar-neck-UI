@@ -5,7 +5,6 @@ import { NoteService } from './note.service';
 import { IntervalService } from './interval.service';
 import { GuitarNeckService } from './guitar-neck.service';
 import { ScaleAndTriadService } from './scales-and-triads.service';
-import { EXTENDED_CHORD_PATTERNS } from '../shared/model/extendedChordTypes';
 
 @Injectable({ providedIn: 'root' })
 export class MusicTheoryFacadeService {
@@ -34,20 +33,11 @@ export class MusicTheoryFacadeService {
   selectTriad(triadType: string, rootNote: string): Observable<GuitarNote[]> {
     this.clearFretboard();
 
-    const isExtendedChord = EXTENDED_CHORD_PATTERNS.some(p => p.name === triadType);
-    console.log('Chord type:', triadType, 'Is extended:', isExtendedChord);
-
     return this.scaleAndTriadService.generateTriad(triadType, rootNote).pipe(
       map(chordNotes => {
         const selectedNotes = this.noteService.getNotesByTriad(chordNotes);
         const highlightedNotes = this.guitarNeckService.selectNotes(selectedNotes);
-
-        if (isExtendedChord) {
-          console.log('Marking extended chord intervals for:', triadType);
-          this.intervalService.markExtendedChordIntervals(rootNote, triadType, highlightedNotes);
-        } else {
-          this.intervalService.markRootThirdFifth(rootNote, triadType, highlightedNotes);
-        }
+        this.intervalService.markRootThirdFifth(rootNote, triadType, highlightedNotes);
 
         return highlightedNotes;
       }),

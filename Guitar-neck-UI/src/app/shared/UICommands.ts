@@ -1,5 +1,4 @@
 import { NoteSelectionService } from "../services/note-selection.service";
-import { ExtendedChordService } from '../services/extended-chord.service';
 
 export interface Command {
   execute(): void;
@@ -39,7 +38,7 @@ export class DisplayScaleCommand implements Command {
   }
 }
 
-export class DisplayTriadCommand implements Command {
+export class DisplayChordCommand implements Command {
   constructor(
     private noteSelectionService: NoteSelectionService,
     private triadName: string,
@@ -47,26 +46,11 @@ export class DisplayTriadCommand implements Command {
   ) {}
 
   execute(): void {
-    this.noteSelectionService.selectTriad(this.triadName, this.rootNote)
+    this.noteSelectionService.selectChord(this.triadName, this.rootNote)
       .subscribe({
-        next: (notes) => console.log('Triad displayed:', notes),
-        error: (error) => console.error('Error displaying triad:', error)
+        next: (notes) => console.log('Chord displayed:', notes),
+        error: (error) => console.error('Error displaying chord:', error)
       });
   }
 }
 
-export class DisplayExtendedChordCommand implements Command {
-  constructor(
-    private extendedChordService: ExtendedChordService,
-    private chordName: string,
-    private rootNote: string
-  ) {}
-
-  execute(): void {
-    this.extendedChordService.selectExtendedChord(this.chordName, this.rootNote)
-      .subscribe({
-        next: (notes) => console.log('Extended chord displayed:', notes),
-        error: (error) => console.error('Error displaying extended chord:', error)
-      });
-  }
-}

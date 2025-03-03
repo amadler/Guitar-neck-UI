@@ -4,7 +4,7 @@ import {
   DisplaySingleNoteCommand,
   DisplayAllNotesCommand,
   DisplayScaleCommand,
-  DisplayTriadCommand
+  DisplayChordCommand
 } from './UICommands';
 import { GuitarNeckService } from '../services/guitar-neck.service';
 import { NoteService } from '../services/note.service';
@@ -83,19 +83,19 @@ describe('UICommands', () => {
 
   describe('DisplayTriadCommand', () => {
     it('should select triad when pattern exists', () => {
-      const command = new DisplayTriadCommand(noteSelectionService, 'Major Triad', 'C');
+      const command = new DisplayChordCommand(noteSelectionService, 'Major Triad', 'C');
       command.execute();
 
-      expect(noteSelectionService.selectTriad).toHaveBeenCalledWith('C', 'Major Triad');
+      expect(noteSelectionService.selectChord).toHaveBeenCalledWith('C', 'Major Triad');
     });
 
     it('should log error when triad pattern not found', () => {
       spyOn(console, 'error');
-      const command = new DisplayTriadCommand(noteSelectionService, 'InvalidTriad', 'C');
+      const command = new DisplayChordCommand(noteSelectionService, 'InvalidTriad', 'C');
       command.execute();
 
       expect(console.error).toHaveBeenCalledWith('Triad pattern not found: InvalidTriad');
-      expect(noteSelectionService.selectTriad).not.toHaveBeenCalled();
+      expect(noteSelectionService.selectChord).not.toHaveBeenCalled();
     });
   });
 });

@@ -40,7 +40,7 @@ describe('NoteSelectionService', () => {
   });
 
   it('should select triad using music theory facade', () => {
-    service.selectTriad('C', 'Major');
+    service.selectChord('C', 'Major');
     expect(musicTheoryFacadeSpy.selectTriad).toHaveBeenCalledWith('Major', 'C');
   });
 });

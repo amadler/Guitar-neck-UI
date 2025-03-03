@@ -17,7 +17,7 @@ export class ScaleAndTriadService {
   }
 
   getAvailableTriads(): Observable<string[]> {
-    return this.http.get<{chords: string[]}>(`${this.API_URL}/triads`).pipe(
+    return this.http.get<{chords: string[]}>(`${this.API_URL}/chords`).pipe(
       map(response => response.chords),
       catchError(this.handleError)
     );
@@ -33,7 +33,7 @@ export class ScaleAndTriadService {
 
   generateTriad(triadType: string, rootNote: string): Observable<string[]> {
     const formattedName = this.formatName(triadType);
-    return this.http.get<{notes: string[]}>(`${this.API_URL}/triads/${formattedName}/${rootNote}`).pipe(
+    return this.http.get<{notes: string[]}>(`${this.API_URL}/chords/${formattedName}/${rootNote}`).pipe(
       map(response => response.notes),
       catchError(this.handleError)
     );

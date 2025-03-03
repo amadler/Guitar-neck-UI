@@ -1,13 +1,10 @@
 import { Component } from '@angular/core';
-import { NoteService } from '../services/note.service';
 import { GuitarNeckService } from '../services/guitar-neck.service';
-import { Command, DisplayAllNotesCommand, DisplayScaleCommand, DisplaySingleNoteCommand, DisplayTriadCommand, DisplayExtendedChordCommand } from '../shared/UICommands';
+import { Command, DisplayAllNotesCommand, DisplayScaleCommand, DisplaySingleNoteCommand, DisplayChordCommand } from '../shared/UICommands';
 import { ToolboxSearchQuery } from '../shared/model/musicElements';
 import { NoteSelectionService } from '../services/note-selection.service';
-import { ExtendedChordService } from '../services/extended-chord.service';
 import { ToolboxFormComponent } from '../toolbox-form/toolbox-form.component';
 import { GuitarNeckComponent } from '../guitar-neck/guitar-neck.component';
-import { TRIAD_PATTERNS } from '../shared/model/triadTypes';
 import { GuitarChatModule } from '@guitar-ui/chat';
 
 @Component({
@@ -23,35 +20,25 @@ import { GuitarChatModule } from '@guitar-ui/chat';
 })
 export class HomePageComponent {
   constructor(
-    private noteService: NoteService,
     private guitarNeckService: GuitarNeckService,
     private noteSelectionService: NoteSelectionService,
-    private extendedChordService: ExtendedChordService,
   ) { }
 
   toolboxSubmit(event: ToolboxSearchQuery): void {
-    //console.log('toolboxSubmit', event.musicElements, event.keys);
     this.guitarNeckService.clearFretboard();
 
     let command: Command;
-
-    if (event.musicElements === 'Single note') {
+    console.log('musicElements', event);
+    if (event.type === 'basic' && event.musicElements === 'All notes') {
       command = new DisplaySingleNoteCommand(this.noteSelectionService, event.keys);
-    } else if (event.musicElements === 'All notes') {
+    } else if (event.type === 'basic' ) {
       command = new DisplayAllNotesCommand(this.noteSelectionService);
-    } else if (this.isTriad(event.musicElements)) {
-      command = new DisplayTriadCommand(this.noteSelectionService, event.musicElements, event.keys);
-    } else if (this.extendedChordService.isExtendedChord(event.musicElements)) {
-      command = new DisplayExtendedChordCommand(this.extendedChordService, event.musicElements, event.keys);
+    } else if ((event.type === 'chord')) {
+      command = new DisplayChordCommand(this.noteSelectionService, event.musicElements, event.keys);
     } else {
       command = new DisplayScaleCommand(this.noteSelectionService, event.musicElements, event.keys);
     }
 
     command.execute();
-  }
-
-  private isTriad(name: string): boolean {
-    return TRIAD_PATTERNS.some(pattern => pattern.name === name) ||
-           name.includes('Triad');
   }
 }
