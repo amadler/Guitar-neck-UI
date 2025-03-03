@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { neckConfig } from '../shared/model/neckConfig';
 
 @Component({
   selector: 'app-fret-range-selector',
@@ -11,11 +12,12 @@ import { CommonModule } from '@angular/common';
 })
 export class FretRangeSelectorComponent {
   @Output() rangeChange = new EventEmitter<{minFret: number, maxFret: number}>();
+  neckConfig = neckConfig;
 
   selectedMinFret = 0;
-  selectedMaxFret = 24;
-  maxFret = 24;
-  commonPositions = [1, 3, 5, 7, 9, 12, 15, 17, 19, 21, 24];
+  selectedMaxFret = neckConfig.numberOfFrets;
+  maxFret = neckConfig.numberOfFrets;
+  commonPositions = [1, 3, 5, 7, 9, 12, 15, 17, 19, 21].filter(pos => pos <= this.neckConfig.numberOfFrets);
 
   selectPosition(position: number) {
     this.selectedMinFret = position;
