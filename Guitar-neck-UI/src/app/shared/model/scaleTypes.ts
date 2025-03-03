@@ -67,5 +67,9 @@ export const SCALE_PATTERNS: ScalePattern[] = [
   {
     name: 'Blues',
     intervals: [3, 2, 1, 1, 3, 2],
+  },
+  {
+    name: "Chromatic",
+    intervals: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
   }
 ];

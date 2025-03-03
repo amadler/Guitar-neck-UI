@@ -1,25 +1,31 @@
-.symbols {
+.legend {
   display: flex;
-  width: 30%;
-  justify-content:  space-between;
-  align-items: flex-start;
-  margin-top: 10px;
-
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px;
+  justify-content: center;
 }
-.symbols > div{
-  border-radius: var(--guitar-neck-dot-border-radius);
-  color: var(--guitar-neck-marker--color);
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: white;
   font-size: 12px;
   font-weight: bold;
-  padding: 12px;
-  box-sizing: content-box;
-  &.symbols__root{
-    background-color: rgb(128, 0, 15);
-  }
-  &.symbols__third{
-    background-color: rgb(0, 128, 58);
-  }
-  &.symbols__fifth{
-    background-color: rgb(128, 124, 0);
-  }
+
+  &.root { background-color: rgb(128, 0, 15); }
+  &.minor-2nd { background-color: rgb(230, 92, 0); }
+  &.major-2nd { background-color: rgb(255, 136, 0); }
+  &.minor-3rd { background-color: rgb(219, 180, 0); }
+  &.major-3rd { background-color: rgb(139, 195, 0); }
+  &.perfect-4th { background-color: rgb(0, 153, 76); }
+  &.diminished-5th { background-color: rgb(0, 128, 128); }
+  &.perfect-5th { background-color: rgb(0, 102, 204); }
+  &.minor-6th { background-color: rgb(106, 0, 179); }
+  &.major-6th { background-color: rgb(153, 51, 204); }
+  &.minor-7th { background-color: rgb(179, 0, 134); }
+  &.major-7th { background-color: rgb(160, 160, 160); }
 }

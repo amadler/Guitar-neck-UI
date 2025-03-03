@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { GuitarNeckService } from '../services/guitar-neck.service';
-import { NgIf, NgFor } from '@angular/common';
+import { NgIf, NgFor, NgClass } from '@angular/common';
 import { neckConfig } from '../shared/model/neckConfig';
 import { FretRangeSelectorComponent } from '../fret-range-selector/fret-range-selector.component';
 import { LegendComponent } from "./components/legend/legend.component";
@@ -10,7 +10,7 @@ import { LegendComponent } from "./components/legend/legend.component";
   selector: 'app-freatboard',
   templateUrl: './freatboard.component.html',
   standalone: true,
-  imports: [NgIf, NgFor, FretRangeSelectorComponent, LegendComponent],
+  imports: [NgIf, NgFor, NgClass, FretRangeSelectorComponent, LegendComponent],
   styleUrls: ['./freatboard.component.scss']
 })
 export class FreatboardComponent implements OnInit {
@@ -61,19 +61,10 @@ export class FreatboardComponent implements OnInit {
     return note ? note.selected : false;
   }
 
-  protected isNoteRootNote(string: string, fret: number): boolean | undefined {
+  getNoteInterval(string: string, fret: number): string | undefined {
     const note = this.getNote(string, fret);
-    return note ? note.isRoot : false;
-  }
-
-  protected isNoteFifth(string: string, fret: number): boolean | undefined {
-    const note = this.getNote(string, fret);
-    return note ? note.isFifth : false;
-  }
-
-  protected isNoteThird(string: string, fret: number): boolean | undefined {
-    const note = this.getNote(string, fret);
-    return note ? note.isThird : false;
+    console.log('note', note?.interval);
+    return note ? note.interval : undefined;
   }
 
   protected isMarkedFret(string: string, fret: number) {

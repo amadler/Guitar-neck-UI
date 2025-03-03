@@ -17,38 +17,52 @@ export class IntervalService {
     }
 
     const rootNoteIndex = neckConfig.chromaticNotes.indexOf(rootNote);
-    const intervalIndices = this.calculateIntervalIndices(rootNoteIndex, pattern.intervals);
-    const notes = intervalIndices.map(index => neckConfig.chromaticNotes[index]);
+    if (rootNoteIndex === -1) {
+      console.warn(`Invalid root note: ${rootNote}`);
+      return;
+    }
 
+    // Calculate all possible intervals from the root note
+    const intervalNotes = new Map<string, string>();
+    let currentIndex = rootNoteIndex;
+    intervalNotes.set(neckConfig.chromaticNotes[currentIndex], 'root');
+
+    // Build cumulative intervals
+    let semitoneCount = 0;
+    pattern.intervals.forEach(interval => {
+      semitoneCount += interval;
+      currentIndex = (rootNoteIndex + semitoneCount) % 12;
+      const note = neckConfig.chromaticNotes[currentIndex];
+      intervalNotes.set(note, this.getIntervalName(semitoneCount));
+    });
+
+    // Assign intervals to selected notes
     selectedNotes.forEach(note => {
-      const intervalPosition = notes.indexOf(note.note);
-      if (intervalPosition !== -1) {
-        switch(intervalPosition) {
-          case 0: note.isRoot = true; break;
-          case 1: note.isThird = true; break;
-          case 2: note.isFifth = true; break;
-        }
-      }
+      note.interval = intervalNotes.get(note.note) || '';
     });
-  }
-
-  private calculateIntervalIndices(rootIndex: number, intervals: number[]): number[] {
-    const indices = [rootIndex];
-    let currentIndex = rootIndex;
-
-    intervals.forEach(interval => {
-      currentIndex = (currentIndex + interval) % 12;
-      indices.push(currentIndex);
-    });
-
-    return indices;
   }
 
   removeIntervals(notes: GuitarNote[]) {
     notes.forEach(note => {
-      note.isRoot = false;
-      note.isFifth = false;
-      note.isThird = false;
+      note.interval = '';
     });
+  }
+
+  private getIntervalName(semitones: number): string {
+    const intervals: { [key: number]: string } = {
+      0: 'root',
+      1: 'minor-2nd',
+      2: 'major-2nd',
+      3: 'minor-3rd',
+      4: 'major-3rd',
+      5: 'perfect-4th',
+      6: 'diminished-5th',
+      7: 'perfect-5th',
+      8: 'minor-6th',
+      9: 'major-6th',
+      10: 'minor-7th',
+      11: 'major-7th'
+    };
+    return intervals[semitones % 12] || '';
   }
 }

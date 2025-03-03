@@ -6,12 +6,7 @@ export class GuitarNote {
   note: string;
   visible: boolean;
   selected: boolean;
-  isRoot?: boolean;
-  isFifth?: boolean;
-  isThird?: boolean;
-  /// TODO: interwały jako literały
-
-
+  interval: string;
 
   constructor(string: number, fret: number, note: string, visible: boolean = true) {
     this.id = uuidv4();
@@ -20,8 +15,6 @@ export class GuitarNote {
     this.note = note;
     this.visible = visible;
     this.selected = false;
-    this.isRoot = false;
-    this.isFifth = false;
-    this.isThird = false;
+    this.interval = '';
   }
 }

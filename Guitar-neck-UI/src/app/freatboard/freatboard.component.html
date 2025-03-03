@@ -22,14 +22,8 @@
         <ng-container *ngIf="isNoteOnFret(string, fret) && isNoteSelected(string, fret) && isNoteInRange(fret)">
           <div class="guitar-neck__selected">{{ getNoteName(string, fret) }}</div>
         </ng-container>
-        <ng-container *ngIf="isNoteOnFret(string, fret) && isNoteRootNote(string, fret) && isNoteInRange(fret)">
-          <div class="guitar-neck__dot guitar-neck__root">{{ getNoteName(string, fret) }}</div>
-        </ng-container>
-        <ng-container *ngIf="isNoteOnFret(string, fret) && isNoteFifth(string, fret) && isNoteInRange(fret)">
-          <div class="guitar-neck__dot guitar-neck__fifth">{{ getNoteName(string, fret) }}</div>
-        </ng-container>
-        <ng-container *ngIf="isNoteOnFret(string, fret) && isNoteThird(string, fret) && isNoteInRange(fret)">
-          <div class="guitar-neck__dot guitar-neck__third">{{ getNoteName(string, fret) }}</div>
+        <ng-container *ngIf="isNoteOnFret(string, fret) && getNoteInterval(string, fret) && isNoteInRange(fret)">
+          <div [ngClass]="['guitar-neck__dot guitar-neck__'+getNoteInterval(string, fret)]">{{ getNoteName(string, fret) }}</div>
         </ng-container>
       </div>
     </div>

@@ -91,13 +91,50 @@
   background-color: rgb(128, 0, 15);
 }
 
-.guitar-neck__third{
-  background-color: rgb(0, 128, 58);
+.guitar-neck__minor-2nd {
+  background-color: rgb(230, 92, 0); /* Ciemnopomarańczowy – ciepły, dobrze widoczny */
 }
 
-.guitar-neck__fifth{
-  background-color: rgb(128, 124, 0);
+.guitar-neck__major-2nd {
+  background-color: rgb(255, 136, 0); /* Pomarańczowy – mocny kontrast z białym */
 }
+
+.guitar-neck__minor-3rd {
+  background-color: rgb(219, 180, 0); /* Złocisty – ciepły, nie razi */
+}
+
+.guitar-neck__major-3rd {
+  background-color: rgb(139, 195, 0); /* Oliwkowy – dobrze kontrastuje z białym */
+}
+
+.guitar-neck__perfect-4th {
+  background-color: rgb(0, 153, 76); /* Głęboka zieleń – nie neonowa, czytelna */
+}
+
+.guitar-neck__diminished-5th {
+  background-color: rgb(0, 128, 128); /* Ciemnoturkusowy – nie gryzie się z rootnote */
+}
+
+.guitar-neck__perfect-5th {
+  background-color: rgb(0, 102, 204); /* Mocny niebieski – kontrastowy */
+}
+
+.guitar-neck__minor-6th {
+  background-color: rgb(106, 0, 179); /* Fioletowy – nie za ciemny */
+}
+
+.guitar-neck__major-6th {
+  background-color: rgb(153, 51, 204); /* Śliwkowy – kontrastuje z białym */
+}
+
+.guitar-neck__minor-7th {
+  background-color: rgb(179, 0, 134); /* Purpurowy – nie za jaskrawy */
+}
+
+.guitar-neck__major-7th {
+  background-color: rgb(160, 160, 160); /* Neutralny szary – subtelny, ale czytelny */
+}
+
 
 .guitar-neck__string{
   .guitar-neck__fret{
