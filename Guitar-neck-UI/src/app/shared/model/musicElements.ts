@@ -3,4 +3,4 @@ export interface ToolboxSearchQuery {
   keys: string;
   type: QueryTypes;
 }
-export type QueryTypes = 'scale' | 'chord' | 'basic'
+export type QueryTypes = 'scale' | 'chord' | 'basic' | 'custom';

@@ -63,4 +63,10 @@ export class MusicTheoryFacadeService {
   private clearFretboard(): void {
     this.guitarNeckService.clearFretboard();
   }
+
+  selectNotes(notes: string[]) {
+    this.clearFretboard();
+    const selectedNotes = this.noteService.getNotesByScale(notes);
+    this.guitarNeckService.selectNotes(selectedNotes);
+  }
 }

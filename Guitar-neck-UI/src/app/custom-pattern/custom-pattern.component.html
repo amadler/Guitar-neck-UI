@@ -1,0 +1,26 @@
+<form [formGroup]="customPatternForm" (ngSubmit)="onSubmit()" class="custom-pattern-form">
+  <div class="form-row">
+    <label for="intervals">Intervals:</label>
+    <input
+      type="text"
+      id="intervals"
+      formControlName="intervals"
+      placeholder="e.g. 1,3,5"
+      class="form-input"
+    >
+    <small>Enter comma-separated intervals</small>
+  </div>
+
+  <div class="form-row">
+    <label for="rootNote">Root note:</label>
+    <select id="rootNote" formControlName="rootNote" class="form-select">
+      <option *ngFor="let note of keys" [value]="note">{{note}}</option>
+    </select>
+  </div>
+  <div class="form-row">
+    <button type="submit" [disabled]="!customPatternForm.valid">
+      Show Pattern
+    </button>
+  </div>
+
+</form>

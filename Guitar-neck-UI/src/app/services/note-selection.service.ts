@@ -16,11 +16,16 @@ export class NoteSelectionService {
     return this.musicTheoryFacade.selectScale(scaleName, rootNote);
   }
 
-  selectNote(noteName: string){
+  selectNote(noteName: string) {
     this.musicTheoryFacade.selectNote(noteName);
   }
 
-  selectAllNotes(){
+  selectAllNotes() {
     this.musicTheoryFacade.selectAllNotes();
+  }
+
+  // Add new method for custom pattern
+  selectNotes(notes: string[]) {
+    this.musicTheoryFacade.selectNotes(notes);
   }
 }

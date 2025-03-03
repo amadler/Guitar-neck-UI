@@ -54,3 +54,30 @@ export class DisplayChordCommand implements Command {
   }
 }
 
+export class DisplayCustomPatternCommand implements Command {
+  constructor(
+    private noteSelectionService: NoteSelectionService,
+    private intervals: number[],
+    private rootNote: string
+  ) {}
+
+  execute(): void {
+    const notes = this.calculateNotesFromIntervals();
+    this.noteSelectionService.selectNotes(notes);
+  }
+
+  private calculateNotesFromIntervals(): string[] {
+    const chromaticScale = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    const rootIndex = chromaticScale.indexOf(this.rootNote);
+    const notes = [this.rootNote];
+
+    let currentIndex = rootIndex;
+    for (const interval of this.intervals) {
+      currentIndex = (currentIndex + interval) % 12;
+      notes.push(chromaticScale[currentIndex]);
+    }
+
+    return notes;
+  }
+}
+

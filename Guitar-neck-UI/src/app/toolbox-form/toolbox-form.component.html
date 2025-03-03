@@ -1,5 +1,23 @@
 <h2 class="section-title">Select, what you want to see on guitar neck.</h2>
-<form [formGroup]="guitarForm" (ngSubmit)="onSubmit()">
+
+<!-- Przycisk do przełączania między standardowym a custom pattern -->
+<div class="mode-selector">
+  <button
+    type="button"
+    [class.active]="!showCustomPattern"
+    (click)="showCustomPattern = false">
+    Standard Patterns
+  </button>
+  <button
+    type="button"
+    [class.active]="showCustomPattern"
+    (click)="showCustomPattern = true">
+    Custom Pattern
+  </button>
+</div>
+
+<!-- Standardowy formularz -->
+<form *ngIf="!showCustomPattern" [formGroup]="guitarForm" (ngSubmit)="onSubmit()">
   <div class="form-row">
     <label for="elementType">Type:</label>
     <select class="form-select" id="elementType" formControlName="elementType">
@@ -23,3 +41,9 @@
 
   <button type="submit" [style.backgroundColor]="'#004400'" [style.color]="'#ffffff'">Show!</button>
 </form>
+
+<!-- Custom pattern component -->
+<app-custom-pattern
+  *ngIf="showCustomPattern"
+  (onCustomPatternSubmit)="onCustomPatternSubmit($event)">
+</app-custom-pattern>

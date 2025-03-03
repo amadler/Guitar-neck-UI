@@ -58,3 +58,27 @@ button {
     opacity: 0.9;
   }
 }
+
+.mode-selector {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+
+  button {
+    padding: 8px 16px;
+    border: 1px solid #004400;
+    background: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &.active {
+      background-color: #004400;
+      color: white;
+    }
+
+    &:hover:not(.active) {
+      background-color: rgba(0, 68, 0, 0.1);
+    }
+  }
+}

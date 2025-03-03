@@ -1,15 +1,16 @@
-import { NgFor } from '@angular/common';
+import { NgFor, NgIf } from '@angular/common';
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { SCALE_PATTERNS } from '../shared/model/scaleTypes';
 import { QueryTypes, ToolboxSearchQuery } from '../shared/model/musicElements';
 import { CHORD_PATTERNS } from '../shared/model/chordTypes';
 import { neckConfig } from '../shared/model/neckConfig';
+import { CustomPatternComponent } from '../custom-pattern/custom-pattern.component';
 
 @Component({
   selector: 'app-toolbox-form',
   standalone: true,
-  imports: [ReactiveFormsModule, NgFor],
+  imports: [ReactiveFormsModule, NgFor, NgIf, CustomPatternComponent],
   templateUrl: './toolbox-form.component.html',
   styleUrls: ['./toolbox-form.component.scss']
 })
@@ -33,6 +34,8 @@ export class ToolboxFormComponent {
 
   availablePatterns: string[] = this.patterns['basic'];  // Fixed: using bracket notation
   selectedElementType: QueryTypes = 'basic';
+
+  showCustomPattern = false;
 
   constructor(private fb: FormBuilder) {
     this.guitarForm = this.fb.group({
@@ -59,5 +62,9 @@ export class ToolboxFormComponent {
       };
       this.onSubmit$.emit(query);
     }
+  }
+
+  onCustomPatternSubmit(query: ToolboxSearchQuery) {
+    this.onSubmit$.emit(query);
   }
 }
