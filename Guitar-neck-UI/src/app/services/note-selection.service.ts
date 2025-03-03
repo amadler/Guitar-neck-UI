@@ -15,4 +15,12 @@ export class NoteSelectionService {
   selectScale(scaleName: string, rootNote: string): Observable<GuitarNote[]> {
     return this.musicTheoryFacade.selectScale(scaleName, rootNote);
   }
+
+  selectNote(noteName: string){
+    this.musicTheoryFacade.selectNote(noteName);
+  }
+
+  selectAllNotes(){
+    this.musicTheoryFacade.selectAllNotes('C');
+  }
 }

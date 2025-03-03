@@ -5,6 +5,7 @@ import { SCALE_PATTERNS } from '../shared/model/scaleTypes';
 import { ToolboxSearchQuery } from '../shared/model/musicElements';
 import { TRIAD_PATTERNS } from '../shared/model/triadTypes';
 import { EXTENDED_CHORD_PATTERNS } from '../shared/model/extendedChordTypes';
+import { neckConfig } from '../shared/model/neckConfig';
 
 @Component({
   selector: 'app-toolbox-form',
@@ -17,7 +18,7 @@ export class ToolboxFormComponent {
   @Output() onSubmit$: EventEmitter<ToolboxSearchQuery> = new EventEmitter<ToolboxSearchQuery>();
   guitarForm!: FormGroup;
 
-  keys = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
+  keys = neckConfig.chromaticNotes;
 
   elementTypes = [
     { id: 'basic', name: 'Basic' },
@@ -39,7 +40,7 @@ export class ToolboxFormComponent {
     this.guitarForm = this.fb.group({
       elementType: ['basic'],
       pattern: ['Single note'],
-      key: ['A']
+      key: this.keys[0] || 'C'
     });
 
     // React to element type changes

@@ -30,15 +30,15 @@ export class HomePageComponent {
   ) { }
 
   toolboxSubmit(event: ToolboxSearchQuery): void {
-    console.log('toolboxSubmit', event.musicElements, event.keys);
+    //console.log('toolboxSubmit', event.musicElements, event.keys);
     this.guitarNeckService.clearFretboard();
 
     let command: Command;
 
     if (event.musicElements === 'Single note') {
-      command = new DisplaySingleNoteCommand(this.noteService, this.guitarNeckService, event.keys);
+      command = new DisplaySingleNoteCommand(this.noteService, this.noteSelectionService, event.keys);
     } else if (event.musicElements === 'All notes') {
-      command = new DisplayAllNotesCommand(this.guitarNeckService);
+      command = new DisplayAllNotesCommand(this.noteSelectionService);
     } else if (this.isTriad(event.musicElements)) {
       command = new DisplayTriadCommand(this.noteSelectionService, event.musicElements, event.keys);
     } else if (this.extendedChordService.isExtendedChord(event.musicElements)) {

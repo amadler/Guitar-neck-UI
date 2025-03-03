@@ -110,28 +110,3 @@
   }
 }
 
-.symbols {
-  display: flex;
-  width: 30%;
-  justify-content:  space-between;
-  align-items: flex-start;
-  margin-top: 10px;
-
-}
-.symbols > div{
-  border-radius: var(--guitar-neck-dot-border-radius);
-  color: var(--guitar-neck-marker--color);
-  font-size: 12px;
-  font-weight: bold;
-  padding: 12px;
-  box-sizing: content-box;
-  &.symbols__root{
-    background-color: rgb(128, 0, 15);
-  }
-  &.symbols__third{
-    background-color: rgb(0, 128, 58);
-  }
-  &.symbols__fifth{
-    background-color: rgb(128, 124, 0);
-  }
-}

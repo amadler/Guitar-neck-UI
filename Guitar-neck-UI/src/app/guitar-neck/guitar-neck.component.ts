@@ -17,6 +17,8 @@ export class GuitarNeckComponent {
   neckConfig = neckConfig;
   neck= new GuitarNeck(neckConfig);
   guitarNotes: GuitarNote[];
+  @ViewChild(FreatboardComponent) freatboardComponent!: FreatboardComponent;
+
   constructor(
     private noteService: NoteService,
     private guitarNeckService: GuitarNeckService
@@ -25,8 +27,6 @@ export class GuitarNeckComponent {
     this.guitarNeckService.notes = this.guitarNotes;
     this.guitarNeckService.hideAllNotes();
   }
-
-  @ViewChild(FreatboardComponent) freatboardComponent!: FreatboardComponent;
 
   onNoteClicked(note: GuitarNote): void {
     console.log('onNoteClicked$', note);

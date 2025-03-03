@@ -10,20 +10,19 @@ export interface Command {
 export class DisplaySingleNoteCommand implements Command {
   constructor(
     private noteService: NoteService,
-    private guitarNeckService: GuitarNeckService,
+    private noteSelectionService: NoteSelectionService,
     private keys: string) {}
 
   execute(): void {
-    const notes = this.noteService.getNotesByNoteName(this.keys);
-    this.guitarNeckService.selectNotes(notes);
+    this.noteSelectionService.selectNote(this.keys);
   }
 }
 
 export class DisplayAllNotesCommand implements Command {
-  constructor(private guitarNeckService: GuitarNeckService) {}
+  constructor(private noteSelectionService: NoteSelectionService,) {}
 
   execute(): void {
-    this.guitarNeckService.showAllNotes();
+    this.noteSelectionService.selectAllNotes();
   }
 }
 
