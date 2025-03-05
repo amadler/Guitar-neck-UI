@@ -1,6 +1,6 @@
 /* NoteSelectionService koordynuje wybór nut na podstawie skali lub trójdźwięku. */
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { MusicTheoryFacadeService } from './music-theory-facade.service';
 
@@ -25,7 +25,7 @@ export class NoteSelectionService {
   }
 
   // Add new method for custom pattern
-  selectNotes(notes: string[]) {
-    this.musicTheoryFacade.selectNotes(notes);
+  selectNotes(notes: string[], rootNote: string): Observable<GuitarNote[]> {
+    return of(this.musicTheoryFacade.selectNotes(notes, rootNote));
   }
 }

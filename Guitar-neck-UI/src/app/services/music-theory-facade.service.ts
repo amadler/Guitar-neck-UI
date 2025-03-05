@@ -64,9 +64,15 @@ export class MusicTheoryFacadeService {
     this.guitarNeckService.clearFretboard();
   }
 
-  selectNotes(notes: string[]) {
+  selectNotes(notes: string[], rootNote: string) {
     this.clearFretboard();
     const selectedNotes = this.noteService.getNotesByScale(notes);
-    this.guitarNeckService.selectNotes(selectedNotes);
+    const highlightedNotes = this.guitarNeckService.selectNotes(selectedNotes);
+
+    // Tworzymy pattern name dla custom pattern
+    const customPatternName = 'custom-pattern';
+    this.intervalService.markIntervals(rootNote, customPatternName, highlightedNotes);
+
+    return highlightedNotes;
   }
 }

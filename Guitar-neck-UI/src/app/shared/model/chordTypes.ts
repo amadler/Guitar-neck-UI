@@ -48,5 +48,9 @@ export const CHORD_PATTERNS: ChordPattern[] = [
   {
     name: 'Diminished 7th',
     intervals: [3, 3, 3], // Diminished triad + diminished seventh
+  },
+  {
+    name: 'custom-pattern',
+    intervals: [], // będzie dynamicznie uzupełniane
   }
 ];

@@ -63,7 +63,7 @@ export class DisplayCustomPatternCommand implements Command {
 
   execute(): void {
     const notes = this.calculateNotesFromIntervals();
-    this.noteSelectionService.selectNotes(notes);
+    this.noteSelectionService.selectNotes(notes, this.rootNote).subscribe();
   }
 
   private calculateNotesFromIntervals(): string[] {

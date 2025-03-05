@@ -1,7 +1,7 @@
 export interface MusicalSuggestion {
   displayName: string;
   notes: string[];
-  type: 'scale' | 'chord' | 'arpeggio';
+  type: 'scale' | 'chord' | 'custom';
   position?: number;
 }
 
