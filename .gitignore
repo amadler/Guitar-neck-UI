@@ -1,1 +1,7 @@
 documentation
+node_modules
+node_modules
+coverage
+.angular
+dist
+.vscode

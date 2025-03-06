@@ -5,7 +5,7 @@ import { ToolboxSearchQuery } from '../shared/model/musicElements';
 import { NoteSelectionService } from '../services/note-selection.service';
 import { ToolboxFormComponent } from '../toolbox-form/toolbox-form.component';
 import { GuitarNeckComponent } from '../guitar-neck/guitar-neck.component';
-import { GuitarChatModule } from '@guitar-ui/chat';
+import { GuitarChatModule } from '../../../projects/guitar-chat/src/public-api';
 
 @Component({
   selector: 'app-home-page',

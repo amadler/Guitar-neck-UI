@@ -5,71 +5,71 @@ export interface ScalePattern {
 
 export const SCALE_PATTERNS: ScalePattern[] = [
   {
-    name: 'Major pentatonic',
+    name: 'major-pentatonic',
     intervals: [2, 2, 3, 2, 3],
   },
   {
-    name: 'Minor pentatonic',
+    name: 'minor-pentatonic',
     intervals: [3, 2, 2, 3, 2],
   },
   {
-    name: 'Major scale',
+    name: 'major',
     intervals: [2, 2, 1, 2, 2, 2, 1],
   },
   {
-    name: 'Minor scale',
+    name: 'minor',
     intervals: [2, 1, 2, 2, 1, 2, 2],
   },
   {
-    name: 'Ionian',
+    name: 'ionian',
     intervals: [2, 2, 1, 2, 2, 2, 1],
   },
   {
-    name: 'Dorian',
+    name: 'dorian',
     intervals: [2, 1, 2, 2, 2, 1, 2],
   },
   {
-    name: 'Phrygian',
+    name: 'phrygian',
     intervals: [1, 2, 2, 2, 1, 2, 2],
   },
   {
-    name: 'Lydian',
+    name: 'lydian',
     intervals: [2, 2, 2, 1, 2, 2, 1],
   },
   {
-    name: 'Mixolydian',
+    name: 'mixolydian',
     intervals: [2, 2, 1, 2, 2, 1, 2],
   },
   {
-    name: 'Aeolian',
+    name: 'aeolian',
     intervals: [2, 1, 2, 2, 1, 2, 2],
   },
   {
-    name: 'Locrian',
+    name: 'locrian',
     intervals: [1, 2, 2, 1, 2, 2, 2],
   },
   {
-    name: 'Diminished',
+    name: 'diminished',
     intervals: [2, 1, 2, 1, 2, 1, 2, 1],
   },
   {
-    name: 'Augmented',
+    name: 'augmented',
     intervals: [3, 1, 3, 1, 3, 1],
   },
   {
-    name: 'Harmonic',
+    name: 'harmonic',
     intervals: [2, 1, 2, 2, 1, 3, 1],
   },
   {
-    name: 'Melodic',
+    name: 'melodic',
     intervals: [2, 1, 2, 2, 2, 2, 1],
   },
   {
-    name: 'Blues',
+    name: 'blues',
     intervals: [3, 2, 1, 1, 3, 2],
   },
   {
-    name: "Chromatic",
+    name: "chromatic",
     intervals: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
   }
 ];
