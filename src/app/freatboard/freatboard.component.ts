@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { GuitarNeckService } from '../services/guitar-neck.service';
 import { NgIf, NgFor, NgClass } from '@angular/common';
-import { neckConfig } from '../shared/model/neckConfig';
+import { neckConfig } from 'shared';
 import { FretRangeSelectorComponent } from '../fret-range-selector/fret-range-selector.component';
 import { LegendComponent } from "./components/legend/legend.component";
 

@@ -1,11 +1,9 @@
 import { NgFor, NgIf } from '@angular/common';
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { SCALE_PATTERNS } from '../shared/model/scaleTypes';
 import { QueryTypes, ToolboxSearchQuery } from '../shared/model/musicElements';
-import { CHORD_PATTERNS } from '../shared/model/chordTypes';
-import { neckConfig } from '../shared/model/neckConfig';
 import { CustomPatternComponent } from '../custom-pattern/custom-pattern.component';
+import { CHORD_PATTERNS, SCALE_PATTERNS, neckConfig } from 'shared';
 
 @Component({
   selector: 'app-toolbox-form',

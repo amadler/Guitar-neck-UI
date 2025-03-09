@@ -1,6 +1,6 @@
 /* GuitarNeckService zarządza stanem gryfu.*/
 import { Injectable } from '@angular/core';
-import { neckConfig } from '../shared/model/neckConfig';
+import { neckConfig } from 'shared';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { NoteService } from './note.service';
 import { IntervalService } from './interval.service';

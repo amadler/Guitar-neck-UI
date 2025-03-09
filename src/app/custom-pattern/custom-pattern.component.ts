@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { neckConfig } from '../shared/model/neckConfig';
+import { neckConfig } from 'shared';
 import { ToolboxSearchQuery } from '../shared/model/musicElements';
 
 @Component({

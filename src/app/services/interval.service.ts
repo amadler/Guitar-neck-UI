@@ -2,11 +2,8 @@
 */
 
 import { Injectable } from '@angular/core';
-import { neckConfig } from '../shared/model/neckConfig';
+import { neckConfig, CHORD_PATTERNS, SCALE_PATTERNS } from 'shared';
 import { GuitarNote } from '../shared/model/guitarNote';
-import { CHORD_PATTERNS } from '../shared/model/chordTypes';
-import { SCALE_PATTERNS } from '../shared/model/scaleTypes';
-
 @Injectable({ providedIn: 'root' })
 export class IntervalService {
   markIntervals(rootNote: string, patternName: string, selectedNotes: GuitarNote[]) {

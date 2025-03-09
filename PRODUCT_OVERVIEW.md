@@ -18,6 +18,7 @@ Guitar Neck UI to interaktywne narzędzie edukacyjne zaprojektowane, aby pomóc 
   - Akordy rozszerzone
 - Oznaczanie interwałów (pryma, tercja, kwinta)
 - Wybór tonacji
+- Możliwość  wrzucenia określonego patternu przez użytkownika i powielenie na całym gryfie (custom scale from riff)
 
 ### 3. Asystent AI
 - Czat z asystentem muzycznym

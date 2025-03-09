@@ -2,7 +2,7 @@
  * Represents a guitar neck.
  */
 
-import { NeckConfig } from "./model/neckConfig";
+import { NeckConfig } from "shared";
 
 class GuitarNeck {
   private neckConfig: NeckConfig;
