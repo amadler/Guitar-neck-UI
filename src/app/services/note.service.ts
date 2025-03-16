@@ -4,7 +4,7 @@
 
 import { Injectable } from '@angular/core';
 import { GuitarNote } from '../shared/model/guitarNote';
-import { neckConfig } from 'shared';
+import { neckConfig } from 'guitar-neck-shared';
 
 @Injectable({ providedIn: 'root' })
 export class NoteService {

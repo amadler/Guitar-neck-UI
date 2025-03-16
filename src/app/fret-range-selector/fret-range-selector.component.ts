@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { neckConfig } from 'shared';
+import { neckConfig } from 'guitar-neck-shared';
 
 @Component({
   selector: 'app-fret-range-selector',

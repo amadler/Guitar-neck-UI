@@ -1,6 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import GuitarNeck from '../shared/GuitarNeck';
-import { neckConfig } from 'shared';
+import { neckConfig } from 'guitar-neck-shared';
 import { FreatboardComponent } from '../freatboard/freatboard.component';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { NoteService } from '../services/note.service';

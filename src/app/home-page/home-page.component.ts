@@ -3,7 +3,7 @@ import { GuitarNeckService } from '../services/guitar-neck.service';
 import { Command, DisplayAllNotesCommand, DisplayScaleCommand, DisplaySingleNoteCommand, DisplayChordCommand, DisplayCustomPatternCommand } from '../shared/UICommands';
 import { ToolboxSearchQuery } from '../shared/model/musicElements';
 import { NoteSelectionService } from '../services/note-selection.service';
-import { ToolboxFormComponent } from '../toolbox-form/toolbox-form.component';
+import { ToolboxFormComponent } from 'guitar-toolbox-lib';
 import { GuitarNeckComponent } from '../guitar-neck/guitar-neck.component';
 import { GuitarChatModule } from '../../../projects/guitar-chat/src/public-api';
 

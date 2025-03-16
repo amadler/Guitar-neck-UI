@@ -2,7 +2,7 @@
 */
 
 import { Injectable } from '@angular/core';
-import { neckConfig, CHORD_PATTERNS, SCALE_PATTERNS } from 'shared';
+import { neckConfig, CHORD_PATTERNS, SCALE_PATTERNS } from 'guitar-neck-shared';
 import { GuitarNote } from '../shared/model/guitarNote';
 @Injectable({ providedIn: 'root' })
 export class IntervalService {
