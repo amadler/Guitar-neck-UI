@@ -63,7 +63,7 @@ export class FreatboardComponent implements OnInit {
 
   getNoteInterval(string: string, fret: number): string | undefined {
     const note = this.getNote(string, fret);
-    console.log('note', note?.interval);
+    //console.log('note', note?.interval);
     return note ? note.interval : undefined;
   }
 

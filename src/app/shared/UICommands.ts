@@ -18,6 +18,7 @@ export class DisplayAllNotesCommand implements Command {
   constructor(private noteSelectionService: NoteSelectionService,) {}
 
   execute(): void {
+    // TODO: error handling for selectAllNotes if it returns an Observable
     this.noteSelectionService.selectAllNotes();
   }
 }
