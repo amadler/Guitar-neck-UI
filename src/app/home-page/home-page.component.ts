@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { FretboardStateService } from '../services/guitar-neck.service';
 import { Command, DisplayAllNotesCommand, DisplayScaleCommand, DisplaySingleNoteCommand, DisplayChordCommand, DisplayCustomPatternCommand } from '../shared/UICommands';
-import { ToolboxSearchQuery } from '../shared/model/musicElements';
+import { isCustomToolboxSearchQuery, ToolboxSearchQuery } from '../shared/model/musicElements';
 import { FretboardOrchestrationService } from '../services/music-theory-facade.service';
 import { ToolboxFormComponent } from 'guitar-toolbox-lib';
 import { GuitarNeckComponent } from '../guitar-neck/guitar-neck.component';
@@ -28,25 +28,22 @@ export class HomePageComponent {
     this.guitarNeckService.clearFretboard();
 
     let command: Command;
-    if (event.type === 'custom') {
-      // Ensure musicElements is number[] for custom type
-      const intervals = Array.isArray(event.musicElements)
-        ? event.musicElements
-        : [];
-
+    if (isCustomToolboxSearchQuery(event)) {
       command = new DisplayCustomPatternCommand(
         this.fretboardOrchestrationService,
-        intervals,
+        event.musicElements,
         event.keys
       );
     } else if (event.type === 'basic' && event.musicElements === 'All notes') {
       command = new DisplayAllNotesCommand(this.fretboardOrchestrationService);
-    } else if (event.type === 'basic') {
+    } else if (event.type === 'basic' && typeof event.musicElements === 'string') {
       command = new DisplaySingleNoteCommand(this.fretboardOrchestrationService, event.keys);
-    } else if (event.type === 'chord') {
+    } else if (event.type === 'chord' && typeof event.musicElements === 'string') {
       command = new DisplayChordCommand(this.fretboardOrchestrationService, event.musicElements, event.keys);
-    } else {
+    } else if (event.type === 'scale' && typeof event.musicElements === 'string') {
       command = new DisplayScaleCommand(this.fretboardOrchestrationService, event.musicElements, event.keys);
+    } else {
+      return;
     }
 
     command.execute();
