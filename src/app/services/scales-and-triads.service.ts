@@ -23,7 +23,7 @@ export class MusicPatternApiService {
     );
   }
 
-  generateScale(scaleName: string, rootNote: string): Observable<string[]> {
+  resolveScaleNotes(scaleName: string, rootNote: string): Observable<string[]> {
     const formattedName = this.formatName(scaleName);
     return this.http.get<{notes: string[]}>(`${this.API_URL}/scales/${formattedName}/${rootNote}`).pipe(
       map(response => response.notes),
@@ -31,7 +31,7 @@ export class MusicPatternApiService {
     );
   }
 
-  generateTriad(triadType: string, rootNote: string): Observable<string[]> {
+  resolveChordNotes(triadType: string, rootNote: string): Observable<string[]> {
     const formattedName = this.formatName(triadType);
     return this.http.get<{notes: string[]}>(`${this.API_URL}/chords/${formattedName}/${rootNote}`).pipe(
       map(response => response.notes),

@@ -10,13 +10,13 @@ import { MusicPatternApiService } from './scales-and-triads.service';
 export class FretboardOrchestrationService {
   constructor(
     private noteService: FretboardNotePositionService,
-    private scaleAndTriadService: MusicPatternApiService,
+    private patternApi: MusicPatternApiService,
     private intervalService: IntervalService,
     private guitarNeckService: FretboardStateService
   ) {}
 
   displayScale(scaleName: string, rootNote: string): Observable<GuitarNote[]> {
-    return this.scaleAndTriadService.generateScale(scaleName, rootNote).pipe(
+    return this.patternApi.resolveScaleNotes(scaleName, rootNote).pipe(
       map(scaleNotes => {
         const selectedNotes = this.noteService.findPositionsByScaleNotes(scaleNotes);
         const highlightedNotes = this.guitarNeckService.applyHighlightedNotes(selectedNotes);
@@ -33,7 +33,7 @@ export class FretboardOrchestrationService {
   displayChord(triadType: string, rootNote: string): Observable<GuitarNote[]> {
     this.clearFretboard();
 
-    return this.scaleAndTriadService.generateTriad(triadType, rootNote).pipe(
+    return this.patternApi.resolveChordNotes(triadType, rootNote).pipe(
       map(chordNotes => {
         const selectedNotes = this.noteService.findPositionsByChordNotes(chordNotes);
         const highlightedNotes = this.guitarNeckService.applyHighlightedNotes(selectedNotes);
