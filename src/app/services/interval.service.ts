@@ -39,6 +39,31 @@ export class IntervalService {
     });
   }
 
+  markCustomIntervals(rootNote: string, selectedNotes: GuitarNote[]) {
+    const rootNoteIndex = neckConfig.chromaticNotes.indexOf(rootNote);
+    if (rootNoteIndex === -1) {
+      console.warn(`Invalid root note: ${rootNote}`);
+      return;
+    }
+
+    const intervalNotes = new Map<string, string>();
+    intervalNotes.set(rootNote, 'root');
+
+    selectedNotes.forEach(note => {
+      const noteIndex = neckConfig.chromaticNotes.indexOf(note.note);
+      if (noteIndex === -1) {
+        return;
+      }
+
+      const semitones = (noteIndex - rootNoteIndex + 12) % 12;
+      intervalNotes.set(note.note, this.getIntervalName(semitones));
+    });
+
+    selectedNotes.forEach(note => {
+      note.interval = intervalNotes.get(note.note) || '';
+    });
+  }
+
   removeIntervals(notes: GuitarNote[]) {
     notes.forEach(note => {
       note.interval = '';

@@ -25,8 +25,8 @@ describe('GuitarNeckComponent', () => {
     guitarNeckService = TestBed.inject(FretboardStateService);
     noteService = TestBed.inject(FretboardNotePositionService);
     component.guitarNotes = [
-      { string: 1, fret: 0, note: 'E', selected: false, isRoot: false, isFifth: false, isThird: false, visible: true },
-      { string: 2, fret: 1, note: 'F', selected: true, isRoot: true, isFifth: false, isThird: false, visible: true },
+      { string: 1, fret: 0, note: 'E', selected: false, interval: '', visible: true },
+      { string: 2, fret: 1, note: 'F', selected: true, interval: 'root', visible: true },
     ];
     fixture.detectChanges();
   });
@@ -46,7 +46,7 @@ describe('GuitarNeckComponent', () => {
 
   it('should call onNoteClicked when a note is clicked in FreatboardComponent', () => {
     spyOn(component, 'onNoteClicked');
-    const note: GuitarNote = { string: 1, fret: 0, note: 'E', selected: false, isRoot: false, isFifth: false, isThird: false, visible: true };
+    const note: GuitarNote = { string: 1, fret: 0, note: 'E', selected: false, interval: '', visible: true };
     const freatboardElement = fixture.debugElement.query(By.directive(FreatboardComponent));
     const freatboardComponent = freatboardElement.componentInstance;
 

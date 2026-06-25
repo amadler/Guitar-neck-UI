@@ -3,7 +3,7 @@ import { FretboardStateService } from './guitar-neck.service';
 import { FretboardNotePositionService } from './note.service';
 import { IntervalService } from './interval.service';
 import { GuitarNote } from '../shared/model/guitarNote';
-import { neckConfig } from '../shared/model/neckConfig';
+import { neckConfig } from 'guitar-neck-shared';
 
 describe('GuitarNeckService', () => {
   let service: FretboardStateService;
@@ -13,9 +13,9 @@ describe('GuitarNeckService', () => {
 
   beforeEach(() => {
     mockNotes = [
-      { string: 1, fret: 0, note: 'E', selected: false, isRoot: false, isFifth: false, isThird: false, visible: true },
-      { string: 2, fret: 0, note: 'A', selected: false, isRoot: false, isFifth: false, isThird: false, visible: true },
-      { string: 1, fret: 5, note: 'A', selected: false, isRoot: false, isFifth: false, isThird: false, visible: true }
+      { string: 1, fret: 0, note: 'E', selected: false, interval: '', visible: true },
+      { string: 2, fret: 0, note: 'A', selected: false, interval: '', visible: true },
+      { string: 1, fret: 5, note: 'A', selected: false, interval: '', visible: true }
     ];
 
     noteServiceSpy = jasmine.createSpyObj('FretboardNotePositionService', ['getAllPositions']);

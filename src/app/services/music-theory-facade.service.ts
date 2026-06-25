@@ -69,9 +69,7 @@ export class FretboardOrchestrationService {
     const selectedNotes = this.noteService.findPositionsByScaleNotes(notes);
     const highlightedNotes = this.guitarNeckService.applyHighlightedNotes(selectedNotes);
 
-    // Tworzymy pattern name dla custom pattern
-    const customPatternName = 'custom-pattern';
-    this.intervalService.markIntervals(rootNote, customPatternName, highlightedNotes);
+    this.intervalService.markCustomIntervals(rootNote, highlightedNotes);
 
     return highlightedNotes;
   }

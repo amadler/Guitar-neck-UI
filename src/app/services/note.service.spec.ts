@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { FretboardNotePositionService } from './note.service';
 import { GuitarNote } from '../shared/model/guitarNote';
-import { neckConfig } from '../shared/model/neckConfig';
+import { neckConfig } from 'guitar-neck-shared';
 
 describe('NoteService', () => {
   let service: FretboardNotePositionService;
