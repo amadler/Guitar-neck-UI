@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { GuitarNeckService } from '../services/guitar-neck.service';
+import { FretboardStateService } from '../services/guitar-neck.service';
 import { Command, DisplayAllNotesCommand, DisplayScaleCommand, DisplaySingleNoteCommand, DisplayChordCommand, DisplayCustomPatternCommand } from '../shared/UICommands';
 import { ToolboxSearchQuery } from '../shared/model/musicElements';
-import { NoteSelectionService } from '../services/note-selection.service';
+import { FretboardOrchestrationService } from '../services/music-theory-facade.service';
 import { ToolboxFormComponent } from 'guitar-toolbox-lib';
 import { GuitarNeckComponent } from '../guitar-neck/guitar-neck.component';
 import { GuitarChatModule } from '../../../projects/guitar-chat/src/public-api';
@@ -20,8 +20,8 @@ import { GuitarChatModule } from '../../../projects/guitar-chat/src/public-api';
 })
 export class HomePageComponent {
   constructor(
-    private guitarNeckService: GuitarNeckService,
-    private noteSelectionService: NoteSelectionService,
+    private guitarNeckService: FretboardStateService,
+    private fretboardOrchestrationService: FretboardOrchestrationService,
   ) { }
 
   toolboxSubmit(event: ToolboxSearchQuery): void {
@@ -35,18 +35,18 @@ export class HomePageComponent {
         : [];
 
       command = new DisplayCustomPatternCommand(
-        this.noteSelectionService,
+        this.fretboardOrchestrationService,
         intervals,
         event.keys
       );
     } else if (event.type === 'basic' && event.musicElements === 'All notes') {
-      command = new DisplayAllNotesCommand(this.noteSelectionService);
+      command = new DisplayAllNotesCommand(this.fretboardOrchestrationService);
     } else if (event.type === 'basic') {
-      command = new DisplaySingleNoteCommand(this.noteSelectionService, event.keys);
+      command = new DisplaySingleNoteCommand(this.fretboardOrchestrationService, event.keys);
     } else if (event.type === 'chord') {
-      command = new DisplayChordCommand(this.noteSelectionService, event.musicElements, event.keys);
+      command = new DisplayChordCommand(this.fretboardOrchestrationService, event.musicElements, event.keys);
     } else {
-      command = new DisplayScaleCommand(this.noteSelectionService, event.musicElements, event.keys);
+      command = new DisplayScaleCommand(this.fretboardOrchestrationService, event.musicElements, event.keys);
     }
 
     command.execute();

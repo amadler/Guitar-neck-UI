@@ -1,28 +1,28 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FreatboardComponent } from './freatboard.component';
-import { GuitarNeckService } from '../services/guitar-neck.service';
-import { NoteService } from '../services/note.service';
+import { FretboardStateService } from '../services/guitar-neck.service';
+import { FretboardNotePositionService } from '../services/note.service';
 import { ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 
 describe('FreatboardComponent', () => {
   let component: FreatboardComponent;
   let fixture: ComponentFixture<FreatboardComponent>;
-  let guitarNeckService: GuitarNeckService;
-  let noteService: NoteService;
+  let guitarNeckService: FretboardStateService;
+  let noteService: FretboardNotePositionService;
 
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ReactiveFormsModule, FreatboardComponent],
-      providers:[GuitarNeckService, NoteService]
+      providers:[FretboardStateService, FretboardNotePositionService]
     })
     .compileComponents();
 
     fixture = TestBed.createComponent(FreatboardComponent);
     component = fixture.componentInstance;
-    guitarNeckService = TestBed.inject(GuitarNeckService);
-    noteService = TestBed.inject(NoteService);
+    guitarNeckService = TestBed.inject(FretboardStateService);
+    noteService = TestBed.inject(FretboardNotePositionService);
     component.notes = [
       { string: 1, fret: 0, note: 'E', selected: false, isRoot: false, isFifth: false, isThird: false, visible: true },
       { string: 2, fret: 1, note: 'F', selected: true, isRoot: true, isFifth: false, isThird: false, visible: true },

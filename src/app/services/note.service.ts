@@ -7,7 +7,7 @@ import { GuitarNote } from '../shared/model/guitarNote';
 import { neckConfig } from 'guitar-neck-shared';
 
 @Injectable({ providedIn: 'root' })
-export class NoteService {
+export class FretboardNotePositionService {
   guitarStrings = neckConfig.stringNotes;
   fretsCount = neckConfig.numberOfFrets;
   guitarNotes: GuitarNote[] = [];
@@ -40,19 +40,19 @@ export class NoteService {
     return notesOrder[noteIndex];
   }
 
-  getAllNotes(): GuitarNote[] {
+  getAllPositions(): GuitarNote[] {
     return this.guitarNotes;
   }
 
-  getNotesByNoteName(noteName: string): GuitarNote[] {
+  findPositionsByNoteName(noteName: string): GuitarNote[] {
     return this.guitarNotes.filter(note => note.note === noteName);
   }
 
-  getNotesByScale(scaleNotes: string[]): GuitarNote[] {
+  findPositionsByScaleNotes(scaleNotes: string[]): GuitarNote[] {
     return this.guitarNotes.filter(note => scaleNotes.includes(note.note));
   }
 
-  getNotesByTriad(triadNotes: string[]): GuitarNote[] {
+  findPositionsByChordNotes(triadNotes: string[]): GuitarNote[] {
     return this.guitarNotes.filter(note => triadNotes.includes(note.note));
   }
 }

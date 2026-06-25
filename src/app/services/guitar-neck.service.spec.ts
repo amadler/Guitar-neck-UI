@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
-import { GuitarNeckService } from './guitar-neck.service';
-import { NoteService } from './note.service';
+import { FretboardStateService } from './guitar-neck.service';
+import { FretboardNotePositionService } from './note.service';
 import { IntervalService } from './interval.service';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { neckConfig } from '../shared/model/neckConfig';
 
 describe('GuitarNeckService', () => {
-  let service: GuitarNeckService;
-  let noteServiceSpy: jasmine.SpyObj<NoteService>;
+  let service: FretboardStateService;
+  let noteServiceSpy: jasmine.SpyObj<FretboardNotePositionService>;
   let intervalServiceSpy: jasmine.SpyObj<IntervalService>;
   let mockNotes: GuitarNote[];
 
@@ -18,20 +18,20 @@ describe('GuitarNeckService', () => {
       { string: 1, fret: 5, note: 'A', selected: false, isRoot: false, isFifth: false, isThird: false, visible: true }
     ];
 
-    noteServiceSpy = jasmine.createSpyObj('NoteService', ['getAllNotes']);
+    noteServiceSpy = jasmine.createSpyObj('FretboardNotePositionService', ['getAllPositions']);
     intervalServiceSpy = jasmine.createSpyObj('IntervalService', ['removeIntervals']);
 
-    noteServiceSpy.getAllNotes.and.returnValue(mockNotes);
+    noteServiceSpy.getAllPositions.and.returnValue(mockNotes);
 
     TestBed.configureTestingModule({
       providers: [
-        GuitarNeckService,
-        { provide: NoteService, useValue: noteServiceSpy },
+        FretboardStateService,
+        { provide: FretboardNotePositionService, useValue: noteServiceSpy },
         { provide: IntervalService, useValue: intervalServiceSpy }
       ]
     });
 
-    service = TestBed.inject(GuitarNeckService);
+    service = TestBed.inject(FretboardStateService);
   });
 
   it('should be created', () => {
@@ -44,7 +44,7 @@ describe('GuitarNeckService', () => {
   });
 
   it('should initialize notes from NoteService', () => {
-    expect(noteServiceSpy.getAllNotes).toHaveBeenCalled();
+    expect(noteServiceSpy.getAllPositions).toHaveBeenCalled();
     expect(service.notes).toEqual(mockNotes);
   });
 
@@ -83,7 +83,7 @@ describe('GuitarNeckService', () => {
   describe('selectNotes', () => {
     it('should select and make visible specified notes', () => {
       const notesToSelect = [mockNotes[0]];
-      const selectedNotes = service.selectNotes(notesToSelect);
+      const selectedNotes = service.applyHighlightedNotes(notesToSelect);
 
       expect(selectedNotes.length).toBe(1);
       expect(selectedNotes[0].selected).toBeTrue();
@@ -92,7 +92,7 @@ describe('GuitarNeckService', () => {
 
     it('should deselect and hide unspecified notes', () => {
       const notesToSelect = [mockNotes[0]];
-      service.selectNotes(notesToSelect);
+      service.applyHighlightedNotes(notesToSelect);
 
       const unselectedNotes = service.notes.filter(note => note !== mockNotes[0]);
       unselectedNotes.forEach(note => {
@@ -110,7 +110,7 @@ describe('GuitarNeckService', () => {
 
     it('should show all notes', () => {
       service.hideAllNotes();
-      service.showAllNotes();
+      service.showAll();
       expect(service.notes.every(note => note.visible)).toBeTrue();
     });
   });
@@ -118,7 +118,7 @@ describe('GuitarNeckService', () => {
   describe('removeSelections', () => {
     it('should remove all selections', () => {
       service.notes[0].selected = true;
-      service.removeSelections();
+      service.clearSelection();
       expect(service.notes.every(note => !note.selected)).toBeTrue();
     });
   });

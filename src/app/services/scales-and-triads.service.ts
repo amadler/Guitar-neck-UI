@@ -4,7 +4,7 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
-export class ScaleAndTriadService {
+export class MusicPatternApiService {
   private readonly API_URL = 'http://localhost:3000/api';
 
   constructor(private http: HttpClient) {}

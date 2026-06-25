@@ -1,4 +1,4 @@
-import { NoteSelectionService } from "../services/note-selection.service";
+import { FretboardOrchestrationService } from "../services/music-theory-facade.service";
 
 export interface Command {
   execute(): void;
@@ -6,32 +6,31 @@ export interface Command {
 
 export class DisplaySingleNoteCommand implements Command {
   constructor(
-    private noteSelectionService: NoteSelectionService,
+    private fretboardOrchestrationService: FretboardOrchestrationService,
     private keys: string) {}
 
   execute(): void {
-    this.noteSelectionService.selectNote(this.keys);
+    this.fretboardOrchestrationService.displaySingleNote(this.keys);
   }
 }
 
 export class DisplayAllNotesCommand implements Command {
-  constructor(private noteSelectionService: NoteSelectionService,) {}
+  constructor(private fretboardOrchestrationService: FretboardOrchestrationService,) {}
 
   execute(): void {
-    // TODO: error handling for selectAllNotes if it returns an Observable
-    this.noteSelectionService.selectAllNotes();
+    this.fretboardOrchestrationService.displayAllNotes();
   }
 }
 
 export class DisplayScaleCommand implements Command {
   constructor(
-    private noteSelectionService: NoteSelectionService,
+    private fretboardOrchestrationService: FretboardOrchestrationService,
     private scaleName: string,
     private rootNote: string
   ) {}
 
   execute(): void {
-    this.noteSelectionService.selectScale(this.scaleName, this.rootNote)
+    this.fretboardOrchestrationService.displayScale(this.scaleName, this.rootNote)
       .subscribe({
         next: (notes) => console.log('Scale displayed:', notes),
         error: (error) => console.error('Error displaying scale:', error)
@@ -41,13 +40,13 @@ export class DisplayScaleCommand implements Command {
 
 export class DisplayChordCommand implements Command {
   constructor(
-    private noteSelectionService: NoteSelectionService,
+    private fretboardOrchestrationService: FretboardOrchestrationService,
     private triadName: string,
     private rootNote: string
   ) {}
 
   execute(): void {
-    this.noteSelectionService.selectChord(this.triadName, this.rootNote)
+    this.fretboardOrchestrationService.displayChord(this.triadName, this.rootNote)
       .subscribe({
         next: (notes) => console.log('Chord displayed:', notes),
         error: (error) => console.error('Error displaying chord:', error)
@@ -57,14 +56,14 @@ export class DisplayChordCommand implements Command {
 
 export class DisplayCustomPatternCommand implements Command {
   constructor(
-    private noteSelectionService: NoteSelectionService,
+    private fretboardOrchestrationService: FretboardOrchestrationService,
     private intervals: number[],
     private rootNote: string
   ) {}
 
   execute(): void {
     const notes = this.calculateNotesFromIntervals();
-    this.noteSelectionService.selectNotes(notes, this.rootNote).subscribe();
+    this.fretboardOrchestrationService.displayCustomPattern(notes, this.rootNote);
   }
 
   private calculateNotesFromIntervals(): string[] {

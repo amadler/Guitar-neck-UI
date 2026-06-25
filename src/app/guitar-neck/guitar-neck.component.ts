@@ -3,8 +3,8 @@ import GuitarNeck from '../shared/GuitarNeck';
 import { neckConfig } from 'guitar-neck-shared';
 import { FreatboardComponent } from '../freatboard/freatboard.component';
 import { GuitarNote } from '../shared/model/guitarNote';
-import { NoteService } from '../services/note.service';
-import { GuitarNeckService } from '../services/guitar-neck.service';
+import { FretboardNotePositionService } from '../services/note.service';
+import { FretboardStateService } from '../services/guitar-neck.service';
 
 @Component({
   selector: 'app-guitar-neck',
@@ -20,10 +20,10 @@ export class GuitarNeckComponent {
   @ViewChild(FreatboardComponent) freatboardComponent!: FreatboardComponent;
 
   constructor(
-    private noteService: NoteService,
-    private guitarNeckService: GuitarNeckService
+    private noteService: FretboardNotePositionService,
+    private guitarNeckService: FretboardStateService
   ) {
-    this.guitarNotes =  this.noteService.getAllNotes();
+    this.guitarNotes =  this.noteService.getAllPositions();
     this.guitarNeckService.notes = this.guitarNotes;
     this.guitarNeckService.hideAllNotes();
   }

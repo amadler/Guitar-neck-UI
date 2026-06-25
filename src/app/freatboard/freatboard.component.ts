@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { GuitarNote } from '../shared/model/guitarNote';
-import { GuitarNeckService } from '../services/guitar-neck.service';
+import { FretboardStateService } from '../services/guitar-neck.service';
 import { NgIf, NgFor, NgClass } from '@angular/common';
 import { neckConfig } from 'guitar-neck-shared';
 import { FretRangeSelectorComponent } from '../fret-range-selector/fret-range-selector.component';
@@ -21,7 +21,7 @@ export class FreatboardComponent implements OnInit {
   private _fretRange = { minFret: 0, maxFret: 24 };
 
   constructor(
-    private guitarNeckService: GuitarNeckService
+    private guitarNeckService: FretboardStateService
   ) {
     this.strings = guitarNeckService.strings;
     this.frets = guitarNeckService.frets;

@@ -1,101 +1,67 @@
 import { TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
 import {
-  Command,
   DisplaySingleNoteCommand,
   DisplayAllNotesCommand,
   DisplayScaleCommand,
   DisplayChordCommand
 } from './UICommands';
-import { GuitarNeckService } from '../services/guitar-neck.service';
-import { NoteService } from '../services/note.service';
-import { NoteSelectionService } from '../services/note-selection.service';
-import { GuitarNote } from './model/guitarNote';
-import { SCALE_PATTERNS } from './model/scaleTypes';
+import { FretboardOrchestrationService } from '../services/music-theory-facade.service';
 
 describe('UICommands', () => {
-  let guitarNeckService: jasmine.SpyObj<GuitarNeckService>;
-  let noteService: jasmine.SpyObj<NoteService>;
-  let noteSelectionService: jasmine.SpyObj<NoteSelectionService>;
+  let fretboardOrchestrationService: jasmine.SpyObj<FretboardOrchestrationService>;
 
   beforeEach(() => {
-    guitarNeckService = jasmine.createSpyObj('GuitarNeckService', ['selectNotes', 'showAllNotes']);
-    noteService = jasmine.createSpyObj('NoteService', ['getNotesByNoteName']);
-    noteSelectionService = jasmine.createSpyObj('NoteSelectionService', ['selectScale', 'selectTriad']);
+    fretboardOrchestrationService = jasmine.createSpyObj('FretboardOrchestrationService', [
+      'displaySingleNote',
+      'displayAllNotes',
+      'displayScale',
+      'displayChord',
+      'displayCustomPattern'
+    ]);
+    fretboardOrchestrationService.displayScale.and.returnValue(of([]));
+    fretboardOrchestrationService.displayChord.and.returnValue(of([]));
 
     TestBed.configureTestingModule({
       providers: [
-        { provide: GuitarNeckService, useValue: guitarNeckService },
-        { provide: NoteService, useValue: noteService },
-        { provide: NoteSelectionService, useValue: noteSelectionService }
+        { provide: FretboardOrchestrationService, useValue: fretboardOrchestrationService }
       ]
     });
   });
 
   describe('DisplaySingleNoteCommand', () => {
-    it('should select notes for a given key', () => {
-      const mockNotes: GuitarNote[] = [
-        { string: 1, fret: 0, note: 'A', selected: false, isRoot: false, isFifth: false, isThird: false, visible: true }
-      ];
-      noteService.getNotesByNoteName.and.returnValue(mockNotes);
-
-      const command = new DisplaySingleNoteCommand(noteService, guitarNeckService, 'A');
+    it('should display a single note', () => {
+      const command = new DisplaySingleNoteCommand(fretboardOrchestrationService, 'A');
       command.execute();
 
-      expect(noteService.getNotesByNoteName).toHaveBeenCalledWith('A');
-      expect(guitarNeckService.selectNotes).toHaveBeenCalledWith(mockNotes);
+      expect(fretboardOrchestrationService.displaySingleNote).toHaveBeenCalledWith('A');
     });
   });
 
   describe('DisplayAllNotesCommand', () => {
     it('should show all notes', () => {
-      const command = new DisplayAllNotesCommand(guitarNeckService);
+      const command = new DisplayAllNotesCommand(fretboardOrchestrationService);
       command.execute();
 
-      expect(guitarNeckService.showAllNotes).toHaveBeenCalled();
+      expect(fretboardOrchestrationService.displayAllNotes).toHaveBeenCalled();
     });
   });
 
   describe('DisplayScaleCommand', () => {
-    let scalePatternsSpy: jasmine.Spy;
-
-    beforeEach(() => {
-      scalePatternsSpy = spyOn(SCALE_PATTERNS, 'find');
-    });
-
-    it('should select scale when pattern exists', () => {
-      scalePatternsSpy.and.returnValue({ name: 'Major', intervals: [2, 2, 1, 2, 2, 2, 1] });
-      const command = new DisplayScaleCommand(noteSelectionService, 'Major', 'C');
+    it('should display a scale', () => {
+      const command = new DisplayScaleCommand(fretboardOrchestrationService, 'Major', 'C');
       command.execute();
 
-      expect(noteSelectionService.selectScale).toHaveBeenCalledWith('Major', 'C');
-    });
-
-    it('should log error when scale pattern not found', () => {
-      scalePatternsSpy.and.returnValue(undefined);
-      spyOn(console, 'error');
-      const command = new DisplayScaleCommand(noteSelectionService, 'InvalidScale', 'C');
-      command.execute();
-
-      expect(console.error).toHaveBeenCalledWith('Scale pattern not found: InvalidScale');
-      expect(noteSelectionService.selectScale).not.toHaveBeenCalled();
+      expect(fretboardOrchestrationService.displayScale).toHaveBeenCalledWith('Major', 'C');
     });
   });
 
   describe('DisplayTriadCommand', () => {
-    it('should select triad when pattern exists', () => {
-      const command = new DisplayChordCommand(noteSelectionService, 'Major Triad', 'C');
+    it('should display a chord', () => {
+      const command = new DisplayChordCommand(fretboardOrchestrationService, 'Major Triad', 'C');
       command.execute();
 
-      expect(noteSelectionService.selectChord).toHaveBeenCalledWith('C', 'Major Triad');
-    });
-
-    it('should log error when triad pattern not found', () => {
-      spyOn(console, 'error');
-      const command = new DisplayChordCommand(noteSelectionService, 'InvalidTriad', 'C');
-      command.execute();
-
-      expect(console.error).toHaveBeenCalledWith('Triad pattern not found: InvalidTriad');
-      expect(noteSelectionService.selectChord).not.toHaveBeenCalled();
+      expect(fretboardOrchestrationService.displayChord).toHaveBeenCalledWith('Major Triad', 'C');
     });
   });
 });

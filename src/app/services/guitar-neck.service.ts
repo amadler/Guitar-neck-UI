@@ -2,20 +2,20 @@
 import { Injectable } from '@angular/core';
 import { neckConfig } from 'guitar-neck-shared';
 import { GuitarNote } from '../shared/model/guitarNote';
-import { NoteService } from './note.service';
+import { FretboardNotePositionService } from './note.service';
 import { IntervalService } from './interval.service';
 
 @Injectable({ providedIn: 'root' })
-export class GuitarNeckService {
+export class FretboardStateService {
   notes: GuitarNote[];
   strings = neckConfig.stringNotes;
   frets = Array.from({ length: neckConfig.numberOfFrets - 1 }, (_, i) => i);
 
   constructor(
-    private noteService: NoteService,
+    private noteService: FretboardNotePositionService,
     private intervalService: IntervalService
   ) {
-    this.notes = this.noteService.getAllNotes();
+    this.notes = this.noteService.getAllPositions();
   }
 
   private isMatchingNoteOnFret(note: GuitarNote, string: string, fret: number) {
@@ -35,7 +35,7 @@ export class GuitarNeckService {
     return note ? note.note : '';
   }
 
-  selectNotes(notes: GuitarNote[]): GuitarNote[] {
+  applyHighlightedNotes(notes: GuitarNote[]): GuitarNote[] {
     this.notes.forEach(note => {
         note.visible = false;
         note.selected = false;
@@ -60,11 +60,11 @@ export class GuitarNeckService {
     this.notes.forEach(note => note.visible = false);
   }
 
-  showAllNotes() {
+  showAll() {
     this.notes.forEach(note => note.visible = true);
   }
 
-  removeSelections() {
+  clearSelection() {
     this.notes.forEach(note => note.selected = false);
   }
 
@@ -75,6 +75,6 @@ export class GuitarNeckService {
   clearFretboard() {
     this.intervalService.removeIntervals(this.notes);
     this.hideAllNotes();
-    this.removeSelections();
+    this.clearSelection();
   }
 }
