@@ -4,7 +4,8 @@ import {
   DisplaySingleNoteCommand,
   DisplayAllNotesCommand,
   DisplayScaleCommand,
-  DisplayChordCommand
+  DisplayChordCommand,
+  DisplayCustomPatternCommand
 } from './UICommands';
 import { FretboardOrchestrationService } from '../services/music-theory-facade.service';
 
@@ -62,6 +63,15 @@ describe('UICommands', () => {
       command.execute();
 
       expect(fretboardOrchestrationService.displayChord).toHaveBeenCalledWith('Major Triad', 'C');
+    });
+  });
+
+  describe('DisplayCustomPatternCommand', () => {
+    it('should resolve notes from intervals and display custom pattern', () => {
+      const command = new DisplayCustomPatternCommand(fretboardOrchestrationService, [4, 3], 'C');
+      command.execute();
+
+      expect(fretboardOrchestrationService.displayCustomPattern).toHaveBeenCalledWith(['C', 'E', 'G'], 'C');
     });
   });
 });

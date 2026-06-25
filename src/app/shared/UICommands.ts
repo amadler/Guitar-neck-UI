@@ -1,5 +1,5 @@
 import { FretboardOrchestrationService } from "../services/music-theory-facade.service";
-import { neckConfig } from 'guitar-neck-shared';
+import { calculateNotesFromIntervals } from './interval-note.helper';
 
 export interface Command {
   execute(): void;
@@ -63,26 +63,8 @@ export class DisplayCustomPatternCommand implements Command {
   ) {}
 
   execute(): void {
-    const notes = this.calculateNotesFromIntervals();
+    const notes = calculateNotesFromIntervals(this.rootNote, this.intervals);
     this.fretboardOrchestrationService.displayCustomPattern(notes, this.rootNote);
-  }
-
-  private calculateNotesFromIntervals(): string[] {
-    const chromaticScale = neckConfig.chromaticNotes;
-    const rootIndex = chromaticScale.indexOf(this.rootNote);
-    if (rootIndex === -1) {
-      return [];
-    }
-
-    const notes = [this.rootNote];
-
-    let currentIndex = rootIndex;
-    for (const interval of this.intervals) {
-      currentIndex = (currentIndex + interval) % 12;
-      notes.push(chromaticScale[currentIndex]);
-    }
-
-    return notes;
   }
 }
 
