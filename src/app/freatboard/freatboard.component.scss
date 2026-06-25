@@ -5,6 +5,33 @@
   width: 100%;
 }
 
+.guitar-neck__fret-indices {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 4px;
+  background-color: #fff;
+}
+
+.guitar-neck__fret-index-spacer {
+  width: 20px;
+  min-width: 20px;
+}
+
+.guitar-neck__fret-index-track {
+  display: flex;
+  width: 100%;
+}
+
+.guitar-neck__fret-index-cell {
+  flex: 1;
+  text-align: center;
+  color: rgba(70, 85, 105, 0.82);
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1;
+}
+
 .guitar-neck__fretboard {
   display: flex;
   flex-direction: column;
@@ -23,6 +50,21 @@
   min-width: 100%;
   outline: 1px  var(--guitar-neck-string-color) solid;
   outline-offset: -12px;
+}
+
+.guitar-neck__nut-label {
+  width: 20px;
+  min-width: 20px;
+  height: 22px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--guitar-neck-open-string-color);
+  color: rgba(55, 38, 22, 0.92);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  z-index: 1;
 }
 
 .guitar-neck__fret {
@@ -141,7 +183,7 @@
     &:first-child{
       border-right: none;
       width: 0px;
-      background-color: var(--guitar-neck-open-string-color);
+      background-color: transparent;
       border-right: 1px outset var(--guitar-neck-fret-color);
     }
   }

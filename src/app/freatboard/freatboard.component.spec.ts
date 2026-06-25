@@ -49,6 +49,16 @@ describe('FreatboardComponent', () => {
     expect(component.frets.length * component.strings.length).toBe(fretElements.length);
   });
 
+  it('should render fret index labels', () => {
+    const fretIndexElements = fixture.debugElement.queryAll(By.css('.guitar-neck__fret-index-cell'));
+    expect(fretIndexElements.length).toBe(component.frets.length);
+  });
+
+  it('should render one nut label per string', () => {
+    const nutLabelElements = fixture.debugElement.queryAll(By.css('.guitar-neck__nut-label'));
+    expect(nutLabelElements.length).toBe(component.strings.length);
+  });
+
   it('should emit onNoteClicked$ when a fret is clicked', () => {
     spyOn(component.onNoteClicked$, 'emit');
     const noteOnfret = fixture.debugElement.query(By.css('.guitar-neck__dot')).nativeElement;

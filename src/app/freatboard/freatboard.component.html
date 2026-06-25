@@ -1,7 +1,15 @@
 <div class="guitar-neck" *ngIf="notes">
   <app-fret-range-selector (rangeChange)="fretRange = $event"></app-fret-range-selector>
   <div class="guitar-neck__fretboard">
+    <div class="guitar-neck__fret-indices">
+      <div class="guitar-neck__fret-index-spacer"></div>
+      <div class="guitar-neck__fret-index-track">
+        <div *ngFor="let fret of frets" class="guitar-neck__fret-index-cell">{{ fret }}</div>
+      </div>
+    </div>
+
     <div *ngFor="let string of strings; let i = index" [class]="'guitar-neck__string '+ string">
+      <div class="guitar-neck__nut-label">{{ string }}</div>
       <div *ngFor="let fret of frets" class="guitar-neck__fret">
         <div class="guitar-neck__marker" *ngIf="isMarkedFret(string, fret)"></div>
         <div class="guitar-neck__marker_12" *ngIf="isMarkedTwelffeFret(string, fret)"></div>
