@@ -47,3 +47,9 @@ Agent instructions for the Guitar neck UI workspace.
 - Shared model/commands: `src/app/shared`
 - Main UI containers: `src/app/home-page`, `src/app/guitar-neck`, `src/app/freatboard`
 - Environment config: `src/environments`
+
+## Git workflow
+- **Never commit directly to `master`** — always create a feature/fix branch first.
+- Branch naming: `fix/<short-description>` for bug fixes, `feat/<short-description>` for new features.
+- After committing on the branch, ask the user for merge approval before merging to `master`.
+- Squash-merge is preferred to keep history clean.
