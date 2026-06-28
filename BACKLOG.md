@@ -121,6 +121,48 @@ OPEN — wymaga zmiany w backendzie `music-theory-api`.
 
 ---
 
+## MusicSelection — domain abstraction
+
+### Motivation
+Obecnie każdy typ zaznaczenia (skala, akord, nuta, custom pattern) ma osobną komendę w `UICommands.ts` i osobną metodę w `FretboardOrchestrationService`. AI, toolbox i przyszli klienci (MCP, mobile) muszą znać szczegóły implementacji zamiast operować na wspólnym pojęciu domenowym "to, co jest zaznaczone na gryfie".
+
+### Solution
+Wprowadzić interfejs `MusicSelection`:
+
+```typescript
+interface MusicSelection {
+  readonly type: 'scale' | 'chord' | 'note' | 'custom';
+  readonly rootNote: string;
+  readonly label: string;
+  getNotes(): string[];
+  getIntervals(): number[];
+}
+```
+
+Zrefaktorować `FretboardOrchestrationService` z 5 metod (`displayScale`, `displayChord`, itd.) na jedną: `apply(selection: MusicSelection): Observable<GuitarNote[]>`. Stare metody zostają jako delegaty (0 breaking change).
+
+Ujednolicić `UICommands.ts` — jedna komenda `ApplySelectionCommand` zamiast 5 osobnych.
+
+### MVP
+1. Interfejs `MusicSelection` w `src/app/shared/model/`
+2. Klasy: `ScaleSelection`, `ChordSelection`, `NoteSelection`, `CustomSelection`
+3. Pojedyncza metoda `apply(selection)` w fasadzie
+4. Stare metody jako delegaty (backward compatible)
+
+### Done when
+- `MusicSelection` istnieje jako typ domenowy
+- `FretboardOrchestrationService.apply(selection)` działa dla wszystkich typów
+- Toolbox, CustomPattern i AI (po odblokowaniu) używają tego samego interfejsu
+- Stare metody oznaczone jako `@deprecated` lub usunięte
+- Wszystkie testy przechodzą (52/52)
+
+### Status
+OPEN — do implementacji.
+
+**Lokalizacja:** `src/app/shared/model/musicElements.ts`, `src/app/services/music-theory-facade.service.ts`, `src/app/shared/UICommands.ts`
+
+---
+
 ## Note readability on fretboard
 
 ### Motivation
