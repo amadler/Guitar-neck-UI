@@ -6,8 +6,9 @@ import { neckConfig, CHORD_PATTERNS, SCALE_PATTERNS } from 'guitar-neck-shared';
 import { GuitarNote } from '../shared/model/guitarNote';
 @Injectable({ providedIn: 'root' })
 export class IntervalService {
-  markIntervals(rootNote: string, patternName: string, selectedNotes: GuitarNote[]) {
-    const pattern = [...CHORD_PATTERNS, ...SCALE_PATTERNS].find(p => p.name === patternName);
+  markIntervals(rootNote: string, patternName: string, selectedNotes: GuitarNote[], patternType: 'scale' | 'chord' = 'chord') {
+    const patterns = patternType === 'scale' ? SCALE_PATTERNS : CHORD_PATTERNS;
+    const pattern = patterns.find(p => p.name === patternName);
     if (!pattern) {
       console.warn(`Unknown pattern: ${patternName}`);
       return;

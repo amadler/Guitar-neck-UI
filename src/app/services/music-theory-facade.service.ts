@@ -20,7 +20,7 @@ export class FretboardOrchestrationService {
       map(scaleNotes => {
         const selectedNotes = this.noteService.findPositionsByScaleNotes(scaleNotes);
         const highlightedNotes = this.guitarNeckService.applyHighlightedNotes(selectedNotes);
-        this.intervalService.markIntervals(rootNote, scaleName, highlightedNotes);
+        this.intervalService.markIntervals(rootNote, scaleName, highlightedNotes, 'scale');
         return highlightedNotes;
       }),
       catchError(error => {
