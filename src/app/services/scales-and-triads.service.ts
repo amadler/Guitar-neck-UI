@@ -26,7 +26,7 @@ export class MusicPatternApiService {
 
   resolveScaleNotes(scaleName: string, rootNote: string): Observable<string[]> {
     const formattedName = this.formatName(scaleName);
-    return this.http.get<{notes: string[]}>(`${this.API_URL}/scales/${formattedName}/${rootNote}`).pipe(
+    return this.http.get<{notes: string[]}>(`${this.API_URL}/scales/${encodeURIComponent(formattedName)}/${encodeURIComponent(rootNote)}`).pipe(
       map(response => response.notes),
       catchError(this.handleError)
     );
@@ -34,7 +34,7 @@ export class MusicPatternApiService {
 
   resolveChordNotes(triadType: string, rootNote: string): Observable<string[]> {
     const formattedName = this.formatName(triadType);
-    return this.http.get<{notes: string[]}>(`${this.API_URL}/chords/${formattedName}/${rootNote}`).pipe(
+    return this.http.get<{notes: string[]}>(`${this.API_URL}/chords/${encodeURIComponent(formattedName)}/${encodeURIComponent(rootNote)}`).pipe(
       map(response => response.notes),
       catchError(this.handleError)
     );
