@@ -39,17 +39,10 @@ export class FreatboardComponent implements OnInit {
 
   set fretRange(range: { minFret: number, maxFret: number }) {
     this._fretRange = range;
-    // Opcjonalnie: odśwież wyświetlanie nut w nowym zakresie
-    this.refreshNotesInRange();
   }
 
   protected isNoteInRange(fret: number): boolean {
     return fret >= this._fretRange.minFret && fret <= this._fretRange.maxFret;
-  }
-
-  private refreshNotesInRange() {
-    // Tutaj logika odświeżania wyświetlanych nut w zakresie
-    // Możesz to zaimplementować według potrzeb
   }
 
   protected isNoteOnFret(string: string, fret: number) {
