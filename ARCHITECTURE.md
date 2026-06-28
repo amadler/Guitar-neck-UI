@@ -1,244 +1,155 @@
-
 # Guitar Neck UI - Architektura Systemu
 
 ## Przegląd Architektury
-Aplikacja wykorzystuje architekturę warstwową opartą na wzorcu Facade i Service Pattern, z centralnym zarządzaniem stanem i asynchroniczną komunikacją z API Gemini.
+Aplikacja wykorzystuje architekturę warstwową opartą na wzorcu **Facade** i **Command Pattern**, z centralnym zarządzaniem stanem gryfu i asynchroniczną komunikacją z backendem `music-theory-api`.
+
+System składa się z 3 części:
+1. **`guitar-neck-ui`** — Angular 18 frontend (to repo)
+2. **`music-theory-api`** — Backend Elysia, Docker, port 3000
+3. **`guitar-neck-shared` + `guitar-toolbox-lib`** — npm pakiety z patternami i komponentem toolbox
 
 ## Główne Komponenty Systemu
 
-### 1. Warstwa Prezentacji
-- `HomePageComponent` - główny komponent agregujący interfejs użytkownika
-- `GuitarNeckComponent` - interaktywna wizualizacja gryfu gitary
-- `ToolboxFormComponent` - kontrolki do wyboru skal i akordów
-- `ChatComponent` - interfejs konwersacji z AI
-- `AISuggestionsComponent` - wyświetlanie sugestii od AI
+### 1. Warstwa Prezentacji (UI)
+
+| Komponent | Selektor | Odpowiedzialność | Źródło |
+|-----------|----------|-----------------|--------|
+| `HomePageComponent` | `app-home-page` | Agreguje gryf + toolbox | `src/app/home-page` |
+| `FreatboardComponent` | `app-freatboard` | Renderuje gryf z nutami i interwałami | `src/app/freatboard` |
+| `GuitarNeckComponent` | `app-guitar-neck` | Kontener inicjalizujący gryf | `src/app/guitar-neck` |
+| `LegendComponent` | `app-legend` | Legenda kolorów interwałowych | `src/app/freatboard/components/legend` |
+| `FretRangeSelectorComponent` | `app-fret-range-selector` | Selektor zakresu progów | `src/app/fret-range-selector` |
+| `ToolboxFormComponent` | `lib-toolbox-form` | Formularz wyboru skali/akordu (z `guitar-toolbox-lib`) | npm package |
+| `ChatComponent` | `lib-chat` | **POSTPONED** — czat AI | `projects/guitar-chat` |
+| `AISuggestionsComponent` | `lib-ai-suggestions` | **POSTPONED** — sugestie AI | `projects/guitar-chat` |
 
 ### 2. Warstwa Serwisów
 
-#### Core Services
-- `MusicTheoryFacadeService` - fasada integrująca logikę muzyczną
-- `GuitarNeckService` - zarządzanie stanem gryfu
-- `NoteService` - operacje na nutach
-- `ScaleAndTriadService` - generowanie skal i akordów
+#### Core Services (`src/app/services`)
 
-#### AI Services
-- `AIService` - komunikacja z Gemini API
-- `AISuggestionService` - zarządzanie sugestiami AI
-- `ExtendedChordService` - obsługa rozszerzonych akordów
+| Serwis (klasa) | Plik | Odpowiedzialność |
+|---------------|------|-----------------|
+| `FretboardOrchestrationService` | `music-theory-facade.service.ts` | Fasada — wyświetlanie skal, akordów, nut |
+| `FretboardStateService` | `guitar-neck.service.ts` | Stan gryfu — visible, selected, interval |
+| `FretboardNotePositionService` | `note.service.ts` | Generuje mapę nut na gryfie, wyszukuje pozycje |
+| `IntervalService` | `interval.service.ts` | Oznacza nuty interwałami (root, 3rd, 5th, itd.) |
+| `MusicPatternApiService` | `scales-and-triads.service.ts` | HTTP → `music-theory-api` |
 
-### 3. Model Danych
+#### AI Services (`projects/guitar-chat`) — POSTPONED
+
+| Serwis | Odpowiedzialność |
+|--------|-----------------|
+| `AIService` | Komunikacja z Gemini API |
+| `AISuggestionService` | Zarządzanie sugestiami AI |
+| `AIFacadeService` | Fasada AI → UI |
+
+### 3. UICommands (Command Pattern)
+
 ```typescript
-// Główne interfejsy
-interface GuitarNote {
-  fret: number;
-  string: number;
-  note: string;
+// src/app/shared/UICommands.ts
+interface Command { execute(): void; }
+
+class DisplaySingleNoteCommand    // keys: string
+class DisplayAllNotesCommand      // (brak param)
+class DisplayScaleCommand         // scaleName: string, rootNote: string
+class DisplayChordCommand         // triadName: string, rootNote: string
+class DisplayCustomPatternCommand // intervals: number[], rootNote: string
+```
+
+### 4. Model Danych
+
+```typescript
+// src/app/shared/model/guitarNote.ts
+class GuitarNote {
+  id?: string;        // UUID
+  string: number;     // 1-6
+  fret: number;       // 0-24
+  note: string;       // "C", "F#", itd.
+  visible: boolean;
   selected: boolean;
+  interval: string;   // "root", "major-3rd", ""
 }
 
-interface MusicalSuggestion {
-  displayName: string;
-  notes: string[];
-  type: 'scale' | 'triad' | 'extendedChord';
+// src/app/shared/model/musicElements.ts
+interface ToolboxSearchQuery {
+  musicElements: string | number[];
+  keys: string;
+  type: 'scale' | 'chord' | 'basic' | 'custom';
 }
+```
 
-interface AIResponse {
-  textResponse: string;
-  suggestions: MusicalSuggestion[];
-}
+### 5. Stałe i Konfiguracja (z `guitar-neck-shared`)
+
+```typescript
+// node_modules/guitar-neck-shared
+neckConfig.chromaticNotes  // ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"]
+neckConfig.stringNotes     // ["E","B","G","D","A","E"]
+CHORD_PATTERNS             // 26 patternów akordów
+SCALE_PATTERNS             // 26 patternów skal
 ```
 
 ## Przepływ Danych
 
-### 1. Interakcja z Gryfem
-```mermaid
-graph LR
-    User --> GuitarNeckComponent
-    GuitarNeckComponent --> GuitarNeckService
-    GuitarNeckService --> NoteService
-    NoteService --> MusicTheoryFacade
 ```
-
-### 2. Przepływ AI
-```mermaid
-graph LR
-    ChatComponent --> AIService
-    AIService --> GeminiAPI
-    GeminiAPI --> AISuggestionService
-    AISuggestionService --> MusicTheoryFacade
-```
-
-## Integracja z Gemini AI
-
-### Konfiguracja
-```typescript
-interface AIConfig {
-  apiKey: string;
-  endpoint: string;
-  model: string;
-  temperature: number;
-  maxTokens: number;
-}
-```
-
-### Format Odpowiedzi API
-```json
-{
-  "textResponse": "string",
-  "suggestions": [{
-    "displayName": "string",
-    "notes": ["string"],
-    "type": "scale|triad|extendedChord"
-  }]
-}
+User → ToolboxFormComponent (select type, pattern, key)
+  → HomePageComponent.toolboxSubmit()
+    → DisplayChordCommand / DisplayScaleCommand
+      → FretboardOrchestrationService.displayChord / displayScale
+        → MusicPatternApiService.resolveChordNotes / resolveScaleNotes
+            → HTTP GET /api/chords/:name/:root (lub /api/scales/...)
+        → FretboardNotePositionService.findPositionsByChordNotes / ByScaleNotes
+        → FretboardStateService.applyHighlightedNotes
+        → IntervalService.markIntervals(root, pattern, notes, 'chord'|'scale')
+      → Observable<GuitarNote[]> → FreatboardComponent
+        → NgClass: guitar-neck__root, guitar-neck__major-3rd, itd.
 ```
 
 ## Wzorce Projektowe
 
 ### 1. Facade Pattern
-`MusicTheoryFacadeService` ukrywa złożoność operacji muzycznych i zapewnia prosty interfejs dla komponentów UI.
+`FretboardOrchestrationService` ukrywa złożoność (HTTP API, wyszukiwanie pozycji, interwały) przed komponentami UI.
 
 ### 2. Command Pattern
-Implementacja poleceń UI (`UICommands`) dla różnych operacji na gryfie:
-- `DisplayAllNotesCommand`
-- `DisplayScaleCommand`
-- `DisplayTriadCommand`
-- `DisplaySingleNoteCommand`
+`UICommands.ts` enkapsuluje każdą operację na gryfie jako osobną klasę Command.
 
-### 3. Observer Pattern
-Wykorzystanie RxJS dla reaktywnego przepływu danych:
-- `BehaviorSubject` dla stanu AI
-- `Observable` dla asynchronicznych operacji
+### 3. Service Pattern
+Każda odpowiedzialność w osobnej klasie: `FretboardNotePositionService` → geometria, `FretboardStateService` → stan, `IntervalService` → logika muzyczna, `MusicPatternApiService` → HTTP.
+
+## Backend API (music-theory-api)
+
+Osobne repozytorium, Docker na porcie 3000, framework Elysia.
+
+| Metoda | Endpoint | Opis |
+|--------|----------|------|
+| GET | `/api/scales` | Lista skal |
+| GET | `/api/scales/:name/:root` | Nuty skali |
+| GET | `/api/chords` | Lista akordów |
+| GET | `/api/chords/:name/:root` | Nuty akordu |
+| GET | `/api/findCompatibleScales/:name/:root` | Kompatybilne skale |
+
+Uwaga: parametry `:name` i `:root` wymagają `decodeURIComponent()`.
 
 ## Konfiguracja Środowiska
 
-### Development
 ```typescript
-environment = {
+// src/environments/environment.ts
+const environment = {
   production: false,
-  geminiApiKey: 'YOUR_API_KEY'
-}
+  apiUrl: 'http://localhost:3000',
+  geminiApiKey: '',
+  features: { chatEnabled: false }
+};
 ```
 
-### Production
-```typescript
-environment = {
-  production: true,
-  geminiApiKey: 'PRODUCTION_API_KEY'
-}
-```
+## Backlog
 
-## Bezpieczeństwo
-- Klucz API Gemini przechowywany w zmiennych środowiskowych
-- Walidacja danych wejściowych w serwisach
-- Obsługa błędów API
-- Rate limiting dla zapytań AI
+Pełny backlog w [`BACKLOG.md`](BACKLOG.md). Podsumowanie:
 
-## Skalowalność i Wydajność
-
-### Aktualnie Zaimplementowane
-- Podstawowa obsługa błędów API
-- Buforowanie odpowiedzi AI
-- RxJS do zarządzania strumieniami danych
-
-### Rekomendowane Usprawnienia Wydajnościowe
-
-#### 1. Lazy Loading (Do Implementacji)
-```typescript
-// Przykład planowanej implementacji lazy loadingu dla modułu AI
-const routes: Routes = [
-  {
-    path: 'ai-chat',
-    loadChildren: () => import('./ai/ai.module').then(m => m.AiModule)
-  }
-];
-```
-
-#### 2. Memoizacja (Do Implementacji)
-```typescript
-// Przykład planowanej implementacji memoizacji dla ScaleAndTriadService
-@Injectable()
-export class ScaleAndTriadService {
-  private scaleCache = new Map<string, GuitarNote[]>();
-
-  generateScale(scaleName: string, rootNote: string): GuitarNote[] {
-    const cacheKey = `${scaleName}-${rootNote}`;
-    if (this.scaleCache.has(cacheKey)) {
-      return this.scaleCache.get(cacheKey)!;
-    }
-    
-    const result = this.calculateScale(scaleName, rootNote);
-    this.scaleCache.set(cacheKey, result);
-    return result;
-  }
-}
-```
-
-#### 3. Optymalizacja Renderowania (Do Implementacji)
-```typescript
-// Przykład planowanej implementacji dla GuitarNeckComponent
-@Component({
-  selector: 'app-guitar-neck',
-  changeDetection: ChangeDetectionStrategy.OnPush
-})
-export class GuitarNeckComponent {
-  @Input() notes: GuitarNote[];
-  
-  // Implementacja trackBy dla ngFor
-  trackByFret(index: number, note: GuitarNote): string {
-    return `${note.string}-${note.fret}`;
-  }
-}
-```
-
-#### 4. Monitoring Wydajności (Do Implementacji)
-```typescript
-// Przykład planowanej implementacji monitoringu AI
-@Injectable()
-export class AIPerformanceService {
-  private responseTimeLog = new BehaviorSubject<number[]>([]);
-
-  logResponseTime(startTime: number, endTime: number) {
-    const duration = endTime - startTime;
-    const currentLog = this.responseTimeLog.value;
-    this.responseTimeLog.next([...currentLog, duration]);
-  }
-
-  getAverageResponseTime(): number {
-    const times = this.responseTimeLog.value;
-    return times.reduce((a, b) => a + b, 0) / times.length;
-  }
-}
-```
-
-### Plan Implementacji
-
-1. Priorytet Wysoki:
-   - Implementacja lazy loadingu dla modułu AI
-   - Podstawowa memoizacja dla często używanych skal i akordów
-
-2. Priorytet Średni:
-   - Optymalizacja renderowania komponentu gryfu
-   - Implementacja mechanizmu cache'owania
-
-3. Priorytet Niski:
-   - System monitorowania wydajności
-   - Zaawansowane techniki optymalizacji
-
-### Obecne Ograniczenia
-- Wszystkie moduły ładowane są eagerly
-- Brak cache'owania wyników muzycznych
-- Podstawowe mechanizmy detekcji zmian Angular
-- Ograniczony monitoring wydajności
-
-### Metryki Wydajności do Śledzenia
-- Czas ładowania początkowego
-- Czas odpowiedzi API Gemini
-- Zużycie pamięci przy renderowaniu gryfu
-- Czas generowania skal i akordów
-
-## Monitorowanie i Debugowanie
-- Angular DevTools
-- Console logging dla krytycznych operacji
-- Error tracking w serwisach
-- Performance monitoring dla operacji AI
+| Element | Status |
+|---------|--------|
+| AI Chat (Gemini) | POSTPONED |
+| `refreshNotesInRange()` dead code | OPEN |
+| `ToolboxSearchQuery` typing | OPEN |
+| `toolboxSubmit()` command factory | OPEN |
+| Pattern name Unicode w backendzie | OPEN |
+| Note readability na gryfie | POSTPONED |

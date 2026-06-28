@@ -41,6 +41,43 @@ Agent instructions for the Guitar neck UI workspace.
 - Treat keys in environment files as sensitive. Do not print, duplicate, or move secrets into docs, logs, tests, or commits.
 - If work involves API credentials, prefer environment-specific handling and recommend rotation if exposed.
 
+## Backlog Management
+- Backlog entries live in `BACKLOG.md` at project root.
+- Every backlog item MUST follow this template exactly, with all 6 sections present and non-empty:
+  ```
+  # Title
+
+  ## Motivation
+
+  ## Solution
+
+  ## MVP
+
+  ## Done when
+
+  ## Status
+  ```
+- Before adding/modifying a backlog item, derive a validation checklist from the template (e.g., `- [ ] Każdy wpis ma wszystkie sekcje: Title, Motivation, Solution, MVP, Done when, Status`).
+- After writing/updating `BACKLOG.md`, verify every section exists exactly once per item.
+- Valid Status values: `OPEN`, `FIXED`, `POSTPONED`, `WON'T DO`.
+- Always give a file location with line number for each backlog item.
+
+## Documentation Consistency Validation
+When updating or reviewing `.md` documentation files, derive a validation checklist from the following template and verify every item:
+
+```
+Documentation consistency — checklist template:
+- [ ] Nazwy serwisów (FretboardOrchestrationService, FretboardStateService, itd.) są takie same we wszystkich .md
+- [ ] apiUrl (http://localhost:3000) jest spójny we wszystkich plikach
+- [ ] BACKLOG.md statusy są zgodne z resztą dokumentów
+- [ ] Ścieżki do plików (src/app/...) faktycznie istnieją w repozytorium
+- [ ] Endpointy backend API (GET /api/chords/:name/:root) są spójne
+- [ ] AI Chat oznaczony jako POSTPONED wszędzie gdzie występuje
+- [ ] Żaden .md nie zawiera starych/nieaktualnych nazw serwisów (np. MusicTheoryFacadeService, ScaleAndTriadService)
+```
+
+Before committing documentation changes, run through all 7 checks. If a check fails, fix the inconsistency before merge.
+
 ## High-Value Paths
 - App routes/config: `src/app/app.routes.ts`, `src/app/app.config.ts`
 - Services: `src/app/services`

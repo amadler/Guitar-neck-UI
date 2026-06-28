@@ -12,13 +12,11 @@ Guitar Neck UI to interaktywne narzędzie edukacyjne zaprojektowane, aby pomóc 
 - Wyświetlanie nazw nut na progach
 
 ### 2. Narzędzia Muzyczne
-- Wyświetlanie skal muzycznych
-- Wizualizacja akordów:
-  - Triady (akordy trzydźwiękowe)
-  - Akordy rozszerzone
-- Oznaczanie interwałów (pryma, tercja, kwinta)
-- Wybór tonacji
-- Możliwość  wrzucenia określonego patternu przez użytkownika i powielenie na całym gryfie (custom scale from riff)
+- Wyświetlanie skal muzycznych (26 patternów)
+- Wizualizacja akordów (26 patternów: triady, akordy extended 7/9/11/13, sus, add)
+- Oznaczanie interwałów (root, 2nd, 3rd, 4th, 5th, 6th, 7th — małe/wielkie)
+- Wybór tonacji (12 nut z #)
+- Custom pattern — użytkownik wpisuje interwały, aplikacja generuje nuty na gryfie
 
 ### 3. Asystent AI
 - Czat z asystentem muzycznym
@@ -42,8 +40,9 @@ Guitar Neck UI to interaktywne narzędzie edukacyjne zaprojektowane, aby pomóc 
 4. Eksploracja różnych wariantów muzycznych
 
 ## Integracje
-- Gemini AI - silnik sztucznej inteligencji dla sugestii muzycznych
-- Możliwość rozszerzenia o kolejne źródła danych muzycznych
+- **music-theory-api** — backend do obliczania nut skal i akordów (Docker, port 3000)
+- **Gemini AI** — (**POSTPONED**) silnik AI dla sugestii muzycznych, wymaga klucza API
+- **guitar-neck-shared / guitar-toolbox-lib** — npm pakiety z patternami i komponentem toolbox
 
 ## Planowany Rozwój
 - Dodanie nowych wzorów muzycznych
@@ -52,9 +51,9 @@ Guitar Neck UI to interaktywne narzędzie edukacyjne zaprojektowane, aby pomóc 
 - Personalizacja doświadczenia użytkownika
 
 ## Ograniczenia Techniczne
-- Wymagane połączenie internetowe dla funkcji AI
-- Kompatybilność z nowoczesnymi przeglądarkami
-- Limity API dla zapytań do Gemini
+- Wymagany backend `music-theory-api` (Docker) do obliczania nut skal i akordów
+- AI Chat (Gemini) — **wstrzymany**, wymaga klucza API i włączenia flagi `chatEnabled`
+- Backend nie dekoduje Unicode w nazwach patternów (♭/♯) — zgłoszono do fixa
 
 ## Wsparcie
 - Dokumentacja użytkownika dostępna w aplikacji
