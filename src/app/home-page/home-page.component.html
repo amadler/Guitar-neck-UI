@@ -6,9 +6,9 @@
     <section id="toolbox-container">
       <lib-toolbox-form (onSubmit$)="toolboxSubmit($event)"></lib-toolbox-form>
     </section>
-    <section id="chat-container">
+    <section id="chat-container" *ngIf="chatEnabled">
       <app-chat></app-chat>
     </section>
   </div>
-  <app-ai-suggestions></app-ai-suggestions>
+  <app-ai-suggestions *ngIf="chatEnabled"></app-ai-suggestions>
 </main>

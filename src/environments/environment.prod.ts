@@ -1,4 +1,8 @@
 export const environment = {
   production: true,
-  geminiApiKey: ''
+  apiUrl: 'https://api.guitarneck.app',
+  geminiApiKey: '',
+  features: {
+    chatEnabled: false
+  }
 };

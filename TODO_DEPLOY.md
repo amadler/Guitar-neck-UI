@@ -2,9 +2,13 @@
 
 ## Highest Priority
 
-- Rotate the previously exposed Gemini API key and keep the replacement out of the frontend bundle.
-- Move the music pattern API base URL out of `src/app/services/scales-and-triads.service.ts` into environment-based configuration.
-- Restore string labels before the fretboard so open-string names are visible in the UI.
+- DONE: Rotate the previously exposed Gemini API key and keep the replacement out of the frontend bundle.
+- DONE: Move the music pattern API base URL out of `src/app/services/scales-and-triads.service.ts` into environment-based configuration.
+- DONE: Restore string labels before the fretboard so open-string names are visible in the UI.
+- DONE: Feature flag for Chat (`chatEnabled` in environment, disabled by default)
+- DONE: Dockerfile + nginx.conf for production frontend build
+- DONE: docker-compose.yml (backend + frontend razem)
+- DONE: Build & deploy scripts (`npm run build:prod`, `npm run docker:*`)
 
 ## Functional Cleanup
 
