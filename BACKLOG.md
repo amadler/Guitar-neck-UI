@@ -49,7 +49,7 @@ Usunięcie pustej metody i jej wywołania (jeśli istnieje).
 - Brak referencji do tej metody w projekcie
 
 ### Status
-OPEN — do decyzji: usunąć czy zaimplementować.
+FIXED — usunięta w commit 8c0850a (merge 9dbf3ec).
 
 **Lokalizacja:** `src/app/freatboard/freatboard.component.ts:50`
 
