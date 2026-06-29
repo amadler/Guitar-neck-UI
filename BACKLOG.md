@@ -71,7 +71,7 @@ Dodanie typu + usunięcie runtime coercion.
 - Brak `Array.isArray()` w logice typu
 
 ### Status
-OPEN — wymaga refactoringu.
+FIXED — usunięto CustomToolboxSearchQuery i isCustomToolboxSearchQuery(). Zachowano musicElements: string | number[] dla kompatybilności z guitar-toolbox-lib.
 
 **Lokalizacja:** `src/app/shared/model/musicElements.ts:3`
 
