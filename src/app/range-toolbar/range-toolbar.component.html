@@ -1,0 +1,16 @@
+<div class="range-toolbar">
+  <div class="range-toolbar__presets">
+    <button *ngFor="let preset of presets"
+            class="range-toolbar__preset-btn"
+            [class.active]="activePreset === preset"
+            (click)="selectPreset(preset)">
+      {{ preset.label }}
+    </button>
+    <button class="range-toolbar__preset-btn"
+            [class.active]="isCustom"
+            (click)="isCustom = true">
+      Custom
+    </button>
+  </div>
+  <app-fret-range-selector (rangeChange)="onSliderChange($event)"></app-fret-range-selector>
+</div>
