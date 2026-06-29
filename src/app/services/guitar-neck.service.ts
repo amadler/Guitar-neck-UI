@@ -9,7 +9,7 @@ import { IntervalService } from './interval.service';
 export class FretboardStateService {
   notes: GuitarNote[];
   strings = neckConfig.stringNotes;
-  frets = Array.from({ length: neckConfig.numberOfFrets + 1 }, (_, i) => i);
+  frets = Array.from({ length: neckConfig.numberOfFrets }, (_, i) => i + 1);
 
   constructor(
     private noteService: FretboardNotePositionService,

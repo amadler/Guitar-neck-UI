@@ -46,19 +46,19 @@ describe('FreatboardComponent', () => {
 
   it('should render the correct number of frets', () => {
     const fretElements = fixture.debugElement.queryAll(By.css('.guitar-neck__fret'));
-    expect(component.frets.length * component.strings.length).toBe(fretElements.length);
+    expect(fretElements.length).toBe(component.frets.length * component.strings.length + 2);
   });
 
   it('should render fret index labels', () => {
     const fretIndexElements = fixture.debugElement.queryAll(By.css('.guitar-neck__fret-index-cell'));
-    expect(fretIndexElements.length).toBe(component.frets.length);
+    expect(fretIndexElements.length).toBe(component.frets.length + 1);
   });
 
   it('should number frets from 1 instead of 0', () => {
     const fretIndexElements = fixture.debugElement.queryAll(By.css('.guitar-neck__fret-index-cell'));
-    expect(fretIndexElements.length).toBeGreaterThan(0);
-    expect(fretIndexElements[0].nativeElement.textContent.trim()).toBe('');
-    expect(fretIndexElements[fretIndexElements.length - 1].nativeElement.textContent.trim()).toBe(String(component.frets.length - 1));
+    expect(fretIndexElements.length).toBe(component.frets.length + 1); // spacer cell + 24 labels
+    expect(fretIndexElements[1].nativeElement.textContent.trim()).toBe('1');
+    expect(fretIndexElements[fretIndexElements.length - 1].nativeElement.textContent.trim()).toBe(String(component.frets.length));
   });
 
   it('should render one nut label per string', () => {
