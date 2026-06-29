@@ -4,7 +4,7 @@
     <div class="guitar-neck__fret-indices">
       <div class="guitar-neck__fret-index-spacer"></div>
       <div class="guitar-neck__fret-index-track">
-        <div *ngFor="let fret of frets" class="guitar-neck__fret-index-cell">{{ fret + 1 }}</div>
+        <div *ngFor="let fret of frets" class="guitar-neck__fret-index-cell">{{ fret === 0 ? '' : fret }}</div>
       </div>
     </div>
 

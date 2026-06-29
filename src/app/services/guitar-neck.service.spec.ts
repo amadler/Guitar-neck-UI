@@ -40,7 +40,7 @@ describe('GuitarNeckService', () => {
 
   it('should initialize with correct strings and frets', () => {
     expect(service.strings).toEqual(neckConfig.stringNotes);
-    expect(service.frets.length).toBe(neckConfig.numberOfFrets - 1);
+    expect(service.frets.length).toBe(neckConfig.numberOfFrets + 1);
   });
 
   it('should initialize notes from NoteService', () => {

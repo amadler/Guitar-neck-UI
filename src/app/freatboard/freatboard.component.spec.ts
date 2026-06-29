@@ -54,6 +54,13 @@ describe('FreatboardComponent', () => {
     expect(fretIndexElements.length).toBe(component.frets.length);
   });
 
+  it('should number frets from 1 instead of 0', () => {
+    const fretIndexElements = fixture.debugElement.queryAll(By.css('.guitar-neck__fret-index-cell'));
+    expect(fretIndexElements.length).toBeGreaterThan(0);
+    expect(fretIndexElements[0].nativeElement.textContent.trim()).toBe('');
+    expect(fretIndexElements[fretIndexElements.length - 1].nativeElement.textContent.trim()).toBe(String(component.frets.length - 1));
+  });
+
   it('should render one nut label per string', () => {
     const nutLabelElements = fixture.debugElement.queryAll(By.css('.guitar-neck__nut-label'));
     expect(nutLabelElements.length).toBe(component.strings.length);
