@@ -183,3 +183,26 @@ Same CSS — zmiana zmiennych w `styles.scss` i stylów w `freatboard.component.
 POSTPONED — próba implementacji cofnięta, wymaga nowego podejścia.
 
 **Lokalizacja:** `src/styles.scss`, `src/app/freatboard/freatboard.component.scss`
+
+---
+
+## Fret numbering starts at 0 instead of 1
+
+### Motivation
+Gryf pokazuje numery progów jako 0, 1, 2, ..., 23 zamiast 1, 2, ..., 24. Na prawdziwej gitarze pierwszy próg to "1", a open string (0) nie ma numeru. To mylące dla użytkownika.
+
+### Solution
+Zmienić wyświetlanie w `freatboard.component.html` z `{{ fret }}` na `{{ fret + 1 }}` i oznaczyć open string jako "O" lub pominąć.
+
+### MVP
+Zmiana w jednej linii template'u: zamiana interpolacji na `fret + 1`.
+
+### Done when
+- Open string pokazuje "O" zamiast "0" (lub jest pomijany)
+- Progi 1-24 pokazują prawidłowe numery
+- Logika pozycji nut (indeks 0 = open string) pozostaje bez zmian
+
+### Status
+OPEN
+
+**Lokalizacja:** `src/app/freatboard/freatboard.component.html:7`
