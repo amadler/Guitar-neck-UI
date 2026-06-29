@@ -32,10 +32,10 @@ export class HomePageComponent {
     this.guitarNeckService.clearFretboard();
 
     let command: Command;
-    if (event.type === 'custom' && Array.isArray(event.musicElements)) {
+    if (event.type === 'custom') {
       command = new DisplayCustomPatternCommand(
         this.fretboardOrchestrationService,
-        event.musicElements,
+        event.musicElements as unknown as number[],
         event.keys
       );
     } else if (event.type === 'basic' && event.musicElements === 'All notes') {
@@ -43,9 +43,9 @@ export class HomePageComponent {
     } else if (event.type === 'basic') {
       command = new DisplaySingleNoteCommand(this.fretboardOrchestrationService, event.keys);
     } else if (event.type === 'chord') {
-      command = new DisplayChordCommand(this.fretboardOrchestrationService, event.musicElements as string, event.keys);
+      command = new DisplayChordCommand(this.fretboardOrchestrationService, event.musicElements, event.keys);
     } else if (event.type === 'scale') {
-      command = new DisplayScaleCommand(this.fretboardOrchestrationService, event.musicElements as string, event.keys);
+      command = new DisplayScaleCommand(this.fretboardOrchestrationService, event.musicElements, event.keys);
     } else {
       return;
     }

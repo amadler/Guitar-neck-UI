@@ -1,7 +1,7 @@
 export type QueryTypes = 'scale' | 'chord' | 'basic' | 'custom';
 
 export interface ToolboxSearchQuery {
-  musicElements: string | number[];
+  musicElements: string;
   keys: string;
   type: QueryTypes;
 }
