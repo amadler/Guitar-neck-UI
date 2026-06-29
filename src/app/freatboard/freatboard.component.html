@@ -1,5 +1,5 @@
 <div class="guitar-neck" *ngIf="notes">
-  <app-fret-range-selector (rangeChange)="fretRange = $event"></app-fret-range-selector>
+  <app-range-toolbar (rangeChange)="fretRange = $event"></app-range-toolbar>
   <div class="guitar-neck__fretboard">
     <div class="guitar-neck__fret-indices">
       <div class="guitar-neck__fret-index-spacer"></div>
