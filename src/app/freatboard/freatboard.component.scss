@@ -59,12 +59,21 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
   background-color: var(--guitar-neck-open-string-color);
   color: rgba(55, 38, 22, 0.92);
   font-size: 13px;
   font-weight: 600;
   line-height: 1;
   z-index: 1;
+}
+
+.guitar-neck__nut-label__string-name {
+  z-index: 0;
+}
+
+.guitar-neck__open-note-btn {
+  z-index: 2;
 }
 
 .guitar-neck__fret {
@@ -177,15 +186,4 @@
   background-color: var(--interval-major-7th);
 }
 
-
-.guitar-neck__string{
-  .guitar-neck__fret{
-    &:first-child{
-      border-right: none;
-      width: 0px;
-      background-color: transparent;
-      border-right: 1px outset var(--guitar-neck-fret-color);
-    }
-  }
-}
 
