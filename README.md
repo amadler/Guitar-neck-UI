@@ -121,3 +121,7 @@ projects/
 - [API docs](API_DOCUMENTATION.md)
 - [Dev setup](DEVELOPMENT.md)
 - [Deployment checklist](TODO_DEPLOY.md)
+
+
+## Live preview: 
+https://guitar-neck-ui.onrender.com/

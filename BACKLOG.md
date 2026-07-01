@@ -206,3 +206,141 @@ Zmiana w jednej linii template'u: zamiana interpolacji na `fret + 1`.
 OPEN
 
 **Lokalizacja:** `src/app/freatboard/freatboard.component.html:7`
+
+---
+
+## Remove unused uuid from GuitarNote
+
+### Motivation
+Każda z 150 instancji `GuitarNote` generuje UUID w konstruktorze (`import { v4 as uuidv4 } from 'uuid'`). UUID nie jest używany nigdzie w aplikacji — żaden serwis, komponent czy test nie odwołuje się do `note.id`. To niepotrzebny narzut: import całej biblioteki `uuid` do produkcyjnego bundle'a oraz 150 × 36 znaków uuid w pamięci.
+
+### Solution
+1. Usunąć `import { v4 as uuidv4 } from 'uuid'` z `GuitarNote`
+2. Usunąć pole `id?: string` z klasy
+3. Usunąć `this.id = uuidv4()` z konstruktora
+4. Odinstalować paczkę `uuid` i `@types/uuid` z `package.json`
+5. Usunąć `uuid` z `tsconfig.json` typów jeśli tam występuje
+
+### MVP
+Usunięcie pola `id` z modelu i wywołania `uuidv4()` — bez zmiany żadnej logiki biznesowej.
+
+### Done when
+- `GuitarNote` nie importuje uuid
+- `GuitarNote` nie ma pola `id`
+- Paczka `uuid` nie występuje w `package.json`
+- Wszystkie testy przechodzą
+
+### Status
+OPEN
+
+**Lokalizacja:** `src/app/shared/model/guitarNote.ts:1-14`
+
+---
+
+## FretboardStateService O(n) lookup — zastąpić Array.find Mapą
+
+### Motivation
+`FretboardStateService` przechowuje nuty jako `GuitarNote[]` i wyszukuje je przez `Array.find()`, `Array.some()`, `Array.filter()` — operacje O(n) przy każdej metodzie:
+
+- `isNoteOnFret()` → `Array.some()` — O(n)
+- `getNote()` → `Array.find()` — O(n)
+- `getNoteName()` → `Array.find()` — O(n)
+- `fretNoteClicked()` → `Array.find()` — O(n)
+
+W template'cie dla każdej z ~150 komórek wołane są wielokrotnie te metody (isNoteOnFret + getNoteName + isNoteSelected + getNoteInterval = potencjalnie ~600 lookupów na cykl detekcji zmian), każdy O(150). Dodatkowo:
+
+- `applyHighlightedNotes()` ma zagnieżdżoną pętlę: dla każdej zaznaczonej nuty (np. 7 w skali) filtruje tablicę 150 elementów = 1050 iteracji.
+
+### Solution
+Zastąpić `GuitarNote[]` strukturą `Map<string, GuitarNote>` z kluczem `"stringName-fret"` (np. `"E-3"`, `"A-5"`). Wszystkie lookupi stają się O(1). Metody publiczne zachowują tę samą sygnaturę — żaden klient nie wymaga zmian.
+
+```typescript
+// Przykład:
+private noteMap: Map<string, GuitarNote> = new Map();
+
+private key(string: string, fret: number): string {
+    return `${string}-${fret}`;
+}
+
+getNote(string: string, fret: number): GuitarNote | undefined {
+    return this.noteMap.get(this.key(string, fret));
+}
+```
+
+### MVP
+1. Dodać `noteMap` w konstruktorze serwisu (wypełnić z istniejącej tablicy)
+2. Przepisać `isNoteOnFret()`, `getNote()`, `getNoteName()`, `fretNoteClicked()` na lookup O(1)
+3. Zoptymalizować `applyHighlightedNotes()` — użyć `noteMap` zamiast `Array.filter`
+4. Zachować `notes: GuitarNote[]` jako czytelny getter/delegat jeśli potrzebny
+
+### Done when
+- Wszystkie metody lookupu używają `Map.get()` zamiast `Array.find/some/filter`
+- `applyHighlightedNotes()` nie ma zagnieżdżonych pętli
+- Wydajność: 600 lookupów × O(1) zamiast 600 × O(150)
+- Wszystkie testy przechodzą
+
+### Status
+OPEN
+
+**Lokalizacja:** `src/app/services/guitar-neck.service.ts:21-57`, `src/app/freatboard/freatboard.component.ts:47-83`
+
+---
+
+## Template bezpośrednio wywołuje serwisy — przenieść logikę do komponentu
+
+### Motivation
+Template `freatboard.component.html` wywołuje bezpośrednio metody serwisu dla każdej komórki siatki:
+
+```html
+<button *ngIf="!isNoteSelected(string, fret)"
+        (click)="fretNoteClicked(string, fret)">
+  {{ getNoteName(string, fret) }}
+</button>
+```
+
+`isNoteSelected()`, `getNoteName()`, `getNoteInterval()`, `isNoteOnFret()` — wszystkie delegują do `FretboardStateService`. To powoduje:
+
+1. **Trudność testowania** — template'u nie da się testować w izolacji
+2. **Brak przewidywalności** — Angular nie wie, które komórki zależą od której części stanu
+3. **Rozproszona odpowiedzialność** — logika prezentacji miesza się z logiką domenową
+4. **Wiele wywołań przy każdej detekcji zmian** — Angular nie może zoptymalizować bo to metody a nie właściwości
+
+### Solution
+Wprowadzić macierz prezentacyjną — `FreatboardComponent` buduje lokalną strukturę danych `DisplayCell[][]` i template tylko iteruje po gotowych danych.
+
+```typescript
+interface DisplayCell {
+    noteName: string;
+    isVisible: boolean;
+    isSelected: boolean;
+    interval: string;
+    isDot: boolean; // znacznik na gryfie
+}
+```
+
+Serwis emituje zmiany przez `BehaviorSubject<DisplayCell[][]>`, komponent subskrybuje i aktualizuje widok. Template używa wyłącznie właściwości (nie metod):
+
+```html
+<button *ngIf="cell.isVisible && !cell.isSelected">
+    {{ cell.noteName }}
+</button>
+```
+
+To też naturalnie współgra z przejściem na Mapę (poprzedni item) — macierz buduje się w O(1) na komórkę.
+
+### MVP
+1. Interfejs `DisplayCell` w modelu
+2. `FretboardStateService` wystawia `displayMatrix$: Observable<DisplayCell[][]>`
+3. `FreatboardComponent` subskrybuje i template czyta tylko z `cell.*`
+4. Usunąć metody-delegaty `isNoteOnFret()`, `getNoteName()` itp. z komponentu
+
+### Done when
+- Template nie woła żadnej metody serwisu ani komponentu — tylko `cell.property`
+- `DisplayCell` istnieje jako model
+- `FretboardStateService` pushuje nową macierz po każdej zmianie stanu
+- Wszystkie testy przechodzą
+
+### Status
+OPEN
+
+**Lokalizacja:** `src/app/freatboard/freatboard.component.html:14-35`, `src/app/freatboard/freatboard.component.ts:43-83`, `src/app/services/guitar-neck.service.ts:21-57`

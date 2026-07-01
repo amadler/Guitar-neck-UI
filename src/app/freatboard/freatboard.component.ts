@@ -4,13 +4,12 @@ import { FretboardStateService } from '../services/guitar-neck.service';
 import { NgIf, NgFor, NgClass } from '@angular/common';
 import { neckConfig } from 'guitar-neck-shared';
 import { RangeToolbarComponent } from '../range-toolbar/range-toolbar.component';
-import { LegendComponent } from "./components/legend/legend.component";
 
 @Component({
   selector: 'app-freatboard',
   templateUrl: './freatboard.component.html',
   standalone: true,
-  imports: [NgIf, NgFor, NgClass, RangeToolbarComponent, LegendComponent],
+  imports: [NgIf, NgFor, NgClass, RangeToolbarComponent],
   styleUrls: ['./freatboard.component.scss']
 })
 export class FreatboardComponent implements OnInit {

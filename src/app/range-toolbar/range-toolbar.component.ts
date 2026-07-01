@@ -1,49 +1,60 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FretRangeSelectorComponent } from '../fret-range-selector/fret-range-selector.component';
+import { FormsModule } from '@angular/forms';
 import { neckConfig } from 'guitar-neck-shared';
 
 interface Preset {
   label: string;
   min: number;
   max: number;
+  icon: string;
 }
 
 @Component({
   selector: 'app-range-toolbar',
   standalone: true,
-  imports: [CommonModule, FretRangeSelectorComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './range-toolbar.component.html',
   styleUrls: ['./range-toolbar.component.scss']
 })
 export class RangeToolbarComponent {
   @Output() rangeChange = new EventEmitter<{minFret: number, maxFret: number}>();
+  neckConfig = neckConfig;
 
   readonly presets: Preset[] = [
-    { label: 'Open', min: 0, max: 4 },
-    { label: '5th', min: 5, max: 8 },
-    { label: '9th', min: 9, max: 12 },
-    { label: '12th', min: 12, max: 15 },
-    { label: 'Full', min: 0, max: neckConfig.numberOfFrets }
+    { label: 'Open', min: 0, max: 4, icon: '🎸' },
+    { label: '5th Pos.', min: 5, max: 9, icon: '🎸' },
+    { label: '9th Pos.', min: 9, max: 13, icon: '🎸' },
+    { label: '12th Pos.', min: 12, max: 16, icon: '🎸' },
+    { label: 'Full Neck', min: 0, max: neckConfig.numberOfFrets, icon: '🎸' },
+    { label: 'Custom', min: 0, max: neckConfig.numberOfFrets, icon: '⚙️' }
   ];
 
-  activePreset: Preset | null = this.presets[4]; // Full active by default
+  activePreset: Preset | null = this.presets[4];
   isCustom = false;
 
+  customMin = 0;
+  customMax = neckConfig.numberOfFrets;
+
   selectPreset(preset: Preset): void {
+    if (preset.label === 'Custom') {
+      this.isCustom = true;
+      this.activePreset = null;
+      return;
+    }
     this.activePreset = preset;
     this.isCustom = false;
     this.emitRange(preset.min, preset.max);
   }
 
-  onSliderChange(range: {minFret: number, maxFret: number}): void {
-    this.isCustom = !this.presets.some(p => p.min === range.minFret && p.max === range.maxFret);
-    if (!this.isCustom) {
-      this.activePreset = this.presets.find(p => p.min === range.minFret && p.max === range.maxFret) || null;
-    } else {
-      this.activePreset = null;
-    }
-    this.emitRange(range.minFret, range.maxFret);
+  applyCustom(): void {
+    const min = Math.max(0, Math.min(this.customMin, this.customMax));
+    const max = Math.min(neckConfig.numberOfFrets, Math.max(this.customMax, min));
+    this.customMin = min;
+    this.customMax = max;
+    this.isCustom = false;
+    this.activePreset = null;
+    this.emitRange(min, max);
   }
 
   private emitRange(min: number, max: number): void {

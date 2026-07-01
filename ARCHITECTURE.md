@@ -141,6 +141,91 @@ const environment = {
 };
 ```
 
+## Styling Strategy: Library vs Host App Separation
+
+### Problem
+
+`guitar-toolbox-lib` jest zewnętrznym workspace (npm package). Host app (`guitar-neck-ui`) definiuje style w `src/styles.scss`, które muszą być kompatybilne z markupem biblioteki. W przyszłości planowana jest podmiana biblioteki na wersję mobilną.
+
+### Zasada separacji
+
+| Odpowiedzialność | Kto | Przykład |
+|-----------------|-----|----------|
+| **Layout** (grid, flex, gap, padding, wewnętrzne rozmieszczenie) | Biblioteka | `.toolbox__form { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: var(--toolbox-gap, 18px); }` |
+| **Podstawowa geometria** (min-width, height elementów) | Biblioteka | `.toolbox__submit { min-width: 88px; height: 40px; }` |
+| **Kolory, fonty, border-radius, cienie** (theme) | Host app przez CSS Custom Properties | `--toolbox-bg: var(--app-surface)` |
+| **Responsywność** (breakpointy) | Host app | `@media (max-width: 900px) { ... }` |
+
+### CSS Custom Properties API (kontrakt)
+
+**Neutral fallback rule**: Biblioteka nie definiuje żadnych kolorów ani wartości wizualnych — nawet jako fallback CSS variables. Wszystkie color/background/border-color/radius wartości używają `transparent`, `inherit`, `currentColor` lub `0` jako fallback.
+
+```css
+/* Library — layout only, NO opinionated colors */
+.toolbox__form {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: var(--toolbox-gap, 18px);
+  align-items: end;
+  margin-bottom: 26px;
+}
+
+.toolbox__submit {
+  min-width: 88px;
+  height: 40px;
+  background: var(--toolbox-accent, transparent);  /* neutral fallback */
+  color: var(--toolbox-accent-text, inherit);       /* neutral fallback */
+  border: none;
+  border-radius: var(--toolbox-radius-sm, 0);       /* neutral fallback */
+}
+
+/* Host app sets values */
+:root {
+  --toolbox-bg: var(--app-surface);
+  --toolbox-border-color: var(--app-border);
+  --toolbox-radius: var(--radius-md);
+  --toolbox-text: var(--app-text);
+  --toolbox-accent: var(--green-800);
+  --toolbox-accent-text: #ffffff;
+}
+
+/* Border is split: width/style in library, color in host */
+/* Library: */
+.toolbox__select {
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--toolbox-border-color, transparent);
+}
+```
+
+### CSS Variables API — pełna tabela
+
+| Variable | Fallback | Kategoria |
+|----------|----------|-----------|
+| `--toolbox-bg` | `transparent` | Host — kolor tła |
+| `--toolbox-text` | `inherit` | Host — kolor tekstu |
+| `--toolbox-border-color` | `transparent` | Host — kolor obramowania |
+| `--toolbox-radius` | `0` | Host — border radius |
+| `--toolbox-radius-sm` | `0` | Host — border radius (mały) |
+| `--toolbox-gap` | `18px` | Library — odstępy layout |
+| `--toolbox-accent` | `currentColor` | Host — kolor akcentu |
+| `--toolbox-accent-text` | `inherit` | Host — tekst na akcencie |
+| `--toolbox-accent-bg` | `transparent` | Host — tło akcentu |
+| `--toolbox-muted` | `inherit` | Host — kolor muted |
+
+### Biblioteki zewnętrzne
+
+| Biblioteka | Status | Źródło | Uwagi |
+|-----------|--------|--------|-------|
+| `guitar-neck-shared` | npm `^1.0.2` | zewnętrzne repo | Stałe, patterny, konfiguracja |
+| `guitar-toolbox-lib` | npm `^1.0.2` | zewnętrzne repo | Toolbox form, custom pattern; style przez CSS vars |
+| `guitar-chat` | lokalny workspace | `projects/guitar-chat` | AI chat — **POSTPONED** |
+
+### Zagrożenia
+
+- CSS variables kontrakt może się rozejść między wersjami biblioteki a hosta — wymaga semver + dokumentacji API
+- Responsywność — biblioteka definiuje layout, ale breakpointy są w host app; biblioteka może wspierać `:host-context(.toolbox--compact)` lub data attribute
+
 ## Backlog
 
 Pełny backlog w [`BACKLOG.md`](BACKLOG.md). Podsumowanie:

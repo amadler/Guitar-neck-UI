@@ -1,0 +1,31 @@
+// .legend {
+//   display: flex;
+//   flex-wrap: wrap;
+//   gap: 8px;
+//   padding: 10px;
+//   justify-content: center;
+// }
+
+// .legend-item {
+//   display: flex;
+//   align-items: center;
+//   gap: 4px;
+//   padding: 4px 8px;
+//   border-radius: 4px;
+//   color: white;
+//   font-size: 12px;
+//   font-weight: bold;
+
+//   &.root { background-color: rgb(128, 0, 15); }
+//   &.minor-2nd { background-color: var(--interval-minor-2nd); }
+//   &.major-2nd { background-color: var(--interval-major-2nd); }
+//   &.minor-3rd { background-color: var(--interval-minor-3rd); }
+//   &.major-3rd { background-color: var(--interval-major-3rd); }
+//   &.perfect-4th { background-color: var(--interval-perfect-4th); }
+//   &.diminished-5th { background-color: var(--interval-diminished-5th); }
+//   &.perfect-5th { background-color: var(--interval-perfect-5th); }
+//   &.minor-6th { background-color: var(--interval-minor-6th); }
+//   &.major-6th { background-color: var(--interval-major-6th); }
+//   &.minor-7th { background-color: var(--interval-minor-7th); }
+//   &.major-7th { background-color: var(--interval-major-7th); }
+// }

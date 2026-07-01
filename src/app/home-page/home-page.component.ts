@@ -2,11 +2,14 @@ import { Component, NO_ERRORS_SCHEMA } from '@angular/core';
 import { NgIf } from '@angular/common';
 import { FretboardStateService } from '../services/guitar-neck.service';
 import { Command, DisplayAllNotesCommand, DisplayScaleCommand, DisplaySingleNoteCommand, DisplayChordCommand, DisplayCustomPatternCommand } from '../shared/UICommands';
-import { ToolboxSearchQuery } from '../shared/model/musicElements';
+import { ToolboxSearchQuery } from 'guitar-toolbox-lib';
 import { FretboardOrchestrationService } from '../services/music-theory-facade.service';
 import { ToolboxFormComponent } from 'guitar-toolbox-lib';
 import { GuitarNeckComponent } from '../guitar-neck/guitar-neck.component';
 import { environment } from '../../environments/environment';
+import { HeaderComponent } from '../header/header.component';
+import { FooterComponent } from '../footer/footer.component';
+import { LegendComponent } from '../legend/legend.component';
 
 @Component({
   selector: 'app-home-page',
@@ -16,6 +19,9 @@ import { environment } from '../../environments/environment';
     NgIf,
     ToolboxFormComponent,
     GuitarNeckComponent,
+    HeaderComponent,
+    FooterComponent,
+    LegendComponent
   ],
   templateUrl: './home-page.component.html',
   styleUrl: './home-page.component.scss'
@@ -31,21 +37,23 @@ export class HomePageComponent {
   toolboxSubmit(event: ToolboxSearchQuery): void {
     this.guitarNeckService.clearFretboard();
 
+    const { musicElements, keys, type } = event;
+
     let command: Command;
-    if (event.type === 'custom') {
+    if (type === 'custom' && Array.isArray(musicElements)) {
       command = new DisplayCustomPatternCommand(
         this.fretboardOrchestrationService,
-        event.musicElements as unknown as number[],
-        event.keys
+        musicElements,
+        keys
       );
-    } else if (event.type === 'basic' && event.musicElements === 'All notes') {
+    } else if (type === 'basic' && musicElements === 'All notes') {
       command = new DisplayAllNotesCommand(this.fretboardOrchestrationService);
-    } else if (event.type === 'basic') {
-      command = new DisplaySingleNoteCommand(this.fretboardOrchestrationService, event.keys);
-    } else if (event.type === 'chord') {
-      command = new DisplayChordCommand(this.fretboardOrchestrationService, event.musicElements, event.keys);
-    } else if (event.type === 'scale') {
-      command = new DisplayScaleCommand(this.fretboardOrchestrationService, event.musicElements, event.keys);
+    } else if (type === 'basic') {
+      command = new DisplaySingleNoteCommand(this.fretboardOrchestrationService, keys);
+    } else if (type === 'chord' && typeof musicElements === 'string') {
+      command = new DisplayChordCommand(this.fretboardOrchestrationService, musicElements, keys);
+    } else if (type === 'scale' && typeof musicElements === 'string') {
+      command = new DisplayScaleCommand(this.fretboardOrchestrationService, musicElements, keys);
     } else {
       return;
     }
