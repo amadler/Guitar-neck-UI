@@ -344,3 +344,36 @@ To też naturalnie współgra z przejściem na Mapę (poprzedni item) — macier
 OPEN
 
 **Lokalizacja:** `src/app/freatboard/freatboard.component.html:14-35`, `src/app/freatboard/freatboard.component.ts:43-83`, `src/app/services/guitar-neck.service.ts:21-57`
+
+---
+
+## UI Color Palette Refresh
+
+### Motivation
+
+The current fretboard color palette evolved organically but has UX issues: interval colors are overly saturated and compete for attention; white fret markers visually compete with note markers; the planned "Note Names" mode (without interval colors) will require neutral note markers that remain clearly visible against the fretboard; the current palette lacks a clearly defined visual hierarchy. The goal is to improve readability while preserving existing interval semantics.
+
+### Solution
+
+Refresh the visual palette without changing application behavior. Keep the current interval-to-color mapping (users should not relearn colors). Replace saturated colors with a more balanced palette. Reduce visual prominence of fret markers by using a darker shade or lower opacity. Prepare the UI for a future display mode where all notes use a neutral color (white/light gray) while remaining distinguishable from fret markers. No logic changes, no API changes, no component changes — CSS only.
+
+### MVP
+
+- Update interval color palette in `src/styles.scss` and `src/app/freatboard/freatboard.component.scss`
+- Reduce contrast of fretboard position markers (`--guitar-neck-dot-color`, `.guitar-neck__marker`)
+- Verify readability on the existing dark fretboard (`--guitar-neck-bg-color: #333`)
+- Verify that a neutral note color remains distinguishable from fret markers
+
+### Done when
+
+- Interval colors are less visually aggressive
+- Root remains immediately recognizable
+- Fret markers no longer compete with note markers
+- Future "Note Names" mode can use a neutral note color without ambiguity
+- Existing functionality remains unchanged
+
+### Status
+
+OPEN
+
+**Lokalizacja:** `src/styles.scss:48-59`, `src/app/freatboard/freatboard.component.scss:159-205`, `src/styles.scss:38-39`
