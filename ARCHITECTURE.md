@@ -17,8 +17,9 @@ System składa się z 3 części:
 | `HomePageComponent` | `app-home-page` | Agreguje gryf + toolbox | `src/app/home-page` |
 | `FreatboardComponent` | `app-freatboard` | Renderuje gryf z nutami i interwałami | `src/app/freatboard` |
 | `GuitarNeckComponent` | `app-guitar-neck` | Kontener inicjalizujący gryf | `src/app/guitar-neck` |
-| `LegendComponent` | `app-legend` | Legenda kolorów interwałowych | `src/app/freatboard/components/legend` |
-| `FretRangeSelectorComponent` | `app-fret-range-selector` | Selektor zakresu progów | `src/app/fret-range-selector` |
+| `LegendComponent` | `app-legend` | Legenda kolorów interwałowych | `src/app/legend` |
+| `RangeToolbarComponent` | `app-range-toolbar` | Selektor zakresu progów (presety) | `src/app/range-toolbar` |
+| `StringToggleComponent` | `app-string-toggle` | Włączanie/wyłączanie poszczególnych strun | `src/app/string-toggle` |
 | `ToolboxFormComponent` | `lib-toolbox-form` | Formularz wyboru skali/akordu (z `guitar-toolbox-lib`) | npm package |
 | `ChatComponent` | `lib-chat` | **POSTPONED** — czat AI | `projects/guitar-chat` |
 | `AISuggestionsComponent` | `lib-ai-suggestions` | **POSTPONED** — sugestie AI | `projects/guitar-chat` |
@@ -233,8 +234,14 @@ Pełny backlog w [`BACKLOG.md`](BACKLOG.md). Podsumowanie:
 | Element | Status |
 |---------|--------|
 | AI Chat (Gemini) | POSTPONED |
-| `refreshNotesInRange()` dead code | OPEN |
-| `ToolboxSearchQuery` typing | OPEN |
+| `refreshNotesInRange()` dead code | FIXED |
+| `ToolboxSearchQuery` typing | FIXED |
 | `toolboxSubmit()` command factory | OPEN |
 | Pattern name Unicode w backendzie | OPEN |
 | Note readability na gryfie | POSTPONED |
+| Fret numbering starts at 0 | OPEN |
+| Remove unused uuid from GuitarNote | OPEN |
+| FretboardStateService O(n) → O(1) | OPEN |
+| Template woła serwisy bezpośrednio | OPEN |
+| UI Color Palette Refresh | OPEN |
+| MusicSelection domain abstraction | OPEN |
