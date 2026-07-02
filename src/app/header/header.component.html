@@ -7,8 +7,28 @@
   <div class="app-header__actions">
     <button class="icon-btn" type="button" aria-label="Light mode">☀️</button>
     <button class="icon-btn" type="button" aria-label="Dark mode">🌙</button>
-    <button class="icon-btn" type="button" aria-label="Help">?</button>
+    <button class="icon-btn" type="button" aria-label="Help" (click)="toggleHelpModal()">?</button>
     <button class="icon-btn" type="button" aria-label="Settings">⚙️</button>
     <button class="icon-btn" type="button" aria-label="GitHub">◉</button>
+  </div>
+
+  <div class="help-modal-overlay" *ngIf="helpModalOpen" (click)="toggleHelpModal()">
+    <div class="help-modal" (click)="$event.stopPropagation()">
+      <button class="help-modal__close" (click)="toggleHelpModal()">✕</button>
+      <h2>Welcome to Guitar Neck UI</h2>
+      <p>Guitar Neck UI helps you understand the guitar fretboard by visualizing notes, intervals, scales and chords directly on the neck.</p>
+      <p>Use it to explore how musical patterns are built and where they appear on the guitar.</p>
+      <h3>You can currently:</h3>
+      <ul>
+        <li>show notes on the fretboard,</li>
+        <li>display scales,</li>
+        <li>display chords,</li>
+        <li>create custom interval patterns,</li>
+        <li>limit the view to a fret range,</li>
+        <li>enable or disable strings,</li>
+        <li>switch marker display style.</li>
+      </ul>
+      <p><em>AI chat and practice features are planned.</em></p>
+    </div>
   </div>
 </header>
