@@ -26,6 +26,10 @@ export class FretboardStateService {
   }
 
   isNoteOnFret(string: string, fret: number): boolean {
+    const stringIndex = this.strings.indexOf(string);
+    if (stringIndex >= 0 && !this.activeStrings[stringIndex]) {
+      return false;
+    }
     return this.notes.some(note => this.isMatchingNoteOnFret(note, string, fret));
   }
 
@@ -91,6 +95,6 @@ export class FretboardStateService {
     this.intervalService.removeIntervals(this.notes);
     this.hideAllNotes();
     this.clearSelection();
-    this.resetActiveStrings();
+    // Note: activeStrings are NOT reset here — they persist until the user manually toggles them.
   }
 }

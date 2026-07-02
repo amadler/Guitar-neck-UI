@@ -61,6 +61,11 @@ describe('GuitarNeckService', () => {
     it('should return false when note does not exist on specific fret', () => {
       expect(service.isNoteOnFret('E', 1)).toBeFalse();
     });
+
+    it('should return false when the string is toggled off', () => {
+      service.toggleString(0, false);
+      expect(service.isNoteOnFret('E', 0)).toBeFalse();
+    });
   });
 
   describe('getNote', () => {
@@ -159,7 +164,7 @@ describe('GuitarNeckService', () => {
   });
 
   describe('clearFretboard', () => {
-    it('should clear all fretboard state', () => {
+    it('should clear notes, selections, and intervals but preserve activeStrings', () => {
       service.toggleString(0, false);
       service.toggleString(1, false);
       service.clearFretboard();
@@ -167,7 +172,9 @@ describe('GuitarNeckService', () => {
       expect(intervalServiceSpy.removeIntervals).toHaveBeenCalledWith(service.notes);
       expect(service.notes.every(note => !note.visible)).toBeTrue();
       expect(service.notes.every(note => !note.selected)).toBeTrue();
-      expect(service.activeStrings.every(Boolean)).toBeTrue();
+      // activeStrings must persist — only the user can change them manually
+      expect(service.activeStrings[0]).toBeFalse();
+      expect(service.activeStrings[1]).toBeFalse();
     });
   });
 });
