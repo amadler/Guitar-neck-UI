@@ -70,4 +70,26 @@ describe('LegendComponent', () => {
     fixture.detectChanges();
     expect(guitarNeckService.markerDisplayMode).toBe('neutral-dots');
   });
+
+  describe('markers select disabled state', () => {
+    function getSelect(): HTMLSelectElement {
+      const labels = fixture.debugElement.queryAll(By.css('.switch-line'));
+      const markersLabel = labels.find(label =>
+        label.nativeElement.textContent?.includes('Markers')
+      );
+      return markersLabel!.query(By.css('select'))!.nativeElement;
+    }
+
+    it('should be disabled when hasActiveResult is false', () => {
+      guitarNeckService.hasActiveResult = false;
+      fixture.detectChanges();
+      expect(getSelect().disabled).toBeTrue();
+    });
+
+    it('should be enabled when hasActiveResult is true', () => {
+      guitarNeckService.hasActiveResult = true;
+      fixture.detectChanges();
+      expect(getSelect().disabled).toBeFalse();
+    });
+  });
 });
