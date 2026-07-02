@@ -203,9 +203,9 @@ Zmiana w jednej linii template'u: zamiana interpolacji na `fret + 1`.
 - Logika pozycji nut (indeks 0 = open string) pozostaje bez zmian
 
 ### Status
-OPEN
+FIXED — `frets` inicjalizowane jako `Array.from({ length: numberOfFrets }, (_, i) => i + 1)`, czyli [1..24]. Open string (fret 0) wyświetlany poza indeksami.
 
-**Lokalizacja:** `src/app/freatboard/freatboard.component.html:7`
+**Lokalizacja:** `src/app/services/guitar-neck.service.ts:14`, `src/app/freatboard/freatboard.component.html:9`
 
 ---
 
@@ -231,9 +231,9 @@ Usunięcie pola `id` z modelu i wywołania `uuidv4()` — bez zmiany żadnej log
 - Wszystkie testy przechodzą
 
 ### Status
-OPEN
+FIXED — usunięto `uuid` import, pole `id` i `uuidv4()` z konstruktora. Usunięto `uuid` i `@types/uuid` z package.json.
 
-**Lokalizacja:** `src/app/shared/model/guitarNote.ts:1-14`
+**Lokalizacja:** `src/app/shared/model/guitarNote.ts:1`, `package.json:28-34`
 
 ---
 
@@ -374,6 +374,194 @@ Refresh the visual palette without changing application behavior. Keep the curre
 
 ### Status
 
+FIXED — softened all 11 interval colors (reduced saturation), `--interval-root` unchanged. CSS only, no logic changes. Branch `fix/ui-color-palette-refresh` awaiting merge.
+
+**Lokalizacja:** `src/styles.scss:48-59`
+
+---
+
+## Show chord tones inside scale
+
+### Motivation
+Users need to understand the relationship between a selected chord and scale, not only view them separately.
+
+### Solution
+Show a selected scale on the fretboard and highlight chord tones on top of it. Differentiate:
+- Scale tones (non-chord)
+- Chord tones inside the scale
+- Chord tones outside the scale
+- Scale root
+- Chord root
+
+Do not show all outside-scale notes as a separate mode in MVP.
+
+Implementation touches:
+1. Extend `GuitarNote` model with a `toneType` property (`'scale' | 'chord-inside' | 'chord-outside' | 'scale-root' | 'chord-root'`)
+2. Add `displayScaleWithChord()` method to `FretboardOrchestrationService` — calls API for both scale and chord notes, computes intersection/difference, marks each note's `toneType`
+3. Extend `IntervalService.markIntervals()` or create new method to handle combined scale+chord interval marking
+4. Update `FretboardStateService.applyHighlightedNotes()` to preserve and apply `toneType`
+5. Add CSS classes in `freatboard.component.scss` for each tone type (distinct colors/visuals)
+6. Update `freatboard.component.html` to render tone-type CSS classes on note markers
+7. Optionally add a new `DisplayScaleWithChordCommand` in `UICommands.ts`
+
+### MVP
+User can select a scale and a chord, then see which chord tones belong to the scale and which chord tones fall outside it.
+
+### Done when
+- Scale tones are visible on the fretboard
+- Chord tones inside the scale are clearly highlighted (distinct from plain scale tones)
+- Chord tones outside the scale are clearly marked (distinct from chord-inside and plain scale)
+- Scale root and chord root are visually distinguishable
+- Existing scale-only and chord-only display still works unchanged
+- All existing tests pass (69/69)
+
+### Status
 OPEN
 
-**Lokalizacja:** `src/styles.scss:48-59`, `src/app/freatboard/freatboard.component.scss:159-205`, `src/styles.scss:38-39`
+**Lokalizacja:** `src/app/services/music-theory-facade.service.ts:18-49`, `src/app/services/interval.service.ts:9-41`, `src/app/shared/model/guitarNote.ts:1-20`, `src/app/freatboard/freatboard.component.ts`, `src/app/freatboard/freatboard.component.scss`, `src/app/shared/UICommands.ts:26-56`, `src/app/services/guitar-neck.service.ts:46-65`
+
+---
+
+## Disable result display controls when fretboard is empty
+
+### Motivation
+
+Some controls only affect the way an existing fretboard result is displayed. When no scale, chord, note or custom pattern is currently shown, these controls have no meaningful effect and may confuse the user.
+
+### Solution
+
+Disable result display controls until there is an active fretboard result.
+
+Keep workspace filters available.
+
+Available always:
+
+- fret range
+- string toggle
+- toolbox selection
+
+Disabled when no result is active:
+
+- Notes
+- Intervals
+- Marker style
+- Clear
+
+### MVP
+
+When the fretboard has no active result, result display controls are disabled. After showing a scale, chord, note or custom pattern, they become active.
+
+### Done when
+
+- Fret range remains usable before selecting music content.
+- String toggle remains usable before selecting music content.
+- Notes / Intervals / Marker style are disabled when there is no active result.
+- Notes / Intervals / Marker style are enabled when a result is shown.
+- Clear is disabled when there is nothing to clear.
+
+### Status
+
+FIXED — `hasActiveResult` property w FretboardStateService, [disabled] binding na `<select>` markerów, przycisk Clear z disabled state.
+
+**Lokalizacja:** `src/app/services/guitar-neck.service.ts:19`, `src/app/legend/legend.component.html:23`, `src/app/legend/legend.component.ts:14`, `src/app/services/guitar-neck.service.spec.ts:235`, `src/app/legend/legend.component.spec.ts:74`
+
+---
+
+## Header Help Modal
+
+### Motivation
+
+First-time users may not immediately understand what Guitar Neck UI is for or where to start.
+
+The app needs a simple entry point explaining its purpose and currently available core features.
+
+### Solution
+
+Connect the `?` icon in the header to a help/welcome modal.
+
+The modal should briefly explain:
+
+- what the app does,
+- who it is for,
+- what the user can currently try,
+- that AI / Practice are planned or postponed.
+
+### MVP
+
+Clicking the `?` icon opens a modal with short static content.
+
+Suggested content:
+
+### Welcome to Guitar Neck UI
+
+Guitar Neck UI helps you understand the guitar fretboard by visualizing notes, intervals, scales and chords directly on the neck.
+
+Use it to explore how musical patterns are built and where they appear on the guitar.
+
+### You can currently:
+
+- show notes on the fretboard,
+- display scales,
+- display chords,
+- create custom interval patterns,
+- limit the view to a fret range,
+- enable or disable strings,
+- switch marker display style.
+
+### Start here
+
+Choose a scale or chord in the Toolbox, select a key, then click **Show**.
+
+### Done when
+
+- Header `?` icon opens a help modal.
+- Modal is readable on desktop.
+- Content is static.
+- No onboarding flow is added.
+- No user account, tracking or persistence is introduced.
+
+### Status
+
+FIXED — `helpModalOpen` + `toggleHelpModal()` w HeaderComponent, modal overlay z treścią, testy otwarcia/zamknięcia.
+
+**Lokalizacja:** `src/app/header/header.component.ts:13`, `src/app/header/header.component.html:10`, `src/app/header/header.component.scss:1`, `src/app/header/header.component.spec.ts:25`
+
+---
+
+## Compare classic toolbox and overlay toolbox
+
+### Motivation
+
+The current toolbox is functional but takes too much vertical space and competes with the fretboard. A toolbox overlay may improve first-time user guidance and keep the fretboard as the main workspace.
+
+### Solution
+
+Prepare two UI variants:
+
+- classic toolbox layout,
+- toolbox overlay on the fretboard.
+
+Hide Custom Pattern from the deploy-facing UI for now.
+
+### MVP
+
+Both variants allow selecting and showing:
+
+- scale,
+- chord,
+- basic note.
+
+Custom Pattern remains available internally but is not styled or promoted in the UI.
+
+### Done when
+
+- Classic toolbox still works.
+- Overlay toolbox works for scale/chord/basic selection.
+- Overlay closes after Show.
+- Toolbox can be reopened after a result is shown.
+- Custom Pattern is hidden from the deploy-facing UI.
+- No music logic changes are introduced.
+
+### Status
+
+PLAN
