@@ -2,13 +2,25 @@
   <app-range-toolbar (rangeChange)="fretRange = $event"></app-range-toolbar>
   <div class="guitar-neck__fretboard">
     <div class="guitar-neck__fret-indices">
-      <div class="guitar-neck__fret-index-spacer"></div>
+      <div class="guitar-neck__fret-index-spacer">
+        <span class="guitar-neck__fret-index-spacer__label">on</span>
+      </div>
       <div class="guitar-neck__fret-index-track">
         <div *ngFor="let fret of frets" class="guitar-neck__fret-index-cell">{{ fret }}</div>
       </div>
     </div>
 
-    <div *ngFor="let string of strings; let i = index" [class]="'guitar-neck__string '+ string">
+    <div *ngFor="let string of strings; let i = index"
+         [class]="'guitar-neck__string '+ string"
+         [class.guitar-neck__string--disabled]="!guitarNeckService.activeStrings[i]">
+
+      <app-string-toggle
+        [stringName]="string"
+        [stringIndex]="i"
+        [active]="guitarNeckService.activeStrings[i]"
+        (stringToggled)="onStringToggled($event)">
+      </app-string-toggle>
+
       <div class="guitar-neck__nut-label">
         <span class="guitar-neck__nut-label__string-name">{{ string }}</span>
         <ng-container *ngIf="isNoteOnFret(string, 0) && isNoteInRange(0)">

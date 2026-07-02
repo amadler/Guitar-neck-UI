@@ -4,12 +4,13 @@ import { FretboardStateService } from '../services/guitar-neck.service';
 import { NgIf, NgFor, NgClass } from '@angular/common';
 import { neckConfig } from 'guitar-neck-shared';
 import { RangeToolbarComponent } from '../range-toolbar/range-toolbar.component';
+import { StringToggleComponent } from '../string-toggle/string-toggle.component';
 
 @Component({
   selector: 'app-freatboard',
   templateUrl: './freatboard.component.html',
   standalone: true,
-  imports: [NgIf, NgFor, NgClass, RangeToolbarComponent],
+  imports: [NgIf, NgFor, NgClass, RangeToolbarComponent, StringToggleComponent],
   styleUrls: ['./freatboard.component.scss']
 })
 export class FreatboardComponent implements OnInit {
@@ -20,7 +21,7 @@ export class FreatboardComponent implements OnInit {
   private _fretRange = { minFret: 0, maxFret: 24 };
 
   constructor(
-    private guitarNeckService: FretboardStateService
+    protected guitarNeckService: FretboardStateService
   ) {
     this.strings = guitarNeckService.strings;
     this.frets = guitarNeckService.frets;
@@ -80,6 +81,11 @@ export class FreatboardComponent implements OnInit {
 
   protected getNote(string: string, fret: number): GuitarNote | undefined {
     return this.guitarNeckService.getNote(string, fret);
+  }
+
+  /** Handle string toggle checkbox events from StringToggleComponent. */
+  protected onStringToggled(event: { stringIndex: number; active: boolean }): void {
+    this.guitarNeckService.toggleString(event.stringIndex, event.active);
   }
 }
 

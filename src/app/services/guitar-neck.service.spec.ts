@@ -43,6 +43,11 @@ describe('GuitarNeckService', () => {
     expect(service.frets.length).toBe(neckConfig.numberOfFrets);
   });
 
+  it('should initialize activeStrings with all true', () => {
+    expect(service.activeStrings.length).toBe(neckConfig.stringNotes.length);
+    expect(service.activeStrings.every(Boolean)).toBeTrue();
+  });
+
   it('should initialize notes from NoteService', () => {
     expect(noteServiceSpy.getAllPositions).toHaveBeenCalled();
     expect(service.notes).toEqual(mockNotes);
@@ -135,13 +140,34 @@ describe('GuitarNeckService', () => {
     });
   });
 
+  describe('toggleString', () => {
+    it('should set a string as inactive', () => {
+      service.toggleString(0, false);
+      expect(service.activeStrings[0]).toBeFalse();
+    });
+
+    it('should set a string as active', () => {
+      service.toggleString(0, false);
+      service.toggleString(0, true);
+      expect(service.activeStrings[0]).toBeTrue();
+    });
+
+    it('should ignore out-of-range index', () => {
+      service.toggleString(99, false);
+      expect(service.activeStrings.every(Boolean)).toBeTrue();
+    });
+  });
+
   describe('clearFretboard', () => {
     it('should clear all fretboard state', () => {
+      service.toggleString(0, false);
+      service.toggleString(1, false);
       service.clearFretboard();
 
       expect(intervalServiceSpy.removeIntervals).toHaveBeenCalledWith(service.notes);
       expect(service.notes.every(note => !note.visible)).toBeTrue();
       expect(service.notes.every(note => !note.selected)).toBeTrue();
+      expect(service.activeStrings.every(Boolean)).toBeTrue();
     });
   });
 });

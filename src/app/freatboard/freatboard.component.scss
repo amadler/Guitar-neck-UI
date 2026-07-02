@@ -14,8 +14,18 @@
 }
 
 .guitar-neck__fret-index-spacer {
-  width: 20px;
-  min-width: 20px;
+  width: 50px;
+  min-width: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: rgba(70, 85, 105, 0.5);
+}
+
+.guitar-neck__fret-index-spacer__label {
+  user-select: none;
+  line-height: 1;
 }
 
 .guitar-neck__fret-index-track {
@@ -44,12 +54,20 @@
 
 .guitar-neck__string {
   display: flex;
-  justify-content: center;
   align-items: center;
   flex-direction: row;
   min-width: 100%;
   outline: 1px  var(--guitar-neck-string-color) solid;
   outline-offset: -12px;
+}
+
+/* Hide all note dots/selected/interval elements on a disabled string.
+   Nut label and fret markers remain visible for layout reference. */
+.guitar-neck__string--disabled {
+  .guitar-neck__dot,
+  .guitar-neck__selected {
+    display: none;
+  }
 }
 
 .guitar-neck__nut-label {

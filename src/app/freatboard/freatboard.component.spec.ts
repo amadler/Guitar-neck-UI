@@ -44,6 +44,11 @@ describe('FreatboardComponent', () => {
     expect(component.strings.length).toBe(stringsElements.length);
   });
 
+  it('should render a StringToggleComponent for each string', () => {
+    const toggleElements = fixture.debugElement.queryAll(By.css('app-string-toggle'));
+    expect(toggleElements.length).toBe(component.strings.length);
+  });
+
   it('should render the correct number of frets', () => {
     const fretElements = fixture.debugElement.queryAll(By.css('.guitar-neck__fret'));
     expect(fretElements.length).toBe(component.frets.length * component.strings.length);
@@ -72,5 +77,13 @@ describe('FreatboardComponent', () => {
     noteOnfret.click();
     fixture.detectChanges();
     expect(component.onNoteClicked$.emit).toHaveBeenCalledOnceWith(jasmine.objectContaining({note:'E'}))
+  });
+
+  it('should toggle string visibility via guitarNeckService', () => {
+    spyOn(guitarNeckService, 'toggleString');
+    const toggle = fixture.debugElement.query(By.css('app-string-toggle'));
+    toggle.triggerEventHandler('stringToggled', { stringIndex: 0, active: false });
+    fixture.detectChanges();
+    expect(guitarNeckService.toggleString).toHaveBeenCalledWith(0, false);
   });
 });

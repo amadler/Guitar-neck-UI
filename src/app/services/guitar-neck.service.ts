@@ -10,12 +10,15 @@ export class FretboardStateService {
   notes: GuitarNote[];
   strings = neckConfig.stringNotes;
   frets = Array.from({ length: neckConfig.numberOfFrets }, (_, i) => i + 1);
+  /** Per-string active state. true = show notes on this string. Reset on clearFretboard(). */
+  activeStrings: boolean[];
 
   constructor(
     private noteService: FretboardNotePositionService,
     private intervalService: IntervalService
   ) {
     this.notes = this.noteService.getAllPositions();
+    this.activeStrings = this.strings.map(() => true);
   }
 
   private isMatchingNoteOnFret(note: GuitarNote, string: string, fret: number) {
@@ -56,6 +59,18 @@ export class FretboardStateService {
     return this.notes.filter(note => note.selected);
   }
 
+  /** Toggle a single string on/off. Used by StringToggleComponent events. */
+  toggleString(index: number, active: boolean): void {
+    if (index >= 0 && index < this.activeStrings.length) {
+      this.activeStrings[index] = active;
+    }
+  }
+
+  /** Reset all strings to active. Called on clearFretboard(). */
+  private resetActiveStrings(): void {
+    this.activeStrings = this.strings.map(() => true);
+  }
+
   hideAllNotes() {
     this.notes.forEach(note => note.visible = false);
   }
@@ -76,5 +91,6 @@ export class FretboardStateService {
     this.intervalService.removeIntervals(this.notes);
     this.hideAllNotes();
     this.clearSelection();
+    this.resetActiveStrings();
   }
 }
