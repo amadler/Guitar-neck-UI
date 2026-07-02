@@ -27,19 +27,17 @@
           <button class="guitar-neck__dot guitar-neck__open-note-btn"
                   *ngIf="!isNoteSelected(i, 0)"
                   (click)="fretNoteClicked(i, 0)">
-            {{ getNoteName(i, 0) }}
+            <span *ngIf="guitarNeckService.showNoteLabels">{{ getNoteName(i, 0) }}</span>
           </button>
           <div *ngIf="isNoteSelected(i, 0) && !getNoteInterval(i, 0)"
                class="guitar-neck__selected"
                (click)="fretNoteClicked(i, 0)">
-            {{ getNoteName(i, 0) }}
+            <span *ngIf="guitarNeckService.showNoteLabels">{{ getNoteName(i, 0) }}</span>
           </div>
           <div *ngIf="getNoteInterval(i, 0)"
-               [ngClass]="guitarNeckService.intervalColorsEnabled
-                 ? ['guitar-neck__dot guitar-neck__'+getNoteInterval(i, 0)]
-                 : ['guitar-neck__dot guitar-neck__neutral']"
+               [ngClass]="['guitar-neck__dot', guitarNeckService.getMarkerCssClass(getNoteInterval(i, 0))]"
                (click)="fretNoteClicked(i, 0)">
-            {{ getNoteName(i, 0) }}
+            <span *ngIf="guitarNeckService.showNoteLabels">{{ getNoteName(i, 0) }}</span>
           </div>
         </ng-container>
       </div>
@@ -50,14 +48,16 @@
           <button class="guitar-neck__dot"
                   *ngIf="!isNoteSelected(i, fret)"
                   (click)="fretNoteClicked(i, fret)">
-            {{ getNoteName(i, fret) }}
+            <span *ngIf="guitarNeckService.showNoteLabels">{{ getNoteName(i, fret) }}</span>
           </button>
           <div *ngIf="isNoteSelected(i, fret) && !getNoteInterval(i, fret)"
-               class="guitar-neck__selected">{{ getNoteName(i, fret) }}</div>
+               class="guitar-neck__selected">
+            <span *ngIf="guitarNeckService.showNoteLabels">{{ getNoteName(i, fret) }}</span>
+          </div>
           <div *ngIf="getNoteInterval(i, fret)"
-               [ngClass]="guitarNeckService.intervalColorsEnabled
-                 ? ['guitar-neck__dot guitar-neck__'+getNoteInterval(i, fret)]
-                 : ['guitar-neck__dot guitar-neck__neutral']">{{ getNoteName(i, fret) }}</div>
+               [ngClass]="['guitar-neck__dot', guitarNeckService.getMarkerCssClass(getNoteInterval(i, fret))]">
+            <span *ngIf="guitarNeckService.showNoteLabels">{{ getNoteName(i, fret) }}</span>
+          </div>
         </ng-container>
       </div>
     </div>

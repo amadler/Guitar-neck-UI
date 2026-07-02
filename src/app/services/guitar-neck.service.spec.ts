@@ -53,6 +53,60 @@ describe('GuitarNeckService', () => {
     expect(service.notes).toEqual(mockNotes);
   });
 
+  describe('markerDisplayMode', () => {
+    it('should default to interval-colors', () => {
+      expect(service.markerDisplayMode).toBe('interval-colors');
+    });
+
+    it('should allow switching to note-names', () => {
+      service.markerDisplayMode = 'note-names';
+      expect(service.markerDisplayMode).toBe('note-names');
+    });
+
+    it('should allow switching to neutral-dots', () => {
+      service.markerDisplayMode = 'neutral-dots';
+      expect(service.markerDisplayMode).toBe('neutral-dots');
+    });
+  });
+
+  describe('getMarkerCssClass', () => {
+    it('should return interval class when mode is interval-colors', () => {
+      service.markerDisplayMode = 'interval-colors';
+      expect(service.getMarkerCssClass('root')).toBe('guitar-neck__root');
+    });
+
+    it('should return neutral class when mode is note-names', () => {
+      service.markerDisplayMode = 'note-names';
+      expect(service.getMarkerCssClass('root')).toBe('guitar-neck__neutral');
+    });
+
+    it('should return empty string when mode is neutral-dots (base dot styling)', () => {
+      service.markerDisplayMode = 'neutral-dots';
+      expect(service.getMarkerCssClass('root')).toBe('');
+    });
+
+    it('should return empty string when interval is undefined (falls through to default)', () => {
+      expect(service.getMarkerCssClass(undefined)).toBe('');
+    });
+  });
+
+  describe('showNoteLabels', () => {
+    it('should be true when mode is interval-colors', () => {
+      service.markerDisplayMode = 'interval-colors';
+      expect(service.showNoteLabels).toBeTrue();
+    });
+
+    it('should be true when mode is note-names', () => {
+      service.markerDisplayMode = 'note-names';
+      expect(service.showNoteLabels).toBeTrue();
+    });
+
+    it('should be false when mode is neutral-dots', () => {
+      service.markerDisplayMode = 'neutral-dots';
+      expect(service.showNoteLabels).toBeFalse();
+    });
+  });
+
   describe('isNoteOnFret', () => {
     it('should return true when note exists on specific fret', () => {
       expect(service.isNoteOnFret(0, 0)).toBeTrue();

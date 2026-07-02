@@ -25,46 +25,49 @@ describe('LegendComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should render an "Interval colors" checkbox', () => {
-    const checkbox = fixture.debugElement.query(
-      By.css('.switch-line input[type="checkbox"]')
-    );
-    // There are multiple checkboxes; find the one next to "Interval colors"
+  it('should render a "Markers" select with three options', () => {
     const labels = fixture.debugElement.queryAll(By.css('.switch-line'));
-    const intervalColorsLabel = labels.find(label =>
-      label.nativeElement.textContent?.includes('Interval colors')
+    const markersLabel = labels.find(label =>
+      label.nativeElement.textContent?.includes('Markers')
     );
-    expect(intervalColorsLabel).toBeTruthy();
-    const input = intervalColorsLabel!.query(By.css('input[type="checkbox"]'));
-    expect(input).toBeTruthy();
+    expect(markersLabel).toBeTruthy();
+    const select = markersLabel!.query(By.css('select'));
+    expect(select).toBeTruthy();
+    const options = select!.queryAll(By.css('option'));
+    expect(options.length).toBe(3);
+    expect(options[0].nativeElement.value).toBe('interval-colors');
+    expect(options[1].nativeElement.value).toBe('note-names');
+    expect(options[2].nativeElement.value).toBe('neutral-dots');
   });
 
-  it('should be checked by default', () => {
+  it('should default to interval-colors', () => {
     const labels = fixture.debugElement.queryAll(By.css('.switch-line'));
-    const intervalColorsLabel = labels.find(label =>
-      label.nativeElement.textContent?.includes('Interval colors')
+    const markersLabel = labels.find(label =>
+      label.nativeElement.textContent?.includes('Markers')
     );
-    const input = intervalColorsLabel!.query(By.css('input[type="checkbox"]'));
-    expect(input!.nativeElement.checked).toBeTrue();
+    const select = markersLabel!.query(By.css('select'));
+    expect(select!.nativeElement.value).toBe('interval-colors');
   });
 
-  it('should toggle intervalColorsEnabled when checkbox is clicked', () => {
-    expect(guitarNeckService.intervalColorsEnabled).toBeTrue();
+  it('should switch display mode when dropdown changes', () => {
+    expect(guitarNeckService.markerDisplayMode).toBe('interval-colors');
 
     const labels = fixture.debugElement.queryAll(By.css('.switch-line'));
-    const intervalColorsLabel = labels.find(label =>
-      label.nativeElement.textContent?.includes('Interval colors')
+    const markersLabel = labels.find(label =>
+      label.nativeElement.textContent?.includes('Markers')
     );
-    const input = intervalColorsLabel!.query(By.css('input[type="checkbox"]'));
+    const select = markersLabel!.query(By.css('select'));
 
-    // Uncheck
-    input!.nativeElement.click();
+    // Switch to note-names
+    select!.nativeElement.value = 'note-names';
+    select!.nativeElement.dispatchEvent(new Event('change'));
     fixture.detectChanges();
-    expect(guitarNeckService.intervalColorsEnabled).toBeFalse();
+    expect(guitarNeckService.markerDisplayMode).toBe('note-names');
 
-    // Re-check
-    input!.nativeElement.click();
+    // Switch to neutral-dots
+    select!.nativeElement.value = 'neutral-dots';
+    select!.nativeElement.dispatchEvent(new Event('change'));
     fixture.detectChanges();
-    expect(guitarNeckService.intervalColorsEnabled).toBeTrue();
+    expect(guitarNeckService.markerDisplayMode).toBe('neutral-dots');
   });
 });

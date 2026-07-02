@@ -5,6 +5,8 @@ import { GuitarNote } from '../shared/model/guitarNote';
 import { FretboardNotePositionService } from './note.service';
 import { IntervalService } from './interval.service';
 
+export type MarkerDisplayMode = 'interval-colors' | 'note-names' | 'neutral-dots';
+
 @Injectable({ providedIn: 'root' })
 export class FretboardStateService {
   notes: GuitarNote[];
@@ -12,8 +14,8 @@ export class FretboardStateService {
   frets = Array.from({ length: neckConfig.numberOfFrets }, (_, i) => i + 1);
   /** Per-string active state. true = show notes on this string. Reset on clearFretboard(). */
   activeStrings: boolean[];
-  /** When true, note markers use interval-specific colors. When false, all markers are neutral. */
-  intervalColorsEnabled = true;
+  /** Which visual mode the fretboard markers use. */
+  markerDisplayMode: MarkerDisplayMode = 'interval-colors';
 
   constructor(
     private noteService: FretboardNotePositionService,
@@ -90,6 +92,23 @@ export class FretboardStateService {
 
   fretNoteClicked(stringIndex: number, fret: number): GuitarNote | null {
     return this.notes.find(note => this.isMatchingNoteOnFret(note, stringIndex, fret)) || null;
+  }
+
+  /** Return the CSS class string for a note marker based on the current display mode. */
+  getMarkerCssClass(interval: string | undefined): string {
+    if (this.markerDisplayMode === 'interval-colors' && interval) {
+      return 'guitar-neck__' + interval;
+    }
+    if (this.markerDisplayMode === 'note-names') {
+      return 'guitar-neck__neutral';
+    }
+    // neutral-dots: rely on base .guitar-neck__dot background (--guitar-neck-marker-bg-color)
+    return '';
+  }
+
+  /** Whether note labels should be visible inside markers. */
+  get showNoteLabels(): boolean {
+    return this.markerDisplayMode !== 'neutral-dots';
   }
 
   clearFretboard() {

@@ -16,21 +16,15 @@
     <span class="interval interval--7">7</span>
   </div>
   <div class="legend-switches">
-    <label class="switch-line">
-      <span>Notes</span>
-      <input type="checkbox" checked />
-    </label>
 
     <label class="switch-line">
-      <span>Intervals</span>
-      <input type="checkbox" />
-    </label>
-
-    <label class="switch-line">
-      <span>Interval colors</span>
-      <input type="checkbox"
-             [checked]="guitarNeckService.intervalColorsEnabled"
-             (change)="guitarNeckService.intervalColorsEnabled = $any($event.target).checked" />
+      <span>Markers</span>
+      <select [value]="guitarNeckService.markerDisplayMode"
+              (change)="guitarNeckService.markerDisplayMode = $any($event.target).value">
+        <option value="interval-colors">Interval colors</option>
+        <option value="note-names">Note names</option>
+        <option value="neutral-dots">Neutral dots</option>
+      </select>
     </label>
   </div>
 </section>
