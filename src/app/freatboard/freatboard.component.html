@@ -23,41 +23,41 @@
 
       <div class="guitar-neck__nut-label">
         <span class="guitar-neck__nut-label__string-name">{{ string }}</span>
-        <ng-container *ngIf="isNoteOnFret(string, 0) && isNoteInRange(0)">
+        <ng-container *ngIf="isNoteOnFret(i, 0) && isNoteInRange(0)">
           <button class="guitar-neck__dot guitar-neck__open-note-btn"
-                  *ngIf="!isNoteSelected(string, 0)"
-                  (click)="fretNoteClicked(string, 0)">
-            {{ getNoteName(string, 0) }}
+                  *ngIf="!isNoteSelected(i, 0)"
+                  (click)="fretNoteClicked(i, 0)">
+            {{ getNoteName(i, 0) }}
           </button>
-          <div *ngIf="isNoteSelected(string, 0) && !getNoteInterval(string, 0)"
+          <div *ngIf="isNoteSelected(i, 0) && !getNoteInterval(i, 0)"
                class="guitar-neck__selected"
-               (click)="fretNoteClicked(string, 0)">
-            {{ getNoteName(string, 0) }}
+               (click)="fretNoteClicked(i, 0)">
+            {{ getNoteName(i, 0) }}
           </div>
-          <div *ngIf="getNoteInterval(string, 0)"
+          <div *ngIf="getNoteInterval(i, 0)"
                [ngClass]="guitarNeckService.intervalColorsEnabled
-                 ? ['guitar-neck__dot guitar-neck__'+getNoteInterval(string, 0)]
+                 ? ['guitar-neck__dot guitar-neck__'+getNoteInterval(i, 0)]
                  : ['guitar-neck__dot guitar-neck__neutral']"
-               (click)="fretNoteClicked(string, 0)">
-            {{ getNoteName(string, 0) }}
+               (click)="fretNoteClicked(i, 0)">
+            {{ getNoteName(i, 0) }}
           </div>
         </ng-container>
       </div>
       <div *ngFor="let fret of frets" class="guitar-neck__fret">
-        <div class="guitar-neck__marker" *ngIf="isMarkedFret(string, fret)"></div>
-        <div class="guitar-neck__marker_12" *ngIf="isMarkedTwelffeFret(string, fret)"></div>
-        <ng-container *ngIf="isNoteOnFret(string, fret) && isNoteInRange(fret)">
+        <div class="guitar-neck__marker" *ngIf="isMarkedFret(i, fret)"></div>
+        <div class="guitar-neck__marker_12" *ngIf="isMarkedTwelffeFret(i, fret)"></div>
+        <ng-container *ngIf="isNoteOnFret(i, fret) && isNoteInRange(fret)">
           <button class="guitar-neck__dot"
-                  *ngIf="!isNoteSelected(string, fret)"
-                  (click)="fretNoteClicked(string, fret)">
-            {{ getNoteName(string, fret) }}
+                  *ngIf="!isNoteSelected(i, fret)"
+                  (click)="fretNoteClicked(i, fret)">
+            {{ getNoteName(i, fret) }}
           </button>
-          <div *ngIf="isNoteSelected(string, fret) && !getNoteInterval(string, fret)"
-               class="guitar-neck__selected">{{ getNoteName(string, fret) }}</div>
-          <div *ngIf="getNoteInterval(string, fret)"
+          <div *ngIf="isNoteSelected(i, fret) && !getNoteInterval(i, fret)"
+               class="guitar-neck__selected">{{ getNoteName(i, fret) }}</div>
+          <div *ngIf="getNoteInterval(i, fret)"
                [ngClass]="guitarNeckService.intervalColorsEnabled
-                 ? ['guitar-neck__dot guitar-neck__'+getNoteInterval(string, fret)]
-                 : ['guitar-neck__dot guitar-neck__neutral']">{{ getNoteName(string, fret) }}</div>
+                 ? ['guitar-neck__dot guitar-neck__'+getNoteInterval(i, fret)]
+                 : ['guitar-neck__dot guitar-neck__neutral']">{{ getNoteName(i, fret) }}</div>
         </ng-container>
       </div>
     </div>

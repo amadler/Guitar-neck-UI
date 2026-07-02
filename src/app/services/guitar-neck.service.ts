@@ -23,24 +23,23 @@ export class FretboardStateService {
     this.activeStrings = this.strings.map(() => true);
   }
 
-  private isMatchingNoteOnFret(note: GuitarNote, string: string, fret: number) {
-    return this.strings[note.string - 1] === string && note.fret === fret && note.visible;
+  private isMatchingNoteOnFret(note: GuitarNote, stringIndex: number, fret: number) {
+    return note.string === stringIndex + 1 && note.fret === fret && note.visible;
   }
 
-  isNoteOnFret(string: string, fret: number): boolean {
-    const stringIndex = this.strings.indexOf(string);
+  isNoteOnFret(stringIndex: number, fret: number): boolean {
     if (stringIndex >= 0 && !this.activeStrings[stringIndex]) {
       return false;
     }
-    return this.notes.some(note => this.isMatchingNoteOnFret(note, string, fret));
+    return this.notes.some(note => this.isMatchingNoteOnFret(note, stringIndex, fret));
   }
 
-  getNote(string: string, fret: number): GuitarNote | undefined {
-    return this.notes.find(note => this.isMatchingNoteOnFret(note, string, fret));
+  getNote(stringIndex: number, fret: number): GuitarNote | undefined {
+    return this.notes.find(note => this.isMatchingNoteOnFret(note, stringIndex, fret));
   }
 
-  getNoteName(string: string, fret: number): string {
-    const note = this.notes.find(note => this.isMatchingNoteOnFret(note, string, fret));
+  getNoteName(stringIndex: number, fret: number): string {
+    const note = this.notes.find(note => this.isMatchingNoteOnFret(note, stringIndex, fret));
     return note ? note.note : '';
   }
 
@@ -89,8 +88,8 @@ export class FretboardStateService {
     this.notes.forEach(note => note.selected = false);
   }
 
-  fretNoteClicked(string: string, fret: number): GuitarNote | null {
-    return this.notes.find(note => this.isMatchingNoteOnFret(note, string, fret)) || null;
+  fretNoteClicked(stringIndex: number, fret: number): GuitarNote | null {
+    return this.notes.find(note => this.isMatchingNoteOnFret(note, stringIndex, fret)) || null;
   }
 
   clearFretboard() {

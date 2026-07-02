@@ -55,38 +55,38 @@ describe('GuitarNeckService', () => {
 
   describe('isNoteOnFret', () => {
     it('should return true when note exists on specific fret', () => {
-      expect(service.isNoteOnFret('E', 0)).toBeTrue();
+      expect(service.isNoteOnFret(0, 0)).toBeTrue();
     });
 
     it('should return false when note does not exist on specific fret', () => {
-      expect(service.isNoteOnFret('E', 1)).toBeFalse();
+      expect(service.isNoteOnFret(0, 1)).toBeFalse();
     });
 
     it('should return false when the string is toggled off', () => {
       service.toggleString(0, false);
-      expect(service.isNoteOnFret('E', 0)).toBeFalse();
+      expect(service.isNoteOnFret(0, 0)).toBeFalse();
     });
   });
 
   describe('getNote', () => {
     it('should return note when it exists at position', () => {
-      const note = service.getNote('E', 0);
+      const note = service.getNote(0, 0);
       expect(note).toEqual(mockNotes[0]);
     });
 
     it('should return undefined when note does not exist at position', () => {
-      const note = service.getNote('E', 1);
+      const note = service.getNote(0, 1);
       expect(note).toBeUndefined();
     });
   });
 
   describe('getNoteName', () => {
     it('should return note name when note exists at position', () => {
-      expect(service.getNoteName('E', 0)).toBe('E');
+      expect(service.getNoteName(0, 0)).toBe('E');
     });
 
     it('should return empty string when note does not exist at position', () => {
-      expect(service.getNoteName('E', 1)).toBe('');
+      expect(service.getNoteName(0, 1)).toBe('');
     });
   });
 
@@ -135,12 +135,12 @@ describe('GuitarNeckService', () => {
 
   describe('fretNoteClicked', () => {
     it('should return note when clicked on existing note', () => {
-      const clickedNote = service.fretNoteClicked('E', 0);
+      const clickedNote = service.fretNoteClicked(0, 0);
       expect(clickedNote).toEqual(mockNotes[0]);
     });
 
     it('should return null when clicked on non-existing note', () => {
-      const clickedNote = service.fretNoteClicked('E', 1);
+      const clickedNote = service.fretNoteClicked(0, 1);
       expect(clickedNote).toBeNull();
     });
   });
