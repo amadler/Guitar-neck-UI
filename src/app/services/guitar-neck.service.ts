@@ -12,6 +12,8 @@ export class FretboardStateService {
   frets = Array.from({ length: neckConfig.numberOfFrets }, (_, i) => i + 1);
   /** Per-string active state. true = show notes on this string. Reset on clearFretboard(). */
   activeStrings: boolean[];
+  /** When true, note markers use interval-specific colors. When false, all markers are neutral. */
+  intervalColorsEnabled = true;
 
   constructor(
     private noteService: FretboardNotePositionService,

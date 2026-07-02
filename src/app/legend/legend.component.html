@@ -15,4 +15,22 @@
     <span class="interval interval--b7">♭7</span>
     <span class="interval interval--7">7</span>
   </div>
+  <div class="legend-switches">
+    <label class="switch-line">
+      <span>Notes</span>
+      <input type="checkbox" checked />
+    </label>
+
+    <label class="switch-line">
+      <span>Intervals</span>
+      <input type="checkbox" />
+    </label>
+
+    <label class="switch-line">
+      <span>Interval colors</span>
+      <input type="checkbox"
+             [checked]="guitarNeckService.intervalColorsEnabled"
+             (change)="guitarNeckService.intervalColorsEnabled = $any($event.target).checked" />
+    </label>
+  </div>
 </section>

@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { FretboardStateService } from '../services/guitar-neck.service';
 
 @Component({
   selector: 'app-legend',
@@ -9,4 +10,5 @@ import { Component } from '@angular/core';
 })
 export class LegendComponent {
 
+  constructor(protected guitarNeckService: FretboardStateService) {}
 }

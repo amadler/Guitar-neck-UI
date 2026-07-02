@@ -156,6 +156,11 @@
   background-color: rgb(32, 1, 27);
 }
 
+.guitar-neck__neutral {
+  background-color: var(--guitar-neck-marker--color);
+  color: var(--dark-color);
+}
+
 .guitar-neck__root{
   background-color: var(--interval-root);
 }
