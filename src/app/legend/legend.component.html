@@ -20,6 +20,7 @@
     <label class="switch-line">
       <span>Markers</span>
       <select [value]="guitarNeckService.markerDisplayMode"
+              [disabled]="!guitarNeckService.hasActiveResult"
               (change)="guitarNeckService.markerDisplayMode = $any($event.target).value">
         <option value="interval-colors">Interval colors</option>
         <option value="note-names">Note names</option>

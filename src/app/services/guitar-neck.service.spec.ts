@@ -231,4 +231,32 @@ describe('GuitarNeckService', () => {
       expect(service.activeStrings[1]).toBeFalse();
     });
   });
+
+  describe('hasActiveResult', () => {
+    it('should be false by default', () => {
+      expect(service.hasActiveResult).toBeFalse();
+    });
+
+    it('should be true after applyHighlightedNotes with notes', () => {
+      service.applyHighlightedNotes([mockNotes[0]]);
+      expect(service.hasActiveResult).toBeTrue();
+    });
+
+    it('should be false after applyHighlightedNotes with empty array', () => {
+      service.applyHighlightedNotes([]);
+      expect(service.hasActiveResult).toBeFalse();
+    });
+
+    it('should be true after showAll', () => {
+      service.showAll();
+      expect(service.hasActiveResult).toBeTrue();
+    });
+
+    it('should be false after clearFretboard', () => {
+      service.applyHighlightedNotes([mockNotes[0]]);
+      expect(service.hasActiveResult).toBeTrue();
+      service.clearFretboard();
+      expect(service.hasActiveResult).toBeFalse();
+    });
+  });
 });

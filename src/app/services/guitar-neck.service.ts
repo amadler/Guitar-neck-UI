@@ -16,6 +16,8 @@ export class FretboardStateService {
   activeStrings: boolean[];
   /** Which visual mode the fretboard markers use. */
   markerDisplayMode: MarkerDisplayMode = 'interval-colors';
+  /** Whether there is an active result (notes highlighted/show all) on the fretboard. */
+  hasActiveResult = false;
 
   constructor(
     private noteService: FretboardNotePositionService,
@@ -63,6 +65,8 @@ export class FretboardStateService {
         });
     });
 
+    this.hasActiveResult = notes.length > 0;
+
     return this.notes.filter(note => note.selected);
   }
 
@@ -84,6 +88,7 @@ export class FretboardStateService {
 
   showAll() {
     this.notes.forEach(note => note.visible = true);
+    this.hasActiveResult = true;
   }
 
   clearSelection() {
@@ -115,6 +120,7 @@ export class FretboardStateService {
     this.intervalService.removeIntervals(this.notes);
     this.hideAllNotes();
     this.clearSelection();
+    this.hasActiveResult = false;
     // Note: activeStrings are NOT reset here — they persist until the user manually toggles them.
   }
 }
