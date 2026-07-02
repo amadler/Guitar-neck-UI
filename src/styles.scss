@@ -35,28 +35,28 @@
     --guitar-neck-bg-color: #333;
     --guitar-neck-fret-color: #ddd;
     --guitar-neck-string-color: #ddd;
-    --guitar-neck-dot-color: #fff;
-    --guitar-neck-dot-label-color: #aaa;
+    --guitar-neck-dot-color: rgba(255, 255, 255, 0.15);
+    --guitar-neck-dot-label-color: rgba(255, 255, 255, 0.4);
     // siodełko
     --guitar-neck-open-string-color: #bf500b;
     --guitar-neck-dot-size: 20px;
     --guitar-neck-dot-border-radius: 50%;
 
     // markery
-    --guitar-neck-marker-bg-color: rgb(168, 110, 110);
+    --guitar-neck-marker-bg-color: rgba(168, 110, 110, 0.3);
     --guitar-neck-marker--color: rgb(255, 255, 255);
-    --interval-root: rgb(128, 0, 15);
-    --interval-minor-2nd: rgb(230, 92, 0);
-    --interval-major-2nd: rgb(255, 136, 0);
-    --interval-minor-3rd: rgb(219, 180, 0);
-    --interval-major-3rd: rgb(139, 195, 0);
-    --interval-perfect-4th: rgb(0, 153, 76);
-    --interval-diminished-5th: rgb(0, 128, 128);
-    --interval-perfect-5th: rgb(0, 102, 204);
-    --interval-minor-6th: rgb(106, 0, 179);
-    --interval-major-6th: rgb(153, 51, 204);
-    --interval-minor-7th: rgb(179, 0, 134);
-    --interval-major-7th: rgb(160, 160, 160);
+    --interval-root:             rgb(168, 18, 35);
+    --interval-minor-2nd:        rgb(190, 95, 30);
+    --interval-major-2nd:        rgb(210, 130, 20);
+    --interval-minor-3rd:        rgb(185, 165, 25);
+    --interval-major-3rd:        rgb(110, 175, 30);
+    --interval-perfect-4th:      rgb(20, 140, 85);
+    --interval-diminished-5th:   rgb(20, 120, 115);
+    --interval-perfect-5th:      rgb(25, 105, 185);
+    --interval-minor-6th:        rgb(100, 45, 165);
+    --interval-major-6th:        rgb(140, 60, 180);
+    --interval-minor-7th:        rgb(155, 35, 115);
+    --interval-major-7th:        rgb(145, 145, 145);
 }
 
 
@@ -367,9 +367,9 @@ app-range-toolbar{
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
 }
 
-.note--root { background: #9b0014; }
-.note--3 { background: #519600; }
-.note--5 { background: #005fc9; }
+.note--root { background: var(--interval-root); }
+.note--3 { background: var(--interval-major-3rd); }
+.note--5 { background: var(--interval-perfect-5th); }
 
 /* ==========================================================================
    Legend
@@ -416,18 +416,18 @@ app-legend{
   justify-content: center;
 }
 
-.interval--root { background: #9b0014; }
-.interval--b2 { background: #cf3300; }
-.interval--2 { background: #ff8800; }
-.interval--b3 { background: #caa300; }
-.interval--3 { background: #519600; }
-.interval--4 { background: #047a45; }
-.interval--b5 { background: #00747d; }
-.interval--5 { background: #005fc9; }
-.interval--b6 { background: #5713c5; }
-.interval--6 { background: #9b20c3; }
-.interval--b7 { background: #bc138d; }
-.interval--7 { background: #8a8f91; }
+.interval--root { background: var(--interval-root); }
+.interval--b2 { background: var(--interval-minor-2nd); }
+.interval--2 { background: var(--interval-major-2nd); }
+.interval--b3 { background: var(--interval-minor-3rd); }
+.interval--3 { background: var(--interval-major-3rd); }
+.interval--4 { background: var(--interval-perfect-4th); }
+.interval--b5 { background: var(--interval-diminished-5th); }
+.interval--5 { background: var(--interval-perfect-5th); }
+.interval--b6 { background: var(--interval-minor-6th); }
+.interval--6 { background: var(--interval-major-6th); }
+.interval--b7 { background: var(--interval-minor-7th); }
+.interval--7 { background: var(--interval-major-7th); }
 
 .legend-switches {
   display: flex;
