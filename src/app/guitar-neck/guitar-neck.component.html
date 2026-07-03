@@ -1,1 +1,8 @@
-<app-freatboard #freatboardComponent [notes]="guitarNotes"  (onNoteClicked$)="onNoteClicked($event)"></app-freatboard>
+<div class="guitar-neck-wrapper">
+  <app-freatboard #freatboardComponent [notes]="guitarNotes"  (onNoteClicked$)="onNoteClicked($event)"></app-freatboard>
+
+  <div class="guitar-neck__spinner-overlay" *ngIf="loading$ | async">
+    <div class="guitar-neck__spinner"></div>
+    <span class="guitar-neck__spinner-label">Loading...</span>
+  </div>
+</div>

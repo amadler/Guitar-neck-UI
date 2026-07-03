@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
-import { Observable, catchError, map, of } from 'rxjs';
+import { Observable, catchError, finalize, map, of } from 'rxjs';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { FretboardNotePositionService } from './note.service';
 import { IntervalService } from './interval.service';
 import { FretboardStateService } from './guitar-neck.service';
+import { LoadingService } from './loading.service';
 import { MusicPatternApiService } from './scales-and-triads.service';
 
 @Injectable({ providedIn: 'root' })
@@ -12,10 +13,12 @@ export class FretboardOrchestrationService {
     private noteService: FretboardNotePositionService,
     private patternApi: MusicPatternApiService,
     private intervalService: IntervalService,
-    private guitarNeckService: FretboardStateService
+    private guitarNeckService: FretboardStateService,
+    private loadingService: LoadingService
   ) {}
 
   displayScale(scaleName: string, rootNote: string): Observable<GuitarNote[]> {
+    this.loadingService.show();
     return this.patternApi.resolveScaleNotes(scaleName, rootNote).pipe(
       map(scaleNotes => {
         const selectedNotes = this.noteService.findPositionsByScaleNotes(scaleNotes);
@@ -26,12 +29,14 @@ export class FretboardOrchestrationService {
       catchError(error => {
         console.error('Error selecting scale:', error);
         return of([]);
-      })
+      }),
+      finalize(() => this.loadingService.hide())
     );
   }
 
   displayChord(triadType: string, rootNote: string): Observable<GuitarNote[]> {
     this.clearFretboard();
+    this.loadingService.show();
 
     return this.patternApi.resolveChordNotes(triadType, rootNote).pipe(
       map(chordNotes => {
@@ -44,7 +49,8 @@ export class FretboardOrchestrationService {
       catchError(error => {
         console.error('Error selecting triad:', error);
         return of([]);
-      })
+      }),
+      finalize(() => this.loadingService.hide())
     );
   }
 

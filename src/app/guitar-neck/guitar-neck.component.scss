@@ -1,0 +1,38 @@
+.guitar-neck-wrapper {
+  position: relative;
+}
+
+.guitar-neck__spinner-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: 6px;
+  z-index: 10;
+}
+
+.guitar-neck__spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255, 255, 255, 0.25);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: guitar-neck-spin 0.7s linear infinite;
+}
+
+.guitar-neck__spinner-label {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+@keyframes guitar-neck-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

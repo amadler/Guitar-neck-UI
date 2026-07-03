@@ -1,15 +1,18 @@
+import { AsyncPipe, NgIf } from '@angular/common';
 import { Component, ViewChild } from '@angular/core';
+import { Observable } from 'rxjs';
 import GuitarNeck from '../shared/GuitarNeck';
 import { neckConfig } from 'guitar-neck-shared';
 import { FreatboardComponent } from '../freatboard/freatboard.component';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { FretboardNotePositionService } from '../services/note.service';
 import { FretboardStateService } from '../services/guitar-neck.service';
+import { LoadingService } from '../services/loading.service';
 
 @Component({
   selector: 'app-guitar-neck',
   standalone: true,
-  imports: [FreatboardComponent],
+  imports: [AsyncPipe, NgIf, FreatboardComponent],
   templateUrl: './guitar-neck.component.html',
   styleUrl: './guitar-neck.component.scss'
 })
@@ -17,12 +20,15 @@ export class GuitarNeckComponent {
   neckConfig = neckConfig;
   neck= new GuitarNeck(neckConfig);
   guitarNotes: GuitarNote[];
+  loading$!: Observable<boolean>;
   @ViewChild(FreatboardComponent) freatboardComponent!: FreatboardComponent;
 
   constructor(
     private noteService: FretboardNotePositionService,
-    private guitarNeckService: FretboardStateService
+    private guitarNeckService: FretboardStateService,
+    private loadingService: LoadingService
   ) {
+    this.loading$ = this.loadingService.loading$;
     this.guitarNotes =  this.noteService.getAllPositions();
     this.guitarNeckService.notes = this.guitarNotes;
     this.guitarNeckService.hideAllNotes();
