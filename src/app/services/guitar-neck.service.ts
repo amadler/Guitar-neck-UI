@@ -116,6 +116,20 @@ export class FretboardStateService {
     return this.markerDisplayMode !== 'neutral-dots';
   }
 
+  /** Collect unique interval names from currently selected notes. */
+  getActiveIntervals(): string[] {
+    const intervalSet = new Set<string>();
+    if (!this.hasActiveResult) {
+      return [];
+    }
+    this.notes.forEach(note => {
+      if (note.selected && note.interval) {
+        intervalSet.add(note.interval);
+      }
+    });
+    return Array.from(intervalSet);
+  }
+
   clearFretboard() {
     this.intervalService.removeIntervals(this.notes);
     this.hideAllNotes();
