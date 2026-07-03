@@ -44,6 +44,9 @@ export class RangeToolbarComponent {
     }
     this.activePreset = preset;
     this.isCustom = false;
+    // Reset custom inputs to the selected preset so re-entering Custom shows matching values
+    this.customMin = preset.min;
+    this.customMax = preset.max;
     this.emitRange(preset.min, preset.max);
   }
 
