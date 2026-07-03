@@ -35,3 +35,23 @@
   cursor: pointer;
   color: #666;
 }
+
+/* ── Prominent help button ── */
+.help-btn {
+  width: 40px;
+  height: 40px;
+  background: var(--green-800, #075018);
+  color: #fff;
+  font-size: 20px;
+  font-weight: 700;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.help-btn:hover {
+  background: var(--green-700, #08631e);
+  transform: scale(1.1);
+}
+
+.help-btn:active {
+  transform: scale(0.95);
+}
