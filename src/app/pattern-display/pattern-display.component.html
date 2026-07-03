@@ -1,0 +1,26 @@
+<div class="pattern-panel" *ngIf="guitarNeckService.currentPattern as p">
+  <div class="pattern-panel__title">
+    {{ p.rootNote }} {{ p.name }}
+  </div>
+  <div class="pattern-panel__grid">
+    <span class="pattern-panel__label pattern-panel__label--notes">Dźwięki</span>
+    <span class="pattern-panel__value-row pattern-panel__row--notes">
+      <span *ngFor="let note of p.notes" class="pattern-panel__value">{{ note }}</span>
+    </span>
+
+    <span class="pattern-panel__label pattern-panel__label--intervals">Interwały</span>
+    <span class="pattern-panel__value-row pattern-panel__row--intervals">
+      <span *ngFor="let interval of p.intervals" class="pattern-panel__value">{{ interval }}</span>
+    </span>
+
+    <span class="pattern-panel__label pattern-panel__label--semitones">Półtony</span>
+    <span class="pattern-panel__value-row pattern-panel__row--semitones">
+      <span *ngFor="let semi of p.semitones" class="pattern-panel__value">{{ semi }}</span>
+    </span>
+
+    <span class="pattern-panel__label pattern-panel__label--steps">Kroki</span>
+    <span class="pattern-panel__value-row pattern-panel__row--steps">
+      <span *ngFor="let step of p.steps" class="pattern-panel__value">{{ step }}</span>
+    </span>
+  </div>
+</div>

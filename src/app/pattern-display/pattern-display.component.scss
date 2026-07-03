@@ -1,0 +1,57 @@
+.pattern-panel {
+  border: 1px solid var(--app-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--app-surface);
+  padding: 12px 18px;
+  box-shadow: var(--shadow-soft);
+}
+
+.pattern-panel__title {
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 10px;
+  color: var(--green-800);
+}
+
+.pattern-panel__grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas:
+    "dziengi     dziengi-v"
+    "interwaly   interwaly-v"
+    "poltony     poltony-v"
+    "kroki       kroki-v";
+  gap: 4px 14px;
+  align-items: center;
+}
+
+.pattern-panel__label--notes     { grid-area: dziengi; }
+.pattern-panel__label--intervals { grid-area: interwaly; }
+.pattern-panel__label--semitones { grid-area: poltony; }
+.pattern-panel__label--steps     { grid-area: kroki; }
+
+.pattern-panel__row--notes     { grid-area: dziengi-v; }
+.pattern-panel__row--intervals { grid-area: interwaly-v; }
+.pattern-panel__row--semitones { grid-area: poltony-v; }
+.pattern-panel__row--steps     { grid-area: kroki-v; }
+
+.pattern-panel__label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--app-muted);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.pattern-panel__value-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.pattern-panel__value {
+  font-size: 14px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--app-text);
+}

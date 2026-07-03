@@ -10,6 +10,7 @@ import { environment } from '../../environments/environment';
 import { HeaderComponent } from '../header/header.component';
 import { FooterComponent } from '../footer/footer.component';
 import { LegendComponent } from '../legend/legend.component';
+import { PatternDisplayComponent } from '../pattern-display/pattern-display.component';
 
 @Component({
   selector: 'app-home-page',
@@ -21,7 +22,8 @@ import { LegendComponent } from '../legend/legend.component';
     GuitarNeckComponent,
     HeaderComponent,
     FooterComponent,
-    LegendComponent
+    LegendComponent,
+    PatternDisplayComponent
   ],
   templateUrl: './home-page.component.html',
   styleUrl: './home-page.component.scss'
@@ -36,6 +38,7 @@ export class HomePageComponent {
 
   toolboxSubmit(event: ToolboxSearchQuery): void {
     this.guitarNeckService.clearFretboard();
+    this.guitarNeckService.clearCurrentPattern();
 
     const { musicElements, keys, type } = event;
 
@@ -48,12 +51,16 @@ export class HomePageComponent {
       );
     } else if (type === 'basic' && musicElements === 'All notes') {
       command = new DisplayAllNotesCommand(this.fretboardOrchestrationService);
+      this.guitarNeckService.clearCurrentPattern();
     } else if (type === 'basic') {
       command = new DisplaySingleNoteCommand(this.fretboardOrchestrationService, keys);
+      this.guitarNeckService.clearCurrentPattern();
     } else if (type === 'chord' && typeof musicElements === 'string') {
       command = new DisplayChordCommand(this.fretboardOrchestrationService, musicElements, keys);
+      this.guitarNeckService.setCurrentPattern(musicElements, keys, 'chord');
     } else if (type === 'scale' && typeof musicElements === 'string') {
       command = new DisplayScaleCommand(this.fretboardOrchestrationService, musicElements, keys);
+      this.guitarNeckService.setCurrentPattern(musicElements, keys, 'scale');
     } else {
       return;
     }
