@@ -1,16 +1,8 @@
-// main{
-//   width: 1100px;
-//   display: block;
-//   margin: auto;
-// }
-
-// #toolbox-container{
-//   display: block;
-//   width: 100%;
-// }
-
-// #guitar-neck-container{
-//   display: block;
-//   width: 100%;
-//   margin: 2em auto;
-// }
+#guitar-neck-container {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--app-border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+}
