@@ -107,8 +107,8 @@ export class FretboardStateService {
     if (this.markerDisplayMode === 'note-names') {
       return 'guitar-neck__neutral';
     }
-    // neutral-dots: rely on base .guitar-neck__dot background (--guitar-neck-marker-bg-color)
-    return '';
+    // neutral-dots: visible white dots using dedicated CSS class
+    return 'guitar-neck__neutral-dot';
   }
 
   /** Whether note labels should be visible inside markers. */
