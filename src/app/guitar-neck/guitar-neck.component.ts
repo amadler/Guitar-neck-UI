@@ -1,7 +1,6 @@
 import { AsyncPipe, NgIf } from '@angular/common';
 import { Component, ViewChild } from '@angular/core';
 import { Observable } from 'rxjs';
-import GuitarNeck from '../shared/GuitarNeck';
 import { neckConfig } from 'guitar-neck-shared';
 import { FreatboardComponent } from '../freatboard/freatboard.component';
 import { GuitarNote } from '../shared/model/guitarNote';
@@ -18,7 +17,6 @@ import { LoadingService } from '../services/loading.service';
 })
 export class GuitarNeckComponent {
   neckConfig = neckConfig;
-  neck= new GuitarNeck(neckConfig);
   guitarNotes: GuitarNote[];
   loading$!: Observable<boolean>;
   @ViewChild(FreatboardComponent) freatboardComponent!: FreatboardComponent;
