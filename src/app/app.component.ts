@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { HomePageComponent } from './home-page/home-page.component';
-import { AISuggestionsComponent, ChatComponent } from '../../projects/guitar-chat/src/public-api';
 
 @Component({
   selector: 'app-root',

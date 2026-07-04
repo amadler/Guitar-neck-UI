@@ -57,36 +57,45 @@ npm run build-chat   # ng build guitar-chat → dist/guitar-chat
 guitar-neck-ui/
 ├── src/
 │   ├── app/
-│   │   ├── freatboard/              # Renderowanie gryfu
-│   │   │   ├── components/legend/   # Legenda interwałów
+│   │   ├── freatboard/                    # Renderowanie gryfu
 │   │   │   └── freatboard.component.{ts,html,scss}
-│   │   ├── fret-range-selector/     # Selektor zakresu progów
-│   │   ├── guitar-neck/             # Kontener gryfu
-│   │   ├── home-page/               # Główna strona (toolbox + gryf)
-│   │   ├── services/                # Serwisy aplikacji
-│   │   │   ├── guitar-neck.service.ts       # FretboardStateService
-│   │   │   ├── interval.service.ts          # IntervalService
+│   │   ├── guitar-neck/                   # Kontener gryfu
+│   │   ├── home-page/                     # Główna strona (toolbox + gryf + metronome)
+│   │   ├── header/                        # Nagłówek strony
+│   │   ├── footer/                        # Stopka strony
+│   │   ├── legend/                        # Legenda interwałów
+│   │   ├── metronome/                     # Metronom z AudioContext
+│   │   │   ├── metronome-engine.service.ts
+│   │   │   └── metronome.component.{ts,html,scss}
+│   │   ├── pattern-display/               # Panel wyświetlania patternu + practice prompts
+│   │   ├── range-toolbar/                 # Selektor zakresu progów (presety)
+│   │   ├── string-toggle/                 # Włącznik/wyłącznik strun
+│   │   ├── services/                      # Serwisy aplikacji
+│   │   │   ├── guitar-neck.service.ts         # FretboardStateService
+│   │   │   ├── interval.service.ts            # IntervalService
+│   │   │   ├── loading.service.ts             # LoadingService
 │   │   │   ├── music-theory-facade.service.ts # FretboardOrchestrationService
-│   │   │   ├── note.service.ts              # FretboardNotePositionService
-│   │   │   └── scales-and-triads.service.ts # MusicPatternApiService
+│   │   │   ├── note.service.ts                # FretboardNotePositionService
+│   │   │   └── scales-and-triads.service.ts   # MusicPatternApiService
 │   │   └── shared/
-│   │       ├── GuitarNeck.ts         # Klasa generująca tablicę gryfu
-│   │       ├── UICommands.ts         # Command Pattern
-│   │       ├── interval-note.helper.ts # Helper do nut z interwałów
+│   │       ├── GuitarNeck.ts             # Klasa generująca tablicę gryfu
+│   │       ├── UICommands.ts             # Command Pattern
+│   │       ├── interval-note.helper.ts   # Helper do nut z interwałów
+│   │       ├── practice-prompts.data.ts  # Podpowiedzi ćwiczeń
 │   │       └── model/
-│   │           ├── guitarNote.ts     # Model nuty
-│   │           └── musicElements.ts  # Modele zapytań
+│   │           ├── guitarNote.ts         # Model nuty
+│   │           └── patternInfo.ts        # Model informacji o patternie
 │   ├── environments/
-│   │   ├── environment.ts           # Konfiguracja dev
-│   │   └── environment.prod.ts      # Konfiguracja prod
-│   └── styles.scss                  # Globalne CSS + zmienne
-├── projects/guitar-chat/            # AI chat (POSTPONED)
-├── docker-compose.yml               # Backend + frontend
-├── Dockerfile                       # Frontend (nginx)
-├── nginx.conf                       # Konfiguracja nginx
-├── BACKLOG.md                       # Backlog projektu
-├── AGENTS.md                        # Instrukcje dla agentów AI
-└── *.md                             # Dokumentacja (ARCHITECTURE, API, PRODUCT)
+│   │   ├── environment.ts               # Konfiguracja dev
+│   │   └── environment.prod.ts          # Konfiguracja prod
+│   └── styles.scss                      # Globalne CSS + zmienne
+├── projects/guitar-chat/                # AI chat (POSTPONED)
+├── docker-compose.yml                   # Backend + frontend
+├── Dockerfile                           # Frontend (nginx)
+├── nginx.conf                           # Konfiguracja nginx
+├── BACKLOG.md                           # Backlog projektu
+├── AGENTS.md                            # Instrukcje dla agentów AI
+└── *.md                                 # Dokumentacja (ARCHITECTURE, API, PRODUCT)
 ```
 
 ## Konfiguracja

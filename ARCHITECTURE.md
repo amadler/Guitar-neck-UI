@@ -14,15 +14,19 @@ System składa się z 3 części:
 
 | Komponent | Selektor | Odpowiedzialność | Źródło |
 |-----------|----------|-----------------|--------|
+| `HeaderComponent` | `app-header` | Nagłówek strony z logo i nawigacją | `src/app/header` |
 | `HomePageComponent` | `app-home-page` | Agreguje gryf + toolbox | `src/app/home-page` |
 | `FreatboardComponent` | `app-freatboard` | Renderuje gryf z nutami i interwałami | `src/app/freatboard` |
 | `GuitarNeckComponent` | `app-guitar-neck` | Kontener inicjalizujący gryf | `src/app/guitar-neck` |
 | `LegendComponent` | `app-legend` | Legenda kolorów interwałowych | `src/app/legend` |
 | `RangeToolbarComponent` | `app-range-toolbar` | Selektor zakresu progów (presety) | `src/app/range-toolbar` |
 | `StringToggleComponent` | `app-string-toggle` | Włączanie/wyłączanie poszczególnych strun | `src/app/string-toggle` |
+| `PatternDisplayComponent` | `app-pattern-display` | Panel wyświetlający szczegóły patternu + practice prompts | `src/app/pattern-display` |
+| `MetronomeComponent` | `app-metronome` | Metronom z AudioContext i tap-tempo | `src/app/metronome` |
 | `ToolboxFormComponent` | `lib-toolbox-form` | Formularz wyboru skali/akordu (z `guitar-toolbox-lib`) | npm package |
 | `ChatComponent` | `lib-chat` | **POSTPONED** — czat AI | `projects/guitar-chat` |
 | `AISuggestionsComponent` | `lib-ai-suggestions` | **POSTPONED** — sugestie AI | `projects/guitar-chat` |
+| `FooterComponent` | `app-footer` | Stopka strony z informacjami o projekcie | `src/app/footer` |
 
 ### 2. Warstwa Serwisów
 
@@ -35,6 +39,7 @@ System składa się z 3 części:
 | `FretboardNotePositionService` | `note.service.ts` | Generuje mapę nut na gryfie, wyszukuje pozycje |
 | `IntervalService` | `interval.service.ts` | Oznacza nuty interwałami (root, 3rd, 5th, itd.) |
 | `MusicPatternApiService` | `scales-and-triads.service.ts` | HTTP → `music-theory-api` |
+| `LoadingService` | `loading.service.ts` | Zarządza stanem ładowania (show/hide z requestCount) |
 
 #### AI Services (`projects/guitar-chat`) — POSTPONED
 
@@ -70,14 +75,9 @@ class GuitarNote {
   selected: boolean;
   interval: string;   // "root", "major-3rd", ""
 }
-
-// src/app/shared/model/musicElements.ts
-interface ToolboxSearchQuery {
-  musicElements: string | number[];
-  keys: string;
-  type: 'scale' | 'chord' | 'basic' | 'custom';
-}
 ```
+
+> **Uwaga:** `ToolboxSearchQuery` pochodzi z zewnętrznego npm package — `guitar-toolbox-lib`.
 
 ### 5. Stałe i Konfiguracja (z `guitar-neck-shared`)
 
@@ -229,19 +229,11 @@ const environment = {
 
 ## Backlog
 
-Pełny backlog w [`BACKLOG.md`](BACKLOG.md). Podsumowanie:
+Pełny backlog w [`BACKLOG.md`](BACKLOG.md) (16 pozycji). Podsumowanie stanu:
 
-| Element | Status |
-|---------|--------|
-| AI Chat (Gemini) | POSTPONED |
-| `refreshNotesInRange()` dead code | FIXED |
-| `ToolboxSearchQuery` typing | FIXED |
-| `toolboxSubmit()` command factory | OPEN |
-| Pattern name Unicode w backendzie | OPEN |
-| Note readability na gryfie | POSTPONED |
-| Fret numbering starts at 0 | OPEN |
-| Remove unused uuid from GuitarNote | OPEN |
-| FretboardStateService O(n) → O(1) | OPEN |
-| Template woła serwisy bezpośrednio | OPEN |
-| UI Color Palette Refresh | OPEN |
-| MusicSelection domain abstraction | OPEN |
+| Status | Liczba |
+|--------|--------|
+| OPEN | 9 |
+| FIXED | 4 |
+| POSTPONED | 2 |
+| WON'T DO | 0 |

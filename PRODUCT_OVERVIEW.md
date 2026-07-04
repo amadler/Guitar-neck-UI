@@ -17,6 +17,23 @@ Guitar Neck UI to interaktywne narzędzie edukacyjne zaprojektowane, aby pomóc 
 - Oznaczanie interwałów (root, 2nd, 3rd, 4th, 5th, 6th, 7th — małe/wielkie)
 - Wybór tonacji (12 nut z #)
 - Custom pattern — użytkownik wpisuje interwały, aplikacja generuje nuty na gryfie
+- `MarkerDisplayMode` — 3 tryby wyświetlania znaczników na gryfie: kolory interwałowe, nazwy nut, neutralne kropki
+- Włączanie/wyłączanie poszczególnych strun (`StringToggleComponent`)
+- Wybór zakresu progów z presetami (`RangeToolbarComponent`)
+
+### 2.5. Metronom
+- Wbudowany metronom z silnikiem AudioContext
+- Obsługa metrum 2/4, 3/4, 4/4, 6/8
+- Zakres tempa 20–300 BPM
+- Funkcja tap-tempo (do 6 tapnięć)
+- Wizualny wskaźnik bieżącego uderzenia
+- Automatycznie wyświetlany gdy AI chat jest wyłączony
+
+### 2.6. Podgląd Patternu i Ćwiczenia
+- Panel wyświetlający szczegóły wybranej skali lub akordu (nuty, interwały, półtony, kroki)
+- Podpowiedzi ćwiczeń (practice prompts) dopasowane do typu patternu
+- 3 tryby wyświetlania znaczników na gryfie: kolory interwałowe, nazwy nut, neutralne kropki
+- Legenda kolorów interwałowych
 
 ### 3. Asystent AI
 - Czat z asystentem muzycznym
@@ -32,6 +49,12 @@ Guitar Neck UI to interaktywne narzędzie edukacyjne zaprojektowane, aby pomóc 
 2. Wybór tonacji
 3. Wizualizacja na gryfie
 4. Interakcja z nutami
+
+### Ćwiczenia z Metronomem
+1. Wybór skali/akordu na gryfie
+2. Włączenie metronomu i ustawienie tempa
+3. Korzystanie z podpowiedzi ćwiczeń
+4. Gra zgodnie z zaleceniami (np. "Graj jeden dźwięk na klik metronomu")
 
 ### Praca z AI
 1. Zadawanie pytań w czacie
@@ -49,6 +72,8 @@ Guitar Neck UI to interaktywne narzędzie edukacyjne zaprojektowane, aby pomóc 
 - Rozszerzenie możliwości AI
 - Wprowadzenie ćwiczeń i zadań
 - Personalizacja doświadczenia użytkownika
+- Rozbudowa metronomu o wizualne akcenty i zapis rytmiczny
+- System progresji ćwiczeń z ocenianiem
 
 ## Ograniczenia Techniczne
 - Wymagany backend `music-theory-api` (Docker) do obliczania nut skal i akordów
