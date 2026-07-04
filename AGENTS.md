@@ -62,6 +62,13 @@ Agent instructions for the Guitar neck UI workspace.
 - Valid Status values: `OPEN`, `FIXED`, `POSTPONED`, `WON'T DO`.
 - Always give a file location with line number for each backlog item.
 
+
+## Git workflow
+- **Never commit directly to `master`** — always create a feature/fix branch first.
+- Branch naming: `fix/<short-description>` for bug fixes, `feat/<short-description>` for new features.
+- After committing on the branch, **ask the user for merge approval before merging to `master`**.
+- Squash-merge is preferred to keep history clean.
+
 ## Documentation Consistency Validation
 When updating or reviewing `.md` documentation files, derive a validation checklist from the following template and verify every item:
 
@@ -85,8 +92,3 @@ Before committing documentation changes, run through all 7 checks. If a check fa
 - Main UI containers: `src/app/home-page`, `src/app/guitar-neck`, `src/app/freatboard`
 - Environment config: `src/environments`
 
-## Git workflow
-- **Never commit directly to `master`** — always create a feature/fix branch first.
-- Branch naming: `fix/<short-description>` for bug fixes, `feat/<short-description>` for new features.
-- After committing on the branch, **ask the user for merge approval before merging to `master`**.
-- Squash-merge is preferred to keep history clean.

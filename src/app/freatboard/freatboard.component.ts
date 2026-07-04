@@ -21,7 +21,7 @@ export class FreatboardComponent implements OnInit {
   private _fretRange = { minFret: 0, maxFret: 24 };
 
   constructor(
-    protected guitarNeckService: FretboardStateService
+    private guitarNeckService: FretboardStateService
   ) {
     this.strings = guitarNeckService.strings;
     this.frets = guitarNeckService.frets;
@@ -40,6 +40,22 @@ export class FreatboardComponent implements OnInit {
   set fretRange(range: { minFret: number, maxFret: number }) {
     this._fretRange = range;
   }
+
+  // -- Delegating properties: shield template from direct service access --
+
+  get activeStrings(): boolean[] {
+    return this.guitarNeckService.activeStrings;
+  }
+
+  get showNoteLabels(): boolean {
+    return this.guitarNeckService.showNoteLabels;
+  }
+
+  protected getMarkerCssClass(interval: string | undefined): string {
+    return this.guitarNeckService.getMarkerCssClass(interval);
+  }
+
+  // -- End delegating properties --
 
   protected isNoteInRange(fret: number): boolean {
     return fret >= this._fretRange.minFret && fret <= this._fretRange.maxFret;
@@ -88,9 +104,3 @@ export class FreatboardComponent implements OnInit {
     this.guitarNeckService.toggleString(event.stringIndex, event.active);
   }
 }
-
-
-/*
-
-
-*/

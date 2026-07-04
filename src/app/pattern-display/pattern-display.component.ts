@@ -11,7 +11,13 @@ import { PRACTICE_PROMPTS } from '../shared/practice-prompts.data';
   styleUrl: './pattern-display.component.scss'
 })
 export class PatternDisplayComponent {
-  constructor(protected guitarNeckService: FretboardStateService) {}
+  constructor(private guitarNeckService: FretboardStateService) {}
+
+  // -- Delegating properties: shield template from direct service access --
+
+  get currentPattern() {
+    return this.guitarNeckService.currentPattern;
+  }
 
   getPromptsForType(type: 'scale' | 'chord'): string[] {
     return PRACTICE_PROMPTS[type] ?? PRACTICE_PROMPTS.chord;

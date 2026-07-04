@@ -31,7 +31,21 @@ export class LegendComponent {
     { cssClass: 'major-7th', label: '7' },
   ];
 
-  constructor(protected guitarNeckService: FretboardStateService) {}
+  constructor(private guitarNeckService: FretboardStateService) {}
+
+  // -- Delegating properties: shield template from direct service access --
+
+  get markerDisplayMode(): string {
+    return this.guitarNeckService.markerDisplayMode;
+  }
+
+  set markerDisplayMode(value: string) {
+    this.guitarNeckService.markerDisplayMode = value as any;
+  }
+
+  get hasActiveResult(): boolean {
+    return this.guitarNeckService.hasActiveResult;
+  }
 
   get activeIntervals(): string[] {
     return this.guitarNeckService.getActiveIntervals();
