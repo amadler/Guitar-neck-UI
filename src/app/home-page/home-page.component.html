@@ -1,61 +1,37 @@
 <main class="app-shell">
-      <app-header></app-header>
+  <app-header></app-header>
 
-      <div id="guitar-neck-container">
-        <app-guitar-neck></app-guitar-neck>
-      </div>
-      <!-- <%- include('partials/range-toolbar.html') %>
+  <div id="guitar-neck-container">
+    <app-guitar-neck></app-guitar-neck>
+  </div>
+  <!-- <%- include('partials/range-toolbar.html') %>
       <%- include('partials/fretboard.html') %>
       <%- include('partials/legend.html') %> -->
-      <app-pattern-display></app-pattern-display>
-      <app-legend></app-legend>
-      <section class="dock dock--expanded">
-        <div class="dock__resize-handle"></div>
-        <div class="dock__header">
-          <nav class="dock-tabs">
-            <button class="dock-tab dock-tab--active" type="button">
-              <span class="dock-tab__icon">🎸</span>
-              Toolbox
-            </button>
-
-            <button class="dock-tab dock-tab--disabled" type="button">
-              <span class="dock-tab__icon">✦</span>
-              AI Assistant
-              <span class="status-badge">POSTPONED</span>
-            </button>
-
-            <button class="dock-tab dock-tab--disabled" type="button">
-              <span class="dock-tab__icon">◎</span>
-              Practice
-              <span class="status-badge">SOON</span>
-            </button>
-
-          </nav>
-        </div>
-        <div class="dock__body">
-
-
-          <section id="toolbox-container">
-            <lib-toolbox-form (onSubmit)="toolboxSubmit($event)"></lib-toolbox-form>
-          </section>
-
-          <section id="chat-container" *ngIf="chatEnabled; else chatDisabled">
-            <app-chat></app-chat>
-          </section>
-          <ng-template #chatDisabled>
-            <section class="ai-placeholder">
-                <div class="ai-placeholder__content">
-                    <div class="ai-placeholder__icon">💬</div>
-                    <h2>AI Assistant</h2>
-                    <span class="status-badge status-badge--large">POSTPONED</span>
-                    <p>AI features coming soon.</p>
-                    <p>Stay tuned!</p>
-                </div>
-            </section>
-          </ng-template>
-          <!-- <%- include('partials/dock-practice.html') %> -->
-        </div>
+  <app-legend></app-legend>
+  <app-pattern-display></app-pattern-display>
+  <section class="dock dock--expanded">
+    <div class="dock__body">
+      <section id="toolbox-container">
+        <lib-toolbox-form (onSubmit)="toolboxSubmit($event)"></lib-toolbox-form>
       </section>
 
-      <app-footer></app-footer>
-    </main>
+      <section id="chat-container" *ngIf="chatEnabled; else chatDisabled">
+        <app-chat></app-chat>
+      </section>
+      <ng-template #chatDisabled>
+        <section class="ai-placeholder">
+          <div class="ai-placeholder__content">
+            <div class="ai-placeholder__icon">💬</div>
+            <h2>AI Assistant</h2>
+            <span class="status-badge status-badge--large">POSTPONED</span>
+            <p>AI features coming soon.</p>
+            <p>Stay tuned!</p>
+          </div>
+        </section>
+      </ng-template>
+      <!-- <%- include('partials/dock-practice.html') %> -->
+    </div>
+  </section>
+
+  <app-footer></app-footer>
+</main>
