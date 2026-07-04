@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { FretboardStateService } from '../services/guitar-neck.service';
+import { PatternBuilderService } from '../services/pattern-builder.service';
 import { PatternInfo } from '../shared/model/patternInfo';
 
 import { PatternDisplayComponent } from './pattern-display.component';
@@ -8,7 +8,7 @@ import { PatternDisplayComponent } from './pattern-display.component';
 describe('PatternDisplayComponent', () => {
   let component: PatternDisplayComponent;
   let fixture: ComponentFixture<PatternDisplayComponent>;
-  let mockState: Partial<FretboardStateService>;
+  let mockState: Partial<PatternBuilderService>;
 
   const scalePattern: PatternInfo = {
     name: 'Major',
@@ -38,7 +38,7 @@ describe('PatternDisplayComponent', () => {
     await TestBed.configureTestingModule({
       imports: [PatternDisplayComponent],
       providers: [
-        { provide: FretboardStateService, useValue: mockState },
+        { provide: PatternBuilderService, useValue: mockState },
       ],
     }).compileComponents();
 

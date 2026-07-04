@@ -1,6 +1,7 @@
 import { Component, NO_ERRORS_SCHEMA } from '@angular/core';
 import { NgIf } from '@angular/common';
 import { FretboardStateService } from '../services/guitar-neck.service';
+import { PatternBuilderService } from '../services/pattern-builder.service';
 import { Command, DisplayAllNotesCommand, DisplayScaleCommand, DisplaySingleNoteCommand, DisplayChordCommand, DisplayCustomPatternCommand } from '../shared/UICommands';
 import { ToolboxSearchQuery } from 'guitar-toolbox-lib';
 import { FretboardOrchestrationService } from '../services/music-theory-facade.service';
@@ -36,11 +37,12 @@ export class HomePageComponent {
   constructor(
     private guitarNeckService: FretboardStateService,
     private fretboardOrchestrationService: FretboardOrchestrationService,
+    private patternBuilder: PatternBuilderService,
   ) { }
 
   toolboxSubmit(event: ToolboxSearchQuery): void {
     this.guitarNeckService.clearFretboard();
-    this.guitarNeckService.clearCurrentPattern();
+    this.patternBuilder.clearCurrentPattern();
 
     const { musicElements, keys, type } = event;
 
@@ -53,16 +55,16 @@ export class HomePageComponent {
       );
     } else if (type === 'basic' && musicElements === 'All notes') {
       command = new DisplayAllNotesCommand(this.fretboardOrchestrationService);
-      this.guitarNeckService.clearCurrentPattern();
+      this.patternBuilder.clearCurrentPattern();
     } else if (type === 'basic') {
       command = new DisplaySingleNoteCommand(this.fretboardOrchestrationService, keys);
-      this.guitarNeckService.clearCurrentPattern();
+      this.patternBuilder.clearCurrentPattern();
     } else if (type === 'chord' && typeof musicElements === 'string') {
       command = new DisplayChordCommand(this.fretboardOrchestrationService, musicElements, keys);
-      this.guitarNeckService.setCurrentPattern(musicElements, keys, 'chord');
+      this.patternBuilder.setCurrentPattern(musicElements, keys, 'chord');
     } else if (type === 'scale' && typeof musicElements === 'string') {
       command = new DisplayScaleCommand(this.fretboardOrchestrationService, musicElements, keys);
-      this.guitarNeckService.setCurrentPattern(musicElements, keys, 'scale');
+      this.patternBuilder.setCurrentPattern(musicElements, keys, 'scale');
     } else {
       return;
     }

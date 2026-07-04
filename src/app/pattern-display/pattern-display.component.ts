@@ -1,6 +1,6 @@
 import { NgFor, NgIf } from '@angular/common';
 import { Component } from '@angular/core';
-import { FretboardStateService } from '../services/guitar-neck.service';
+import { PatternBuilderService } from '../services/pattern-builder.service';
 import { PRACTICE_PROMPTS } from '../shared/practice-prompts.data';
 
 @Component({
@@ -11,12 +11,12 @@ import { PRACTICE_PROMPTS } from '../shared/practice-prompts.data';
   styleUrl: './pattern-display.component.scss'
 })
 export class PatternDisplayComponent {
-  constructor(private guitarNeckService: FretboardStateService) {}
+  constructor(private patternBuilder: PatternBuilderService) {}
 
   // -- Delegating properties: shield template from direct service access --
 
   get currentPattern() {
-    return this.guitarNeckService.currentPattern;
+    return this.patternBuilder.currentPattern;
   }
 
   getPromptsForType(type: 'scale' | 'chord'): string[] {
