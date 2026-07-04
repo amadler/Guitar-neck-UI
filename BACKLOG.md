@@ -565,3 +565,36 @@ Custom Pattern remains available internally but is not styled or promoted in the
 ### Status
 
 PLAN
+
+---
+
+## Metronome
+
+### Motivation
+Użytkownik chce ćwiczyć skale z metronomem — potrzebuje narzędzia do utrzymania tempa podczas ćwiczeń na gryfie.
+
+### Solution
+Samodzielny komponent Angular `MetronomeComponent` z:
+- Kontrolą tempa (suwak 20-300 BPM + pole numeryczne)
+- Wyborem metrum (2/4, 3/4, 4/4, 6/8)
+- Przyciskami Start/Stop
+- Tap tempo (wystukanie tempa — BPM po 2 tapnięciach, doprecyzowanie przy kolejnych)
+- Wizualizacją uderzeń (akcentowane pierwsze uderzenie miary)
+- Dźwiękiem typu "noise burst" przez Web Audio API (AudioBuffer z białym szumem)
+- Umiejscowienie w docku w miejscu obecnego `.ai-placeholder` (AI chat POSTPONED)
+
+### MVP
+Działający metronom w docku: wybór tempa, metrum, start/stop, tap tempo, wizualne i dźwiękowe kliknięcie.
+
+### Done when
+- Metronom uruchamia się i zatrzymuje przyciskiem Start/Stop
+- Tempo można zmienić suwakiem lub wpisać
+- Tap tempo aktualizuje BPM po 2+ tapnięciach
+- Metrum zmienia liczbę uderzeń w mierze
+- Wizualne i dźwiękowe wskazanie uderzeń działa
+- Komponent zastępuje `.ai-placeholder` w docku
+
+### Status
+FIXED — zaimplementowane, patrz `src/app/metronome/`, `src/app/home-page/home-page.component.ts:27`, `src/app/home-page/home-page.component.html:22`.
+
+**Lokalizacja:** `src/app/metronome/`, `src/app/home-page/home-page.component.html:22`

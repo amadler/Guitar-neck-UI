@@ -1,0 +1,64 @@
+<div class="metronome-card">
+  <!-- Beat indicator -->
+  <div class="beat-indicator">
+    <div class="beat-circle"
+         [class.accent]="currentBeat === 0"
+         [class.pulse]="isRunning && currentBeat >= 0">
+      <span class="beat-number">{{ currentBeat >= 0 ? currentBeat + 1 : '—' }}</span>
+    </div>
+  </div>
+
+  <!-- Beat dots row -->
+  <div class="beat-dots">
+    <div class="beat-dot"
+         *ngFor="let beat of [].constructor(timeSignature); let i = index"
+         [class.active]="i === currentBeat"
+         [class.accent]="i === 0">
+    </div>
+  </div>
+
+  <!-- Tempo slider + input -->
+  <div class="tempo-section">
+    <label class="tempo-label">Tempo</label>
+    <div class="tempo-controls">
+      <input type="range"
+             class="tempo-slider"
+             [min]="tempoRange.min"
+             [max]="tempoRange.max"
+             [(ngModel)]="bpm"
+             (input)="setTempo(bpm)" />
+      <input type="number"
+             class="tempo-input"
+             [min]="tempoRange.min"
+             [max]="tempoRange.max"
+             [(ngModel)]="bpm"
+             (change)="setTempo(bpm)" />
+      <span class="bpm-unit">BPM</span>
+    </div>
+  </div>
+
+  <!-- Time signature -->
+  <div class="time-sig-section">
+    <label class="time-sig-label">Time Signature</label>
+    <div class="time-sig-buttons">
+      <button *ngFor="let ts of timeSignatures"
+              class="time-sig-btn"
+              [class.active]="ts.value === timeSignature"
+              (click)="selectTimeSignature(ts.value)">
+        {{ ts.label }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls-section">
+    <button class="start-stop-btn"
+            [class.running]="isRunning"
+            (click)="isRunning ? stop() : start()">
+      {{ isRunning ? 'Stop' : 'Start' }}
+    </button>
+    <button class="tap-btn"
+            (click)="tapTempo()"
+            [disabled]="isRunning">Tap Tempo</button>
+  </div>
+</div>

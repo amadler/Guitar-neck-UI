@@ -1,0 +1,285 @@
+// ──────────────────────────────────────────────
+// Style constants (used in various properties)
+// ──────────────────────────────────────────────
+$beat-circle-size: 80px;
+$beat-dot-size: 8px;
+$beat-dot-accent-size: 10px;
+$tempo-input-width: 60px;
+$transition-fast: 80ms ease;
+$transition-normal: 120ms ease;
+
+.metronome-card{
+  padding: 20px;
+}
+/* Beat indicator */
+.beat-indicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.beat-circle {
+  width: $beat-circle-size;
+  height: $beat-circle-size;
+  border-radius: 50%;
+  background: var(--interval-major-7th);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform $transition-fast, background $transition-fast, box-shadow $transition-fast;
+}
+
+.beat-circle.accent {
+  background: var(--green-700);
+  box-shadow: 0 0 20px rgba(8, 99, 30, 0.4);
+}
+
+.beat-circle.pulse {
+  animation: pulse 0.3s ease-in-out;
+}
+
+.beat-number {
+  color: #ffffff;
+  font-size: 28px;
+  font-weight: 800;
+}
+
+/* Beat dots */
+.beat-dots {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 5px;
+}
+
+.beat-dot {
+  width: $beat-dot-size;
+  height: $beat-dot-size;
+  border-radius: 50%;
+  background: var(--bg-dark-lighter, #444);
+  transition: background $transition-fast, transform $transition-fast;
+}
+
+.beat-dot.active {
+  background: var(--green-700);
+  transform: scale(1.4);
+}
+
+.beat-dot.accent {
+  width: $beat-dot-accent-size;
+  height: $beat-dot-accent-size;
+}
+
+.beat-dot.active.accent {
+  background: var(--green-700);
+  transform: scale(1.6);
+}
+
+/* Tempo section */
+.tempo-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tempo-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--app-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tempo-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tempo-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  background: var(--app-border);
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+}
+
+.tempo-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--green-700);
+  cursor: pointer;
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+.tempo-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--green-700);
+  cursor: pointer;
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+.tempo-input {
+  width: $tempo-input-width;
+  padding: 6px 8px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-sm);
+  color: var(--app-text);
+  outline: none;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.tempo-input:focus {
+  border-color: var(--green-700);
+  box-shadow: 0 0 0 2px rgba(8, 99, 30, 0.15);
+}
+
+.tempo-input::-webkit-inner-spin-button,
+.tempo-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.tempo-input[type='number'] {
+  -moz-appearance: textfield;
+}
+
+.bpm-unit {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--app-muted);
+}
+
+/* Time signature section */
+.time-sig-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.time-sig-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--app-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.time-sig-buttons {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 5px;
+}
+
+.time-sig-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--app-border);
+  border-radius: 20px;
+  background: var(--app-surface);
+  color: var(--app-text);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background $transition-normal, color $transition-normal, border-color $transition-normal;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.time-sig-btn:hover {
+  background: var(--app-surface-soft);
+  border-color: var(--app-border-strong);
+}
+
+.time-sig-btn.active {
+  border-color: var(--green-700);
+}
+
+/* Controls section */
+.controls-section {
+  width: 100%;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.start-stop-btn {
+  padding: 12px 24px;
+  min-width: 100px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--green-700);
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background $transition-normal, transform $transition-fast;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.start-stop-btn:hover {
+  transform: translateY(-1px);
+}
+
+.start-stop-btn:active {
+  transform: translateY(0);
+}
+
+.start-stop-btn.running {
+  background: var(--app-muted);
+}
+
+.tap-btn {
+  padding: 12px 20px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-md);
+  background: var(--app-surface-soft);
+  color: var(--app-text);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background $transition-normal, transform $transition-fast;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.tap-btn:hover:not(:disabled) {
+  background: var(--app-border);
+  transform: translateY(-1px);
+}
+
+.tap-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.tap-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Pulse animation */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
+}

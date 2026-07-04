@@ -11,6 +11,7 @@ import { HeaderComponent } from '../header/header.component';
 import { FooterComponent } from '../footer/footer.component';
 import { LegendComponent } from '../legend/legend.component';
 import { PatternDisplayComponent } from '../pattern-display/pattern-display.component';
+import { MetronomeComponent } from '../metronome/metronome.component';
 
 @Component({
   selector: 'app-home-page',
@@ -23,7 +24,8 @@ import { PatternDisplayComponent } from '../pattern-display/pattern-display.comp
     HeaderComponent,
     FooterComponent,
     LegendComponent,
-    PatternDisplayComponent
+    PatternDisplayComponent,
+    MetronomeComponent
   ],
   templateUrl: './home-page.component.html',
   styleUrl: './home-page.component.scss'

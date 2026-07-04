@@ -134,7 +134,7 @@ body {
    ========================================================================== */
 
 .app-shell {
-  // height: 100vh;
+   max-width: 1440px;
   display: grid;
   grid-template-rows:
     var(--header-height)
@@ -145,7 +145,7 @@ body {
     var(--footer-height);
   gap: 12px;
   padding: 0 28px;
-  // overflow: hidden;
+  margin-inline: auto;
 }
 
 /* ==========================================================================
@@ -548,6 +548,7 @@ lib-toolbox-form {
   padding: 22px;
   border-right: 1px solid var(--app-border);
   overflow: auto;
+  min-height: 100%;
 }
 
 /* ==========================================================================
@@ -591,6 +592,18 @@ lib-toolbox-form {
 .ai-placeholder p {
   margin: 6px 0;
   color: #46524c;
+}
+
+
+/* ==========================================================================
+   Metronome
+   ========================================================================== */
+
+.metronome {
+  min-width: 280px;
+  max-width: 320px;
+  width: 100%;
+  padding: 16px;
 }
 
 /* ==========================================================================
@@ -674,6 +687,10 @@ lib-toolbox-form {
 
   .ai-placeholder {
     display: none;
+  }
+
+  app-metronome {
+    display: none !important;
   }
 
   lib-toolbox-form {

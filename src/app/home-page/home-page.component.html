@@ -9,7 +9,7 @@
       <%- include('partials/legend.html') %> -->
   <app-legend></app-legend>
   <app-pattern-display></app-pattern-display>
-  <section class="dock dock--expanded">
+  <section class="dock">
     <div class="dock__body">
       <section id="toolbox-container">
         <lib-toolbox-form (onSubmit)="toolboxSubmit($event)"></lib-toolbox-form>
@@ -19,15 +19,7 @@
         <app-chat></app-chat>
       </section>
       <ng-template #chatDisabled>
-        <section class="ai-placeholder">
-          <div class="ai-placeholder__content">
-            <div class="ai-placeholder__icon">💬</div>
-            <h2>AI Assistant</h2>
-            <span class="status-badge status-badge--large">POSTPONED</span>
-            <p>AI features coming soon.</p>
-            <p>Stay tuned!</p>
-          </div>
-        </section>
+        <app-metronome></app-metronome>
       </ng-template>
       <!-- <%- include('partials/dock-practice.html') %> -->
     </div>
