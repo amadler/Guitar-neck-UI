@@ -615,13 +615,57 @@ lib-toolbox-form {
     gap: 10px;
   }
 
+  .range-card {
+    padding: 12px 12px 16px;
+  }
+
+  .range-card__title {
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+
   .range-toolbar {
-    overflow-x: auto;
-    padding-bottom: 4px;
+    gap: 10px;
+  }
+
+  .range-preset {
+    min-width: 104px;
+    height: 52px;
+    padding: 6px 10px;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr;
+    column-gap: 0;
+  }
+
+  .range-preset__icon {
+    display: none;
+  }
+
+  .range-preset__label {
+    font-size: 14px;
+  }
+
+  .range-preset__value {
+    font-size: 12px;
   }
 
   .range-custom {
-    min-width: 300px;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  .range-custom__input {
+    width: 60px;
+  }
+
+  .range-custom__button {
+    min-width: 66px;
+    height: 38px;
+    font-size: 14px;
+  }
+
+  .range-custom__separator {
+    font-size: 14px;
   }
 
   .dock__body {
@@ -646,6 +690,10 @@ lib-toolbox-form {
 
   .range-toolbar {
     flex-wrap: nowrap;
+  }
+
+  .range-custom, .range-preset--custom{
+    display: none;
   }
 
   .legend-row {
