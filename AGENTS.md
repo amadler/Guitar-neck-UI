@@ -41,6 +41,14 @@ Agent instructions for the Guitar neck UI workspace.
 - Treat keys in environment files as sensitive. Do not print, duplicate, or move secrets into docs, logs, tests, or commits.
 - If work involves API credentials, prefer environment-specific handling and recommend rotation if exposed.
 
+## Local machine setup 
+Local machine: Wndows 11
+prefer using npm over npx
+if some commands crashes log it to /TOOLS_CRASHINT_LOG.MD WITH 
+[] - PROBLEM
+[] - SOLUTION
+sections
+
 ## Backlog Management
 - Backlog entries live in `BACKLOG.md` at project root.
 - Every backlog item MUST follow this template exactly, with all 6 sections present and non-empty:

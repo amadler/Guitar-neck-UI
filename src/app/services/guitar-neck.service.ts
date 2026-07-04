@@ -3,15 +3,12 @@ import { Injectable } from '@angular/core';
 import { neckConfig } from 'guitar-neck-shared';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { FretboardNotePositionService } from './note.service';
-import { IntervalService } from './interval.service';
 
 export type MarkerDisplayMode = 'interval-colors' | 'note-names' | 'neutral-dots';
 
 @Injectable({ providedIn: 'root' })
 export class FretboardStateService {
   notes: GuitarNote[];
-  strings = neckConfig.stringNotes;
-  frets = Array.from({ length: neckConfig.numberOfFrets }, (_, i) => i + 1);
   /** Per-string active state. true = show notes on this string. Reset on clearFretboard(). */
   activeStrings: boolean[];
   /** Which visual mode the fretboard markers use. */
@@ -20,10 +17,9 @@ export class FretboardStateService {
   hasActiveResult = false;
   constructor(
     private noteService: FretboardNotePositionService,
-    private intervalService: IntervalService
   ) {
     this.notes = this.noteService.getAllPositions();
-    this.activeStrings = this.strings.map(() => true);
+    this.activeStrings = neckConfig.stringNotes.map(() => true);
   }
 
   applyHighlightedNotes(notes: GuitarNote[]): GuitarNote[] {
@@ -58,7 +54,7 @@ export class FretboardStateService {
 
   /** Reset all strings to active. Called on clearFretboard(). */
   private resetActiveStrings(): void {
-    this.activeStrings = this.strings.map(() => true);
+    this.activeStrings = neckConfig.stringNotes.map(() => true);
   }
 
   hideAllNotes() {
@@ -75,7 +71,6 @@ export class FretboardStateService {
   }
 
   clearFretboard() {
-    this.intervalService.removeIntervals(this.notes);
     this.hideAllNotes();
     this.clearSelection();
     this.hasActiveResult = false;

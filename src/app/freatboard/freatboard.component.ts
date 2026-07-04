@@ -27,8 +27,8 @@ export class FreatboardComponent implements OnInit {
     private noteQueryService: FretboardNoteQueryService,
     private displayService: FretboardDisplayService
   ) {
-    this.strings = guitarNeckService.strings;
-    this.frets = guitarNeckService.frets;
+    this.strings = neckConfig.stringNotes;
+    this.frets = Array.from({ length: neckConfig.numberOfFrets }, (_, i) => i + 1);
   }
 
   ngOnInit(): void {

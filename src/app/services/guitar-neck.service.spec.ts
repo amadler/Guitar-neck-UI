@@ -1,14 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 import { FretboardStateService } from './guitar-neck.service';
 import { FretboardNotePositionService } from './note.service';
-import { IntervalService } from './interval.service';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { neckConfig } from 'guitar-neck-shared';
 
 describe('GuitarNeckService', () => {
   let service: FretboardStateService;
   let noteServiceSpy: jasmine.SpyObj<FretboardNotePositionService>;
-  let intervalServiceSpy: jasmine.SpyObj<IntervalService>;
   let mockNotes: GuitarNote[];
 
   beforeEach(() => {
@@ -19,7 +17,6 @@ describe('GuitarNeckService', () => {
     ];
 
     noteServiceSpy = jasmine.createSpyObj('FretboardNotePositionService', ['getAllPositions']);
-    intervalServiceSpy = jasmine.createSpyObj('IntervalService', ['removeIntervals']);
 
     noteServiceSpy.getAllPositions.and.returnValue(mockNotes);
 
@@ -27,7 +24,6 @@ describe('GuitarNeckService', () => {
       providers: [
         FretboardStateService,
         { provide: FretboardNotePositionService, useValue: noteServiceSpy },
-        { provide: IntervalService, useValue: intervalServiceSpy }
       ]
     });
 
@@ -36,11 +32,6 @@ describe('GuitarNeckService', () => {
 
   it('should be created', () => {
     expect(service).toBeTruthy();
-  });
-
-  it('should initialize with correct strings and frets', () => {
-    expect(service.strings).toEqual(neckConfig.stringNotes);
-    expect(service.frets.length).toBe(neckConfig.numberOfFrets);
   });
 
   it('should initialize activeStrings with all true', () => {
@@ -136,7 +127,6 @@ describe('GuitarNeckService', () => {
       service.toggleString(1, false);
       service.clearFretboard();
 
-      expect(intervalServiceSpy.removeIntervals).toHaveBeenCalledWith(service.notes);
       expect(service.notes.every(note => !note.visible)).toBeTrue();
       expect(service.notes.every(note => !note.selected)).toBeTrue();
       // activeStrings must persist — only the user can change them manually

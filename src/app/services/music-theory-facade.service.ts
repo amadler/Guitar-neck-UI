@@ -63,10 +63,12 @@ export class FretboardOrchestrationService {
     this.guitarNeckService.showAll();
   }
   public resetFretboard(): void {
+    this.intervalService.removeIntervals(this.guitarNeckService.notes);
     this.guitarNeckService.clearFretboard();
   }
 
   private clearFretboard(): void {
+    this.intervalService.removeIntervals(this.guitarNeckService.notes);
     this.guitarNeckService.clearFretboard();
   }
 

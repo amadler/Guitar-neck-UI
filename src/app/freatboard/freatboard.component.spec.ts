@@ -6,6 +6,7 @@ import { FretboardDisplayService } from '../services/fretboard-display.service';
 import { FretboardNotePositionService } from '../services/note.service';
 import { ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
+import { neckConfig } from 'guitar-neck-shared';
 
 describe('FreatboardComponent', () => {
   let component: FreatboardComponent;
@@ -37,8 +38,8 @@ describe('FreatboardComponent', () => {
   });
 
   it('should initialize strings and frets correctly', () => {
-    expect(component.strings).toEqual(guitarNeckService.strings);
-    expect(component.frets).toEqual(guitarNeckService.frets)
+    expect(component.strings).toEqual(neckConfig.stringNotes);
+    expect(component.frets).toEqual(Array.from({ length: neckConfig.numberOfFrets }, (_, i) => i + 1));
   });
 
   it('should render the correct number of strings', () => {
