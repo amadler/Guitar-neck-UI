@@ -692,9 +692,19 @@ lib-toolbox-form {
     flex-wrap: nowrap;
   }
 
-  .range-custom, .range-preset--custom{
-    display: none;
+
+  .range-toolbar {
+    .range-preset{
+      flex: 1;
+    }
+    .range-preset:nth-child(6) {
+      display: none;
+    }
+    .range-custom{
+      display: none !important;
+    }
   }
+
 
   .legend-row {
     align-items: flex-start;
