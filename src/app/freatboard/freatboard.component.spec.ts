@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FreatboardComponent } from './freatboard.component';
 import { FretboardStateService } from '../services/guitar-neck.service';
+import { FretboardNoteQueryService } from '../services/fretboard-note-query.service';
+import { FretboardDisplayService } from '../services/fretboard-display.service';
 import { FretboardNotePositionService } from '../services/note.service';
 import { ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
@@ -15,7 +17,7 @@ describe('FreatboardComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ReactiveFormsModule, FreatboardComponent],
-      providers:[FretboardStateService, FretboardNotePositionService]
+      providers:[FretboardStateService, FretboardNotePositionService, FretboardDisplayService, FretboardNoteQueryService]
     })
     .compileComponents();
 

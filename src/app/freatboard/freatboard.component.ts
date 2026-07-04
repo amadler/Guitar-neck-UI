@@ -1,6 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { FretboardStateService } from '../services/guitar-neck.service';
+import { FretboardNoteQueryService } from '../services/fretboard-note-query.service';
+import { FretboardDisplayService } from '../services/fretboard-display.service';
 import { NgIf, NgFor, NgClass } from '@angular/common';
 import { neckConfig } from 'guitar-neck-shared';
 import { RangeToolbarComponent } from '../range-toolbar/range-toolbar.component';
@@ -21,7 +23,9 @@ export class FreatboardComponent implements OnInit {
   private _fretRange = { minFret: 0, maxFret: 24 };
 
   constructor(
-    private guitarNeckService: FretboardStateService
+    private guitarNeckService: FretboardStateService,
+    private noteQueryService: FretboardNoteQueryService,
+    private displayService: FretboardDisplayService
   ) {
     this.strings = guitarNeckService.strings;
     this.frets = guitarNeckService.frets;
@@ -48,11 +52,11 @@ export class FreatboardComponent implements OnInit {
   }
 
   get showNoteLabels(): boolean {
-    return this.guitarNeckService.showNoteLabels;
+    return this.displayService.showNoteLabels;
   }
 
   protected getMarkerCssClass(interval: string | undefined): string {
-    return this.guitarNeckService.getMarkerCssClass(interval);
+    return this.displayService.getMarkerCssClass(interval);
   }
 
   // -- End delegating properties --
@@ -62,7 +66,7 @@ export class FreatboardComponent implements OnInit {
   }
 
   protected isNoteOnFret(stringIndex: number, fret: number) {
-    return this.guitarNeckService.isNoteOnFret(stringIndex, fret);
+    return this.noteQueryService.isNoteOnFret(stringIndex, fret);
   }
 
   protected isNoteSelected(stringIndex: number, fret: number): boolean | undefined {
@@ -87,16 +91,16 @@ export class FreatboardComponent implements OnInit {
   }
 
   protected getNoteName(stringIndex: number, fret: number) {
-    return this.guitarNeckService.getNoteName(stringIndex, fret);
+    return this.noteQueryService.getNoteName(stringIndex, fret);
   }
 
   protected fretNoteClicked(stringIndex: number, fret: number) {
-    const note = this.guitarNeckService.fretNoteClicked(stringIndex, fret);
+    const note = this.noteQueryService.fretNoteClicked(stringIndex, fret);
     this.onNoteClicked$.emit(note || undefined);
   }
 
   protected getNote(stringIndex: number, fret: number): GuitarNote | undefined {
-    return this.guitarNeckService.getNote(stringIndex, fret);
+    return this.noteQueryService.getNote(stringIndex, fret);
   }
 
   /** Handle string toggle checkbox events from StringToggleComponent. */

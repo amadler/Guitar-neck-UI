@@ -26,26 +26,6 @@ export class FretboardStateService {
     this.activeStrings = this.strings.map(() => true);
   }
 
-  private isMatchingNoteOnFret(note: GuitarNote, stringIndex: number, fret: number) {
-    return note.string === stringIndex + 1 && note.fret === fret && note.visible;
-  }
-
-  isNoteOnFret(stringIndex: number, fret: number): boolean {
-    if (stringIndex >= 0 && !this.activeStrings[stringIndex]) {
-      return false;
-    }
-    return this.notes.some(note => this.isMatchingNoteOnFret(note, stringIndex, fret));
-  }
-
-  getNote(stringIndex: number, fret: number): GuitarNote | undefined {
-    return this.notes.find(note => this.isMatchingNoteOnFret(note, stringIndex, fret));
-  }
-
-  getNoteName(stringIndex: number, fret: number): string {
-    const note = this.notes.find(note => this.isMatchingNoteOnFret(note, stringIndex, fret));
-    return note ? note.note : '';
-  }
-
   applyHighlightedNotes(notes: GuitarNote[]): GuitarNote[] {
     this.notes.forEach(note => {
         note.visible = false;
@@ -92,41 +72,6 @@ export class FretboardStateService {
 
   clearSelection() {
     this.notes.forEach(note => note.selected = false);
-  }
-
-  fretNoteClicked(stringIndex: number, fret: number): GuitarNote | null {
-    return this.notes.find(note => this.isMatchingNoteOnFret(note, stringIndex, fret)) || null;
-  }
-
-  /** Return the CSS class string for a note marker based on the current display mode. */
-  getMarkerCssClass(interval: string | undefined): string {
-    if (this.markerDisplayMode === 'interval-colors' && interval) {
-      return 'guitar-neck__' + interval;
-    }
-    if (this.markerDisplayMode === 'note-names') {
-      return 'guitar-neck__neutral';
-    }
-    // neutral-dots: visible white dots using dedicated CSS class
-    return 'guitar-neck__neutral-dot';
-  }
-
-  /** Whether note labels should be visible inside markers. */
-  get showNoteLabels(): boolean {
-    return this.markerDisplayMode !== 'neutral-dots';
-  }
-
-  /** Collect unique interval names from currently selected notes. */
-  getActiveIntervals(): string[] {
-    const intervalSet = new Set<string>();
-    if (!this.hasActiveResult) {
-      return [];
-    }
-    this.notes.forEach(note => {
-      if (note.selected && note.interval) {
-        intervalSet.add(note.interval);
-      }
-    });
-    return Array.from(intervalSet);
   }
 
   clearFretboard() {

@@ -1,6 +1,7 @@
 import { NgFor } from '@angular/common';
 import { Component } from '@angular/core';
 import { FretboardStateService } from '../services/guitar-neck.service';
+import { FretboardDisplayService } from '../services/fretboard-display.service';
 
 export interface IntervalDef {
   cssClass: string;
@@ -31,7 +32,10 @@ export class LegendComponent {
     { cssClass: 'major-7th', label: '7' },
   ];
 
-  constructor(private guitarNeckService: FretboardStateService) {}
+  constructor(
+    private guitarNeckService: FretboardStateService,
+    private displayService: FretboardDisplayService
+  ) {}
 
   // -- Delegating properties: shield template from direct service access --
 
@@ -48,7 +52,7 @@ export class LegendComponent {
   }
 
   get activeIntervals(): string[] {
-    return this.guitarNeckService.getActiveIntervals();
+    return this.displayService.getActiveIntervals();
   }
 
   isActive(cssClass: string): boolean {

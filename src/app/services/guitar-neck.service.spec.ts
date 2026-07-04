@@ -69,81 +69,6 @@ describe('GuitarNeckService', () => {
     });
   });
 
-  describe('getMarkerCssClass', () => {
-    it('should return interval class when mode is interval-colors', () => {
-      service.markerDisplayMode = 'interval-colors';
-      expect(service.getMarkerCssClass('root')).toBe('guitar-neck__root');
-    });
-
-    it('should return neutral class when mode is note-names', () => {
-      service.markerDisplayMode = 'note-names';
-      expect(service.getMarkerCssClass('root')).toBe('guitar-neck__neutral');
-    });
-
-    it('should return empty string when mode is neutral-dots (base dot styling)', () => {
-      service.markerDisplayMode = 'neutral-dots';
-      expect(service.getMarkerCssClass('root')).toBe('');
-    });
-
-    it('should return empty string when interval is undefined (falls through to default)', () => {
-      expect(service.getMarkerCssClass(undefined)).toBe('');
-    });
-  });
-
-  describe('showNoteLabels', () => {
-    it('should be true when mode is interval-colors', () => {
-      service.markerDisplayMode = 'interval-colors';
-      expect(service.showNoteLabels).toBeTrue();
-    });
-
-    it('should be true when mode is note-names', () => {
-      service.markerDisplayMode = 'note-names';
-      expect(service.showNoteLabels).toBeTrue();
-    });
-
-    it('should be false when mode is neutral-dots', () => {
-      service.markerDisplayMode = 'neutral-dots';
-      expect(service.showNoteLabels).toBeFalse();
-    });
-  });
-
-  describe('isNoteOnFret', () => {
-    it('should return true when note exists on specific fret', () => {
-      expect(service.isNoteOnFret(0, 0)).toBeTrue();
-    });
-
-    it('should return false when note does not exist on specific fret', () => {
-      expect(service.isNoteOnFret(0, 1)).toBeFalse();
-    });
-
-    it('should return false when the string is toggled off', () => {
-      service.toggleString(0, false);
-      expect(service.isNoteOnFret(0, 0)).toBeFalse();
-    });
-  });
-
-  describe('getNote', () => {
-    it('should return note when it exists at position', () => {
-      const note = service.getNote(0, 0);
-      expect(note).toEqual(mockNotes[0]);
-    });
-
-    it('should return undefined when note does not exist at position', () => {
-      const note = service.getNote(0, 1);
-      expect(note).toBeUndefined();
-    });
-  });
-
-  describe('getNoteName', () => {
-    it('should return note name when note exists at position', () => {
-      expect(service.getNoteName(0, 0)).toBe('E');
-    });
-
-    it('should return empty string when note does not exist at position', () => {
-      expect(service.getNoteName(0, 1)).toBe('');
-    });
-  });
-
   describe('selectNotes', () => {
     it('should select and make visible specified notes', () => {
       const notesToSelect = [mockNotes[0]];
@@ -184,18 +109,6 @@ describe('GuitarNeckService', () => {
       service.notes[0].selected = true;
       service.clearSelection();
       expect(service.notes.every(note => !note.selected)).toBeTrue();
-    });
-  });
-
-  describe('fretNoteClicked', () => {
-    it('should return note when clicked on existing note', () => {
-      const clickedNote = service.fretNoteClicked(0, 0);
-      expect(clickedNote).toEqual(mockNotes[0]);
-    });
-
-    it('should return null when clicked on non-existing note', () => {
-      const clickedNote = service.fretNoteClicked(0, 1);
-      expect(clickedNote).toBeNull();
     });
   });
 

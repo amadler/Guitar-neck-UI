@@ -3,6 +3,7 @@ import { By } from '@angular/platform-browser';
 
 import { LegendComponent } from './legend.component';
 import { FretboardStateService } from '../services/guitar-neck.service';
+import { FretboardDisplayService } from '../services/fretboard-display.service';
 
 describe('LegendComponent', () => {
   let component: LegendComponent;
@@ -11,7 +12,8 @@ describe('LegendComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [LegendComponent]
+      imports: [LegendComponent],
+      providers: [FretboardDisplayService]
     })
     .compileComponents();
 
