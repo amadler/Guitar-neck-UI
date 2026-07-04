@@ -23,4 +23,11 @@
       <span *ngFor="let step of p.steps" class="pattern-panel__value">{{ step }}</span>
     </span>
   </div>
+
+  <div class="pattern-panel__prompts">
+    <div class="pattern-panel__prompts-title">Pomysły na ćwiczenia</div>
+    <ul class="pattern-panel__prompts-list">
+      <li *ngFor="let prompt of getPromptsForType(p.type)" class="pattern-panel__prompt-item">{{ prompt }}</li>
+    </ul>
+  </div>
 </div>

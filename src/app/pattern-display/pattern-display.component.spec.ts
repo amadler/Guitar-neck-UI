@@ -1,0 +1,102 @@
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
+import { FretboardStateService } from '../services/guitar-neck.service';
+import { PatternInfo } from '../shared/model/patternInfo';
+
+import { PatternDisplayComponent } from './pattern-display.component';
+
+describe('PatternDisplayComponent', () => {
+  let component: PatternDisplayComponent;
+  let fixture: ComponentFixture<PatternDisplayComponent>;
+  let mockState: Partial<FretboardStateService>;
+
+  const scalePattern: PatternInfo = {
+    name: 'Major',
+    rootNote: 'C',
+    type: 'scale',
+    notes: ['C', 'D', 'E', 'F', 'G', 'A', 'B'],
+    intervals: ['1', '2', '3', '4', '5', '6', '7'],
+    semitones: [0, 2, 4, 5, 7, 9, 11],
+    steps: ['W', 'W', 'H', 'W', 'W', 'W', 'H'],
+  };
+
+  const chordPattern: PatternInfo = {
+    name: 'Major',
+    rootNote: 'C',
+    type: 'chord',
+    notes: ['C', 'E', 'G'],
+    intervals: ['1', '3', '5'],
+    semitones: [0, 4, 7],
+    steps: ['W', 'W+H'],
+  };
+
+  beforeEach(async () => {
+    mockState = {
+      currentPattern: null,
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [PatternDisplayComponent],
+      providers: [
+        { provide: FretboardStateService, useValue: mockState },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(PatternDisplayComponent);
+    component = fixture.componentInstance;
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+
+  describe('getPromptsForType', () => {
+    it('should return scale prompts for scale type', () => {
+      const prompts = component.getPromptsForType('scale');
+      expect(prompts.length).toBeGreaterThan(0);
+      expect(prompts).toContain('Graj gamę w górę i w dół');
+    });
+
+    it('should return chord prompts for chord type', () => {
+      const prompts = component.getPromptsForType('chord');
+      expect(prompts.length).toBeGreaterThan(0);
+      expect(prompts).toContain('Uderz akord — wszystkie struny naraz');
+    });
+  });
+
+  describe('rendering', () => {
+    it('should show prompts section when currentPattern is a scale', () => {
+      mockState.currentPattern = scalePattern;
+      fixture.detectChanges();
+
+      const promptsTitle = fixture.debugElement.query(By.css('.pattern-panel__prompts-title'));
+      expect(promptsTitle).toBeTruthy();
+      expect(promptsTitle.nativeElement.textContent).toContain('Pomysły na ćwiczenia');
+
+      const items = fixture.debugElement.queryAll(By.css('.pattern-panel__prompt-item'));
+      expect(items.length).toBe(5);
+      expect(items[0].nativeElement.textContent).toContain('Graj gamę w górę i w dół');
+    });
+
+    it('should show prompts section when currentPattern is a chord', () => {
+      mockState.currentPattern = chordPattern;
+      fixture.detectChanges();
+
+      const promptsTitle = fixture.debugElement.query(By.css('.pattern-panel__prompts-title'));
+      expect(promptsTitle).toBeTruthy();
+      expect(promptsTitle.nativeElement.textContent).toContain('Pomysły na ćwiczenia');
+
+      const items = fixture.debugElement.queryAll(By.css('.pattern-panel__prompt-item'));
+      expect(items.length).toBe(5);
+      expect(items[0].nativeElement.textContent).toContain('Uderz akord — wszystkie struny naraz');
+    });
+
+    it('should hide entire panel when currentPattern is null', () => {
+      mockState.currentPattern = null;
+      fixture.detectChanges();
+
+      const panel = fixture.debugElement.query(By.css('.pattern-panel'));
+      expect(panel).toBeNull();
+    });
+  });
+});
