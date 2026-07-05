@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { neckConfig, CHORD_PATTERNS, SCALE_PATTERNS } from 'guitar-neck-shared';
 import { PatternInfo } from '../shared/model/patternInfo';
+import { MusicSelection } from '../shared/model/music-selection';
+import { FretboardStateService } from './guitar-neck.service';
 
 const SEMITONE_TO_INTERVAL: Record<number, string> = {
   0: '1', 1: 'b2', 2: '2', 3: 'b3', 4: '3', 5: '4',
@@ -11,17 +13,21 @@ const SEMITONE_TO_INTERVAL: Record<number, string> = {
 export class PatternBuilderService {
   currentPattern: PatternInfo | null = null;
 
+  constructor(private fretboardState: FretboardStateService) {}
+
   setCurrentPattern(patternName: string, rootNote: string, type: 'scale' | 'chord'): void {
     const patterns = type === 'scale' ? SCALE_PATTERNS : CHORD_PATTERNS;
     const pattern = patterns.find(p => p.name === patternName);
     if (!pattern) {
       this.currentPattern = null;
+      this.fretboardState.currentSelection = null;
       return;
     }
 
     const rootIndex = neckConfig.chromaticNotes.indexOf(rootNote);
     if (rootIndex === -1) {
       this.currentPattern = null;
+      this.fretboardState.currentSelection = null;
       return;
     }
 
@@ -42,9 +48,17 @@ export class PatternBuilderService {
     });
 
     this.currentPattern = { name: patternName, rootNote, type, notes, intervals, semitones, steps };
+    this.fretboardState.currentSelection = {
+      type,
+      name: patternName,
+      rootNote,
+      notes,
+      intervals: semitones,
+    };
   }
 
   clearCurrentPattern(): void {
     this.currentPattern = null;
+    this.fretboardState.currentSelection = null;
   }
 }

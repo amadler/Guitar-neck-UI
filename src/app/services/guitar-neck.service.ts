@@ -2,6 +2,7 @@
 import { Injectable } from '@angular/core';
 import { neckConfig } from 'guitar-neck-shared';
 import { GuitarNote } from '../shared/model/guitarNote';
+import { MusicSelection } from '../shared/model/music-selection';
 import { FretboardNotePositionService } from './note.service';
 
 export type MarkerDisplayMode = 'interval-colors' | 'note-names' | 'neutral-dots';
@@ -15,6 +16,8 @@ export class FretboardStateService {
   markerDisplayMode: MarkerDisplayMode = 'interval-colors';
   /** Whether there is an active result (notes highlighted/show all) on the fretboard. */
   hasActiveResult = false;
+  /** Unified domain model describing what is currently selected. */
+  currentSelection: MusicSelection | null = null;
   /** O(1) lookup map keyed by "${string}-${fret}". Rebuilt when notes are initialized. */
   private notesMap: Map<string, GuitarNote> = new Map();
 
@@ -84,6 +87,7 @@ export class FretboardStateService {
     this.hideAllNotes();
     this.clearSelection();
     this.hasActiveResult = false;
+    this.currentSelection = null;
     // Note: activeStrings are NOT reset here — they persist until the user manually toggles them.
   }
 }

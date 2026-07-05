@@ -2,6 +2,7 @@ import { Component, NO_ERRORS_SCHEMA } from '@angular/core';
 import { NgIf } from '@angular/common';
 import { FretboardStateService } from '../services/guitar-neck.service';
 import { PatternBuilderService } from '../services/pattern-builder.service';
+import { MusicSelection } from '../shared/model/music-selection';
 import { Command, DisplayAllNotesCommand, DisplayScaleCommand, DisplaySingleNoteCommand, DisplayChordCommand, DisplayCustomPatternCommand } from '../shared/UICommands';
 import { ToolboxSearchQuery } from 'guitar-toolbox-lib';
 import { FretboardOrchestrationService } from '../services/music-theory-facade.service';
@@ -63,6 +64,11 @@ export class HomePageComponent {
   }
 
   private buildCustomPatternCommand(intervals: number[], root: string): Command {
+    this.guitarNeckService.currentSelection = {
+      type: 'custom',
+      rootNote: root,
+      intervals,
+    };
     return new DisplayCustomPatternCommand(
       this.fretboardOrchestrationService,
       intervals,
@@ -71,10 +77,18 @@ export class HomePageComponent {
   }
 
   private buildAllNotesCommand(): Command {
+    this.guitarNeckService.currentSelection = {
+      type: 'all-notes',
+    };
     return new DisplayAllNotesCommand(this.fretboardOrchestrationService);
   }
 
   private buildSingleNoteCommand(root: string): Command {
+    this.guitarNeckService.currentSelection = {
+      type: 'note',
+      rootNote: root,
+      notes: [root],
+    };
     return new DisplaySingleNoteCommand(this.fretboardOrchestrationService, root);
   }
 
