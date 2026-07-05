@@ -159,7 +159,7 @@ Refactor `toolboxSubmit()` into a command factory (or private builder methods) t
 
 ## Status
 
-OPEN
+FIXED
 
 ---
 
@@ -275,7 +275,7 @@ Search the codebase for any remaining references to `GuitarNote.id`, `GuitarNote
 
 ## Status
 
-OPEN
+FIXED
 
 ---
 
@@ -332,7 +332,7 @@ Move all direct service calls from templates into component methods or computed 
 
 ## Status
 
-OPEN
+FIXED
 
 ---
 
@@ -399,7 +399,7 @@ This abstraction would be used by `FretboardStateService`, `IntervalService`, an
 
 ## Status
 
-OPEN
+FIXED
 
 ---
 
