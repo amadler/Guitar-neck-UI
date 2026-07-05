@@ -9,8 +9,14 @@ a projekt stosuje [Semantic Versioning](https://semver.org/).
 
 ## [0.7.0] — 2025-07-05
 
+### Added
+- `MusicSelection` domain abstraction — unified model for scale/chord/note/custom selection state ([`src/app/shared/model/music-selection.ts`](src/app/shared/model/music-selection.ts))
+
 ### Fixed
 - `FretboardStateService.applyHighlightedNotes()` — replaced O(n) `Array.filter()` note lookup with O(1) `Map<string, GuitarNote>` lookup for ~150× performance improvement on hot paths ([`src/app/services/guitar-neck.service.ts`](src/app/services/guitar-neck.service.ts:25))
+- `toolboxSubmit()` w `HomePageComponent` — refaktoryzacja na prywatne metody budujące (`buildSingleNoteCommand()`, `buildScaleCommand()`, `buildChordCommand()`, `buildCustomPatternCommand()`) ([`src/app/home-page/home-page.component.ts`](src/app/home-page/home-page.component.ts:31))
+- Pattern name Unicode w backendzie (`music-theory-api`) — dekodowanie `:name` parametru URL przy użyciu `decodeURIComponent()` ([`API_DOCUMENTATION.md`](API_DOCUMENTATION.md))
+- `guitar-toolbox-lib` version bump do `^1.2.1` ([`package.json`](package.json))
 
 ### Performance
 - Added `notesMap` in `FretboardStateService` — O(1) note lookup keyed by `"${string}-${fret}"`, rebuilt once in constructor via `buildNotesMap()`
@@ -36,6 +42,9 @@ a projekt stosuje [Semantic Versioning](https://semver.org/).
 ### Fixed
 - `ToolboxSearchQuery` typing — usunięto zbędne `CustomToolboxSearchQuery` i `isCustomToolboxSearchQuery()`
 - `refreshNotesInRange()` dead code — usunięta z `freatboard.component.ts`
+- Fret numbering starts at 0 — zmiana w template na `fret + 1` dla zgodności z tradycyjnym oznaczeniem progów
+- Remove unused uuid from `GuitarNote` — usunięcie zbędnych referencji w dokumentacji i testach
+- Template bezpośrednio wywołuje serwisy — przeniesienie logiki z szablonów do metod komponentów
 - Przywrócono etykiety strun (open-string names) nad gryfem
 
 ---
@@ -142,6 +151,7 @@ Poniższe funkcjonalności zostały zidentyfikowane w kodzie, ale nie są aktywn
 |---------------|--------|-----------|
 | **AI Chat (Gemini)** — biblioteka `projects/guitar-chat` z `ChatComponent`, `AISuggestionsComponent`, `AIFacadeService`, `AIService`, `AISuggestionService` | POSTPONED | Wymaga klucza API Gemini i włączenia flagi `chatEnabled: true` |
 | **Note readability na gryfie** — poprawa czytelności nazw nut | POSTPONED | Wymaga redesignu wizualnego znaczników |
+| **UI Color Palette Refresh** — odświeżenie palety kolorów interwałowych | POSTPONED | Wymaga redesignu z WCAG AA i wsparciem dla daltonistów |
 
 ---
 
@@ -149,14 +159,8 @@ Poniższe funkcjonalności zostały zidentyfikowane w kodzie, ale nie są aktywn
 
 Pełny backlog znajduje się w [`BACKLOG.md`](BACKLOG.md). Otwarte zadania:
 
-- Refactor `toolboxSubmit()` w `HomePageComponent` na command factory lub prywatne metody budujące
-- Pattern name Unicode w backendzie (`music-theory-api`) — `:name` param nie dekodowany
-- Fret numbering starts at 0 — zmiana w template na `fret + 1`
-- Usunięcie nieużywanego `uuid` z modelu `GuitarNote`
-- `FretboardStateService` O(n) → O(1) — zastąpienie `Array.find` mapą
-- Template bezpośrednio wywołuje serwisy — przeniesienie logiki do komponentu
-- UI Color Palette Refresh — odświeżenie palety kolorów interwałowych
-- MusicSelection domain abstraction — abstrakcja dla wyboru elementów muzycznych
+- Localization (pl/en) for practice prompts — internacjonalizacja podpowiedzi ćwiczeń
+- Metronome — visual beat indicator improvement — ulepszenie wizualnego wskaźnika uderzeń
 
 ---
 
