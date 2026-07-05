@@ -46,29 +46,45 @@ export class HomePageComponent {
 
     const { musicElements, keys, type } = event;
 
-    let command: Command;
+    let command: Command | null = null;
     if (type === 'custom' && Array.isArray(musicElements)) {
-      command = new DisplayCustomPatternCommand(
-        this.fretboardOrchestrationService,
-        musicElements,
-        keys
-      );
+      command = this.buildCustomPatternCommand(musicElements, keys);
     } else if (type === 'basic' && musicElements === 'All notes') {
-      command = new DisplayAllNotesCommand(this.fretboardOrchestrationService);
-      this.patternBuilder.clearCurrentPattern();
+      command = this.buildAllNotesCommand();
     } else if (type === 'basic') {
-      command = new DisplaySingleNoteCommand(this.fretboardOrchestrationService, keys);
-      this.patternBuilder.clearCurrentPattern();
+      command = this.buildSingleNoteCommand(keys);
     } else if (type === 'chord' && typeof musicElements === 'string') {
-      command = new DisplayChordCommand(this.fretboardOrchestrationService, musicElements, keys);
-      this.patternBuilder.setCurrentPattern(musicElements, keys, 'chord');
+      command = this.buildChordCommand(musicElements, keys);
     } else if (type === 'scale' && typeof musicElements === 'string') {
-      command = new DisplayScaleCommand(this.fretboardOrchestrationService, musicElements, keys);
-      this.patternBuilder.setCurrentPattern(musicElements, keys, 'scale');
-    } else {
-      return;
+      command = this.buildScaleCommand(musicElements, keys);
     }
 
-    command.execute();
+    command?.execute();
+  }
+
+  private buildCustomPatternCommand(intervals: number[], root: string): Command {
+    return new DisplayCustomPatternCommand(
+      this.fretboardOrchestrationService,
+      intervals,
+      root
+    );
+  }
+
+  private buildAllNotesCommand(): Command {
+    return new DisplayAllNotesCommand(this.fretboardOrchestrationService);
+  }
+
+  private buildSingleNoteCommand(root: string): Command {
+    return new DisplaySingleNoteCommand(this.fretboardOrchestrationService, root);
+  }
+
+  private buildChordCommand(name: string, root: string): Command {
+    this.patternBuilder.setCurrentPattern(name, root, 'chord');
+    return new DisplayChordCommand(this.fretboardOrchestrationService, name, root);
+  }
+
+  private buildScaleCommand(name: string, root: string): Command {
+    this.patternBuilder.setCurrentPattern(name, root, 'scale');
+    return new DisplayScaleCommand(this.fretboardOrchestrationService, name, root);
   }
 }
