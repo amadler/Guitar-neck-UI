@@ -44,6 +44,26 @@ describe('GuitarNeckService', () => {
     expect(service.notes).toEqual(mockNotes);
   });
 
+  it('should build notesMap from constructor for O(1) lookup', () => {
+    const note = (service as any).notesMap.get('1-0');
+    expect(note).toBeDefined();
+    expect(note.note).toBe('E');
+    expect(note.string).toBe(1);
+    expect(note.fret).toBe(0);
+
+    const note2 = (service as any).notesMap.get('2-0');
+    expect(note2).toBeDefined();
+    expect(note2.note).toBe('A');
+    expect(note2.string).toBe(2);
+    expect(note2.fret).toBe(0);
+
+    const note3 = (service as any).notesMap.get('1-5');
+    expect(note3).toBeDefined();
+    expect(note3.note).toBe('A');
+    expect(note3.string).toBe(1);
+    expect(note3.fret).toBe(5);
+  });
+
   describe('markerDisplayMode', () => {
     it('should default to interval-colors', () => {
       expect(service.markerDisplayMode).toBe('interval-colors');

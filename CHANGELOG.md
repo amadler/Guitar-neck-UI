@@ -7,6 +7,16 @@ a projekt stosuje [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.7.0] — 2025-07-05
+
+### Fixed
+- `FretboardStateService.applyHighlightedNotes()` — replaced O(n) `Array.filter()` note lookup with O(1) `Map<string, GuitarNote>` lookup for ~150× performance improvement on hot paths ([`src/app/services/guitar-neck.service.ts`](src/app/services/guitar-neck.service.ts:25))
+
+### Performance
+- Added `notesMap` in `FretboardStateService` — O(1) note lookup keyed by `"${string}-${fret}"`, rebuilt once in constructor via `buildNotesMap()`
+
+---
+
 ## [0.6.0] — 2025-04-15 (ostatnia wersja)
 
 ### Added

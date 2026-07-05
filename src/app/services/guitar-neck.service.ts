@@ -15,29 +15,39 @@ export class FretboardStateService {
   markerDisplayMode: MarkerDisplayMode = 'interval-colors';
   /** Whether there is an active result (notes highlighted/show all) on the fretboard. */
   hasActiveResult = false;
+  /** O(1) lookup map keyed by "${string}-${fret}". Rebuilt when notes are initialized. */
+  private notesMap: Map<string, GuitarNote> = new Map();
+
   constructor(
     private noteService: FretboardNotePositionService,
   ) {
     this.notes = this.noteService.getAllPositions();
     this.activeStrings = neckConfig.stringNotes.map(() => true);
+    this.buildNotesMap();
+  }
+
+  /** Populate the O(1) lookup map from the current notes array. */
+  private buildNotesMap(): void {
+    this.notesMap.clear();
+    this.notes.forEach(note => {
+      const key = `${note.string}-${note.fret}`;
+      this.notesMap.set(key, note);
+    });
   }
 
   applyHighlightedNotes(notes: GuitarNote[]): GuitarNote[] {
     this.notes.forEach(note => {
-        note.visible = false;
-        note.selected = false;
+      note.visible = false;
+      note.selected = false;
     });
 
     notes.forEach(noteToShow => {
-        const matchingNotes = this.notes.filter(n =>
-            n.note === noteToShow.note &&
-            n.string === noteToShow.string
-        );
-
-        matchingNotes.forEach(note => {
-            note.visible = true;
-            note.selected = true;
-        });
+      const key = `${noteToShow.string}-${noteToShow.fret}`;
+      const note = this.notesMap.get(key);
+      if (note) {
+        note.visible = true;
+        note.selected = true;
+      }
     });
 
     this.hasActiveResult = notes.length > 0;

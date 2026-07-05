@@ -304,7 +304,7 @@ Replace the array-based lookup with a `Map<string, GuitarNote>` keyed by `"${str
 
 ## Status
 
-OPEN
+FIXED
 
 ---
 
