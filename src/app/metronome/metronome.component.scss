@@ -1,21 +1,26 @@
-// ──────────────────────────────────────────────
-// Style constants (used in various properties)
-// ──────────────────────────────────────────────
-$beat-circle-size: 80px;
-$beat-dot-size: 8px;
-$beat-dot-accent-size: 10px;
-$tempo-input-width: 60px;
-$transition-fast: 80ms ease;
-$transition-normal: 120ms ease;
+$beat-circle-size: 40px;
+$beat-dot-size: 5px;
+$beat-dot-accent-size: 7px;
 
-.metronome-card{
-  padding: 20px;
+.metronome-card {
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
 }
-/* Beat indicator */
+
+.metronome__title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--app-text);
+}
+
+// ─── Beat indicator ────────────────────────────
+
 .beat-indicator {
   display: flex;
   justify-content: center;
-  align-items: center;
 }
 
 .beat-circle {
@@ -26,12 +31,12 @@ $transition-normal: 120ms ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform $transition-fast, background $transition-fast, box-shadow $transition-fast;
+  transition: transform 80ms ease, background 80ms ease;
 }
 
 .beat-circle.accent {
   background: var(--green-700);
-  box-shadow: 0 0 20px rgba(8, 99, 30, 0.4);
+  box-shadow: 0 0 8px rgba(8, 99, 30, 0.25);
 }
 
 .beat-circle.pulse {
@@ -39,17 +44,17 @@ $transition-normal: 120ms ease;
 }
 
 .beat-number {
-  color: #ffffff;
-  font-size: 28px;
-  font-weight: 800;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
 }
 
-/* Beat dots */
+// ─── Beat dots ─────────────────────────────────
+
 .beat-dots {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   justify-content: center;
-  margin-top: 5px;
 }
 
 .beat-dot {
@@ -57,12 +62,12 @@ $transition-normal: 120ms ease;
   height: $beat-dot-size;
   border-radius: 50%;
   background: var(--bg-dark-lighter, #444);
-  transition: background $transition-fast, transform $transition-fast;
+  transition: background 80ms ease, transform 80ms ease;
 }
 
 .beat-dot.active {
   background: var(--green-700);
-  transform: scale(1.4);
+  transform: scale(1.2);
 }
 
 .beat-dot.accent {
@@ -72,23 +77,23 @@ $transition-normal: 120ms ease;
 
 .beat-dot.active.accent {
   background: var(--green-700);
-  transform: scale(1.6);
+  transform: scale(1.3);
 }
 
-/* Tempo section */
+// ─── Tempo section ─────────────────────────────
+
 .tempo-section {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .tempo-label {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
-  color: var(--app-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  color: var(--app-text);
+  margin: 0;
 }
 
 .tempo-controls {
@@ -99,8 +104,8 @@ $transition-normal: 120ms ease;
 
 .tempo-slider {
   flex: 1;
-  -webkit-appearance: none;
   appearance: none;
+  -webkit-appearance: none;
   height: 6px;
   background: var(--app-border);
   border-radius: 3px;
@@ -109,39 +114,40 @@ $transition-normal: 120ms ease;
 }
 
 .tempo-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
   appearance: none;
-  width: 18px;
-  height: 18px;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   background: var(--green-700);
   cursor: pointer;
-  border: 2px solid #ffffff;
+  border: 2px solid #fff;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
 .tempo-slider::-moz-range-thumb {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   background: var(--green-700);
   cursor: pointer;
-  border: 2px solid #ffffff;
+  border: 2px solid #fff;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
 .tempo-input {
-  width: $tempo-input-width;
-  padding: 6px 8px;
+  width: 60px;
+  height: 40px;
+  padding: 0 8px;
   text-align: center;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   background: var(--app-surface);
   border: 1px solid var(--app-border);
   border-radius: var(--radius-sm);
   color: var(--app-text);
   outline: none;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: inherit;
 }
 
 .tempo-input:focus {
@@ -160,45 +166,45 @@ $transition-normal: 120ms ease;
 }
 
 .bpm-unit {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--app-muted);
 }
 
-/* Time signature section */
+// ─── Time signature ────────────────────────────
+
 .time-sig-section {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .time-sig-label {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
-  color: var(--app-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  color: var(--app-text);
+  margin: 0;
 }
 
 .time-sig-buttons {
   display: flex;
   gap: 6px;
-  margin-bottom: 5px;
 }
 
 .time-sig-btn {
   flex: 1;
-  padding: 8px 12px;
+  height: 40px;
+  padding: 0;
   border: 1px solid var(--app-border);
-  border-radius: 20px;
+  border-radius: var(--radius-sm);
   background: var(--app-surface);
   color: var(--app-text);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: background $transition-normal, color $transition-normal, border-color $transition-normal;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  transition: background 120ms ease, border-color 120ms ease;
+  font-family: inherit;
 }
 
 .time-sig-btn:hover {
@@ -208,78 +214,77 @@ $transition-normal: 120ms ease;
 
 .time-sig-btn.active {
   border-color: var(--green-700);
+  background: var(--green-100);
+  color: var(--green-800);
 }
 
-/* Controls section */
+// ─── Controls ──────────────────────────────────
+
 .controls-section {
   width: 100%;
   display: flex;
   gap: 10px;
-  justify-content: center;
 }
 
-.start-stop-btn {
-  padding: 12px 24px;
-  min-width: 100px;
+.btn-start {
+  flex: 1;
+  height: 40px;
+  padding: 0 20px;
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   background: var(--green-700);
-  color: #ffffff;
-  font-size: 16px;
+  color: #fff;
+  font-size: 14px;
   font-weight: 700;
   cursor: pointer;
-  transition: background $transition-normal, transform $transition-fast;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  transition: background 120ms ease, transform 80ms ease;
+  font-family: inherit;
 }
 
-.start-stop-btn:hover {
-  transform: translateY(-1px);
+.btn-start:hover {
+  background: var(--green-800);
 }
 
-.start-stop-btn:active {
-  transform: translateY(0);
+.btn-start:active {
+  transform: translateY(1px);
 }
 
-.start-stop-btn.running {
+.btn-start.running {
   background: var(--app-muted);
 }
 
-.tap-btn {
-  padding: 12px 20px;
-  border: 1px solid var(--app-border);
-  border-radius: var(--radius-md);
-  background: var(--app-surface-soft);
-  color: var(--app-text);
+.btn-tap {
+  flex: 1;
+  height: 40px;
+  padding: 0 20px;
+  border: 1px solid var(--green-700);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--green-700);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: background $transition-normal, transform $transition-fast;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  transition: background 120ms ease, transform 80ms ease;
+  font-family: inherit;
 }
 
-.tap-btn:hover:not(:disabled) {
-  background: var(--app-border);
-  transform: translateY(-1px);
+.btn-tap:hover:not(:disabled) {
+  background: var(--green-100);
 }
 
-.tap-btn:active:not(:disabled) {
-  transform: translateY(0);
+.btn-tap:active:not(:disabled) {
+  transform: translateY(1px);
 }
 
-.tap-btn:disabled {
+.btn-tap:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-/* Pulse animation */
+// ─── Pulse animation ───────────────────────────
+
 @keyframes pulse {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.15);
-  }
-  100% {
-    transform: scale(1);
-  }
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
 }

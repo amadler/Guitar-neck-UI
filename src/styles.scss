@@ -96,7 +96,7 @@
   --toolbox-gap: 18px;
   --toolbox-accent: var(--green-800);
   --toolbox-accent-text: #ffffff;
-  --toolbox-accent-bg: transparent;
+  --toolbox-accent-bg: var(--green-100);
   --toolbox-muted: var(--app-muted);
 }
 
@@ -549,6 +549,65 @@ lib-toolbox-form {
   border-right: 1px solid var(--app-border);
   overflow: auto;
   min-height: 100%;
+}
+
+/* ==========================================================================
+   Bottom panels — shared visual system
+
+   Both toolbox and metronome panels share the same card style,
+   control heights, border-radius, and typography.
+   ========================================================================== */
+
+/* Card consistency */
+lib-toolbox-form,
+app-metronome .metronome-card {
+  border-radius: var(--radius-lg);
+}
+
+/* Control height unification */
+.toolbox__select,
+.toolbox__submit,
+app-metronome .tempo-input,
+app-metronome .btn-start,
+app-metronome .btn-tap,
+app-metronome .time-sig-btn {
+  height: 40px;
+  border-radius: var(--radius-sm);
+  box-sizing: border-box;
+}
+
+/* Focus ring unification */
+.toolbox__select:focus,
+.toolbox__input:focus,
+app-metronome .tempo-input:focus {
+  outline: none;
+  border-color: var(--green-700);
+  box-shadow: 0 0 0 2px rgba(8, 99, 30, 0.15);
+}
+
+/* Hover states for non-primary buttons */
+.toolbox__mode-btn:hover,
+app-metronome .time-sig-btn:hover,
+app-metronome .btn-tap:hover:not(:disabled) {
+  background: var(--green-100);
+}
+
+/* Active state using border + subtle background */
+.toolbox__mode-btn--active,
+app-metronome .time-sig-btn.active {
+  border-color: var(--green-700);
+  background: var(--green-100);
+  color: var(--green-800);
+}
+
+/* Section spacing inside panels */
+.toolbox__form,
+.toolbox__custom-form {
+  margin-bottom: 0;
+}
+
+app-metronome .metronome-card > * + * {
+  margin-top: 0;
 }
 
 /* ==========================================================================

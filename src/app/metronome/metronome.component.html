@@ -1,4 +1,6 @@
 <div class="metronome-card">
+  <h2 class="metronome__title">Metronome</h2>
+
   <!-- Beat indicator -->
   <div class="beat-indicator">
     <div class="beat-circle"
@@ -52,12 +54,12 @@
 
   <!-- Controls -->
   <div class="controls-section">
-    <button class="start-stop-btn"
+    <button class="btn-start"
             [class.running]="isRunning"
             (click)="isRunning ? stop() : start()">
       {{ isRunning ? 'Stop' : 'Start' }}
     </button>
-    <button class="tap-btn"
+    <button class="btn-tap"
             (click)="tapTempo()"
             [disabled]="isRunning">Tap Tempo</button>
   </div>
