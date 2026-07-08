@@ -78,7 +78,7 @@ Guitar Neck UI to interaktywne narzędzie edukacyjne zaprojektowane, aby pomóc 
 ## Ograniczenia Techniczne
 - Wymagany backend `music-theory-api` (Docker) do obliczania nut skal i akordów
 - AI Chat (Gemini) — **wstrzymany**, wymaga klucza API i włączenia flagi `chatEnabled`
-- Backend nie dekoduje Unicode w nazwach patternów (♭/♯) — zgłoszono do fixa
+- Backend nie dekoduje Unicode w nazwach patternów (♭/♯) — **FIXED** (naprawione w music-theory-api v0.1.0)
 
 ## Wsparcie
 - Dokumentacja użytkownika dostępna w aplikacji

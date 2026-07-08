@@ -1,6 +1,16 @@
 # GuitarNeckUI
 
-Interaktywna wizualizacja gryfu gitary z toolboxem skal/akordów i asystentem AI.
+
+## Angular application for visualizing notes, intervals, scales and chords on a guitar fretboard.
+
+The project is part of a larger Guitar Neck ecosystem and uses:
+- music-theory-api for music theory data,
+- guitar-toolbox-lib for reusable guitar UI logic,
+- shared models for scales, chords and fretboard configuration.
+
+Current product focus:
+visualizing relationships between scales and chords on the fretboard.
+
 
 ## Stack
 

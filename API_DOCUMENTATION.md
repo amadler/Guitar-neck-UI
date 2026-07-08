@@ -391,7 +391,7 @@ Legenda kolorów interwałowych.
 ```typescript
 /**
  * @selector app-legend
- * @file src/app/freatboard/components/legend/legend.component.ts
+ * @file src/app/legend/legend.component.ts
  */
 class LegendComponent {}
 ```
@@ -405,7 +405,7 @@ Formularz wyboru skali/akordu. Dostarczany przez `guitar-toolbox-lib`.
  * @package guitar-toolbox-lib
  */
 class ToolboxFormComponent {
-  @Output() onSubmit$: EventEmitter<ToolboxSearchQuery>;
+  @Output() onSubmit: EventEmitter<ToolboxSearchQuery>;
   keys: string[];  // neckConfig.chromaticNotes
   patterns: { scale: string[], chord: string[], basic: string[] };
 
@@ -435,7 +435,7 @@ class GuitarNote {
 }
 
 /**
- * @file src/app/shared/model/musicElements.ts
+ * @file src/app/shared/model/music-selection.ts
  */
 interface ToolboxSearchQuery {
   musicElements: string | number[];
@@ -540,7 +540,7 @@ Osobne repozytorium, uruchamiane przez Docker na porcie 3000.
 | GET | `/api/scales/:name/:root` | Nuty skali |
 | GET | `/api/chords` | Lista dostępnych akordów |
 | GET | `/api/chords/:name/:root` | Nuty akordu |
-| GET | `/api/findCompatibleScales/:name/:root` | Kompatybilne skale |
+| GET | `/api/find-compatible-scales/:name/:root` | Kompatybilne skale |
 
 Wszystkie parametry `:name` i `:root` powinny być URL-encoded (przez `encodeURIComponent`) i dekodowane przez backend (przez `decodeURIComponent`).
 

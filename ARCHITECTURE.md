@@ -126,7 +126,7 @@ Osobne repozytorium, Docker na porcie 3000, framework Elysia.
 | GET | `/api/scales/:name/:root` | Nuty skali |
 | GET | `/api/chords` | Lista akordów |
 | GET | `/api/chords/:name/:root` | Nuty akordu |
-| GET | `/api/findCompatibleScales/:name/:root` | Kompatybilne skale |
+| GET | `/api/find-compatible-scales/:name/:root` | Kompatybilne skale |
 
 Uwaga: parametry `:name` i `:root` wymagają `decodeURIComponent()`.
 
