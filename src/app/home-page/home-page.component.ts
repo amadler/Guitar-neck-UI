@@ -17,6 +17,7 @@ import { LegendComponent } from '../legend/legend.component';
 import { PatternDisplayComponent } from '../pattern-display/pattern-display.component';
 import { MetronomeComponent } from '../metronome/metronome.component';
 import { ModeSelectorComponent } from '../mode-selector/mode-selector.component';
+import { RelationshipStripComponent } from '../relationship-strip/relationship-strip.component';
 import { ChordDegreeSelectorComponent, ChordDegreeSelection } from '../chord-degree-selector/chord-degree-selector.component';
 import { ScaleChordFormComponent, ScaleChordRelation } from '../scale-chord-form/scale-chord-form.component';
 
@@ -35,6 +36,7 @@ import { ScaleChordFormComponent, ScaleChordRelation } from '../scale-chord-form
     PatternDisplayComponent,
     MetronomeComponent,
     ModeSelectorComponent,
+    RelationshipStripComponent,
     ChordDegreeSelectorComponent,
     ScaleChordFormComponent,
   ],
