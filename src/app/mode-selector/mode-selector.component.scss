@@ -1,0 +1,67 @@
+.mode-selector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem;
+  gap: 1.5rem;
+}
+
+.mode-selector__title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--app-text-primary, #e0e0e0);
+  margin: 0;
+  text-align: center;
+}
+
+.mode-selector__cards {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.mode-selector__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.5rem 2rem;
+  min-width: 200px;
+  max-width: 260px;
+  background: var(--app-surface, #1e1e1e);
+  border: 1px solid var(--app-border-strong, #444);
+  border-radius: var(--radius-lg, 12px);
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+  color: var(--app-text-primary, #e0e0e0);
+  font-family: inherit;
+  text-align: center;
+  line-height: 1.4;
+
+  &:hover {
+    border-color: var(--app-accent, #7c4dff);
+    box-shadow: 0 0 0 2px rgba(124, 77, 255, 0.2);
+    transform: translateY(-2px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--app-accent, #7c4dff);
+    outline-offset: 2px;
+  }
+}
+
+.mode-selector__card-icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.mode-selector__card-label {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.mode-selector__card-desc {
+  font-size: 0.85rem;
+  color: var(--app-text-secondary, #a0a0a0);
+}

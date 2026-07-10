@@ -1,5 +1,7 @@
 import { Component, NO_ERRORS_SCHEMA } from '@angular/core';
-import { NgIf } from '@angular/common';
+import { NgIf, AsyncPipe } from '@angular/common';
+import { Observable } from 'rxjs';
+import { AppStateService, AppMode } from '../app-state.service';
 import { FretboardStateService } from '../services/guitar-neck.service';
 import { PatternBuilderService } from '../services/pattern-builder.service';
 import { MusicSelection } from '../shared/model/music-selection';
@@ -14,6 +16,7 @@ import { FooterComponent } from '../footer/footer.component';
 import { LegendComponent } from '../legend/legend.component';
 import { PatternDisplayComponent } from '../pattern-display/pattern-display.component';
 import { MetronomeComponent } from '../metronome/metronome.component';
+import { ModeSelectorComponent } from '../mode-selector/mode-selector.component';
 import { ChordDegreeSelectorComponent, ChordDegreeSelection } from '../chord-degree-selector/chord-degree-selector.component';
 
 @Component({
@@ -22,6 +25,7 @@ import { ChordDegreeSelectorComponent, ChordDegreeSelection } from '../chord-deg
   schemas: [NO_ERRORS_SCHEMA],
   imports: [
     NgIf,
+    AsyncPipe,
     ToolboxFormComponent,
     GuitarNeckComponent,
     HeaderComponent,
@@ -29,6 +33,7 @@ import { ChordDegreeSelectorComponent, ChordDegreeSelection } from '../chord-deg
     LegendComponent,
     PatternDisplayComponent,
     MetronomeComponent,
+    ModeSelectorComponent,
     ChordDegreeSelectorComponent,
   ],
   templateUrl: './home-page.component.html',
@@ -37,13 +42,24 @@ import { ChordDegreeSelectorComponent, ChordDegreeSelection } from '../chord-deg
 export class HomePageComponent {
   chatEnabled = environment.features.chatEnabled;
 
+  /** Reactive app mode from AppStateService. */
+  appMode$: Observable<AppMode>;
+
   constructor(
+    private appState: AppStateService,
     private guitarNeckService: FretboardStateService,
     private fretboardOrchestrationService: FretboardOrchestrationService,
     private patternBuilder: PatternBuilderService,
-  ) { }
+  ) {
+    this.appMode$ = this.appState.appMode$;
+  }
 
   toolboxSubmit(event: ToolboxSearchQuery): void {
+    // Toolbox only works in idle mode
+    if (this.appState.appMode !== 'idle') {
+      return;
+    }
+
     this.guitarNeckService.clearFretboard();
     this.patternBuilder.clearCurrentPattern();
 

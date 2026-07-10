@@ -4,14 +4,25 @@
   <div id="guitar-neck-container">
     <app-guitar-neck></app-guitar-neck>
   </div>
-  <!-- <%- include('partials/range-toolbar.html') %>
-      <%- include('partials/fretboard.html') %>
-      <%- include('partials/legend.html') %> -->
-  <app-legend></app-legend>
-  <app-pattern-display></app-pattern-display>
+
+  <!-- Mode Selector — shown only on first visit (idle) -->
+  <app-mode-selector *ngIf="(appMode$ | async) === 'idle'"></app-mode-selector>
+
+  <!-- Legend — shown only in scale mode -->
+  <app-legend *ngIf="(appMode$ | async) === 'scale'"></app-legend>
+
+  <!-- Relationship Strip — shown only in scale-chord mode (placeholder for Phase 2) -->
+  <!-- <app-relationship-strip *ngIf="(appMode$ | async) === 'scale-chord'"></app-relationship-strip> -->
+
+  <!-- Pattern Display — hidden in idle, shown when something is active -->
+  <app-pattern-display *ngIf="(appMode$ | async) !== 'idle'"></app-pattern-display>
+
   <section class="dock">
-    <app-chord-degree-selector (chordDegreeSelected)="onChordDegreeSelected($event)"></app-chord-degree-selector>
-    <div class="dock__body">
+    <!-- Chord Degree Selector — kept in code, hidden in new layout -->
+    <!-- <app-chord-degree-selector (chordDegreeSelected)="onChordDegreeSelected($event)"></app-chord-degree-selector> -->
+
+    <!-- Dock body — toolbox is visible AFTER mode selection -->
+    <div class="dock__body" *ngIf="(appMode$ | async) !== 'idle'">
       <section id="toolbox-container">
         <lib-toolbox-form (onSubmit)="toolboxSubmit($event)"></lib-toolbox-form>
       </section>
@@ -22,8 +33,13 @@
       <ng-template #chatDisabled>
         <app-metronome></app-metronome>
       </ng-template>
-      <!-- <%- include('partials/dock-practice.html') %> -->
     </div>
+
+    <!-- Scale Form — shown in scale mode (Phase 2) -->
+    <!-- <app-scale-form *ngIf="(appMode$ | async) === 'scale'"></app-scale-form> -->
+
+    <!-- Scale + Chord Form — shown in scale-chord mode (Phase 2) -->
+    <!-- <app-scale-chord-form *ngIf="(appMode$ | async) === 'scale-chord'"></app-scale-chord-form> -->
   </section>
 
   <app-footer></app-footer>
