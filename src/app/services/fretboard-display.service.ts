@@ -7,7 +7,7 @@ import { MarkerRoleService, MarkerRole } from './marker-role.service';
  * Used as `guitar-neck__role-${suffix}`.
  */
 const ROLE_CSS: Record<MarkerRole, string> = {
-  'scale-tone':               '',
+  'scale-tone':               'scale-tone',
   'chord-tone':               'chord-tone',
   'scale-root':               'scale-root',
   'chord-root':               'chord-root',

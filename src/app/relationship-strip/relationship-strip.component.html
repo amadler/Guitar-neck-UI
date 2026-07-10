@@ -1,0 +1,24 @@
+<div class="rel-strip" *ngIf="hasRelation">
+  <div class="rel-strip__header">
+    Relationship: {{ scaleRoot }} {{ scaleName }} + {{ chordRoot }} {{ chordName }}
+  </div>
+
+  <div class="rel-strip__legend">
+    <span
+      *ngFor="let item of legendItems"
+      class="rel-legend__item"
+    >
+      <span class="rel-legend__dot {{ item.cssClass }}"></span>
+      {{ item.label }}
+    </span>
+  </div>
+
+  <div class="rel-strip__info">
+    <span class="rel-strip__info-item">
+      Chord tones in scale: <strong>{{ chordTonesInScale.length > 0 ? chordTonesInScale.join(', ') : '(none)' }}</strong>
+    </span>
+    <span class="rel-strip__info-item rel-strip__info-item--outside">
+      Outside: <strong>{{ chordTonesOutsideScale.length > 0 ? chordTonesOutsideScale.join(', ') : '(none)' }}</strong>
+    </span>
+  </div>
+</div>

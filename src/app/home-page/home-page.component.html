@@ -11,8 +11,8 @@
   <!-- Legend — shown only in scale mode -->
   <app-legend *ngIf="(appMode$ | async) === 'scale'"></app-legend>
 
-  <!-- Relationship Strip — shown only in scale-chord mode (Phase 2) -->
-  <!-- <app-relationship-strip *ngIf="(appMode$ | async) === 'scale-chord'"></app-relationship-strip> -->
+  <!-- Relationship Strip — shown only in scale-chord mode -->
+  <app-relationship-strip *ngIf="(appMode$ | async) === 'scale-chord'"></app-relationship-strip>
 
   <!-- Pattern Display — hidden in idle, shown when something is active -->
   <app-pattern-display *ngIf="(appMode$ | async) !== 'idle'"></app-pattern-display>
