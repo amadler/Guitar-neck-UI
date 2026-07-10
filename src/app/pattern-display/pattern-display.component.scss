@@ -81,3 +81,73 @@
   line-height: 1.6;
   color: var(--app-text);
 }
+
+/* ---- Scale + Chord split layout (60/40) ---- */
+
+.pattern-split {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 1rem;
+  border: 1px solid var(--app-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--app-surface);
+  padding: 12px 18px;
+  box-shadow: var(--shadow-soft);
+}
+
+.pattern-split__cards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.pattern-card {
+  border: 1px solid var(--app-border-light, #333);
+  border-radius: var(--radius-sm, 6px);
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.pattern-card__header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.pattern-card__title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--green-800);
+}
+
+.pattern-card__body {
+  margin-bottom: 0.25rem;
+}
+
+.pattern-card__notes {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.pattern-card__change-btn {
+  background: none;
+  border: none;
+  color: var(--app-accent, #7c4dff);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-family: inherit;
+  padding: 0;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.pattern-split__prompts {
+  border-left: 1px solid var(--app-border-light, #333);
+  padding-left: 1rem;
+}

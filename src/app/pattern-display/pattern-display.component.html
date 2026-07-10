@@ -1,53 +1,97 @@
-<div class="pattern-panel" *ngIf="currentPattern as p">
-  <div class="pattern-panel__title">
-    {{ p.rootNote }} {{ p.name }}
-    <span class="pattern-panel__title-badge">scale</span>
-  </div>
-  <div class="pattern-panel__grid">
-    <span class="pattern-panel__label pattern-panel__label--notes">Dźwięki</span>
-    <span class="pattern-panel__value-row pattern-panel__row--notes">
-      <span *ngFor="let note of p.notes" class="pattern-panel__value">{{ note }}</span>
-    </span>
-
-    <span class="pattern-panel__label pattern-panel__label--intervals">Interwały</span>
-    <span class="pattern-panel__value-row pattern-panel__row--intervals">
-      <span *ngFor="let interval of p.intervals" class="pattern-panel__value">{{ interval }}</span>
-    </span>
-
-    <span class="pattern-panel__label pattern-panel__label--semitones">Półtony</span>
-    <span class="pattern-panel__value-row pattern-panel__row--semitones">
-      <span *ngFor="let semi of p.semitones" class="pattern-panel__value">{{ semi }}</span>
-    </span>
-
-    <span class="pattern-panel__label pattern-panel__label--steps">Kroki</span>
-    <span class="pattern-panel__value-row pattern-panel__row--steps">
-      <span *ngFor="let step of p.steps" class="pattern-panel__value">{{ step }}</span>
-    </span>
-  </div>
-
-  <!-- Related chord section (visible when scale+chord relation is active) -->
-  <div class="pattern-panel__related" *ngIf="relatedChord as rc">
-    <div class="pattern-panel__related-title">
-      {{ rc.rootNote }} {{ rc.name }}
-      <span class="pattern-panel__title-badge pattern-panel__title-badge--chord">chord</span>
+<!-- Outer wrapper: hide when idle -->
+<ng-container *ngIf="currentPattern as p">
+  <!-- Single-pattern layout (scale-only or chord-only mode) -->
+  <div class="pattern-panel" *ngIf="!isScaleChordMode">
+    <div class="pattern-panel__title">
+      {{ p.rootNote }} {{ p.name }}
+      <span class="pattern-panel__title-badge">{{ p.type }}</span>
     </div>
     <div class="pattern-panel__grid">
       <span class="pattern-panel__label pattern-panel__label--notes">Dźwięki</span>
       <span class="pattern-panel__value-row pattern-panel__row--notes">
-        <span *ngFor="let note of rc.notes" class="pattern-panel__value">{{ note }}</span>
+        <span *ngFor="let note of p.notes" class="pattern-panel__value">{{ note }}</span>
       </span>
 
       <span class="pattern-panel__label pattern-panel__label--intervals">Interwały</span>
       <span class="pattern-panel__value-row pattern-panel__row--intervals">
-        <span *ngFor="let interval of rc.intervals" class="pattern-panel__value">{{ interval }}</span>
+        <span *ngFor="let interval of p.intervals" class="pattern-panel__value">{{ interval }}</span>
       </span>
+
+      <span class="pattern-panel__label pattern-panel__label--semitones">Półtony</span>
+      <span class="pattern-panel__value-row pattern-panel__row--semitones">
+        <span *ngFor="let semi of p.semitones" class="pattern-panel__value">{{ semi }}</span>
+      </span>
+
+      <span class="pattern-panel__label pattern-panel__label--steps">Kroki</span>
+      <span class="pattern-panel__value-row pattern-panel__row--steps">
+        <span *ngFor="let step of p.steps" class="pattern-panel__value">{{ step }}</span>
+      </span>
+    </div>
+
+    <!-- Related chord section (visible when scale+chord relation is active) -->
+    <div class="pattern-panel__related" *ngIf="relatedChord as rc">
+      <div class="pattern-panel__related-title">
+        {{ rc.rootNote }} {{ rc.name }}
+        <span class="pattern-panel__title-badge pattern-panel__title-badge--chord">chord</span>
+      </div>
+      <div class="pattern-panel__grid">
+        <span class="pattern-panel__label pattern-panel__label--notes">Dźwięki</span>
+        <span class="pattern-panel__value-row pattern-panel__row--notes">
+          <span *ngFor="let note of rc.notes" class="pattern-panel__value">{{ note }}</span>
+        </span>
+
+        <span class="pattern-panel__label pattern-panel__label--intervals">Interwały</span>
+        <span class="pattern-panel__value-row pattern-panel__row--intervals">
+          <span *ngFor="let interval of rc.intervals" class="pattern-panel__value">{{ interval }}</span>
+        </span>
+      </div>
+    </div>
+
+    <div class="pattern-panel__prompts">
+      <div class="pattern-panel__prompts-title">Pomysły na ćwiczenia</div>
+      <ul class="pattern-panel__prompts-list">
+        <li *ngFor="let prompt of getPromptsForType(p.type)" class="pattern-panel__prompt-item">{{ prompt }}</li>
+      </ul>
     </div>
   </div>
 
-  <div class="pattern-panel__prompts">
-    <div class="pattern-panel__prompts-title">Pomysły na ćwiczenia</div>
-    <ul class="pattern-panel__prompts-list">
-      <li *ngFor="let prompt of getPromptsForType(p.type)" class="pattern-panel__prompt-item">{{ prompt }}</li>
-    </ul>
+  <!-- Two-card layout (scale-chord mode) -->
+  <div class="pattern-split" *ngIf="isScaleChordMode">
+    <div class="pattern-split__cards">
+      <!-- Scale card -->
+      <div class="pattern-card pattern-card--scale">
+        <div class="pattern-card__header">
+          <span class="pattern-card__title">{{ p.rootNote }} {{ p.name }}</span>
+          <span class="pattern-panel__title-badge">scale</span>
+        </div>
+        <div class="pattern-card__body">
+          <div class="pattern-card__notes">
+            <span *ngFor="let note of p.notes" class="pattern-panel__value">{{ note }}</span>
+          </div>
+        </div>
+        <button class="pattern-card__change-btn" (click)="onChangeClick()">[change]</button>
+      </div>
+
+      <!-- Chord card -->
+      <div class="pattern-card pattern-card--chord" *ngIf="relatedChord as rc">
+        <div class="pattern-card__header">
+          <span class="pattern-card__title">{{ rc.rootNote }} {{ rc.name }}</span>
+          <span class="pattern-panel__title-badge pattern-panel__title-badge--chord">chord</span>
+        </div>
+        <div class="pattern-card__body">
+          <div class="pattern-card__notes">
+            <span *ngFor="let note of rc.notes" class="pattern-panel__value">{{ note }}</span>
+          </div>
+        </div>
+        <button class="pattern-card__change-btn" (click)="onChangeClick()">[change]</button>
+      </div>
+    </div>
+
+    <div class="pattern-split__prompts">
+      <div class="pattern-panel__prompts-title">Practice ideas</div>
+      <ul class="pattern-panel__prompts-list">
+        <li *ngFor="let prompt of getPromptsForType('scale-chord')" class="pattern-panel__prompt-item">{{ prompt }}</li>
+      </ul>
+    </div>
   </div>
-</div>
+</ng-container>

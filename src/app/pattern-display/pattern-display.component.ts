@@ -1,7 +1,8 @@
 import { NgFor, NgIf } from '@angular/common';
 import { Component } from '@angular/core';
+import { AppStateService, AppMode } from '../app-state.service';
 import { PatternBuilderService } from '../services/pattern-builder.service';
-import { PRACTICE_PROMPTS } from '../shared/practice-prompts.data';
+import { PRACTICE_PROMPTS, PromptType } from '../shared/practice-prompts.data';
 
 @Component({
   selector: 'app-pattern-display',
@@ -12,8 +13,13 @@ import { PRACTICE_PROMPTS } from '../shared/practice-prompts.data';
 })
 export class PatternDisplayComponent {
   constructor(
+    private appState: AppStateService,
     private patternBuilder: PatternBuilderService,
   ) {}
+
+  get appMode(): AppMode {
+    return this.appState.appMode;
+  }
 
   // -- Delegating properties: shield template from direct service access --
 
@@ -25,7 +31,16 @@ export class PatternDisplayComponent {
     return this.patternBuilder.relatedChord;
   }
 
-  getPromptsForType(type: 'scale' | 'chord'): string[] {
+  get isScaleChordMode(): boolean {
+    return this.appMode === 'scale-chord';
+  }
+
+  getPromptsForType(type: PromptType): string[] {
     return PRACTICE_PROMPTS[type] ?? PRACTICE_PROMPTS.chord;
+  }
+
+  /** Placeholder: does nothing in MVP. */
+  onChangeClick(): void {
+    console.log('[PatternDisplay] change clicked — placeholder, no-op in MVP');
   }
 }
