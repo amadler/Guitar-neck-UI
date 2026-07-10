@@ -1,6 +1,7 @@
 <div class="pattern-panel" *ngIf="currentPattern as p">
   <div class="pattern-panel__title">
     {{ p.rootNote }} {{ p.name }}
+    <span class="pattern-panel__title-badge">scale</span>
   </div>
   <div class="pattern-panel__grid">
     <span class="pattern-panel__label pattern-panel__label--notes">Dźwięki</span>
@@ -22,6 +23,25 @@
     <span class="pattern-panel__value-row pattern-panel__row--steps">
       <span *ngFor="let step of p.steps" class="pattern-panel__value">{{ step }}</span>
     </span>
+  </div>
+
+  <!-- Related chord section (visible when scale+chord relation is active) -->
+  <div class="pattern-panel__related" *ngIf="relatedChord as rc">
+    <div class="pattern-panel__related-title">
+      {{ rc.rootNote }} {{ rc.name }}
+      <span class="pattern-panel__title-badge pattern-panel__title-badge--chord">chord</span>
+    </div>
+    <div class="pattern-panel__grid">
+      <span class="pattern-panel__label pattern-panel__label--notes">Dźwięki</span>
+      <span class="pattern-panel__value-row pattern-panel__row--notes">
+        <span *ngFor="let note of rc.notes" class="pattern-panel__value">{{ note }}</span>
+      </span>
+
+      <span class="pattern-panel__label pattern-panel__label--intervals">Interwały</span>
+      <span class="pattern-panel__value-row pattern-panel__row--intervals">
+        <span *ngFor="let interval of rc.intervals" class="pattern-panel__value">{{ interval }}</span>
+      </span>
+    </div>
   </div>
 
   <div class="pattern-panel__prompts">

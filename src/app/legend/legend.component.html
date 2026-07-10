@@ -20,6 +20,30 @@
       {{ interval.label }}
     </span>
   </div>
+
+  <!-- Marker role legend (visible when scale+chord relation is active) -->
+  <div class="legend-roles" *ngIf="hasRelation">
+    <div class="legend-roles__title">Chord tones</div>
+    <div class="legend-roles__list">
+      <span class="legend-roles__item">
+        <span class="legend-roles__swatch legend-roles__swatch--scale-root"></span>
+        scale root
+      </span>
+      <span class="legend-roles__item">
+        <span class="legend-roles__swatch legend-roles__swatch--chord-tone"></span>
+        chord tone
+      </span>
+      <span class="legend-roles__item">
+        <span class="legend-roles__swatch legend-roles__swatch--chord-root"></span>
+        chord root
+      </span>
+      <span class="legend-roles__item">
+        <span class="legend-roles__swatch legend-roles__swatch--chord-outside"></span>
+        outside scale
+      </span>
+    </div>
+  </div>
+
   <div class="legend-switches">
 
     <label class="switch-line">

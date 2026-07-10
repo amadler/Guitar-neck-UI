@@ -208,9 +208,30 @@
 .guitar-neck__minor-7th {
   background-color: var(--interval-minor-7th);
 }
-
 .guitar-neck__major-7th {
   background-color: var(--interval-major-7th);
 }
 
+/* ---- Marker role classes (scale + chord relation) ---- */
+
+/* Chord tone — gold outline on top of interval color */
+.guitar-neck__role-chord-tone {
+  box-shadow: 0 0 0 2px gold;
+}
+
+/* Chord root — thicker gold outline */
+.guitar-neck__role-chord-root {
+  box-shadow: 0 0 0 3px gold;
+}
+
+/* Scale root — subtle underline or ring */
+.guitar-neck__role-scale-root {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.6);
+}
+
+/* Chord tone outside scale — dashed outline */
+.guitar-neck__role-chord-tone-outside {
+  box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.5);
+  border: 1px dashed rgba(255, 215, 0, 0.6);
+}
 

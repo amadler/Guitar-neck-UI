@@ -59,6 +59,11 @@ export class FreatboardComponent implements OnInit {
     return this.displayService.getMarkerCssClass(interval);
   }
 
+  /** Returns the marker-role CSS class for a note at the given position, or empty string. */
+  protected getRoleCssClass(stringIndex: number, fret: number): string {
+    return this.displayService.getRoleCssClass(stringIndex, fret);
+  }
+
   // -- End delegating properties --
 
   protected isNoteInRange(fret: number): boolean {

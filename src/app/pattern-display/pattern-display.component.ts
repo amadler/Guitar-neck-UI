@@ -11,12 +11,18 @@ import { PRACTICE_PROMPTS } from '../shared/practice-prompts.data';
   styleUrl: './pattern-display.component.scss'
 })
 export class PatternDisplayComponent {
-  constructor(private patternBuilder: PatternBuilderService) {}
+  constructor(
+    private patternBuilder: PatternBuilderService,
+  ) {}
 
   // -- Delegating properties: shield template from direct service access --
 
   get currentPattern() {
     return this.patternBuilder.currentPattern;
+  }
+
+  get relatedChord() {
+    return this.patternBuilder.relatedChord;
   }
 
   getPromptsForType(type: 'scale' | 'chord'): string[] {

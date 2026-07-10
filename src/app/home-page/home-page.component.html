@@ -10,6 +10,7 @@
   <app-legend></app-legend>
   <app-pattern-display></app-pattern-display>
   <section class="dock">
+    <app-chord-degree-selector (chordDegreeSelected)="onChordDegreeSelected($event)"></app-chord-degree-selector>
     <div class="dock__body">
       <section id="toolbox-container">
         <lib-toolbox-form (onSubmit)="toolboxSubmit($event)"></lib-toolbox-form>

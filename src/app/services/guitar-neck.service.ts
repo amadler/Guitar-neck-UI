@@ -3,6 +3,12 @@ import { Injectable } from '@angular/core';
 import { neckConfig } from 'guitar-neck-shared';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { MusicSelection } from '../shared/model/music-selection';
+
+/** Dual selection state when both a scale and a chord are displayed. */
+export interface ScaleChordState {
+  scale: MusicSelection;
+  chord: MusicSelection | null;
+}
 import { FretboardNotePositionService } from './note.service';
 
 export type MarkerDisplayMode = 'interval-colors' | 'note-names' | 'neutral-dots';
@@ -18,6 +24,8 @@ export class FretboardStateService {
   hasActiveResult = false;
   /** Unified domain model describing what is currently selected. */
   currentSelection: MusicSelection | null = null;
+  /** Dual selection state for scale + chord relation. null when no relation is active. */
+  scaleChordState: ScaleChordState | null = null;
   /** O(1) lookup map keyed by "${string}-${fret}". Rebuilt when notes are initialized. */
   private notesMap: Map<string, GuitarNote> = new Map();
 
@@ -88,6 +96,7 @@ export class FretboardStateService {
     this.clearSelection();
     this.hasActiveResult = false;
     this.currentSelection = null;
+    this.scaleChordState = null;
     // Note: activeStrings are NOT reset here — they persist until the user manually toggles them.
   }
 }

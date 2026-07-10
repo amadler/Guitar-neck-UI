@@ -1,11 +1,14 @@
 import { Injectable } from '@angular/core';
 import { Observable, catchError, finalize, map, of } from 'rxjs';
 import { GuitarNote } from '../shared/model/guitarNote';
+import { MusicSelection } from '../shared/model/music-selection';
 import { FretboardNotePositionService } from './note.service';
 import { IntervalService } from './interval.service';
 import { FretboardStateService } from './guitar-neck.service';
 import { LoadingService } from './loading.service';
 import { MusicPatternApiService } from './scales-and-triads.service';
+import { MarkerRoleService } from './marker-role.service';
+import { CHORD_PATTERNS, neckConfig } from 'guitar-neck-shared';
 
 @Injectable({ providedIn: 'root' })
 export class FretboardOrchestrationService {
@@ -14,7 +17,8 @@ export class FretboardOrchestrationService {
     private patternApi: MusicPatternApiService,
     private intervalService: IntervalService,
     private guitarNeckService: FretboardStateService,
-    private loadingService: LoadingService
+    private loadingService: LoadingService,
+    private markerRoleService: MarkerRoleService,
   ) {}
 
   displayScale(scaleName: string, rootNote: string): Observable<GuitarNote[]> {
@@ -80,5 +84,75 @@ export class FretboardOrchestrationService {
     this.intervalService.markCustomIntervals(rootNote, highlightedNotes);
 
     return highlightedNotes;
+  }
+
+  // ---- Scale + Chord relation ----
+
+  /**
+   * Display a scale on the fretboard, then overlay chord tones for a chord
+   * built on a degree of that scale. The chord tones are computed client-side
+   * from CHORD_PATTERNS — no additional API call needed.
+   */
+  displayScaleWithChord(
+    scaleName: string,
+    scaleRoot: string,
+    chordName: string,
+    chordRoot: string,
+  ): Observable<GuitarNote[]> {
+    this.loadingService.show();
+
+    return this.patternApi.resolveScaleNotes(scaleName, scaleRoot).pipe(
+      map(scaleNotes => {
+        // 1. Find and highlight scale positions
+        const selectedNotes = this.noteService.findPositionsByScaleNotes(scaleNotes);
+        const highlightedNotes = this.guitarNeckService.applyHighlightedNotes(selectedNotes);
+
+        // 2. Mark scale intervals
+        this.intervalService.markIntervals(scaleRoot, scaleName, highlightedNotes, 'scale');
+
+        // 3. Build chord selection from pattern
+        const chordSelection: MusicSelection = {
+          type: 'chord',
+          name: chordName,
+          rootNote: chordRoot,
+        };
+
+        // 4. Set dual selection state
+        this.guitarNeckService.scaleChordState = {
+          scale: {
+            type: 'scale',
+            name: scaleName,
+            rootNote: scaleRoot,
+            notes: scaleNotes,
+          },
+          chord: chordSelection,
+        };
+
+        // 5. Compute marker roles
+        this.markerRoleService.computeRoles(
+          this.guitarNeckService.notes,
+          this.guitarNeckService.scaleChordState.scale,
+          chordSelection,
+        );
+
+        return highlightedNotes;
+      }),
+      catchError(error => {
+        console.error('Error displaying scale with chord:', error);
+        return of([]);
+      }),
+      finalize(() => this.loadingService.hide()),
+    );
+  }
+
+  /** Remove the chord relation, keeping the scale visible. */
+  clearRelation(): void {
+    if (this.guitarNeckService.scaleChordState) {
+      this.guitarNeckService.scaleChordState = {
+        scale: this.guitarNeckService.scaleChordState.scale,
+        chord: null,
+      };
+      this.markerRoleService.lastRoles = new Map();
+    }
   }
 }

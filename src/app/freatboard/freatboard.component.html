@@ -35,7 +35,7 @@
             <span *ngIf="showNoteLabels">{{ getNoteName(i, 0) }}</span>
           </div>
           <div *ngIf="getNoteInterval(i, 0)"
-               [ngClass]="['guitar-neck__dot', getMarkerCssClass(getNoteInterval(i, 0))]"
+               [ngClass]="['guitar-neck__dot', getMarkerCssClass(getNoteInterval(i, 0)), getRoleCssClass(i, 0)]"
                (click)="fretNoteClicked(i, 0)">
             <span *ngIf="showNoteLabels">{{ getNoteName(i, 0) }}</span>
           </div>
@@ -55,7 +55,7 @@
             <span *ngIf="showNoteLabels">{{ getNoteName(i, fret) }}</span>
           </div>
           <div *ngIf="getNoteInterval(i, fret)"
-               [ngClass]="['guitar-neck__dot', getMarkerCssClass(getNoteInterval(i, fret))]">
+               [ngClass]="['guitar-neck__dot', getMarkerCssClass(getNoteInterval(i, fret)), getRoleCssClass(i, fret)]">
             <span *ngIf="showNoteLabels">{{ getNoteName(i, fret) }}</span>
           </div>
         </ng-container>

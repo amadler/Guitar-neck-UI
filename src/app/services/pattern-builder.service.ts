@@ -12,6 +12,8 @@ const SEMITONE_TO_INTERVAL: Record<number, string> = {
 @Injectable({ providedIn: 'root' })
 export class PatternBuilderService {
   currentPattern: PatternInfo | null = null;
+  /** Chord pattern info when a scale+chord relation is active. */
+  relatedChord: PatternInfo | null = null;
 
   constructor(private fretboardState: FretboardStateService) {}
 
@@ -57,8 +59,50 @@ export class PatternBuilderService {
     };
   }
 
+  /** Build a PatternInfo for a chord in the context of an active scale relation. */
+  setRelatedChord(chordName: string, rootNote: string): void {
+    const pattern = CHORD_PATTERNS.find(p => p.name === chordName);
+    if (!pattern) {
+      this.relatedChord = null;
+      return;
+    }
+
+    const rootIndex = neckConfig.chromaticNotes.indexOf(rootNote);
+    if (rootIndex === -1) {
+      this.relatedChord = null;
+      return;
+    }
+
+    const chromatic = neckConfig.chromaticNotes;
+    const notes: string[] = [rootNote];
+    const intervals: string[] = ['1'];
+    const semitones: number[] = [0];
+    const steps: string[] = [];
+    let cumulative = 0;
+
+    pattern.intervals.forEach((step: number) => {
+      cumulative += step;
+      const noteIndex = (rootIndex + cumulative) % 12;
+      notes.push(chromatic[noteIndex]);
+      semitones.push(cumulative);
+      steps.push(step === 2 ? 'W' : step === 1 ? 'H' : `W+H`);
+      intervals.push(SEMITONE_TO_INTERVAL[cumulative % 12] || '');
+    });
+
+    this.relatedChord = {
+      name: chordName,
+      rootNote,
+      type: 'chord',
+      notes,
+      intervals,
+      semitones,
+      steps,
+    };
+  }
+
   clearCurrentPattern(): void {
     this.currentPattern = null;
+    this.relatedChord = null;
     this.fretboardState.currentSelection = null;
   }
 }

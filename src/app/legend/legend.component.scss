@@ -3,3 +3,63 @@
   filter: grayscale(0.8);
   pointer-events: none;
 }
+
+/* ---- Marker role legend ---- */
+
+.legend-roles {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--app-border);
+}
+
+.legend-roles__title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--app-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.legend-roles__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.legend-roles__item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--app-text);
+}
+
+.legend-roles__swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.legend-roles__swatch--scale-root {
+  background: var(--interval-root);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.legend-roles__swatch--chord-tone {
+  background: rgba(255, 215, 0, 0.3);
+  border: 2px solid gold;
+}
+
+.legend-roles__swatch--chord-root {
+  background: rgba(255, 215, 0, 0.5);
+  border: 3px solid gold;
+}
+
+.legend-roles__swatch--chord-outside {
+  background: transparent;
+  border: 2px dashed rgba(255, 215, 0, 0.5);
+}

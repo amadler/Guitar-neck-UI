@@ -1,4 +1,4 @@
-import { NgFor } from '@angular/common';
+import { NgFor, NgIf } from '@angular/common';
 import { Component } from '@angular/core';
 import { FretboardStateService } from '../services/guitar-neck.service';
 import { FretboardDisplayService } from '../services/fretboard-display.service';
@@ -11,7 +11,7 @@ export interface IntervalDef {
 @Component({
   selector: 'app-legend',
   standalone: true,
-  imports: [NgFor],
+  imports: [NgFor, NgIf],
   templateUrl: './legend.component.html',
   styleUrl: './legend.component.scss'
 })
@@ -49,6 +49,10 @@ export class LegendComponent {
 
   get hasActiveResult(): boolean {
     return this.guitarNeckService.hasActiveResult;
+  }
+
+  get hasRelation(): boolean {
+    return this.displayService.hasRelation;
   }
 
   get activeIntervals(): string[] {

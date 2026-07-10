@@ -14,6 +14,7 @@ import { FooterComponent } from '../footer/footer.component';
 import { LegendComponent } from '../legend/legend.component';
 import { PatternDisplayComponent } from '../pattern-display/pattern-display.component';
 import { MetronomeComponent } from '../metronome/metronome.component';
+import { ChordDegreeSelectorComponent, ChordDegreeSelection } from '../chord-degree-selector/chord-degree-selector.component';
 
 @Component({
   selector: 'app-home-page',
@@ -27,7 +28,8 @@ import { MetronomeComponent } from '../metronome/metronome.component';
     FooterComponent,
     LegendComponent,
     PatternDisplayComponent,
-    MetronomeComponent
+    MetronomeComponent,
+    ChordDegreeSelectorComponent,
   ],
   templateUrl: './home-page.component.html',
   styleUrl: './home-page.component.scss'
@@ -61,6 +63,32 @@ export class HomePageComponent {
     }
 
     command?.execute();
+  }
+
+  /** Called when the user selects a chord degree from the ChordDegreeSelector. */
+  onChordDegreeSelected(degree: ChordDegreeSelection): void {
+    if (!degree.chordName || !degree.rootNote) {
+      // Clear chord relation
+      this.fretboardOrchestrationService.clearRelation();
+      this.patternBuilder.relatedChord = null;
+      return;
+    }
+
+    // Re-display the scale with the selected chord
+    const sc = this.guitarNeckService.scaleChordState;
+    if (!sc?.scale.name || !sc?.scale.rootNote) {
+      return;
+    }
+
+    this.fretboardOrchestrationService.displayScaleWithChord(
+      sc.scale.name,
+      sc.scale.rootNote,
+      degree.chordName,
+      degree.rootNote,
+    ).subscribe();
+
+    // Build chord pattern info for display
+    this.patternBuilder.setRelatedChord(degree.chordName, degree.rootNote);
   }
 
   private buildCustomPatternCommand(intervals: number[], root: string): Command {
@@ -99,6 +127,15 @@ export class HomePageComponent {
 
   private buildScaleCommand(name: string, root: string): Command {
     this.patternBuilder.setCurrentPattern(name, root, 'scale');
+    // Set up scale-only state in scaleChordState
+    this.guitarNeckService.scaleChordState = {
+      scale: {
+        type: 'scale',
+        name,
+        rootNote: root,
+      },
+      chord: null,
+    };
     return new DisplayScaleCommand(this.fretboardOrchestrationService, name, root);
   }
 }
