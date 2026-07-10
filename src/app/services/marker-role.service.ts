@@ -126,7 +126,7 @@ export class MarkerRoleService {
         if (inScale && inChord) {
           // Could be both scale-root and chord-root simultaneously
           if (note.note === scaleRoot && note.note === chordRoot) {
-            roles.set(key, 'scale-root'); // scale-root takes precedence; chord-root is implied
+            roles.set(key, 'chord-root'); // chord-root wins when both roots are the same note
           } else if (note.note === chordRoot) {
             roles.set(key, 'chord-root');
           } else if (note.note === scaleRoot) {

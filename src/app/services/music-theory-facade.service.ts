@@ -107,8 +107,9 @@ export class FretboardOrchestrationService {
         const selectedNotes = this.noteService.findPositionsByScaleNotes(scaleNotes);
         const highlightedNotes = this.guitarNeckService.applyHighlightedNotes(selectedNotes);
 
-        // 2. Mark scale intervals
-        this.intervalService.markIntervals(scaleRoot, scaleName, highlightedNotes, 'scale');
+        // 2. Skip interval marking — role-based coloring handles visuals via MarkerRoleService
+        //    IntervalService.markIntervals is NOT called here intentionally.
+        //    See FretboardDisplayService.getMarkerCssClass() which returns '' when chord is active.
 
         // 3. Build chord selection from pattern
         const chordSelection: MusicSelection = {

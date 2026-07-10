@@ -22,6 +22,11 @@ export class FretboardDisplayService {
   ) {}
 
   getMarkerCssClass(interval: string | undefined): string {
+    // When a chord relation is active, use role-based coloring instead of interval colors
+    if (this.guitarNeckService.scaleChordState?.chord) {
+      return '';
+    }
+
     const mode = this.guitarNeckService.markerDisplayMode;
     if (mode === 'interval-colors' && interval) {
       return 'guitar-neck__' + interval;
