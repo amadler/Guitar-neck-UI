@@ -11,7 +11,7 @@
   <!-- Legend — shown only in scale mode -->
   <app-legend *ngIf="(appMode$ | async) === 'scale'"></app-legend>
 
-  <!-- Relationship Strip — shown only in scale-chord mode (placeholder for Phase 2) -->
+  <!-- Relationship Strip — shown only in scale-chord mode (Phase 2) -->
   <!-- <app-relationship-strip *ngIf="(appMode$ | async) === 'scale-chord'"></app-relationship-strip> -->
 
   <!-- Pattern Display — hidden in idle, shown when something is active -->
@@ -21,8 +21,8 @@
     <!-- Chord Degree Selector — kept in code, hidden in new layout -->
     <!-- <app-chord-degree-selector (chordDegreeSelected)="onChordDegreeSelected($event)"></app-chord-degree-selector> -->
 
-    <!-- Dock body — toolbox is visible AFTER mode selection -->
-    <div class="dock__body" *ngIf="(appMode$ | async) !== 'idle'">
+    <!-- Scale mode — existing toolbox with scale/chord selection -->
+    <div class="dock__body" *ngIf="(appMode$ | async) === 'scale'">
       <section id="toolbox-container">
         <lib-toolbox-form (onSubmit)="toolboxSubmit($event)"></lib-toolbox-form>
       </section>
@@ -35,11 +35,11 @@
       </ng-template>
     </div>
 
-    <!-- Scale Form — shown in scale mode (Phase 2) -->
-    <!-- <app-scale-form *ngIf="(appMode$ | async) === 'scale'"></app-scale-form> -->
-
-    <!-- Scale + Chord Form — shown in scale-chord mode (Phase 2) -->
-    <!-- <app-scale-chord-form *ngIf="(appMode$ | async) === 'scale-chord'"></app-scale-chord-form> -->
+    <!-- Scale + Chord mode — dedicated form with independent scale/chord selection -->
+    <app-scale-chord-form
+      *ngIf="(appMode$ | async) === 'scale-chord'"
+      (showRelation)="onScaleChordFormShow($event)"
+    ></app-scale-chord-form>
   </section>
 
   <app-footer></app-footer>

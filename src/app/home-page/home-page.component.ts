@@ -18,6 +18,7 @@ import { PatternDisplayComponent } from '../pattern-display/pattern-display.comp
 import { MetronomeComponent } from '../metronome/metronome.component';
 import { ModeSelectorComponent } from '../mode-selector/mode-selector.component';
 import { ChordDegreeSelectorComponent, ChordDegreeSelection } from '../chord-degree-selector/chord-degree-selector.component';
+import { ScaleChordFormComponent, ScaleChordRelation } from '../scale-chord-form/scale-chord-form.component';
 
 @Component({
   selector: 'app-home-page',
@@ -35,6 +36,7 @@ import { ChordDegreeSelectorComponent, ChordDegreeSelection } from '../chord-deg
     MetronomeComponent,
     ModeSelectorComponent,
     ChordDegreeSelectorComponent,
+    ScaleChordFormComponent,
   ],
   templateUrl: './home-page.component.html',
   styleUrl: './home-page.component.scss'
@@ -54,12 +56,25 @@ export class HomePageComponent {
     this.appMode$ = this.appState.appMode$;
   }
 
-  toolboxSubmit(event: ToolboxSearchQuery): void {
-    // Toolbox only works in idle mode
-    if (this.appState.appMode !== 'idle') {
-      return;
-    }
+  // --- Scale + Chord relation handler ---
 
+  /** Called when the ScaleChordForm emits a scale+chord relation. */
+  onScaleChordFormShow(relation: ScaleChordRelation): void {
+    this.guitarNeckService.clearFretboard();
+    this.patternBuilder.clearCurrentPattern();
+
+    this.fretboardOrchestrationService.displayScaleWithChord(
+      relation.scaleName,
+      relation.scaleRoot,
+      relation.chordName,
+      relation.chordRoot,
+    ).subscribe();
+
+    this.patternBuilder.setCurrentPattern(relation.scaleName, relation.scaleRoot, 'scale');
+    this.patternBuilder.setRelatedChord(relation.chordName, relation.chordRoot);
+  }
+
+  toolboxSubmit(event: ToolboxSearchQuery): void {
     this.guitarNeckService.clearFretboard();
     this.patternBuilder.clearCurrentPattern();
 

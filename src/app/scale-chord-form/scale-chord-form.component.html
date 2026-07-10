@@ -1,0 +1,39 @@
+<div class="scale-chord-form">
+  <fieldset class="scale-chord-form__fieldset">
+    <legend class="scale-chord-form__legend">Scale</legend>
+
+    <label class="scale-chord-form__group">
+      <span class="scale-chord-form__label">Type</span>
+      <select class="scale-chord-form__select" [(ngModel)]="selectedScale">
+        <option *ngFor="let scale of scales" [value]="scale">{{ scale }}</option>
+      </select>
+    </label>
+
+    <label class="scale-chord-form__group">
+      <span class="scale-chord-form__label">Key</span>
+      <select class="scale-chord-form__select" [(ngModel)]="selectedScaleKey">
+        <option *ngFor="let key of keys" [value]="key">{{ key }}</option>
+      </select>
+    </label>
+  </fieldset>
+
+  <fieldset class="scale-chord-form__fieldset">
+    <legend class="scale-chord-form__legend">Chord</legend>
+
+    <label class="scale-chord-form__group">
+      <span class="scale-chord-form__label">Type</span>
+      <select class="scale-chord-form__select" [(ngModel)]="selectedChord">
+        <option *ngFor="let chord of chords" [value]="chord">{{ chord }}</option>
+      </select>
+    </label>
+
+    <label class="scale-chord-form__group">
+      <span class="scale-chord-form__label">Key</span>
+      <select class="scale-chord-form__select" [(ngModel)]="selectedChordKey">
+        <option *ngFor="let key of keys" [value]="key">{{ key }}</option>
+      </select>
+    </label>
+  </fieldset>
+
+  <button class="scale-chord-form__btn" (click)="onShow()">Show relationship</button>
+</div>
