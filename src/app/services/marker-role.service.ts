@@ -93,7 +93,8 @@ export class MarkerRoleService {
    * Compute marker roles for every note on the fretboard given a scale
    * selection and an optional chord selection.
    *
-   * Returns a Map keyed by `"${string}-${fret}"` → MarkerRole.
+   * Returns a Map keyed by `"${stringIndex}-${fret}"` where `stringIndex`
+   * is 0-based (matching the template's `let i = index`), → MarkerRole.
    * Only notes that have a role are included in the map.
    *
    * When `chordSelection` is null, only `scale-tone` and `scale-root` roles
@@ -119,7 +120,8 @@ export class MarkerRoleService {
       const chordRoot = chordSelection.rootNote;
 
       for (const note of notes) {
-        const key = `${note.string}-${note.fret}`;
+        // Use 0-based string index to match template's `let i = index`
+        const key = `${note.string - 1}-${note.fret}`;
         const inScale = scaleNoteNames.has(note.note);
         const inChord = chordNoteNames.has(note.note);
 
@@ -148,7 +150,8 @@ export class MarkerRoleService {
       // --- Single mode: scale only ---
       for (const note of notes) {
         if (scaleNoteNames.has(note.note)) {
-          const key = `${note.string}-${note.fret}`;
+          // Use 0-based string index to match template's `let i = index`
+          const key = `${note.string - 1}-${note.fret}`;
           roles.set(key, note.note === scaleRoot ? 'scale-root' : 'scale-tone');
         }
       }

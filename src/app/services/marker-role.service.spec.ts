@@ -16,10 +16,10 @@ describe('MarkerRoleService', () => {
     makeNote(1, 3, 'G'),   // G  → chord-tone (C major)
     makeNote(1, 5, 'A'),   // A  → scale-tone
     makeNote(1, 7, 'B'),   // B  → scale-tone
-    makeNote(1, 8, 'C'),   // C  → scale-root
+    makeNote(1, 8, 'C'),   // C  → scale-root / chord-root
     makeNote(1, 12, 'E'),  // E  → chord-tone
     // Non-scale notes
-    makeNote(2, 1, 'F'),   // F  → not in C major scale → no role
+    makeNote(2, 1, 'F#'),  // F# → not in C major scale → no role
     makeNote(2, 6, 'A#'),  // A# → chord-tone-outside-scale (C major chord has E, G, but not A#)
   ];
 
@@ -88,11 +88,11 @@ describe('MarkerRoleService', () => {
       expect(roles.get('1-7')).toBe('scale-tone');
     });
 
-    it('should return scale-root for C (root of scale)', () => {
+    it('should return chord-root for C when scale-root equals chord-root', () => {
       const roles = service.computeRoles(mockNotes, scaleSelection, chordSelection);
 
-      // C (1-8) = root of scale (also root of chord)
-      expect(roles.get('1-8')).toBe('scale-root');
+      // C (1-8) = root of scale AND root of chord → chord-root wins
+      expect(roles.get('1-8')).toBe('chord-root');
     });
 
     it('should return chord-root when chord root differs from scale root', () => {
