@@ -103,22 +103,48 @@ export class FretboardOrchestrationService {
 
     return this.patternApi.resolveScaleNotes(scaleName, scaleRoot).pipe(
       map(scaleNotes => {
-        // 1. Find and highlight scale positions
-        const selectedNotes = this.noteService.findPositionsByScaleNotes(scaleNotes);
-        const highlightedNotes = this.guitarNeckService.applyHighlightedNotes(selectedNotes);
+        // 1. Clear any stale interval data from previous views
+        this.intervalService.removeIntervals(this.guitarNeckService.notes);
 
-        // 2. Skip interval marking — role-based coloring handles visuals via MarkerRoleService
+        // 2. Resolve chord note names client-side from CHORD_PATTERNS
+        const chordPattern = CHORD_PATTERNS.find(p => p.name === chordName);
+        const chordNoteNames: string[] = [];
+        if (chordPattern) {
+          const chromatic = neckConfig.chromaticNotes;
+          const rootIndex = chromatic.indexOf(chordRoot);
+          if (rootIndex !== -1) {
+            const noteSet = new Set<string>();
+            noteSet.add(chordRoot);
+            let cumulative = 0;
+            for (const step of chordPattern.intervals) {
+              cumulative += step;
+              noteSet.add(chromatic[(rootIndex + cumulative) % 12]);
+            }
+            chordNoteNames.push(...noteSet);
+          }
+        }
+
+        // 3. Find chord notes that are NOT in the scale — these need positions too
+        const outsideChordNotes = chordNoteNames.filter(n => !scaleNotes.includes(n));
+
+        // 4. Find positions for scale notes AND outside chord notes, then highlight all
+        const scalePositions = this.noteService.findPositionsByScaleNotes(scaleNotes);
+        const outsidePositions = this.noteService.findPositionsByScaleNotes(outsideChordNotes);
+        const allPositions = [...scalePositions, ...outsidePositions];
+        const highlightedNotes = this.guitarNeckService.applyHighlightedNotes(allPositions);
+
+        // 5. Skip interval marking — role-based coloring handles visuals via MarkerRoleService
         //    IntervalService.markIntervals is NOT called here intentionally.
         //    See FretboardDisplayService.getMarkerCssClass() which returns '' when chord is active.
 
-        // 3. Build chord selection from pattern
+        // 6. Build chord selection from pattern
         const chordSelection: MusicSelection = {
           type: 'chord',
           name: chordName,
           rootNote: chordRoot,
         };
 
-        // 4. Set dual selection state
+        // 7. Set dual selection state
         this.guitarNeckService.scaleChordState = {
           scale: {
             type: 'scale',
@@ -129,7 +155,7 @@ export class FretboardOrchestrationService {
           chord: chordSelection,
         };
 
-        // 5. Compute marker roles
+        // 8. Compute marker roles (covers ALL notes including outside chord tones)
         this.markerRoleService.computeRoles(
           this.guitarNeckService.notes,
           this.guitarNeckService.scaleChordState.scale,
