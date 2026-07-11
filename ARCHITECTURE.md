@@ -15,10 +15,14 @@ System składa się z 3 części:
 | Komponent | Selektor | Odpowiedzialność | Źródło |
 |-----------|----------|-----------------|--------|
 | `HeaderComponent` | `app-header` | Nagłówek strony z logo i nawigacją | `src/app/header` |
-| `HomePageComponent` | `app-home-page` | Agreguje gryf + toolbox | `src/app/home-page` |
-| `FreatboardComponent` | `app-freatboard` | Renderuje gryf z nutami i interwałami | `src/app/freatboard` |
+| `HomePageComponent` | `app-home-page` | Agreguje gryf + toolbox + tryby UI | `src/app/home-page` |
+| `ModeSelectorComponent` | `app-mode-selector` | Ekran startowy — wybór trybu (scale / scale-chord) | `src/app/mode-selector` |
+| `ScaleFormComponent` | `app-scale-form` | Formularz wyboru skali (tryb scale-only) | `src/app/scale-form` |
+| `ScaleChordFormComponent` | `app-scale-chord-form` | Formularz wyboru skali + akordu (tryb scale-chord) | `src/app/scale-chord-form` |
+| `FreatboardComponent` | `app-freatboard` | Renderuje gryf z nutami i interwałami/rolami | `src/app/freatboard` |
 | `GuitarNeckComponent` | `app-guitar-neck` | Kontener inicjalizujący gryf | `src/app/guitar-neck` |
-| `LegendComponent` | `app-legend` | Legenda kolorów interwałowych | `src/app/legend` |
+| `LegendComponent` | `app-legend` | Legenda kolorów interwałowych (tryb scale-only) | `src/app/legend` |
+| `RelationshipStripComponent` | `app-relationship-strip` | Legenda ról scale+chord (tryb scale-chord) | `src/app/relationship-strip` |
 | `RangeToolbarComponent` | `app-range-toolbar` | Selektor zakresu progów (presety) | `src/app/range-toolbar` |
 | `StringToggleComponent` | `app-string-toggle` | Włączanie/wyłączanie poszczególnych strun | `src/app/string-toggle` |
 | `PatternDisplayComponent` | `app-pattern-display` | Panel wyświetlający szczegóły patternu + practice prompts | `src/app/pattern-display` |
@@ -34,10 +38,13 @@ System składa się z 3 części:
 
 | Serwis (klasa) | Plik | Odpowiedzialność |
 |---------------|------|-----------------|
-| `FretboardOrchestrationService` | `music-theory-facade.service.ts` | Fasada — wyświetlanie skal, akordów, nut |
-| `FretboardStateService` | `guitar-neck.service.ts` | Stan gryfu — visible, selected, interval |
+| `AppStateService` | `app-state.service.ts` | Tryb aplikacji: idle/scale/scale-chord |
+| `FretboardOrchestrationService` | `music-theory-facade.service.ts` | Fasada — wyświetlanie skal, akordów, nut, relacji scale+chord |
+| `FretboardStateService` | `guitar-neck.service.ts` | Stan gryfu — visible, selected, interval, ScaleChordState |
 | `FretboardNotePositionService` | `note.service.ts` | Generuje mapę nut na gryfie, wyszukuje pozycje |
 | `IntervalService` | `interval.service.ts` | Oznacza nuty interwałami (root, 3rd, 5th, itd.) |
+| `MarkerRoleService` | `marker-role.service.ts` | Oblicza role wizualne (scale-tone, chord-root, chord-tone-outside-scale itd.) |
+| `FretboardDisplayService` | `fretboard-display.service.ts` | Klasa CSS dla znaczników: interwałowa lub role-based |
 | `MusicPatternApiService` | `scales-and-triads.service.ts` | HTTP → `music-theory-api` |
 | `LoadingService` | `loading.service.ts` | Zarządza stanem ładowania (show/hide z requestCount) |
 
@@ -103,6 +110,26 @@ User → ToolboxFormComponent (select type, pattern, key)
         → IntervalService.markIntervals(root, pattern, notes, 'chord'|'scale')
       → Observable<GuitarNote[]> → FreatboardComponent
         → NgClass: guitar-neck__root, guitar-neck__major-3rd, itd.
+```
+
+### Przepływ Scale-Chord (tryb scale-chord)
+
+```
+ScaleChordFormComponent (wybór skali + akordu)
+  → HomePageComponent.buildScaleChordCommand()
+    → FretboardOrchestrationService.displayScaleWithChord(scale, root, chord, chordRoot)
+      → MusicPatternApiService.resolveScaleNotes() → HTTP → GET /api/scales/:name/:root
+      → (chord notes resolved client-side from CHORD_PATTERNS — 🔴 duplicated in 3 files)
+      → FretboardNotePositionService.findPositionsByScaleNotes(scaleNotes)
+      → FretboardNotePositionService.findPositionsByScaleNotes(outsideChordNotes)
+      → FretboardStateService.applyHighlightedNotes(union)
+      → MarkerRoleService.computeRoles(allNotes, scale, chord)
+        → 5 role CSS classes: scale-tone, chord-tone, scale-root, chord-root, chord-tone-outside-scale
+      → IntervalService — intentionally skipped (role-based instead)
+      → FretboardStateService.scaleChordState = { scale, chord }
+    → PatternBuilderService.setCurrentPattern() + setRelatedChord()
+    → RelationshipStripComponent (zamiast LegendComponent)
+    → FreatboardComponent: getRoleCssClass() zamiast getMarkerCssClass()
 ```
 
 ## Wzorce Projektowe

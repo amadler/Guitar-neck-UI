@@ -5,6 +5,11 @@ Guitar Neck UI to interaktywne narzędzie edukacyjne zaprojektowane, aby pomóc 
 
 ## Główne Funkcjonalności
 
+### 0. Wybór Trybu Aplikacji (ModeSelector)
+- Ekran startowy z dwoma kartami: **Scale** i **Scale + Chord**
+- `AppMode` zarządza widocznością formularzy i legend
+- Bezpośrednie przełączanie między trybami bez resetowania gryfu
+
 ### 1. Interaktywny Gryf Gitary
 - Wizualizacja wszystkich nut na gryfie
 - Możliwość wyboru pojedynczych nut
@@ -16,6 +21,12 @@ Guitar Neck UI to interaktywne narzędzie edukacyjne zaprojektowane, aby pomóc 
 - Wizualizacja akordów (26 patternów: triady, akordy extended 7/9/11/13, sus, add)
 - Oznaczanie interwałów (root, 2nd, 3rd, 4th, 5th, 6th, 7th — małe/wielkie)
 - Wybór tonacji (12 nut z #)
+- Tryb **Scale + Chord** — niezależny wybór skali i akordu
+  - Akord nie musi być diatoniczny względem skali (np. C major scale + E major chord)
+  - Wizualizacja relacji przez 5 ról markerów: scale-tone, chord-tone, scale-root, chord-root, chord-tone-outside-scale
+  - Każda rola ma dedykowaną klasę CSS (złote obramowania) — kolory interwałowe wyłączone w tym trybie
+  - `RelationshipStripComponent` zastępuje `LegendComponent` — pokazuje legendę ról + które nuty akordu są w skali / poza skalą
+  - Nuty akordu spoza skali są renderowane na gryfie (np. G# dla C major + E major)
 - Custom pattern — użytkownik wpisuje interwały, aplikacja generuje nuty na gryfie
 - `MarkerDisplayMode` — 3 tryby wyświetlania znaczników na gryfie: kolory interwałowe, nazwy nut, neutralne kropki
 - Włączanie/wyłączanie poszczególnych strun (`StringToggleComponent`)
@@ -44,11 +55,21 @@ Guitar Neck UI to interaktywne narzędzie edukacyjne zaprojektowane, aby pomóc 
 
 ## Przepływ Pracy Użytkownika
 
-### Podstawowe Operacje
+### Podstawowe Operacje (tryb scale-only)
 1. Wybór narzędzia (skala, akord, pojedyncza nuta)
 2. Wybór tonacji
 3. Wizualizacja na gryfie
 4. Interakcja z nutami
+
+### Scale-Chord Relation (tryb scale-chord)
+1. Wybór trybu **Scale + Chord** na ekranie startowym (ModeSelector)
+2. Niezależny wybór skali (typ + tonacja) i akordu (typ + tonacja)
+3. Kliknięcie **Show** → wyświetlenie skali na gryfie z nałożonymi rolami akordu
+4. `RelationshipStripComponent` pokazuje:
+   - Legendę 5 ról wizualnych
+   - Listę nut akordu które są wewnątrz skali
+   - Listę nut akordu które są poza skalą (np. "Outside: G#")
+5. Nuty akordu spoza skali są widoczne na gryfie z pomarańczowym obramowaniem (`chord-tone-outside-scale`)
 
 ### Ćwiczenia z Metronomem
 1. Wybór skali/akordu na gryfie
