@@ -11,11 +11,11 @@ interface RoleLegendItem {
 }
 
 const ROLE_LEGEND: RoleLegendItem[] = [
-  { role: 'scale-tone',               label: 'scale note',  cssClass: 'rel-legend__dot--scale-tone' },
-  { role: 'scale-root',               label: 'scale root',  cssClass: 'rel-legend__dot--scale-root' },
-  { role: 'chord-tone',               label: 'chord tone',  cssClass: 'rel-legend__dot--chord-tone' },
-  { role: 'chord-root',               label: 'chord root',  cssClass: 'rel-legend__dot--chord-root' },
-  { role: 'chord-tone-outside-scale', label: 'outside scale', cssClass: 'rel-legend__dot--outside' },
+  { role: 'scale-tone',               label: 'scale note',          cssClass: 'rel-legend__dot--scale-tone' },
+  { role: 'scale-root',               label: 'scale root',          cssClass: 'rel-legend__dot--scale-root' },
+  { role: 'chord-tone',               label: 'chord tone in scale', cssClass: 'rel-legend__dot--chord-tone' },
+  { role: 'chord-root',               label: 'chord root',          cssClass: 'rel-legend__dot--chord-root' },
+  { role: 'chord-tone-outside-scale', label: 'chord outside scale', cssClass: 'rel-legend__dot--outside' },
 ];
 
 /** Resolve note names for a chord pattern. */

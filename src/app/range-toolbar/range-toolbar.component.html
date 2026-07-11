@@ -1,5 +1,14 @@
 <section class="range-card">
-  <div class="range-card__title">Fret Range</div>
+  <div class="range-card__title">
+    <span>Fret Range</span>
+    <button *ngIf="appMode !== 'idle'"
+            class="range-card__mode-btn"
+            type="button"
+            (click)="switchMode()">
+      <span class="range-card__mode-btn-icon">{{ appMode === 'scale' ? '🔗' : '🎵' }}</span>
+      <span>{{ appMode === 'scale' ? 'Scale + chord' : 'Scale' }}</span>
+    </button>
+  </div>
 
   <div class="range-toolbar">
     <button *ngFor="let preset of presets"

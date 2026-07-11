@@ -2,6 +2,7 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { neckConfig } from 'guitar-neck-shared';
+import { AppStateService, AppMode } from '../app-state.service';
 
 interface Preset {
   label: string;
@@ -20,6 +21,18 @@ interface Preset {
 export class RangeToolbarComponent {
   @Output() rangeChange = new EventEmitter<{minFret: number, maxFret: number}>();
   neckConfig = neckConfig;
+
+  constructor(private appState: AppStateService) {}
+
+  get appMode(): AppMode {
+    return this.appState.appMode;
+  }
+
+  /** Switch to the opposite mode (scale ↔ scale-chord). */
+  switchMode(): void {
+    const target: AppMode = this.appMode === 'scale' ? 'scale-chord' : 'scale';
+    this.appState.setMode(target);
+  }
 
   readonly presets: Preset[] = [
     { label: 'Open', min: 0, max: 4, icon: '🎸' },
