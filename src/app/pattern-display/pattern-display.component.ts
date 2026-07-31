@@ -39,8 +39,4 @@ export class PatternDisplayComponent {
     return PRACTICE_PROMPTS[type] ?? PRACTICE_PROMPTS.chord;
   }
 
-  /** Placeholder: does nothing in MVP. */
-  onChangeClick(): void {
-    console.log('[PatternDisplay] change clicked — placeholder, no-op in MVP');
-  }
 }

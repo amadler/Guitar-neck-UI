@@ -18,7 +18,7 @@ import { PatternDisplayComponent } from '../pattern-display/pattern-display.comp
 import { MetronomeComponent } from '../metronome/metronome.component';
 import { ModeSelectorComponent } from '../mode-selector/mode-selector.component';
 import { RelationshipStripComponent } from '../relationship-strip/relationship-strip.component';
-import { ChordDegreeSelectorComponent, ChordDegreeSelection } from '../chord-degree-selector/chord-degree-selector.component';
+import {  ChordDegreeSelection,ChordDegreeSelectorComponent } from '../chord-degree-selector/chord-degree-selector.component';
 import { ScaleChordFormComponent, ScaleChordRelation } from '../scale-chord-form/scale-chord-form.component';
 
 @Component({
@@ -37,7 +37,6 @@ import { ScaleChordFormComponent, ScaleChordRelation } from '../scale-chord-form
     MetronomeComponent,
     ModeSelectorComponent,
     RelationshipStripComponent,
-    ChordDegreeSelectorComponent,
     ScaleChordFormComponent,
   ],
   templateUrl: './home-page.component.html',
@@ -76,26 +75,33 @@ export class HomePageComponent {
     this.patternBuilder.setRelatedChord(relation.chordName, relation.chordRoot);
   }
 
-  toolboxSubmit(event: ToolboxSearchQuery): void {
+  isToolboxSearchQuery(
+    query: ToolboxSearchQuery | ScaleChordRelation
+  ): query is ToolboxSearchQuery {
+    return 'musicElements' in query && 'keys' in query;
+  }
+
+  toolboxSubmit(query: ToolboxSearchQuery | ScaleChordRelation): void {
     this.guitarNeckService.clearFretboard();
     this.patternBuilder.clearCurrentPattern();
+    if(this.isToolboxSearchQuery(query)){
+      const { musicElements, keys, type } = query;
 
-    const { musicElements, keys, type } = event;
+      let command: Command | null = null;
+      if (type === 'custom' && Array.isArray(musicElements)) {
+        command = this.buildCustomPatternCommand(musicElements, keys);
+      } else if (type === 'basic' && musicElements === 'All notes') {
+        command = this.buildAllNotesCommand();
+      } else if (type === 'basic') {
+        command = this.buildSingleNoteCommand(keys);
+      } else if (type === 'chord' && typeof musicElements === 'string') {
+        command = this.buildChordCommand(musicElements, keys);
+      } else if (type === 'scale' && typeof musicElements === 'string') {
+        command = this.buildScaleCommand(musicElements, keys);
+      }
 
-    let command: Command | null = null;
-    if (type === 'custom' && Array.isArray(musicElements)) {
-      command = this.buildCustomPatternCommand(musicElements, keys);
-    } else if (type === 'basic' && musicElements === 'All notes') {
-      command = this.buildAllNotesCommand();
-    } else if (type === 'basic') {
-      command = this.buildSingleNoteCommand(keys);
-    } else if (type === 'chord' && typeof musicElements === 'string') {
-      command = this.buildChordCommand(musicElements, keys);
-    } else if (type === 'scale' && typeof musicElements === 'string') {
-      command = this.buildScaleCommand(musicElements, keys);
+      command?.execute();
     }
-
-    command?.execute();
   }
 
   /** Called when the user selects a chord degree from the ChordDegreeSelector. */
