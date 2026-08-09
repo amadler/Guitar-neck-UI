@@ -4,11 +4,8 @@ import { Observable } from 'rxjs';
 import { AppStateService, AppMode } from '../app-state.service';
 import { FretboardStateService } from '../services/guitar-neck.service';
 import { PatternBuilderService } from '../services/pattern-builder.service';
-import { MusicSelection } from '../shared/model/music-selection';
 import { Command, DisplayAllNotesCommand, DisplayScaleCommand, DisplaySingleNoteCommand, DisplayChordCommand, DisplayCustomPatternCommand } from '../shared/UICommands';
-import { ToolboxSearchQuery } from 'guitar-toolbox-lib';
 import { FretboardOrchestrationService } from '../services/music-theory-facade.service';
-import { ToolboxFormComponent } from 'guitar-toolbox-lib';
 import { GuitarNeckComponent } from '../guitar-neck/guitar-neck.component';
 import { environment } from '../../environments/environment';
 import { HeaderComponent } from '../header/header.component';
@@ -16,28 +13,25 @@ import { FooterComponent } from '../footer/footer.component';
 import { LegendComponent } from '../legend/legend.component';
 import { PatternDisplayComponent } from '../pattern-display/pattern-display.component';
 import { MetronomeComponent } from '../metronome/metronome.component';
-import { ModeSelectorComponent } from '../mode-selector/mode-selector.component';
 import { RelationshipStripComponent } from '../relationship-strip/relationship-strip.component';
-import {  ChordDegreeSelection,ChordDegreeSelectorComponent } from '../chord-degree-selector/chord-degree-selector.component';
-import { ScaleChordFormComponent, ScaleChordRelation } from '../scale-chord-form/scale-chord-form.component';
-
+import { ScaleChordRelation, ToolboxSearchQuery } from 'guitar-toolbox-lib';
+import { FormsWrapperComponent } from 'guitar-toolbox-lib';
+import { ChatComponent } from '../../../projects/guitar-chat/src/lib/components/chat/chat.component';
 @Component({
   selector: 'app-home-page',
   standalone: true,
-  schemas: [NO_ERRORS_SCHEMA],
   imports: [
     NgIf,
     AsyncPipe,
-    ToolboxFormComponent,
     GuitarNeckComponent,
     HeaderComponent,
     FooterComponent,
     LegendComponent,
     PatternDisplayComponent,
     MetronomeComponent,
-    ModeSelectorComponent,
     RelationshipStripComponent,
-    ScaleChordFormComponent,
+    FormsWrapperComponent,
+    ChatComponent
   ],
   templateUrl: './home-page.component.html',
   styleUrl: './home-page.component.scss'
@@ -56,7 +50,9 @@ export class HomePageComponent {
   ) {
     this.appMode$ = this.appState.appMode$;
   }
-
+  appModeChanged(mode: AppMode): void {
+    this.appState.setMode(mode)
+  }
   // --- Scale + Chord relation handler ---
 
   /** Called when the ScaleChordForm emits a scale+chord relation. */
@@ -81,10 +77,12 @@ export class HomePageComponent {
     return 'musicElements' in query && 'keys' in query;
   }
 
-  toolboxSubmit(query: ToolboxSearchQuery | ScaleChordRelation): void {
+  toolboxSubmit(query: any): void {
+    const payload = query as unknown as ToolboxSearchQuery | ScaleChordRelation;
     this.guitarNeckService.clearFretboard();
     this.patternBuilder.clearCurrentPattern();
-    if(this.isToolboxSearchQuery(query)){
+
+    if (this.isToolboxSearchQuery(query)) {
       const { musicElements, keys, type } = query;
 
       let command: Command | null = null;
@@ -102,33 +100,36 @@ export class HomePageComponent {
 
       command?.execute();
     }
+    else {
+      this.onScaleChordFormShow(query);
+    }
   }
 
   /** Called when the user selects a chord degree from the ChordDegreeSelector. */
-  onChordDegreeSelected(degree: ChordDegreeSelection): void {
-    if (!degree.chordName || !degree.rootNote) {
-      // Clear chord relation
-      this.fretboardOrchestrationService.clearRelation();
-      this.patternBuilder.relatedChord = null;
-      return;
-    }
+  // onChordDegreeSelected(degree: ChordDegreeSelection): void {
+  //   if (!degree.chordName || !degree.rootNote) {
+  //     // Clear chord relation
+  //     this.fretboardOrchestrationService.clearRelation();
+  //     this.patternBuilder.relatedChord = null;
+  //     return;
+  //   }
 
-    // Re-display the scale with the selected chord
-    const sc = this.guitarNeckService.scaleChordState;
-    if (!sc?.scale.name || !sc?.scale.rootNote) {
-      return;
-    }
+  //   // Re-display the scale with the selected chord
+  //   const sc = this.guitarNeckService.scaleChordState;
+  //   if (!sc?.scale.name || !sc?.scale.rootNote) {
+  //     return;
+  //   }
 
-    this.fretboardOrchestrationService.displayScaleWithChord(
-      sc.scale.name,
-      sc.scale.rootNote,
-      degree.chordName,
-      degree.rootNote,
-    ).subscribe();
+  //   this.fretboardOrchestrationService.displayScaleWithChord(
+  //     sc.scale.name,
+  //     sc.scale.rootNote,
+  //     degree.chordName,
+  //     degree.rootNote,
+  //   ).subscribe();
 
-    // Build chord pattern info for display
-    this.patternBuilder.setRelatedChord(degree.chordName, degree.rootNote);
-  }
+  //   // Build chord pattern info for display
+  //   this.patternBuilder.setRelatedChord(degree.chordName, degree.rootNote);
+  // }
 
   private buildCustomPatternCommand(intervals: number[], root: string): Command {
     this.guitarNeckService.currentSelection = {

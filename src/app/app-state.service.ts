@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 
-export type AppMode = 'idle' | 'scale' | 'scale-chord';
+export type AppMode = 'custom-pattern' | 'scale-or-chord' | 'scale-chord';;
 
 @Injectable({ providedIn: 'root' })
 export class AppStateService {
-  private appModeSubject = new BehaviorSubject<AppMode>('idle');
+  private appModeSubject = new BehaviorSubject<AppMode>('scale-or-chord');
   appMode$: Observable<AppMode> = this.appModeSubject.asObservable();
 
   get appMode(): AppMode {
@@ -15,6 +15,7 @@ export class AppStateService {
   setMode(mode: AppMode): void {
     if (mode === this.appMode) return;
     this.appModeSubject.next(mode);
+    console.log(mode);
   }
 
   /** Switch directly between modes — preserves current fretboard state. */

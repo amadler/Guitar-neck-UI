@@ -19,10 +19,10 @@ interface Preset {
   styleUrls: ['./range-toolbar.component.scss']
 })
 export class RangeToolbarComponent {
-  @Output() rangeChange = new EventEmitter<{minFret: number, maxFret: number}>();
+  @Output() rangeChange = new EventEmitter<{ minFret: number, maxFret: number }>();
   neckConfig = neckConfig;
 
-  constructor(private appState: AppStateService) {}
+  constructor(private appState: AppStateService) { }
 
   get appMode(): AppMode {
     return this.appState.appMode;
@@ -30,7 +30,7 @@ export class RangeToolbarComponent {
 
   /** Switch to the opposite mode (scale ↔ scale-chord). */
   switchMode(): void {
-    const target: AppMode = this.appMode === 'scale' ? 'scale-chord' : 'scale';
+    const target: AppMode = this.appMode === 'scale-or-chord' ? 'scale-chord' : 'scale-or-chord';
     this.appState.setMode(target);
   }
 

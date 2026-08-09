@@ -5,26 +5,30 @@
     <app-guitar-neck></app-guitar-neck>
   </div>
 
-  <!-- Mode Selector — shown only on first visit (idle) -->
-  <app-mode-selector *ngIf="(appMode$ | async) === 'idle'"></app-mode-selector>
-
   <!-- Legend — shown only in scale mode -->
-  <app-legend *ngIf="(appMode$ | async) === 'scale'"></app-legend>
+  <ng-container *ngIf="appMode$ | async as mode">
+    <app-legend
+      *ngIf="mode === 'scale-or-chord' || mode === 'custom-pattern'"
+    ></app-legend>
 
-  <!-- Relationship Strip — shown only in scale-chord mode -->
-  <app-relationship-strip *ngIf="(appMode$ | async) === 'scale-chord'"></app-relationship-strip>
+    <app-relationship-strip
+      *ngIf="mode === 'scale-chord'"
+    ></app-relationship-strip>
+  </ng-container>
 
-  <!-- Pattern Display — hidden in idle, shown when something is active -->
-  <app-pattern-display *ngIf="(appMode$ | async) !== 'idle'"></app-pattern-display>
+  <app-pattern-display></app-pattern-display>
 
   <section class="dock">
     <!-- Chord Degree Selector — kept in code, hidden in new layout -->
     <!-- <app-chord-degree-selector (chordDegreeSelected)="onChordDegreeSelected($event)"></app-chord-degree-selector> -->
 
     <!-- Scale mode — existing toolbox with scale/chord selection -->
-    <div class="dock__body" *ngIf="(appMode$ | async) === 'scale'">
+    <div class="dock__body">
       <section id="toolbox-container">
-        <lib-toolbox-form (onSubmit)="toolboxSubmit($event)"></lib-toolbox-form>
+        <lib-forms-wrapper
+          (onAppModeChange)="appModeChanged($event)"
+          (onSubmitEv)="toolboxSubmit($event)"
+        ></lib-forms-wrapper>
       </section>
 
       <section id="chat-container" *ngIf="chatEnabled; else chatDisabled">
@@ -34,12 +38,6 @@
         <app-metronome></app-metronome>
       </ng-template>
     </div>
-
-    <!-- Scale + Chord mode — dedicated form with independent scale/chord selection -->
-    <app-scale-chord-form
-      *ngIf="(appMode$ | async) === 'scale-chord'"
-      (showRelation)="onScaleChordFormShow($event)"
-    ></app-scale-chord-form>
   </section>
 
   <app-footer></app-footer>
