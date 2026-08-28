@@ -57,7 +57,6 @@ export class HomePageComponent {
 
   /** Called when the ScaleChordForm emits a scale+chord relation. */
   onScaleChordFormShow(relation: ScaleChordRelation): void {
-    debugger
     this.guitarNeckService.clearFretboard();
     this.patternBuilder.clearCurrentPattern();
 
