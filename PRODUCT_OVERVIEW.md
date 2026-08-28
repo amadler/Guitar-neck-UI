@@ -84,7 +84,7 @@ Guitar Neck UI to interaktywne narzędzie edukacyjne zaprojektowane, aby pomóc 
 4. Eksploracja różnych wariantów muzycznych
 
 ## Integracje
-- **music-theory-api** — backend do obliczania nut skal i akordów (Docker, port 3000)
+- **Tonal.js** — lokalny silnik teorii muzyki (skale, akordy, interwały). Żadnego backendu.
 - **Gemini AI** — (**POSTPONED**) silnik AI dla sugestii muzycznych, wymaga klucza API
 - **guitar-neck-shared / guitar-toolbox-lib** — npm pakiety z patternami i komponentem toolbox
 
@@ -97,9 +97,8 @@ Guitar Neck UI to interaktywne narzędzie edukacyjne zaprojektowane, aby pomóc 
 - System progresji ćwiczeń z ocenianiem
 
 ## Ograniczenia Techniczne
-- Wymagany backend `music-theory-api` (Docker) do obliczania nut skal i akordów
 - AI Chat (Gemini) — **wstrzymany**, wymaga klucza API i włączenia flagi `chatEnabled`
-- Backend nie dekoduje Unicode w nazwach patternów (♭/♯) — **FIXED** (naprawione w music-theory-api v0.1.0)
+- Logika teorii muzyki jest obliczana lokalnie przez Tonal.js — nie wymaga backendu
 
 ## Wsparcie
 - Dokumentacja użytkownika dostępna w aplikacji

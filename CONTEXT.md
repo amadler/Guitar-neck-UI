@@ -46,3 +46,11 @@ _Avoid_: Relation state, dual state
 **PatternDisplayComponent**:
 Component showing the current pattern info (scale card and/or chord card). In scale-chord mode shows both cards side by side with practice prompts.
 _Avoid_: Pattern info, selected patterns
+
+**Tonal.js**:
+Local music theory engine (`@tonaljs/tonal` v4) used for calculating scale notes, chord notes, and interval names. Replaces the former `music-theory-api` backend. All Tonal imports are confined to `FretboardOrchestrationService` — no UI component imports Tonal directly.
+_Avoid_: Backend API, music theory API
+
+**TonalAdapter**:
+Map of interval names between Tonal.js notation (`'3M'`, `'3m'`) and Guitar Neck UI notation (`'major-3rd'`, `'minor-3rd'`). Lives in `src/app/shared/tonal-adapter.ts`.
+_Avoid_: Interval converter, tonal mapper

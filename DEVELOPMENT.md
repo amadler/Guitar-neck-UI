@@ -3,8 +3,8 @@
 ## Technologie
 
 - **Frontend:** Angular 18.2, TypeScript 5.5, RxJS 7.8
+- **Teoria muzyki:** Tonal.js 4 (`@tonaljs/tonal`) — lokalny silnik, bez backendu
 - **Testy:** Karma 6.4, Jasmine 5.2, ChromeHeadless
-- **Backend:** music-theory-api (Elysia/Express, Docker, port 3000)
 - **Pakiety:** `guitar-neck-shared` ^1.0.2, `guitar-toolbox-lib` ^1.0.2
 - **AI (POSTPONED):** Gemini AI API (biblioteka `projects/guitar-chat`)
 
@@ -13,17 +13,10 @@
 ### Wymagania
 - Node.js 18+
 - Angular CLI 18 (`npm install -g @angular/cli`)
-- Docker (dla backendu `music-theory-api`)
 
 ### Instalacja
 ```bash
 npm install
-```
-
-### Backend (Docker)
-```bash
-docker compose up -d music-theory-api   # uruchamia backend na porcie 3000
-docker compose logs -f music-theory-api  # podgląd logów
 ```
 
 ### Frontend (dev server)
@@ -37,13 +30,6 @@ npm run watch       # ng build --watch --configuration development
 ### Testy
 ```bash
 npm test            # ng test → Karma + ChromeHeadless
-```
-
-### Docker (pełny stack)
-```bash
-docker compose up -d            # backend + frontend (nginx)
-docker compose down             # zatrzymanie
-docker compose logs -f          # logi
 ```
 
 ### Biblioteka guitar-chat (AI)

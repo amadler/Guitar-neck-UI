@@ -1,5 +1,4 @@
 import { TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
 import {
   DisplaySingleNoteCommand,
   DisplayAllNotesCommand,
@@ -8,6 +7,7 @@ import {
   DisplayCustomPatternCommand
 } from './UICommands';
 import { FretboardOrchestrationService } from '../services/music-theory-facade.service';
+import { GuitarNote } from '../shared/model/guitarNote';
 
 describe('UICommands', () => {
   let fretboardOrchestrationService: jasmine.SpyObj<FretboardOrchestrationService>;
@@ -20,8 +20,8 @@ describe('UICommands', () => {
       'displayChord',
       'displayCustomPattern'
     ]);
-    fretboardOrchestrationService.displayScale.and.returnValue(of([]));
-    fretboardOrchestrationService.displayChord.and.returnValue(of([]));
+    fretboardOrchestrationService.displayScale.and.returnValue([]);
+    fretboardOrchestrationService.displayChord.and.returnValue([]);
 
     TestBed.configureTestingModule({
       providers: [

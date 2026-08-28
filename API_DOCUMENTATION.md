@@ -3,7 +3,7 @@
 ## Core Services
 
 ### FretboardOrchestrationService
-Główna fasada integrująca logikę muzyczną.
+Główna fasada integrująca logikę muzyczną. **Synchroniczna** — używa Tonal.js zamiast HTTP API.
 
 ```typescript
 /**
@@ -14,17 +14,17 @@ class FretboardOrchestrationService {
    * Wyświetla skalę na gryfie z oznaczeniem interwałów.
    * @param scaleName - Nazwa skali (np. "major", "minor", "dorian")
    * @param rootNote - Nuta podstawowa (np. "C", "F#")
-   * @returns Observable<GuitarNote[]> - Zaznaczone nuty z interwałami
+   * @returns GuitarNote[] - Zaznaczone nuty z interwałami
    */
-  displayScale(scaleName: string, rootNote: string): Observable<GuitarNote[]>;
+  displayScale(scaleName: string, rootNote: string): GuitarNote[];
 
   /**
    * Wyświetla akord na gryfie z oznaczeniem interwałów.
    * @param triadType - Typ akordu (np. "major", "minor", "diminished")
    * @param rootNote - Nuta podstawowa (np. "C", "F#")
-   * @returns Observable<GuitarNote[]> - Zaznaczone nuty z interwałami
+   * @returns GuitarNote[] - Zaznaczone nuty z interwałami
    */
-  displayChord(triadType: string, rootNote: string): Observable<GuitarNote[]>;
+  displayChord(triadType: string, rootNote: string): GuitarNote[];
 
   /**
    * Wyświetla pojedynczą nutę na gryfie.
@@ -54,11 +54,11 @@ class FretboardOrchestrationService {
   /**
    * Wyświetla skalę z nałożonym akordem w trybie scale-chord.
    *
-   * 1. Pobiera nuty skali z API (GET /api/scales/:name/:root)
-   * 2. Rozwiązuje nuty akordu kliencko z CHORD_PATTERNS (bez API)
+   * 1. Oblicza nuty skali przez Tonal.js (scaleGet)
+   * 2. Oblicza nuty akordu przez Tonal.js (chord)
    * 3. Znajduje pozycje dla nut skali ORAZ nut akordu spoza skali
    * 4. Zaznacza wszystkie (union) na gryfie przez applyHighlightedNotes()
-   * 5. Pomija IntervalService — rolę wizualną przejmuje MarkerRoleService
+   * 5. Pomija interwały — rolę wizualną przejmuje MarkerRoleService
    * 6. Ustawia scaleChordState w FretboardStateService
    * 7. Wywołuje MarkerRoleService.computeRoles() dla wszystkich nut
    *
@@ -66,14 +66,14 @@ class FretboardOrchestrationService {
    * @param scaleRoot - Nuta podstawowa skali (np. "C", "F#")
    * @param chordName - Nazwa akordu (np. "major", "diminished")
    * @param chordRoot - Nuta podstawowa akordu (np. "E", "G#")
-   * @returns Observable<GuitarNote[]> - Zaznaczone nuty (skala + spoza-akord)
+   * @returns GuitarNote[] - Zaznaczone nuty (skala + spoza-akord)
    */
   displayScaleWithChord(
     scaleName: string,
     scaleRoot: string,
     chordName: string,
     chordRoot: string,
-  ): Observable<GuitarNote[]>;
+  ): GuitarNote[];
 
   /**
    * Usuwa relację akordu, pozostawiając samą skalę.

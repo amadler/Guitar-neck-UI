@@ -66,7 +66,7 @@ export class HomePageComponent {
       relation.scaleRoot,
       relation.chordName,
       relation.chordRoot,
-    ).subscribe();
+    );
 
     this.patternBuilder.setCurrentPattern(relation.scaleName, relation.scaleRoot, 'scale');
     this.patternBuilder.setRelatedChord(relation.chordName, relation.chordRoot);

@@ -1,12 +1,13 @@
 # Guitar Neck UI - Architektura Systemu
 
 ## Przegląd Architektury
-Aplikacja wykorzystuje architekturę warstwową opartą na wzorcu **Facade** i **Command Pattern**, z centralnym zarządzaniem stanem gryfu i asynchroniczną komunikacją z backendem `music-theory-api`.
+Aplikacja wykorzystuje architekturę warstwową opartą na wzorcu **Facade** i **Command Pattern**, z centralnym zarządzaniem stanem gryfu i **synchronicznym silnikiem teorii muzyki** (Tonal.js).
 
-System składa się z 3 części:
+System składa się z 2 części:
 1. **`guitar-neck-ui`** — Angular 18 frontend (to repo)
-2. **`music-theory-api`** — Backend Elysia, Docker, port 3000
-3. **`guitar-neck-shared` + `guitar-toolbox-lib`** — npm pakiety z patternami i komponentem toolbox
+2. **`guitar-neck-shared` + `guitar-toolbox-lib`** — npm pakiety z patternami i komponentem toolbox
+
+Logika teorii muzyki (skale, akordy, interwały) jest obliczana lokalnie przez **Tonal.js** — nie ma zależności od backendu `music-theory-api`.
 
 ## Główne Komponenty Systemu
 
@@ -39,14 +40,12 @@ System składa się z 3 części:
 | Serwis (klasa) | Plik | Odpowiedzialność |
 |---------------|------|-----------------|
 | `AppStateService` | `app-state.service.ts` | Tryb aplikacji: idle/scale/scale-chord |
-| `FretboardOrchestrationService` | `music-theory-facade.service.ts` | Fasada — wyświetlanie skal, akordów, nut, relacji scale+chord |
+| `FretboardOrchestrationService` | `music-theory-facade.service.ts` | Fasada — wyświetlanie skal, akordów, nut, relacji scale+chord. Używa Tonal.js do obliczeń. |
 | `FretboardStateService` | `guitar-neck.service.ts` | Stan gryfu — visible, selected, interval, ScaleChordState |
 | `FretboardNotePositionService` | `note.service.ts` | Generuje mapę nut na gryfie, wyszukuje pozycje |
-| `IntervalService` | `interval.service.ts` | Oznacza nuty interwałami (root, 3rd, 5th, itd.) |
 | `MarkerRoleService` | `marker-role.service.ts` | Oblicza role wizualne (scale-tone, chord-root, chord-tone-outside-scale itd.) |
 | `FretboardDisplayService` | `fretboard-display.service.ts` | Klasa CSS dla znaczników: interwałowa lub role-based |
-| `MusicPatternApiService` | `scales-and-triads.service.ts` | HTTP → `music-theory-api` |
-| `LoadingService` | `loading.service.ts` | Zarządza stanem ładowania (show/hide z requestCount) |
+| `PatternBuilderService` | `pattern-builder.service.ts` | Buduje `PatternInfo` dla UI (nut, interwałów, kroków W/H) |
 
 #### AI Services (`projects/guitar-chat`) — POSTPONED
 
@@ -103,12 +102,11 @@ User → ToolboxFormComponent (select type, pattern, key)
   → HomePageComponent.toolboxSubmit()
     → DisplayChordCommand / DisplayScaleCommand
       → FretboardOrchestrationService.displayChord / displayScale
-        → MusicPatternApiService.resolveChordNotes / resolveScaleNotes
-            → HTTP GET /api/chords/:name/:root (lub /api/scales/...)
-        → FretboardNotePositionService.findPositionsByChordNotes / ByScaleNotes
+        → [Tonal.js] scaleGet() / chord() → string[]
+        → FretboardNotePositionService.findPositionsByScaleNotes / ByChordNotes
         → FretboardStateService.applyHighlightedNotes
-        → IntervalService.markIntervals(root, pattern, notes, 'chord'|'scale')
-      → Observable<GuitarNote[]> → FreatboardComponent
+        → [inline] markIntervals() — distance() + INTERVAL_MAP
+      → GuitarNote[] → FreatboardComponent
         → NgClass: guitar-neck__root, guitar-neck__major-3rd, itd.
 ```
 
@@ -118,14 +116,14 @@ User → ToolboxFormComponent (select type, pattern, key)
 ScaleChordFormComponent (wybór skali + akordu)
   → HomePageComponent.buildScaleChordCommand()
     → FretboardOrchestrationService.displayScaleWithChord(scale, root, chord, chordRoot)
-      → MusicPatternApiService.resolveScaleNotes() → HTTP → GET /api/scales/:name/:root
-      → (chord notes resolved client-side from CHORD_PATTERNS — 🔴 duplicated in 3 files)
+      → [Tonal.js] scaleGet(root, scaleName) → scale notes
+      → [Tonal.js] chord(root, chordName) → chord notes
       → FretboardNotePositionService.findPositionsByScaleNotes(scaleNotes)
       → FretboardNotePositionService.findPositionsByScaleNotes(outsideChordNotes)
       → FretboardStateService.applyHighlightedNotes(union)
       → MarkerRoleService.computeRoles(allNotes, scale, chord)
         → 5 role CSS classes: scale-tone, chord-tone, scale-root, chord-root, chord-tone-outside-scale
-      → IntervalService — intentionally skipped (role-based instead)
+      → Interval marking skipped (role-based instead)
       → FretboardStateService.scaleChordState = { scale, chord }
     → PatternBuilderService.setCurrentPattern() + setRelatedChord()
     → RelationshipStripComponent (zamiast LegendComponent)
@@ -135,27 +133,27 @@ ScaleChordFormComponent (wybór skali + akordu)
 ## Wzorce Projektowe
 
 ### 1. Facade Pattern
-`FretboardOrchestrationService` ukrywa złożoność (HTTP API, wyszukiwanie pozycji, interwały) przed komponentami UI.
+`FretboardOrchestrationService` ukrywa złożoność (Tonal.js, wyszukiwanie pozycji, interwały) przed komponentami UI.
 
 ### 2. Command Pattern
 `UICommands.ts` enkapsuluje każdą operację na gryfie jako osobną klasę Command.
 
 ### 3. Service Pattern
-Każda odpowiedzialność w osobnej klasie: `FretboardNotePositionService` → geometria, `FretboardStateService` → stan, `IntervalService` → logika muzyczna, `MusicPatternApiService` → HTTP.
+Każda odpowiedzialność w osobnej klasie: `FretboardNotePositionService` → geometria, `FretboardStateService` → stan, `MarkerRoleService` → role wizualne.
 
-## Backend API (music-theory-api)
+## Silnik Teorii Muzyki (Tonal.js)
 
-Osobne repozytorium, Docker na porcie 3000, framework Elysia.
+Logika teorii muzyki jest obliczana lokalnie przez **Tonal.js** (`@tonaljs/tonal` v4):
 
-| Metoda | Endpoint | Opis |
-|--------|----------|------|
-| GET | `/api/scales` | Lista skal |
-| GET | `/api/scales/:name/:root` | Nuty skali |
-| GET | `/api/chords` | Lista akordów |
-| GET | `/api/chords/:name/:root` | Nuty akordu |
-| GET | `/api/find-compatible-scales/:name/:root` | Kompatybilne skale |
+| Funkcja | Tonal | Użycie |
+|---------|-------|--------|
+| Nuty skali | `scaleGet(root + name).notes` | `displayScale()`, `displayScaleWithChord()` |
+| Nuty akordu | `chord(root + type).notes` | `displayChord()`, `displayScaleWithChord()` |
+| Nazwy interwałów | `distance(from, to)` → `INTERVAL_MAP` | `markIntervals()` |
+| Detekcja skali | `detect(notes)` | Przyszłe: AI teacher |
+| Akordy diatoniczne | `majorKey(root).chords` | Przyszłe: AI teacher |
 
-Uwaga: parametry `:name` i `:root` wymagają `decodeURIComponent()`.
+Adapter mapowania nazw: `src/app/shared/tonal-adapter.ts` (INTERVAL_MAP).
 
 ## Konfiguracja Środowiska
 
@@ -163,7 +161,6 @@ Uwaga: parametry `:name` i `:root` wymagają `decodeURIComponent()`.
 // src/environments/environment.ts
 const environment = {
   production: false,
-  apiUrl: 'http://localhost:3000',
   geminiApiKey: '',
   features: { chatEnabled: false }
 };

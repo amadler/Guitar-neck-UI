@@ -31,11 +31,8 @@ export class DisplayScaleCommand implements Command {
   ) {}
 
   execute(): void {
-    this.fretboardOrchestrationService.displayScale(this.scaleName, this.rootNote)
-      .subscribe({
-        next: (notes) => console.log('Scale displayed:', notes),
-        error: (error) => console.error('Error displaying scale:', error)
-      });
+    const notes = this.fretboardOrchestrationService.displayScale(this.scaleName, this.rootNote);
+    console.log('Scale displayed:', notes);
   }
 }
 
@@ -47,11 +44,8 @@ export class DisplayChordCommand implements Command {
   ) {}
 
   execute(): void {
-    this.fretboardOrchestrationService.displayChord(this.triadName, this.rootNote)
-      .subscribe({
-        next: (notes) => console.log('Chord displayed:', notes),
-        error: (error) => console.error('Error displaying chord:', error)
-      });
+    const notes = this.fretboardOrchestrationService.displayChord(this.triadName, this.rootNote);
+    console.log('Chord displayed:', notes);
   }
 }
 
@@ -67,4 +61,3 @@ export class DisplayCustomPatternCommand implements Command {
     this.fretboardOrchestrationService.displayCustomPattern(notes, this.rootNote);
   }
 }
-
