@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { get as scaleGet } from '@tonaljs/scale';
-import { chord } from '@tonaljs/chord';
+import { get as chordGet } from '@tonaljs/chord';
 import { simplify } from '@tonaljs/note';
 import { distance } from '@tonaljs/interval';
 import { GuitarNote } from '../shared/model/guitarNote';
@@ -9,12 +9,14 @@ import { FretboardNotePositionService } from './note.service';
 import { FretboardStateService } from './guitar-neck.service';
 import { MarkerRoleService } from './marker-role.service';
 import { INTERVAL_MAP } from '../shared/tonal-adapter';
+import { neckConfig } from 'guitar-neck-shared';
 
 /**
  * FretboardOrchestrationService — fasada dla logiki teorii muzyki.
  *
  * Jedyna warstwa między UI a silnikiem Tonal.js.
  * Metody są synchroniczne — żadnych Observable, żadnego HTTP.
+ * Nazwy patternów są normalizowane z formatu UI → Tonal.
  */
 @Injectable({ providedIn: 'root' })
 export class FretboardOrchestrationService {
@@ -26,7 +28,8 @@ export class FretboardOrchestrationService {
 
   /** Wyświetla skalę na gryfie z oznaczeniem interwałów. */
   displayScale(scaleName: string, rootNote: string): GuitarNote[] {
-    const scaleNotes = scaleGet(`${rootNote} ${scaleName}`)
+    const tonalName = this.toTonalScaleName(scaleName);
+    const scaleNotes = scaleGet(`${rootNote} ${tonalName}`)
       .notes.map(n => simplify(n));
     const positions = this.noteService.findPositionsByScaleNotes(scaleNotes);
     const highlighted = this.guitarNeckService.applyHighlightedNotes(positions);
@@ -37,8 +40,7 @@ export class FretboardOrchestrationService {
   /** Wyświetla akord na gryfie z oznaczeniem interwałów. */
   displayChord(triadType: string, rootNote: string): GuitarNote[] {
     this.clearFretboard();
-    const chordNotes = chord(`${rootNote}${triadType}`)
-      .notes.map(n => simplify(n));
+    const chordNotes = this.resolveChordNotes(triadType, rootNote);
     const positions = this.noteService.findPositionsByChordNotes(chordNotes);
     const highlighted = this.guitarNeckService.applyHighlightedNotes(positions);
     this.markIntervals(rootNote, highlighted);
@@ -88,12 +90,12 @@ export class FretboardOrchestrationService {
     this.removeIntervals(this.guitarNeckService.notes);
 
     // 1. Resolve scale notes via Tonal
-    const scaleNotes = scaleGet(`${scaleRoot} ${scaleName}`)
+    const tonalScaleName = this.toTonalScaleName(scaleName);
+    const scaleNotes = scaleGet(`${scaleRoot} ${tonalScaleName}`)
       .notes.map(n => simplify(n));
 
     // 2. Resolve chord notes via Tonal
-    const chordNoteNames = chord(`${chordRoot}${chordName}`)
-      .notes.map(n => simplify(n));
+    const chordNoteNames = this.resolveChordNotes(chordName, chordRoot);
 
     // 3. Find chord notes that are NOT in the scale
     const outsideChordNotes = chordNoteNames.filter(n => !scaleNotes.includes(n));
@@ -146,6 +148,54 @@ export class FretboardOrchestrationService {
   }
 
   // ---- Private helpers ----
+
+  /** Normalizuje nazwę skali z formatu UI (myślniki) na format Tonal (spacje). */
+  private toTonalScaleName(name: string): string {
+    return name.replace(/-/g, ' ');
+  }
+
+  /** Normalizuje nazwę akordu z formatu UI na format Tonal. */
+  private toTonalChordName(name: string): string {
+    // dom7 → 7, dom9 → 9, dom11 → 11, dom13 → 13
+    name = name.replace(/^dom(\d+)$/, '$1');
+    // min7 → m7, min9 → m9, min11 → m11, min13 → m13
+    name = name.replace(/^min(\d+)$/, 'm$1');
+    // minmaj7 → mM7
+    name = name.replace('minmaj7', 'mM7');
+    // min6 → m6
+    name = name.replace('min6', 'm6');
+    // m7b5 stays as is (Tonal has it)
+    return name;
+  }
+
+  /**
+   * Resolves chord note names from a chord type and root.
+   * Uses Tonal for most chords; handles add11 specially since Tonal doesn't have it.
+   */
+  private resolveChordNotes(chordType: string, rootNote: string): string[] {
+    if (chordType === 'add11') {
+      // add11 = root, major 3rd, perfect 5th, perfect 11th (= perfect 4th up octave)
+      // In pitch classes: root + 4 semitones + 7 semitones + 5 semitones
+      const chromatic = neckConfig.chromaticNotes;
+      const rootIndex = chromatic.indexOf(rootNote);
+      if (rootIndex === -1) return [];
+      const notes = [
+        chromatic[rootIndex],
+        chromatic[(rootIndex + 4) % 12],  // major 3rd
+        chromatic[(rootIndex + 7) % 12],  // perfect 5th
+        chromatic[(rootIndex + 5) % 12],  // perfect 11th (= 4th)
+      ];
+      return [...new Set(notes)]; // deduplicate in case of enharmonic overlap
+    }
+
+    const tonalName = this.toTonalChordName(chordType);
+    const result = chordGet(`${rootNote}${tonalName}`);
+    if (result.empty) {
+      console.warn(`[FretboardOrchestrationService] Unknown chord: ${chordType} (tried Tonal: ${tonalName})`);
+      return [];
+    }
+    return result.notes.map((n: string) => simplify(n));
+  }
 
   /** Oznacza nuty interwałami względem rootNote. */
   private markIntervals(rootNote: string, notes: GuitarNote[]): void {
