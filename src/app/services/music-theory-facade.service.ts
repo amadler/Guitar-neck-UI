@@ -8,19 +8,17 @@ import { MusicSelection } from '../shared/model/music-selection';
 import { FretboardNotePositionService } from './note.service';
 import { FretboardStateService } from './guitar-neck.service';
 import { MarkerRoleService } from './marker-role.service';
-import { INTERVAL_MAP } from '../shared/tonal-adapter';
-import { neckConfig } from 'guitar-neck-shared';
+import { INTERVAL_MAP, CHORD_NAME_TO_TONAL, SCALE_NAME_TO_TONAL, SCALES_NOT_IN_TONAL, CHORDS_NOT_IN_TONAL } from '../shared/tonal-adapter';
+import { CHORD_PATTERNS, SCALE_PATTERNS, neckConfig } from 'guitar-neck-shared';
 
 /**
  * FretboardOrchestrationService — fasada dla logiki teorii muzyki.
  *
  * Jedyna warstwa między UI a silnikiem Tonal.js.
  * Metody są synchroniczne — żadnych Observable, żadnego HTTP.
- * Nazwy patternów są normalizowane z formatu UI → Tonal.
  *
- * Ważne: Tonal zwraca nuty w notacji enharmonicznej (C##, B#, F##).
- * Do mapowania na gryf używamy simplify(), ale do liczenia interwałów
- * zachowujemy oryginalne nazwy Tonal — inaczej distance() da złe wyniki.
+ * Nazwy patternów są mapowane przez CHORD_NAME_TO_TONAL / SCALE_NAME_TO_TONAL.
+ * Dla patternów których Tonal nie ma, używamy fallbacku z CHORD_PATTERNS / SCALE_PATTERNS.
  */
 @Injectable({ providedIn: 'root' })
 export class FretboardOrchestrationService {
@@ -32,14 +30,10 @@ export class FretboardOrchestrationService {
 
   /** Wyświetla skalę na gryfie z oznaczeniem interwałów. */
   displayScale(scaleName: string, rootNote: string): GuitarNote[] {
-    const tonalName = this.toTonalScaleName(scaleName);
-    const rawNotes = scaleGet(`${rootNote} ${tonalName}`).notes;
-    // Używamy simplify() tylko do mapowania na gryf
-    const simplifiedNotes = rawNotes.map(n => simplify(n));
-    const positions = this.noteService.findPositionsByScaleNotes(simplifiedNotes);
+    const { simplified, raw } = this.resolveScaleNotes(scaleName, rootNote);
+    const positions = this.noteService.findPositionsByScaleNotes(simplified);
     const highlighted = this.guitarNeckService.applyHighlightedNotes(positions);
-    // Interwały liczymy z oryginalnych nazw Tonal
-    this.markIntervals(rootNote, rawNotes, highlighted);
+    this.markIntervals(rootNote, raw, highlighted);
     return highlighted;
   }
 
@@ -95,33 +89,22 @@ export class FretboardOrchestrationService {
   ): GuitarNote[] {
     this.removeIntervals(this.guitarNeckService.notes);
 
-    // 1. Resolve scale notes via Tonal
-    const tonalScaleName = this.toTonalScaleName(scaleName);
-    const rawScaleNotes = scaleGet(`${scaleRoot} ${tonalScaleName}`).notes;
-    const simplifiedScaleNotes = rawScaleNotes.map(n => simplify(n));
-
-    // 2. Resolve chord notes via Tonal
+    const { simplified: simplifiedScaleNotes } = this.resolveScaleNotes(scaleName, scaleRoot);
     const { simplified: simplifiedChordNotes } = this.resolveChordNotes(chordName, chordRoot);
 
-    // 3. Find chord notes that are NOT in the scale
     const outsideChordNotes = simplifiedChordNotes.filter(n => !simplifiedScaleNotes.includes(n));
 
-    // 4. Find positions for scale notes AND outside chord notes
     const scalePositions = this.noteService.findPositionsByScaleNotes(simplifiedScaleNotes);
     const outsidePositions = this.noteService.findPositionsByScaleNotes(outsideChordNotes);
     const allPositions = [...scalePositions, ...outsidePositions];
     const highlightedNotes = this.guitarNeckService.applyHighlightedNotes(allPositions);
 
-    // 5. Skip interval marking — role-based coloring handles visuals via MarkerRoleService
-
-    // 6. Build chord selection
     const chordSelection: MusicSelection = {
       type: 'chord',
       name: chordName,
       rootNote: chordRoot,
     };
 
-    // 7. Set dual selection state
     this.guitarNeckService.scaleChordState = {
       scale: {
         type: 'scale',
@@ -132,7 +115,6 @@ export class FretboardOrchestrationService {
       chord: chordSelection,
     };
 
-    // 8. Compute marker roles
     this.markerRoleService.computeRoles(
       this.guitarNeckService.notes,
       this.guitarNeckService.scaleChordState.scale,
@@ -155,25 +137,34 @@ export class FretboardOrchestrationService {
 
   // ---- Private helpers ----
 
-  /** Normalizuje nazwę skali z formatu UI (myślniki) na format Tonal (spacje). */
-  private toTonalScaleName(name: string): string {
-    return name.replace(/-/g, ' ');
-  }
+  /**
+   * Resolves scale note names from a UI scale name and root.
+   * Uses Tonal if available, falls back to SCALE_PATTERNS for exotic scales.
+   */
+  private resolveScaleNotes(scaleName: string, rootNote: string): { simplified: string[]; raw: string[] } {
+    // Fallback for scales not in Tonal
+    if (SCALES_NOT_IN_TONAL.has(scaleName)) {
+      return this.resolveFromPatterns(scaleName, rootNote, SCALE_PATTERNS);
+    }
 
-  /** Normalizuje nazwę akordu z formatu UI na format Tonal. */
-  private toTonalChordName(name: string): string {
-    name = name.replace(/^dom(\d+)$/, '$1');
-    name = name.replace(/^min(\d+)$/, 'm$1');
-    name = name.replace('minmaj7', 'mM7');
-    name = name.replace('min6', 'm6');
-    return name;
+    const tonalName = SCALE_NAME_TO_TONAL[scaleName] || scaleName.replace(/-/g, ' ');
+    const result = scaleGet(`${rootNote} ${tonalName}`);
+    if (result.empty) {
+      console.warn(`[FretboardOrchestrationService] Unknown scale: ${scaleName} (tried Tonal: ${tonalName})`);
+      return this.resolveFromPatterns(scaleName, rootNote, SCALE_PATTERNS);
+    }
+    const raw = result.notes;
+    const simplified = raw.map((n: string) => simplify(n));
+    return { simplified, raw };
   }
 
   /**
-   * Resolves chord note names from a chord type and root.
-   * Returns both simplified names (for fretboard) and raw Tonal names (for intervals).
+   * Resolves chord note names from a UI chord name and root.
+   * Uses Tonal if available, falls back to CHORD_PATTERNS for exotic chords.
+   * add11 is handled specially since Tonal doesn't have it.
    */
   private resolveChordNotes(chordType: string, rootNote: string): { simplified: string[]; raw: string[] } {
+    // add11: Tonal doesn't have it
     if (chordType === 'add11') {
       const chromatic = neckConfig.chromaticNotes;
       const rootIndex = chromatic.indexOf(rootNote);
@@ -188,15 +179,56 @@ export class FretboardOrchestrationService {
       return { simplified: deduped, raw: deduped };
     }
 
-    const tonalName = this.toTonalChordName(chordType);
+    // Fallback for chords not in Tonal
+    if (CHORDS_NOT_IN_TONAL.has(chordType)) {
+      return this.resolveFromPatterns(chordType, rootNote, CHORD_PATTERNS);
+    }
+
+    const tonalName = CHORD_NAME_TO_TONAL[chordType];
+    if (!tonalName) {
+      console.warn(`[FretboardOrchestrationService] Unknown chord mapping: ${chordType}`);
+      return this.resolveFromPatterns(chordType, rootNote, CHORD_PATTERNS);
+    }
+
     const result = chordGet(`${rootNote}${tonalName}`);
     if (result.empty) {
-      console.warn(`[FretboardOrchestrationService] Unknown chord: ${chordType} (tried Tonal: ${tonalName})`);
-      return { simplified: [], raw: [] };
+      console.warn(`[FretboardOrchestrationService] Tonal returned empty for: ${chordType} → ${tonalName}`);
+      return this.resolveFromPatterns(chordType, rootNote, CHORD_PATTERNS);
     }
     const raw = result.notes;
     const simplified = raw.map((n: string) => simplify(n));
     return { simplified, raw };
+  }
+
+  /**
+   * Fallback: resolves note names from CHORD_PATTERNS / SCALE_PATTERNS.
+   * Used for exotic patterns that Tonal doesn't know.
+   */
+  private resolveFromPatterns(
+    patternName: string,
+    rootNote: string,
+    patterns: Array<{ name: string; intervals: number[] }>,
+  ): { simplified: string[]; raw: string[] } {
+    const pattern = patterns.find(p => p.name === patternName);
+    if (!pattern) {
+      console.warn(`[FretboardOrchestrationService] Pattern not found in fallback: ${patternName}`);
+      return { simplified: [], raw: [] };
+    }
+
+    const chromatic = neckConfig.chromaticNotes;
+    const rootIndex = chromatic.indexOf(rootNote);
+    if (rootIndex === -1) return { simplified: [], raw: [] };
+
+    const notes: string[] = [rootNote];
+    let cumulative = 0;
+    for (const step of pattern.intervals) {
+      cumulative += step;
+      notes.push(chromatic[(rootIndex + cumulative) % 12]);
+    }
+
+    const deduped = [...new Set(notes)];
+    // For fallback, simplified and raw are the same (no enharmonic notation)
+    return { simplified: deduped, raw: deduped };
   }
 
   /** Oznacza nuty interwałami, używając oryginalnych nazw Tonal do distance(). */
@@ -205,7 +237,6 @@ export class FretboardOrchestrationService {
       if (note.note === rootNote) {
         note.interval = 'root';
       } else {
-        // Znajdź oryginalną nazwę Tonal dla tej nuty (po simplified)
         const rawName = rawNoteNames.find(n => simplify(n) === note.note) || note.note;
         const tonalInterval = distance(rootNote, rawName);
         note.interval = INTERVAL_MAP[tonalInterval] || '';
