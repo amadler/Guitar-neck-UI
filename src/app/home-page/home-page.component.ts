@@ -57,6 +57,7 @@ export class HomePageComponent {
 
   /** Called when the ScaleChordForm emits a scale+chord relation. */
   onScaleChordFormShow(relation: ScaleChordRelation): void {
+    debugger
     this.guitarNeckService.clearFretboard();
     this.patternBuilder.clearCurrentPattern();
 
@@ -103,6 +104,10 @@ export class HomePageComponent {
     else {
       this.onScaleChordFormShow(query);
     }
+  }
+
+  onToolboxEvent(event: any) {
+    console.log('Recieved from ToolboxCommand event: ', event);
   }
 
   /** Called when the user selects a chord degree from the ChordDegreeSelector. */

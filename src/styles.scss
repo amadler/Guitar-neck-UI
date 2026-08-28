@@ -11,55 +11,52 @@
 //     height: 100vh;
 // }
 
-
 // globals
 
 // zmienne css dla kolorów i nagłówków
 :root {
-    --primary-color: #007bff;
-    --secondary-color: #6c757d;
-    --success-color: #28a745;
-    --danger-color: #dc3545;
-    --warning-color: #ffc107;
-    --info-color: #17a2b8;
-    --light-color: #f8f9fa;
-    --dark-color: #343a40;
-    --white-color: #fff;
-    --black-color: #000;
-    --font-size: 1rem;
-    --font-weight: 400;
-    --line-height: 1.5;
-    --border-radius: 0.25rem;
+  --primary-color: #007bff;
+  --secondary-color: #6c757d;
+  --success-color: #28a745;
+  --danger-color: #dc3545;
+  --warning-color: #ffc107;
+  --info-color: #17a2b8;
+  --light-color: #f8f9fa;
+  --dark-color: #343a40;
+  --white-color: #fff;
+  --black-color: #000;
+  --font-size: 1rem;
+  --font-weight: 400;
+  --line-height: 1.5;
+  --border-radius: 0.25rem;
 
-    //guitar neck theme
-    --guitar-neck-bg-color: #333;
-    --guitar-neck-fret-color: #ddd;
-    --guitar-neck-string-color: #ddd;
-    --guitar-neck-dot-color: rgba(255, 255, 255, 0.15);
-    --guitar-neck-dot-label-color: rgba(255, 255, 255, 0.4);
-    // siodełko
-    --guitar-neck-open-string-color: #bf500b;
-    --guitar-neck-dot-size: 20px;
-    --guitar-neck-dot-border-radius: 50%;
+  //guitar neck theme
+  --guitar-neck-bg-color: #333;
+  --guitar-neck-fret-color: #ddd;
+  --guitar-neck-string-color: #ddd;
+  --guitar-neck-dot-color: rgba(255, 255, 255, 0.15);
+  --guitar-neck-dot-label-color: rgba(255, 255, 255, 0.4);
+  // siodełko
+  --guitar-neck-open-string-color: #bf500b;
+  --guitar-neck-dot-size: 20px;
+  --guitar-neck-dot-border-radius: 50%;
 
-    // markery
-    --guitar-neck-marker-bg-color: rgba(168, 110, 110, 0.3);
-    --guitar-neck-marker--color: rgb(255, 255, 255);
-    --interval-root:             rgb(168, 18, 35);
-    --interval-minor-2nd:        rgb(180, 110, 60);
-    --interval-major-2nd:        rgb(185, 140, 55);
-    --interval-minor-3rd:        rgb(165, 155, 75);
-    --interval-major-3rd:        rgb(110, 160, 70);
-    --interval-perfect-4th:      rgb(60, 140, 100);
-    --interval-diminished-5th:   rgb(60, 125, 120);
-    --interval-perfect-5th:      rgb(60, 115, 170);
-    --interval-minor-6th:        rgb(110, 75, 155);
-    --interval-major-6th:        rgb(140, 85, 165);
-    --interval-minor-7th:        rgb(145, 65, 115);
-    --interval-major-7th:        rgb(130, 130, 130);
+  // markery
+  --guitar-neck-marker-bg-color: rgba(168, 110, 110, 0.3);
+  --guitar-neck-marker--color: rgb(255, 255, 255);
+  --interval-root: rgb(168, 18, 35);
+  --interval-minor-2nd: rgb(180, 110, 60);
+  --interval-major-2nd: rgb(185, 140, 55);
+  --interval-minor-3rd: rgb(165, 155, 75);
+  --interval-major-3rd: rgb(110, 160, 70);
+  --interval-perfect-4th: rgb(60, 140, 100);
+  --interval-diminished-5th: rgb(60, 125, 120);
+  --interval-perfect-5th: rgb(60, 115, 170);
+  --interval-minor-6th: rgb(110, 75, 155);
+  --interval-major-6th: rgb(140, 85, 165);
+  --interval-minor-7th: rgb(145, 65, 115);
+  --interval-major-7th: rgb(130, 130, 130);
 }
-
-
 
 /* ==========================================================================
    Guitar Neck UI Layout POC
@@ -97,6 +94,10 @@
   --toolbox-accent: var(--green-800);
   --toolbox-accent-text: #ffffff;
   --toolbox-accent-bg: var(--green-100);
+
+  --toolbox-warn: #c21717;
+  --toolbox-warn-text: #c21717;
+  --toolbox-warn-bg: #d06d6d;
   --toolbox-muted: var(--app-muted);
 }
 
@@ -134,7 +135,7 @@ body {
    ========================================================================== */
 
 .app-shell {
-   max-width: 1440px;
+  max-width: 1440px;
   display: grid;
   grid-template-rows:
     var(--header-height)
@@ -199,11 +200,10 @@ body {
 /* ==========================================================================
    Range Toolbar
    ========================================================================== */
-app-range-toolbar{
+app-range-toolbar {
   display: block;
   width: 100%;
 }
-
 
 .range-card {
   padding: 18px 18px 20px;
@@ -212,7 +212,6 @@ app-range-toolbar{
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-soft);
 }
-
 
 .range-card__title {
   margin-bottom: 12px;
@@ -310,7 +309,8 @@ app-range-toolbar{
   max-height: 292px;
   border-radius: 6px;
   background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.22) 0 1px, transparent 1px) 0 0 / 72px 100%,
+    linear-gradient(90deg, rgba(255, 255, 255, 0.22) 0 1px, transparent 1px) 0
+      0 / 72px 100%,
     linear-gradient(#8f8f8f 0 1px, transparent 1px) 0 19px / 100% 38px,
     #252525;
   overflow: hidden;
@@ -344,12 +344,24 @@ app-range-toolbar{
   background: #bdbdbd;
 }
 
-.mock-fretboard__string--1 { top: 14%; }
-.mock-fretboard__string--2 { top: 28%; }
-.mock-fretboard__string--3 { top: 42%; }
-.mock-fretboard__string--4 { top: 56%; }
-.mock-fretboard__string--5 { top: 70%; }
-.mock-fretboard__string--6 { top: 84%; }
+.mock-fretboard__string--1 {
+  top: 14%;
+}
+.mock-fretboard__string--2 {
+  top: 28%;
+}
+.mock-fretboard__string--3 {
+  top: 42%;
+}
+.mock-fretboard__string--4 {
+  top: 56%;
+}
+.mock-fretboard__string--5 {
+  top: 70%;
+}
+.mock-fretboard__string--6 {
+  top: 84%;
+}
 
 .note {
   position: absolute;
@@ -367,15 +379,21 @@ app-range-toolbar{
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
 }
 
-.note--root { background: var(--interval-root); }
-.note--3 { background: var(--interval-major-3rd); }
-.note--5 { background: var(--interval-perfect-5th); }
+.note--root {
+  background: var(--interval-root);
+}
+.note--3 {
+  background: var(--interval-major-3rd);
+}
+.note--5 {
+  background: var(--interval-perfect-5th);
+}
 
 /* ==========================================================================
    Legend
    ========================================================================== */
 
-app-legend{
+app-legend {
   display: block;
 }
 .legend-row {
@@ -416,18 +434,42 @@ app-legend{
   justify-content: center;
 }
 
-.interval--root { background: var(--interval-root); }
-.interval--b2 { background: var(--interval-minor-2nd); }
-.interval--2 { background: var(--interval-major-2nd); }
-.interval--b3 { background: var(--interval-minor-3rd); }
-.interval--3 { background: var(--interval-major-3rd); }
-.interval--4 { background: var(--interval-perfect-4th); }
-.interval--b5 { background: var(--interval-diminished-5th); }
-.interval--5 { background: var(--interval-perfect-5th); }
-.interval--b6 { background: var(--interval-minor-6th); }
-.interval--6 { background: var(--interval-major-6th); }
-.interval--b7 { background: var(--interval-minor-7th); }
-.interval--7 { background: var(--interval-major-7th); }
+.interval--root {
+  background: var(--interval-root);
+}
+.interval--b2 {
+  background: var(--interval-minor-2nd);
+}
+.interval--2 {
+  background: var(--interval-major-2nd);
+}
+.interval--b3 {
+  background: var(--interval-minor-3rd);
+}
+.interval--3 {
+  background: var(--interval-major-3rd);
+}
+.interval--4 {
+  background: var(--interval-perfect-4th);
+}
+.interval--b5 {
+  background: var(--interval-diminished-5th);
+}
+.interval--5 {
+  background: var(--interval-perfect-5th);
+}
+.interval--b6 {
+  background: var(--interval-minor-6th);
+}
+.interval--6 {
+  background: var(--interval-major-6th);
+}
+.interval--b7 {
+  background: var(--interval-minor-7th);
+}
+.interval--7 {
+  background: var(--interval-major-7th);
+}
 
 .legend-switches {
   display: flex;
@@ -463,48 +505,6 @@ app-legend{
   overflow: hidden;
 }
 
-// .dock__header {
-//   height: 58px;
-//   border-bottom: 1px solid var(--app-border);
-//   display: flex;
-//   align-items: stretch;
-//   justify-content: space-between;
-//   background: #fff;
-// }
-
-// .dock-tabs {
-//   display: flex;
-//   align-items: stretch;
-// }
-
-// .dock-tab {
-//   min-width: 170px;
-//   padding: 0 24px;
-//   border: 0;
-//   border-right: 1px solid var(--app-border);
-//   background: #fff;
-//   color: #4b5563;
-//   font-size: 16px;
-//   font-weight: 800;
-//   display: inline-flex;
-//   align-items: center;
-//   gap: 10px;
-//   cursor: pointer;
-// }
-
-// .dock-tab--active {
-//   color: var(--green-800);
-//   box-shadow: inset 0 -3px 0 var(--green-700);
-// }
-
-// .dock-tab--disabled {
-//   opacity: 0.75;
-// }
-
-// .dock-tab__icon {
-//   font-size: 20px;
-// }
-
 .status-badge {
   margin-left: 4px;
   padding: 2px 7px;
@@ -520,13 +520,6 @@ app-legend{
   margin: 0;
   font-size: 11px;
 }
-
-// .dock-actions {
-//   display: flex;
-//   align-items: center;
-//   padding: 0 14px;
-//   gap: 10px;
-// }
 
 .dock__body {
   min-height: 0;
@@ -653,7 +646,6 @@ app-metronome .metronome-card > * + * {
   color: #46524c;
 }
 
-
 /* ==========================================================================
    Metronome
    ========================================================================== */
@@ -768,30 +760,27 @@ app-metronome .metronome-card > * + * {
     flex-wrap: nowrap;
   }
 
-
   .range-toolbar {
-    .range-preset{
+    .range-preset {
       flex: 1;
     }
     .range-preset:nth-child(6) {
       display: none;
     }
-    .range-custom{
+    .range-custom {
       display: none !important;
     }
   }
-
 
   .legend-row {
     align-items: flex-start;
     flex-direction: column;
   }
-lib-toolbox-form .toolbox__form {
-  grid-template-columns: 1fr;
-}
+  lib-toolbox-form .toolbox__form {
+    grid-template-columns: 1fr;
+  }
 
   .dock {
     height: auto;
   }
 }
-
