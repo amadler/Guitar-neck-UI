@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { neckConfig, CHORD_PATTERNS, SCALE_PATTERNS } from 'guitar-neck-shared';
+import { CHORD_PATTERNS, SCALE_PATTERNS } from 'guitar-neck-shared';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { MusicSelection } from '../shared/model/music-selection';
+import { resolveNotesFromIntervals } from '../shared/pattern-resolver';
 
 /**
  * Marker role describes the visual role of a note on the fretboard
@@ -22,9 +23,7 @@ export type MarkerRole =
   | 'chord-tone-outside-scale';
 
 /**
- * Resolves the set of note names (pitch classes) for a chord pattern
- * rooted at a given root note, using the same logic as IntervalService
- * but returning raw note names instead of mutating GuitarNote objects.
+ * Resolves the set of note names for a chord pattern rooted at a given root note.
  */
 function resolveChordNoteNames(chordName: string, rootNote: string): Set<string> {
   const pattern = CHORD_PATTERNS.find(p => p.name === chordName);
@@ -32,25 +31,7 @@ function resolveChordNoteNames(chordName: string, rootNote: string): Set<string>
     console.warn(`[MarkerRoleService] Unknown chord pattern: ${chordName}`);
     return new Set();
   }
-
-  const chromatic = neckConfig.chromaticNotes;
-  const rootIndex = chromatic.indexOf(rootNote);
-  if (rootIndex === -1) {
-    console.warn(`[MarkerRoleService] Invalid root note: ${rootNote}`);
-    return new Set();
-  }
-
-  const notes = new Set<string>();
-  notes.add(rootNote);
-
-  let cumulative = 0;
-  for (const step of pattern.intervals) {
-    cumulative += step;
-    const noteIndex = (rootIndex + cumulative) % 12;
-    notes.add(chromatic[noteIndex]);
-  }
-
-  return notes;
+  return new Set(resolveNotesFromIntervals(rootNote, pattern.intervals));
 }
 
 /**
@@ -62,25 +43,7 @@ function resolveScaleNoteNames(scaleName: string, rootNote: string): Set<string>
     console.warn(`[MarkerRoleService] Unknown scale pattern: ${scaleName}`);
     return new Set();
   }
-
-  const chromatic = neckConfig.chromaticNotes;
-  const rootIndex = chromatic.indexOf(rootNote);
-  if (rootIndex === -1) {
-    console.warn(`[MarkerRoleService] Invalid root note: ${rootNote}`);
-    return new Set();
-  }
-
-  const notes = new Set<string>();
-  notes.add(rootNote);
-
-  let cumulative = 0;
-  for (const step of pattern.intervals) {
-    cumulative += step;
-    const noteIndex = (rootIndex + cumulative) % 12;
-    notes.add(chromatic[noteIndex]);
-  }
-
-  return notes;
+  return new Set(resolveNotesFromIntervals(rootNote, pattern.intervals));
 }
 
 @Injectable({ providedIn: 'root' })

@@ -10,6 +10,7 @@ import { FretboardStateService } from './guitar-neck.service';
 import { MarkerRoleService } from './marker-role.service';
 import { INTERVAL_MAP, CHORD_NAME_TO_TONAL, SCALE_NAME_TO_TONAL, SCALES_NOT_IN_TONAL, CHORDS_NOT_IN_TONAL } from '../shared/tonal-adapter';
 import { CHORD_PATTERNS, SCALE_PATTERNS, neckConfig } from 'guitar-neck-shared';
+import { resolveNotesFromIntervals } from '../shared/pattern-resolver';
 
 /**
  * FretboardOrchestrationService — fasada dla logiki teorii muzyki.
@@ -187,20 +188,9 @@ export class FretboardOrchestrationService {
       return { simplified: [], raw: [] };
     }
 
-    const chromatic = neckConfig.chromaticNotes;
-    const rootIndex = chromatic.indexOf(rootNote);
-    if (rootIndex === -1) return { simplified: [], raw: [] };
-
-    const notes: string[] = [rootNote];
-    let cumulative = 0;
-    for (const step of pattern.intervals) {
-      cumulative += step;
-      notes.push(chromatic[(rootIndex + cumulative) % 12]);
-    }
-
-    const deduped = [...new Set(notes)];
+    const notes = resolveNotesFromIntervals(rootNote, pattern.intervals);
     // For fallback, simplified and raw are the same (no enharmonic notation)
-    return { simplified: deduped, raw: deduped };
+    return { simplified: notes, raw: notes };
   }
 
   /** Oznacza nuty interwałami, używając oryginalnych nazw Tonal do distance(). */
