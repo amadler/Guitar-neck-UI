@@ -18,8 +18,4 @@ export class AppStateService {
     console.log(mode);
   }
 
-  /** Switch directly between modes — preserves current fretboard state. */
-  switchMode(mode: AppMode): void {
-    this.setMode(mode);
-  }
 }

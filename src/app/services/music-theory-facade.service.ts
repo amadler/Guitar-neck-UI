@@ -47,23 +47,6 @@ export class FretboardOrchestrationService {
     return highlighted;
   }
 
-  /** Wyświetla pojedynczą nutę na gryfie. */
-  displaySingleNote(noteName: string): void {
-    const positions = this.noteService.findPositionsByNoteName(noteName);
-    this.guitarNeckService.applyHighlightedNotes(positions);
-  }
-
-  /** Wyświetla wszystkie nuty na gryfie. */
-  displayAllNotes(): void {
-    this.guitarNeckService.showAll();
-  }
-
-  /** Resetuje gryf — ukrywa nuty, usuwa interwały. */
-  resetFretboard(): void {
-    this.removeIntervals(this.guitarNeckService.notes);
-    this.guitarNeckService.clearFretboard();
-  }
-
   private clearFretboard(): void {
     this.removeIntervals(this.guitarNeckService.notes);
     this.guitarNeckService.clearFretboard();
@@ -122,17 +105,6 @@ export class FretboardOrchestrationService {
     );
 
     return highlightedNotes;
-  }
-
-  /** Usuwa relację akordu, pozostawiając samą skalę. */
-  clearRelation(): void {
-    if (this.guitarNeckService.scaleChordState) {
-      this.guitarNeckService.scaleChordState = {
-        scale: this.guitarNeckService.scaleChordState.scale,
-        chord: null,
-      };
-      this.markerRoleService.lastRoles = new Map();
-    }
   }
 
   // ---- Private helpers ----

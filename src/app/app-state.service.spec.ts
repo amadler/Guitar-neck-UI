@@ -15,17 +15,17 @@ describe('AppStateService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should default to idle mode', () => {
-    expect(service.appMode).toBe('idle');
+  it('should default to scale-or-chord mode', () => {
+    expect(service.appMode).toBe('scale-or-chord');
     service.appMode$.subscribe(mode => {
-      expect(mode).toBe('idle');
+      expect(mode).toBe('scale-or-chord');
     });
   });
 
   describe('setMode', () => {
-    it('should set mode to scale', () => {
-      service.setMode('scale');
-      expect(service.appMode).toBe('scale');
+    it('should set mode to scale-or-chord', () => {
+      service.setMode('scale-or-chord');
+      expect(service.appMode).toBe('scale-or-chord');
     });
 
     it('should set mode to scale-chord', () => {
@@ -33,42 +33,28 @@ describe('AppStateService', () => {
       expect(service.appMode).toBe('scale-chord');
     });
 
-    it('should set mode back to idle', () => {
-      service.setMode('scale');
-      service.setMode('idle');
-      expect(service.appMode).toBe('idle');
+    it('should set mode to custom-pattern', () => {
+      service.setMode('scale-or-chord');
+      service.setMode('custom-pattern');
+      expect(service.appMode).toBe('custom-pattern');
     });
 
     it('should emit via appMode$', (done: DoneFn) => {
       service.appMode$.subscribe(mode => {
-        if (mode === 'scale') {
+        if (mode === 'scale-chord') {
           done();
         }
       });
-      service.setMode('scale');
+      service.setMode('scale-chord');
     });
 
     it('should not emit when mode is unchanged', () => {
       let emitCount = 0;
       service.appMode$.subscribe(() => emitCount++);
-      service.setMode('idle');
-      // Initial emission (1) + idle (no change) — no extra emission
+      service.setMode('scale-or-chord');
+      // Initial emission (1) + scale-or-chord (no change) — no extra emission
       expect(emitCount).toBe(1);
     });
   });
 
-  describe('switchMode', () => {
-    it('should switch mode preserving current state', () => {
-      service.setMode('scale');
-      service.switchMode('scale-chord');
-      expect(service.appMode).toBe('scale-chord');
-    });
-
-    it('should not emit when switching to the same mode', () => {
-      let emitCount = 0;
-      service.appMode$.subscribe(() => emitCount++);
-      service.switchMode('idle');
-      expect(emitCount).toBe(1);
-    });
-  });
 });
