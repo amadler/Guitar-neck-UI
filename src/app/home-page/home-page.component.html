@@ -5,29 +5,18 @@
     <app-guitar-neck></app-guitar-neck>
   </div>
 
-  <!-- Legend — shown only in scale mode -->
-  <ng-container *ngIf="appMode$ | async as mode">
-    <app-legend
-      *ngIf="mode === 'scale-or-chord' || mode === 'custom-pattern'"
-    ></app-legend>
+  <!-- Legend — shown only for Show commands (scale, chord, interval pattern) -->
+  <app-legend *ngIf="displayMode() === 'legend'"></app-legend>
 
-    <app-relationship-strip
-      *ngIf="mode === 'scale-chord'"
-    ></app-relationship-strip>
-  </ng-container>
+  <!-- Relationship strip — shown only for Compare (scale + chord relation) -->
+  <app-relationship-strip *ngIf="displayMode() === 'relationship'"></app-relationship-strip>
 
   <app-pattern-display></app-pattern-display>
 
   <section class="dock">
-    <!-- Chord Degree Selector — kept in code, hidden in new layout -->
-    <!-- <app-chord-degree-selector (chordDegreeSelected)="onChordDegreeSelected($event)"></app-chord-degree-selector> -->
-
-    <!-- Scale mode — existing toolbox with scale/chord selection -->
     <div class="dock__body">
       <section id="toolbox-container">
         <lib-forms-wrapper
-          (onAppModeChange)="appModeChanged($event)"
-          (onSubmitEv)="toolboxSubmit($event)"
           (toolboxEv)="onToolboxEvent($event)"
         ></lib-forms-wrapper>
       </section>

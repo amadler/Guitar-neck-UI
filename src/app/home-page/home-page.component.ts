@@ -1,10 +1,7 @@
-import { Component, NO_ERRORS_SCHEMA } from '@angular/core';
-import { NgIf, AsyncPipe } from '@angular/common';
-import { Observable } from 'rxjs';
-import { AppStateService, AppMode } from '../app-state.service';
+import { Component, signal } from '@angular/core';
+import { NgIf } from '@angular/common';
 import { FretboardStateService } from '../services/guitar-neck.service';
 import { PatternBuilderService } from '../services/pattern-builder.service';
-import { Command, DisplayAllNotesCommand, DisplayScaleCommand, DisplaySingleNoteCommand, DisplayChordCommand, DisplayCustomPatternCommand } from '../shared/UICommands';
 import { FretboardOrchestrationService } from '../services/music-theory-facade.service';
 import { GuitarNeckComponent } from '../guitar-neck/guitar-neck.component';
 import { environment } from '../../environments/environment';
@@ -14,15 +11,17 @@ import { LegendComponent } from '../legend/legend.component';
 import { PatternDisplayComponent } from '../pattern-display/pattern-display.component';
 import { MetronomeComponent } from '../metronome/metronome.component';
 import { RelationshipStripComponent } from '../relationship-strip/relationship-strip.component';
-import { ScaleChordRelation, ToolboxSearchQuery } from 'guitar-toolbox-lib';
 import { FormsWrapperComponent } from 'guitar-toolbox-lib';
+import { FretboardCommand, intervalsToNoteNames } from 'guitar-toolbox-lib';
 import { ChatComponent } from '../../../projects/guitar-chat/src/lib/components/chat/chat.component';
+
+export type DisplayMode = 'legend' | 'relationship' | null;
+
 @Component({
   selector: 'app-home-page',
   standalone: true,
   imports: [
     NgIf,
-    AsyncPipe,
     GuitarNeckComponent,
     HeaderComponent,
     FooterComponent,
@@ -39,147 +38,75 @@ import { ChatComponent } from '../../../projects/guitar-chat/src/lib/components/
 export class HomePageComponent {
   chatEnabled = environment.features.chatEnabled;
 
-  /** Reactive app mode from AppStateService. */
-  appMode$: Observable<AppMode>;
+  /** Controls which overlay is shown: legend (for Show) or relationship strip (for Compare). */
+  displayMode = signal<DisplayMode>(null);
 
   constructor(
-    private appState: AppStateService,
     private guitarNeckService: FretboardStateService,
     private fretboardOrchestrationService: FretboardOrchestrationService,
     private patternBuilder: PatternBuilderService,
-  ) {
-    this.appMode$ = this.appState.appMode$;
-  }
-  appModeChanged(mode: AppMode): void {
-    this.appState.setMode(mode)
-  }
-  // --- Scale + Chord relation handler ---
+  ) {}
 
-  /** Called when the ScaleChordForm emits a scale+chord relation. */
-  onScaleChordFormShow(relation: ScaleChordRelation): void {
+  onToolboxEvent(command: FretboardCommand): void {
     this.guitarNeckService.clearFretboard();
     this.patternBuilder.clearCurrentPattern();
 
-    this.fretboardOrchestrationService.displayScaleWithChord(
-      relation.scaleName,
-      relation.scaleRoot,
-      relation.chordName,
-      relation.chordRoot,
-    );
-
-    this.patternBuilder.setCurrentPattern(relation.scaleName, relation.scaleRoot, 'scale');
-    this.patternBuilder.setRelatedChord(relation.chordName, relation.chordRoot);
-  }
-
-  isToolboxSearchQuery(
-    query: ToolboxSearchQuery | ScaleChordRelation
-  ): query is ToolboxSearchQuery {
-    return 'musicElements' in query && 'keys' in query;
-  }
-
-  toolboxSubmit(query: any): void {
-    const payload = query as unknown as ToolboxSearchQuery | ScaleChordRelation;
-    this.guitarNeckService.clearFretboard();
-    this.patternBuilder.clearCurrentPattern();
-
-    if (this.isToolboxSearchQuery(query)) {
-      const { musicElements, keys, type } = query;
-
-      let command: Command | null = null;
-      if (type === 'custom' && Array.isArray(musicElements)) {
-        command = this.buildCustomPatternCommand(musicElements, keys);
-      } else if (type === 'basic' && musicElements === 'All notes') {
-        command = this.buildAllNotesCommand();
-      } else if (type === 'basic') {
-        command = this.buildSingleNoteCommand(keys);
-      } else if (type === 'chord' && typeof musicElements === 'string') {
-        command = this.buildChordCommand(musicElements, keys);
-      } else if (type === 'scale' && typeof musicElements === 'string') {
-        command = this.buildScaleCommand(musicElements, keys);
-      }
-
-      command?.execute();
-    }
-    else {
-      this.onScaleChordFormShow(query);
+    switch (command.kind) {
+      case 'scale':
+        this.handleShowScale(command);
+        break;
+      case 'chord':
+        this.handleShowChord(command);
+        break;
+      case 'intervalPattern':
+        this.handleShowIntervalPattern(command);
+        break;
+      case 'scaleChordRelation':
+        this.handleCompare(command);
+        break;
     }
   }
 
-  onToolboxEvent(event: any) {
-    console.log('Recieved from ToolboxCommand event: ', event);
-  }
+  private handleShowScale(command: FretboardCommand & { kind: 'scale' }): void {
+    const { key, scaleType } = command;
+    if (!key || !scaleType) return;
 
-  /** Called when the user selects a chord degree from the ChordDegreeSelector. */
-  // onChordDegreeSelected(degree: ChordDegreeSelection): void {
-  //   if (!degree.chordName || !degree.rootNote) {
-  //     // Clear chord relation
-  //     this.fretboardOrchestrationService.clearRelation();
-  //     this.patternBuilder.relatedChord = null;
-  //     return;
-  //   }
-
-  //   // Re-display the scale with the selected chord
-  //   const sc = this.guitarNeckService.scaleChordState;
-  //   if (!sc?.scale.name || !sc?.scale.rootNote) {
-  //     return;
-  //   }
-
-  //   this.fretboardOrchestrationService.displayScaleWithChord(
-  //     sc.scale.name,
-  //     sc.scale.rootNote,
-  //     degree.chordName,
-  //     degree.rootNote,
-  //   ).subscribe();
-
-  //   // Build chord pattern info for display
-  //   this.patternBuilder.setRelatedChord(degree.chordName, degree.rootNote);
-  // }
-
-  private buildCustomPatternCommand(intervals: number[], root: string): Command {
-    this.guitarNeckService.currentSelection = {
-      type: 'custom',
-      rootNote: root,
-      intervals,
-    };
-    return new DisplayCustomPatternCommand(
-      this.fretboardOrchestrationService,
-      intervals,
-      root
-    );
-  }
-
-  private buildAllNotesCommand(): Command {
-    this.guitarNeckService.currentSelection = {
-      type: 'all-notes',
-    };
-    return new DisplayAllNotesCommand(this.fretboardOrchestrationService);
-  }
-
-  private buildSingleNoteCommand(root: string): Command {
-    this.guitarNeckService.currentSelection = {
-      type: 'note',
-      rootNote: root,
-      notes: [root],
-    };
-    return new DisplaySingleNoteCommand(this.fretboardOrchestrationService, root);
-  }
-
-  private buildChordCommand(name: string, root: string): Command {
-    this.patternBuilder.setCurrentPattern(name, root, 'chord');
-    return new DisplayChordCommand(this.fretboardOrchestrationService, name, root);
-  }
-
-  private buildScaleCommand(name: string, root: string): Command {
-    this.patternBuilder.setCurrentPattern(name, root, 'scale');
-    // Set up scale-only state in scaleChordState
+    this.fretboardOrchestrationService.displayScale(scaleType, key);
+    this.patternBuilder.setCurrentPattern(scaleType, key, 'scale');
     this.guitarNeckService.scaleChordState = {
-      scale: {
-        type: 'scale',
-        name,
-        rootNote: root,
-      },
+      scale: { type: 'scale', name: scaleType, rootNote: key },
       chord: null,
     };
-    return new DisplayScaleCommand(this.fretboardOrchestrationService, name, root);
+    this.displayMode.set('legend');
+  }
+
+  private handleShowChord(command: FretboardCommand & { kind: 'chord' }): void {
+    const { key, chordType } = command;
+    if (!key || !chordType) return;
+
+    this.fretboardOrchestrationService.displayChord(chordType, key);
+    this.patternBuilder.setCurrentPattern(chordType, key, 'chord');
+    this.displayMode.set('legend');
+  }
+
+  private handleShowIntervalPattern(command: FretboardCommand & { kind: 'intervalPattern' }): void {
+    const { key, intervals } = command;
+    if (!key || !intervals) return;
+
+    const notes = intervalsToNoteNames(key, intervals);
+    this.fretboardOrchestrationService.displayCustomPattern(notes, key);
+    this.displayMode.set('legend');
+  }
+
+  private handleCompare(command: FretboardCommand & { kind: 'scaleChordRelation' }): void {
+    const { scaleKey, scaleType, chordKey, chordType } = command;
+
+    this.fretboardOrchestrationService.displayScaleWithChord(
+      scaleType, scaleKey, chordType, chordKey,
+    );
+
+    this.patternBuilder.setCurrentPattern(scaleType, scaleKey, 'scale');
+    this.patternBuilder.setRelatedChord(chordType, chordKey);
+    this.displayMode.set('relationship');
   }
 }
