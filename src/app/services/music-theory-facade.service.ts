@@ -34,7 +34,7 @@ export class FretboardOrchestrationService {
     const { simplified, raw } = this.resolveScaleNotes(scaleName, rootNote);
     const positions = this.noteService.findPositionsByScaleNotes(simplified);
     const highlighted = this.guitarNeckService.applyHighlightedNotes(positions);
-    this.markIntervals(rootNote, raw, highlighted);
+    this.markIntervals(rootNote, highlighted, raw);
     return highlighted;
   }
 
@@ -44,7 +44,7 @@ export class FretboardOrchestrationService {
     const { simplified, raw } = this.resolveChordNotes(triadType, rootNote);
     const positions = this.noteService.findPositionsByScaleNotes(simplified);
     const highlighted = this.guitarNeckService.applyHighlightedNotes(positions);
-    this.markIntervals(rootNote, raw, highlighted);
+    this.markIntervals(rootNote, highlighted, raw);
     return highlighted;
   }
 
@@ -58,7 +58,7 @@ export class FretboardOrchestrationService {
     this.clearFretboard();
     const positions = this.noteService.findPositionsByScaleNotes(notes);
     const highlighted = this.guitarNeckService.applyHighlightedNotes(positions);
-    this.markCustomIntervals(rootNote, highlighted);
+    this.markIntervals(rootNote, highlighted);
     return highlighted;
   }
 
@@ -193,26 +193,20 @@ export class FretboardOrchestrationService {
     return { simplified: notes, raw: notes };
   }
 
-  /** Oznacza nuty interwałami, używając oryginalnych nazw Tonal do distance(). */
-  private markIntervals(rootNote: string, rawNoteNames: string[], notes: GuitarNote[]): void {
+  /**
+   * Oznacza nuty interwałami.
+   * Gdy podano rawNoteNames, używa ich do distance() (enharmonic-aware).
+   * Gdy brak rawNoteNames, używa bezpośrednio note.note (custom pattern).
+   */
+  private markIntervals(rootNote: string, notes: GuitarNote[], rawNoteNames?: string[]): void {
     for (const note of notes) {
       if (note.note === rootNote) {
         note.interval = 'root';
       } else {
-        const rawName = rawNoteNames.find(n => simplify(n) === note.note) || note.note;
+        const rawName = rawNoteNames
+          ? (rawNoteNames.find(n => simplify(n) === note.note) || note.note)
+          : note.note;
         const tonalInterval = distance(rootNote, rawName);
-        note.interval = INTERVAL_MAP[tonalInterval] || '';
-      }
-    }
-  }
-
-  /** Oznacza nuty interwałami dla custom patternu. */
-  private markCustomIntervals(rootNote: string, notes: GuitarNote[]): void {
-    for (const note of notes) {
-      if (note.note === rootNote) {
-        note.interval = 'root';
-      } else {
-        const tonalInterval = distance(rootNote, note.note);
         note.interval = INTERVAL_MAP[tonalInterval] || '';
       }
     }
