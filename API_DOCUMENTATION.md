@@ -1,4 +1,4 @@
-# Guitar Neck UI - Dokumentacja API
+# Guitar Neck UI — Dokumentacja API
 
 ## Core Services
 
@@ -38,16 +38,16 @@ class FretboardOrchestrationService {
   displayAllNotes(): void;
 
   /**
+   * Resetuje gryf (ukrywa wszystkie nuty, usuwa interwały).
+   */
+  resetFretboard(): void;
+
+  /**
    * Wyświetla custom pattern nut na gryfie z interwałami.
    * @param notes - Tablica nazw nut do wyświetlenia
    * @param rootNote - Nuta bazowa dla interwałów
    */
   displayCustomPattern(notes: string[], rootNote: string): GuitarNote[];
-
-  /**
-   * Resetuje gryf (ukrywa wszystkie nuty, usuwa interwały).
-   */
-  resetFretboard(): void;
 
   // ---- Scale + Chord relation ----
 
@@ -83,6 +83,48 @@ class FretboardOrchestrationService {
 }
 ```
 
+#### Prywatne metody pomocnicze
+
+```typescript
+/**
+ * Rozwiązuje nuty skali z nazwy UI.
+ * Używa Tonal jeśli dostępny, fallback do SCALE_PATTERNS dla egzotycznych skal.
+ */
+private resolveScaleNotes(scaleName: string, rootNote: string): { simplified: string[]; raw: string[] }
+
+/**
+ * Rozwiązuje nuty akordu z nazwy UI.
+ * Używa Tonal jeśli dostępny, fallback do CHORD_PATTERNS.
+ * add11 obsługiwany ręcznie (Tonal nie ma).
+ */
+private resolveChordNotes(chordType: string, rootNote: string): { simplified: string[]; raw: string[] }
+
+/**
+ * Fallback: rozwiązuje nuty z CHORD_PATTERNS / SCALE_PATTERNS.
+ * Używany dla patternów których Tonal nie zna.
+ */
+private resolveFromPatterns(
+  patternName: string,
+  rootNote: string,
+  patterns: Array<{ name: string; intervals: number[] }>,
+): { simplified: string[]; raw: string[] }
+
+/**
+ * Oznacza nuty interwałami, używając oryginalnych nazw Tonal do distance().
+ */
+private markIntervals(rootNote: string, rawNoteNames: string[], notes: GuitarNote[]): void
+
+/**
+ * Oznacza nuty interwałami dla custom patternu.
+ */
+private markCustomIntervals(rootNote: string, notes: GuitarNote[]): void
+
+/**
+ * Usuwa oznaczenia interwałowe z nut.
+ */
+private removeIntervals(notes: GuitarNote[]): void
+```
+
 ### FretboardStateService
 Zarządza stanem gryfu gitary — tablicą nut, widocznością, zaznaczeniem.
 
@@ -92,63 +134,33 @@ Zarządza stanem gryfu gitary — tablicą nut, widocznością, zaznaczeniem.
  */
 class FretboardStateService {
   notes: GuitarNote[];        // Pełna tablica nut na gryfie (6 strun × 25 progów)
-  strings: string[];          // ["E", "B", "G", "D", "A", "E"]
-  frets: number[];            // [0, 1, 2, ..., 23]
-
-  /**
-   * Sprawdza czy na danym progu i strunie jest nuta.
-   */
-  isNoteOnFret(string: string, fret: number): boolean;
-
-  /**
-   * Zwraca nutę na danym progu i strunie.
-   */
-  getNote(string: string, fret: number): GuitarNote | undefined;
-
-  /**
-   * Zwraca nazwę nuty na danym progu i strunie.
-   */
-  getNoteName(string: string, fret: number): string;
+  activeStrings: boolean[];   // Per-string active state. Reset on clearFretboard().
+  markerDisplayMode: MarkerDisplayMode;  // 'interval-colors' | 'note-names' | 'neutral-dots'
+  hasActiveResult: boolean;   // Czy istnieje aktywny wynik na gryfie
+  currentSelection: MusicSelection | null;  // Obecnie wybrany pattern
+  scaleChordState: ScaleChordState | null;  // Dual selection state
 
   /**
    * Zaznacza nuty do wyświetlenia — ukrywa wszystkie, pokazuje tylko podane.
+   * Używa O(1) lookup przez notesMap.
    * @returns GuitarNote[] - Tablica zaznaczonych nut
    */
   applyHighlightedNotes(notes: GuitarNote[]): GuitarNote[];
 
-  /**
-   * Ukrywa wszystkie nuty.
-   */
+  /** Toggle a single string on/off. Used by StringToggleComponent. */
+  toggleString(index: number, active: boolean): void;
+
+  /** Ukrywa wszystkie nuty. */
   hideAllNotes(): void;
 
-  /**
-   * Pokazuje wszystkie nuty.
-   */
+  /** Pokazuje wszystkie nuty. */
   showAll(): void;
 
-  /**
-   * Czyści zaznaczenie nut.
-   */
+  /** Czyści zaznaczenie nut. */
   clearSelection(): void;
 
-  /**
-   * Obsługa kliknięcia nuty na gryfie.
-   * @returns GuitarNote | null - Kliknięta nuta lub null
-   */
-  fretNoteClicked(string: string, fret: number): GuitarNote | null;
-
-  /**
-   * Czyści gryf — usuwa interwały, ukrywa nuty, czyści zaznaczenie.
-   */
+  /** Czyści gryf — ukrywa nuty, usuwa interwały, czyści zaznaczenie. */
   clearFretboard(): void;
-
-  // ---- Scale + Chord relation ----
-
-  /**
-   * Dual selection state — skala + opcjonalny akord.
-   * Gdy chord jest null, aplikacja jest w trybie single-pattern.
-   */
-  scaleChordState: ScaleChordState | null;
 }
 
 /**
@@ -158,59 +170,74 @@ interface ScaleChordState {
   scale: MusicSelection;          // Wybrana skala z nutami
   chord: MusicSelection | null;   // Wybrany akord lub null
 }
+
+type MarkerDisplayMode = 'interval-colors' | 'note-names' | 'neutral-dots';
 ```
 
-### IntervalService
-Oznacza nuty interwałami (root, third, fifth, itp.).
+### FretboardNotePositionService
+Generuje i zarządza pozycjami nut na gryfie.
 
 ```typescript
 /**
- * @file src/app/services/interval.service.ts
+ * @file src/app/services/note.service.ts
  */
-class IntervalService {
-  /**
-   * Oznacza nuty interwałami względem rootNote dla danego patternu.
-   * @param rootNote - Nuta bazowa
-   * @param patternName - Nazwa patternu (np. "major", "minor")
-   * @param selectedNotes - Nuty do oznaczenia
-   * @param patternType - Typ patternu: 'scale' | 'chord' (domyślnie 'chord')
-   */
-  markIntervals(
-    rootNote: string,
-    patternName: string,
-    selectedNotes: GuitarNote[],
-    patternType?: 'scale' | 'chord'
-  ): void;
+class FretboardNotePositionService {
+  guitarStrings: string[];  // Strojenie strun
+  fretsCount: number;       // Liczba progów (24)
+  guitarNotes: GuitarNote[]; // Wszystkie nuty na gryfie
 
   /**
-   * Oznacza nuty interwałami dla custom patternu (bez nazwy patternu).
+   * Zwraca wszystkie pozycje nut na gryfie.
    */
-  markCustomIntervals(rootNote: string, selectedNotes: GuitarNote[]): void;
+  getAllPositions(): GuitarNote[];
 
   /**
-   * Usuwa oznaczenia interwałowe z nut.
+   * Znajduje pozycje nut o podanej nazwie.
    */
-  removeIntervals(notes: GuitarNote[]): void;
+  findPositionsByNoteName(noteName: string): GuitarNote[];
+
+  /**
+   * Znajduje pozycje nut dla skali (lub dowolnej listy nazw nut).
+   */
+  findPositionsByScaleNotes(scaleNotes: string[]): GuitarNote[];
 }
 ```
 
-Dostępne interwały i ich nazwy CSS:
-- `root` — pryma
-- `minor-2nd` — mała sekunda (♭2)
-- `major-2nd` — wielka sekunda (2)
-- `minor-3rd` — mała tercja (♭3)
-- `major-3rd` — wielka tercja (3)
-- `perfect-4th` — kwarta (4)
-- `diminished-5th` — tryton (♭5)
-- `perfect-5th` — kwinta (5)
-- `minor-6th` — mała seksta (♭6)
-- `major-6th` — wielka seksta (6)
-- `minor-7th` — mała septyma (♭7)
-- `major-7th` — wielka septyma (7)
+### FretboardNoteQueryService
+Warstwa zapytań o nuty na gryfie. Oddzielona od `FretboardStateService` żeby template nie miał bezpośredniego dostępu do stanu.
+
+```typescript
+/**
+ * @file src/app/services/fretboard-note-query.service.ts
+ */
+class FretboardNoteQueryService {
+  /**
+   * Sprawdza czy na danym progu i strunie jest widoczna nuta.
+   * Uwzględnia activeStrings — zwraca false jeśli struna jest wyłączona.
+   */
+  isNoteOnFret(stringIndex: number, fret: number): boolean;
+
+  /**
+   * Zwraca nutę na danym progu i strunie, lub undefined.
+   */
+  getNote(stringIndex: number, fret: number): GuitarNote | undefined;
+
+  /**
+   * Zwraca nazwę nuty na danym progu i strunie, lub pusty string.
+   */
+  getNoteName(stringIndex: number, fret: number): string;
+
+  /**
+   * Obsługa kliknięcia nuty na gryfie.
+   * @returns GuitarNote | null - Kliknięta nuta lub null
+   */
+  fretNoteClicked(stringIndex: number, fret: number): GuitarNote | null;
+}
+```
 
 ### MarkerRoleService
 Oblicza role wizualne dla nut na gryfie w trybie scale-chord.
-Zastępuje kolory interwałowe (`IntervalService`) rolami wizualnymi (złote obramowania).
+Zastępuje kolory interwałowe rolami wizualnymi (złote obramowania).
 
 ```typescript
 /**
@@ -219,7 +246,6 @@ Zastępuje kolory interwałowe (`IntervalService`) rolami wizualnymi (złote obr
 
 /**
  * 5 możliwych ról markera na gryfie w trybie scale+chord.
- * Używane przez FretboardDisplayService.getRoleCssClass().
  */
 type MarkerRole =
   | 'scale-tone'                  // Nuta należy do skali, NIE do akordu
@@ -292,6 +318,9 @@ class FretboardDisplayService {
 
   /** Czy istnieje aktywna relacja scale+chord. */
   hasRelation: boolean;
+
+  /** Zwraca listę aktywnych interwałów (unikalne, dla legendy). */
+  getActiveIntervals(): string[];
 }
 ```
 
@@ -304,7 +333,7 @@ Zarządza trybem aplikacji (`AppMode`). Oddzielony od `FretboardStateService`,
  * @file src/app/app-state.service.ts
  */
 
-type AppMode = 'idle' | 'scale' | 'scale-chord';
+type AppMode = 'custom-pattern' | 'scale-or-chord' | 'scale-chord';
 
 class AppStateService {
   /** Observable dla reactive UI */
@@ -324,116 +353,42 @@ class AppStateService {
 }
 ```
 
-### FretboardNotePositionService
-Generuje i zarządza pozycjami nut na gryfie.
+### PatternBuilderService
+Buduje `PatternInfo` dla UI — szczegóły wybranej skali/akordu (nuty, interwały, kroki W/H).
 
 ```typescript
 /**
- * @file src/app/services/note.service.ts
+ * @file src/app/services/pattern-builder.service.ts
  */
-class FretboardNotePositionService {
-  guitarStrings: string[];  // Strojenie strun
-  fretsCount: number;       // Liczba progów (24)
-  guitarNotes: GuitarNote[]; // Wszystkie nuty na gryfie
+class PatternBuilderService {
+  currentPattern: PatternInfo | null;
+  relatedChord: PatternInfo | null;
 
   /**
-   * Zwraca wszystkie pozycje nut na gryfie.
+   * Ustawia bieżący pattern (skalę lub akord).
+   * Oblicza nuty, interwały, semitony i kroki (W/H) z SCALE_PATTERNS / CHORD_PATTERNS.
+   * Aktualizuje FretboardStateService.currentSelection.
    */
-  getAllPositions(): GuitarNote[];
+  setCurrentPattern(patternName: string, rootNote: string, type: 'scale' | 'chord'): void;
 
   /**
-   * Znajduje pozycje nut o podanej nazwie.
+   * Ustawia powiązany akord dla trybu scale-chord.
+   * Nie aktualizuje currentSelection — tylko relatedChord.
    */
-  findPositionsByNoteName(noteName: string): GuitarNote[];
+  setRelatedChord(chordName: string, rootNote: string): void;
 
-  /**
-   * Znajduje pozycje nut dla skali.
-   */
-  findPositionsByScaleNotes(scaleNotes: string[]): GuitarNote[];
-
-  /**
-   * Znajduje pozycje nut dla akordu.
-   */
-  findPositionsByChordNotes(triadNotes: string[]): GuitarNote[];
-}
-```
-
-### MusicPatternApiService
-Komunikacja z backendem `music-theory-api`.
-
-```typescript
-/**
- * @file src/app/services/scales-and-triads.service.ts
- */
-class MusicPatternApiService {
-  private readonly API_URL = `${environment.apiUrl}/api`; // http://localhost:3000/api
-
-  /**
-   * Pobiera listę dostępnych skal z API.
-   */
-  getAvailableScales(): Observable<string[]>;
-
-  /**
-   * Pobiera listę dostępnych akordów z API.
-   */
-  getAvailableTriads(): Observable<string[]>;
-
-  /**
-   * Rozwiązuje nuty skali — GET /api/scales/:name/:root
-   */
-  resolveScaleNotes(scaleName: string, rootNote: string): Observable<string[]>;
-
-  /**
-   * Rozwiązuje nuty akordu — GET /api/chords/:name/:root
-   */
-  resolveChordNotes(triadType: string, rootNote: string): Observable<string[]>;
-}
-```
-
-### UICommands
-Wzorzec Command dla operacji na gryfie.
-
-```typescript
-/**
- * @file src/app/shared/UICommands.ts
- */
-interface Command {
-  execute(): void;
+  /** Czyści bieżący pattern i relatedChord. */
+  clearCurrentPattern(): void;
 }
 
-class DisplaySingleNoteCommand implements Command {
-  constructor(
-    private fretboardOrchestrationService: FretboardOrchestrationService,
-    private keys: string
-  ) {}
-}
-
-class DisplayAllNotesCommand implements Command {
-  constructor(private fretboardOrchestrationService: FretboardOrchestrationService) {}
-}
-
-class DisplayScaleCommand implements Command {
-  constructor(
-    private fretboardOrchestrationService: FretboardOrchestrationService,
-    private scaleName: string,
-    private rootNote: string
-  ) {}
-}
-
-class DisplayChordCommand implements Command {
-  constructor(
-    private fretboardOrchestrationService: FretboardOrchestrationService,
-    private triadName: string,
-    private rootNote: string
-  ) {}
-}
-
-class DisplayCustomPatternCommand implements Command {
-  constructor(
-    private fretboardOrchestrationService: FretboardOrchestrationService,
-    private intervals: number[],
-    private rootNote: string
-  ) {}
+interface PatternInfo {
+  name: string;
+  rootNote: string;
+  type: 'scale' | 'chord';
+  notes: string[];
+  intervals: string[];
+  semitones: number[];
+  steps: string[];
 }
 ```
 
@@ -446,6 +401,62 @@ Helper do obliczania nut z interwałów.
  */
 function calculateNotesFromIntervals(rootNote: string, intervals: number[]): string[];
 ```
+
+### UICommands (DEPRECATED)
+> **UWAGA**: Command Pattern (`UICommands.ts`) jest **nieużywany** — został zastąpiony przez `FretboardCommand` z `guitar-toolbox-lib`. Plik istnieje tylko jako referencja i zostanie usunięty w przyszłości.
+
+```typescript
+/**
+ * @file src/app/shared/UICommands.ts
+ * @deprecated Zastąpiony przez FretboardCommand z guitar-toolbox-lib
+ */
+interface Command {
+  execute(): void;
+}
+
+class DisplaySingleNoteCommand implements Command { /* ... */ }
+class DisplayAllNotesCommand implements Command { /* ... */ }
+class DisplayScaleCommand implements Command { /* ... */ }
+class DisplayChordCommand implements Command { /* ... */ }
+class DisplayCustomPatternCommand implements Command { /* ... */ }
+```
+
+## TonalAdapter
+
+```typescript
+/**
+ * @file src/app/shared/tonal-adapter.ts
+ */
+
+// Mapowanie interwałów Tonal → UI
+const INTERVAL_MAP: Record<string, IntervalName>;
+
+// Mapowanie nazw akordów UI → Tonal
+const CHORD_NAME_TO_TONAL: Record<string, string>;
+
+// Mapowanie nazw skal UI → Tonal
+const SCALE_NAME_TO_TONAL: Record<string, string>;
+
+// Zbiór skal których Tonal nie ma — wymagają fallbacku
+const SCALES_NOT_IN_TONAL: Set<string>;
+
+// Zbiór akordów których Tonal nie ma — wymagają fallbacku
+const CHORDS_NOT_IN_TONAL: Set<string>;
+```
+
+Dostępne interwały i ich nazwy CSS:
+- `root` — pryma
+- `minor-2nd` — mała sekunda (♭2)
+- `major-2nd` — wielka sekunda (2)
+- `minor-3rd` — mała tercja (♭3)
+- `major-3rd` — wielka tercja (3)
+- `perfect-4th` — kwarta (4)
+- `diminished-5th` — tryton (♭5)
+- `perfect-5th` — kwinta (5)
+- `minor-6th` — mała seksta (♭6)
+- `major-6th` — wielka seksta (6)
+- `minor-7th` — mała septyma (♭7)
+- `major-7th` — wielka septyma (7)
 
 ## AI Chat (projekt guitar-chat) — POSTPONED
 
@@ -498,354 +509,85 @@ class ChatComponent {
 }
 ```
 
-### AISuggestionsComponent
-Wyświetla sugestie muzyczne od AI.
+## Integracja z guitar-toolbox-lib
+
+Toolbox komunikuje się z `HomePageComponent` przez `FretboardCommand`:
 
 ```typescript
-/**
- * @selector lib-ai-suggestions
- * @package guitar-chat
- * POSTPONED
- */
-class AISuggestionsComponent {
-  suggestions: MusicalSuggestion[];
-}
+// Z guitar-toolbox-lib (public-api.ts)
+type FretboardCommand =
+  | { kind: 'scale'; key: string; scaleType: string }
+  | { kind: 'chord'; key: string; chordType: string }
+  | { kind: 'intervalPattern'; key: string; intervals: number[] }
+  | { kind: 'scaleChordRelation'; scaleKey: string; scaleType: string; chordKey: string; chordType: string };
+
+// Helper
+function intervalsToNoteNames(rootNote: string, intervals: number[]): string[];
 ```
 
-## Components
-
-### FreatboardComponent
-Renderuje gryf gitary z nutami.
+### FormsWrapperComponent
 
 ```typescript
 /**
- * @selector app-freatboard
- * @file src/app/freatboard/freatboard.component.ts
- */
-class FreatboardComponent {
-  @Input({required: true}) notes: GuitarNote[];
-  @Output() onNoteClicked$: EventEmitter<GuitarNote>;
-
-  strings: string[];  // ["E", "B", "G", "D", "A", "E"]
-  frets: number[];    // [0, 1, 2, ..., 23]
-
-  /** Zwraca interwał dla nuty na danym progu/strunie. */
-  getNoteInterval(string: string, fret: number): string | undefined;
-}
-```
-
-### GuitarNeckComponent
-Kontener dla FreatboardComponent + inicjalizacja gryfu.
-
-```typescript
-/**
- * @selector app-guitar-neck
- * @file src/app/guitar-neck/guitar-neck.component.ts
- */
-class GuitarNeckComponent {
-  neckConfig: NeckConfig;
-  neck: GuitarNeck;
-  guitarNotes: GuitarNote[];
-}
-```
-
-### LegendComponent
-Legenda kolorów interwałowych (tryb scale-only).
-
-```typescript
-/**
- * @selector app-legend
- * @file src/app/legend/legend.component.ts
- */
-class LegendComponent {}
-```
-
-### ModeSelectorComponent
-Ekran startowy — wybór trybu aplikacji.
-
-```typescript
-/**
- * @selector app-mode-selector
- * @file src/app/mode-selector/mode-selector.component.ts
- */
-class ModeSelectorComponent {
-  /** Przełącza appMode na 'scale'. */
-  onSelectScale(): void;
-
-  /** Przełącza appMode na 'scale-chord'. */
-  onSelectScaleChord(): void;
-}
-```
-
-### ScaleFormComponent
-Formularz wyboru skali w trybie scale-only.
-
-```typescript
-/**
- * @selector app-scale-form
- * @file src/app/scale-form/scale-form.component.ts
- */
-class ScaleFormComponent {
-  /**
-   * Ładuje listę skal z API przy starcie.
-   * Po kliknięciu "Show" wywołuje displayScale().
-   */
-  onShow(): void;
-}
-```
-
-### ScaleChordFormComponent
-Formularz niezależnego wyboru skali + akordu w trybie scale-chord.
-
-```typescript
-/**
- * @selector app-scale-chord-form
- * @file src/app/scale-chord-form/scale-chord-form.component.ts
- */
-class ScaleChordFormComponent {
-  /** Ładuje listę skal i akordów z API przy starcie. */
-
-  /**
-   * Po kliknięciu "Show" wywołuje displayScaleWithChord().
-   * Skala i akord są wybierane niezależnie — akord nie musi
-   * być diatoniczny względem skali.
-   */
-  onShow(): void;
-}
-```
-
-### RelationshipStripComponent
-Pasek relacji skala↔akord. Zastępuje LegendComponent w trybie scale-chord.
-
-```typescript
-/**
- * @selector app-relationship-strip
- * @file src/app/relationship-strip/relationship-strip.component.ts
- */
-class RelationshipStripComponent {
-  /** Czy istnieje aktywna relacja (scale + chord). */
-  hasRelation: boolean;
-
-  /** Legenda ról (5 role items). */
-  legendItems: RoleLegendItem[];
-
-  /** Nazwy nut akordu które są WEWNĄTRZ skali. */
-  chordTonesInScale: string[];
-
-  /** Nazwy nut akordu które są POZA skalą. */
-  chordTonesOutsideScale: string[];
-}
-```
-
-### ToolboxFormComponent
-Formularz wyboru skali/akordu. Dostarczany przez `guitar-toolbox-lib`.
-
-```typescript
-/**
- * @selector lib-toolbox-form
+ * @selector lib-forms-wrapper
  * @package guitar-toolbox-lib
  */
-class ToolboxFormComponent {
-  @Output() onSubmit: EventEmitter<ToolboxSearchQuery>;
-  keys: string[];  // neckConfig.chromaticNotes
-  patterns: { scale: string[], chord: string[], basic: string[] };
+class FormsWrapperComponent {
+  @Output() toolboxEv: EventEmitter<FretboardCommand>;
+}
+```
+
+## HomePageComponent
+
+Główny komponent agregujący. Odbiera eventy z toolboxu i dispatchuje do serwisów.
+
+```typescript
+/**
+ * @file src/app/home-page/home-page.component.ts
+ */
+class HomePageComponent {
+  chatEnabled: boolean;  // Z environment.features.chatEnabled
+  displayMode: WritableSignal<DisplayMode>;  // 'legend' | 'relationship' | null
 
   /**
-   * Emituje zapytanie po kliknięciu "Show!".
+   * Główny handler eventów z toolboxu.
+   * Dispatchuje do odpowiednich serwisów w zależności od FretboardCommand.kind.
    */
-  onSubmit(): void;
+  onToolboxEvent(command: FretboardCommand): void;
 }
 ```
 
-## Modele Danych
+## Model Danych
 
 ```typescript
-/**
- * @file src/app/shared/model/guitarNote.ts
- */
+// src/app/shared/model/guitarNote.ts
 class GuitarNote {
-  id?: string;            // UUID (generowany przez uuidv4)
-  string: number;         // Numer struny (1-6)
-  fret: number;           // Numer progu (0-24)
-  note: string;           // Nazwa nuty (np. "C", "F#", "G")
-  visible: boolean;       // Czy nuta jest widoczna
-  selected: boolean;      // Czy nuta jest zaznaczona
-  interval: string;       // Nazwa interwału (np. "root", "major-3rd", "")
-
-  constructor(string: number, fret: number, note: string, visible?: boolean);
+  string: number;     // 1-6
+  fret: number;       // 0-24
+  note: string;       // "C", "F#", itd.
+  visible: boolean;
+  selected: boolean;
+  interval: string;   // "root", "major-3rd", ""
 }
 
-/**
- * @file src/app/shared/model/music-selection.ts
- */
+// src/app/shared/model/music-selection.ts
+type MusicSelectionType = 'scale' | 'chord' | 'note' | 'custom' | 'all-notes';
+
 interface MusicSelection {
-  type: 'scale' | 'chord' | 'note' | 'custom' | 'all-notes';
-  name?: string;          // Nazwa patternu (np. "major", "dorian")
-  rootNote?: string;      // Nuta podstawowa
-  notes?: string[];       // Rozwiązane nazwy nut
-  intervals?: number[];   // Interwały semitonowe dla custom patternów
+  type: MusicSelectionType;
+  name?: string;
+  rootNote?: string;
+  notes?: string[];
+  intervals?: number[];
 }
 
-interface ToolboxSearchQuery {
-  musicElements: string | number[];
-  keys: string;
-  type: 'scale' | 'chord' | 'basic' | 'custom';
-}
-
-interface MusicalSuggestion {
-  displayName: string;
+// src/app/shared/model/patternInfo.ts
+interface PatternInfo {
+  name: string;
+  rootNote: string;
+  type: 'scale' | 'chord';
   notes: string[];
-  type: 'scale' | 'triad' | 'extendedChord';
+  intervals: string[];
+  semitones: number[];
+  steps: string[];
 }
-
-interface AIResponse {
-  textResponse: string;
-  suggestions: MusicalSuggestion[];
-}
-```
-
-## Stałe i Konfiguracja
-
-```typescript
-/**
- * @file node_modules/guitar-neck-shared/src/models/neckConfig.ts
- */
-interface NeckConfig {
-  stringNotes: string[];          // ["E", "B", "G", "D", "A", "E"]
-  chromaticNotes: string[];       // ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
-  numberOfFrets: number;          // 24
-  numberOfStrings: number;        // 6
-  markedFrets: number[];          // [3, 5, 7, 9, 15, 17, 19, 21]
-  markedTwelffeFrets: number[];   // [12, 24]
-}
-
-/**
- * @file node_modules/guitar-neck-shared/src/models/chordTypes.ts
- */
-interface ChordPattern {
-  name: string;       // "major", "minor", "diminished", "augmented", itd.
-  intervals: number[]; // np. [4, 3] dla major
-}
-
-/**
- * @file node_modules/guitar-neck-shared/src/models/scaleTypes.ts
- */
-interface ScalePattern {
-  name: string;       // "major", "minor", "dorian", "phrygian", itd.
-  intervals: number[]; // np. [2, 2, 1, 2, 2, 2, 1] dla major
-}
-
-/**
- * @file src/environments/environment.ts
- */
-const environment = {
-  production: false,
-  apiUrl: 'http://localhost:3000',  // URL backendu music-theory-api
-  geminiApiKey: '',
-  features: { chatEnabled: false }  // AI chat wyłączony (POSTPONED)
-};
-```
-
-## Architektura — przepływ danych
-
-```
-ToolboxFormComponent (wybór użytkownika)
-  |
-  v
-UICommands (Command Pattern)
-  |  DisplayChordCommand / DisplayScaleCommand / itd.
-  v
-FretboardOrchestrationService (Facade)
-  |
-  ├── MusicPatternApiService → HTTP → music-theory-api
-  |     GET /api/scales/:name/:root
-  |     GET /api/chords/:name/:root
-  |
-  ├── FretboardNotePositionService
-  |     findPositionsByScaleNotes() / findPositionsByChordNotes()
-  |
-  ├── FretboardStateService
-  |     applyHighlightedNotes() — ustawia visible=true, selected=true
-  |
-  └── IntervalService
-        markIntervals() — oznacza nuty interwałami
-        markCustomIntervals() — dla custom patternów
-  |
-  v
-FreatboardComponent (renderowanie)
-  |  NgClass — .guitar-neck__root, .guitar-neck__major-3rd, itp.
-  v
-CSS Variables (styles.scss)
-  --interval-root, --interval-minor-3rd, --interval-major-3rd, itd.
-```
-
-### Tryb Scale-Chord
-
-W trybie scale-chord **nie są używane kolory interwałowe** — zamiast tego
-`MarkerRoleService` oblicza role wizualne, a `FretboardDisplayService` zwraca
-`''` z `getMarkerCssClass()` i `guitar-neck__role-*` z `getRoleCssClass()`.
-
-```
-ScaleChordFormComponent (wybór skali + akordu)
-  |
-  v
-FretboardOrchestrationService.displayScaleWithChord()
-  |
-  ├── MusicPatternApiService.resolveScaleNotes() → HTTP → API
-  |     GET /api/scales/:name/:root
-  |
-  ├── Rozwiązanie nut akordu KLIENCKO (CHORD_PATTERNS, bez API)
-  |     🔴 Duplikacja: resolveChordNoteNames() w 3 miejscach
-  |
-  ├── FretboardNotePositionService.findPositionsByScaleNotes()
-  |     → pozycje nut skali
-  |
-  ├── FretboardNotePositionService.findPositionsByScaleNotes()
-  |     → pozycje nut akordu spoza skali (np. G# dla C major + E major)
-  |
-  ├── FretboardStateService.applyHighlightedNotes()
-  |     → union(scalePositions, outsideChordPositions)
-  |     → visible=true, selected=true dla wszystkich
-  |
-  ├── MarkerRoleService.computeRoles()
-  |     → role: scale-tone / chord-tone / scale-root / chord-root
-  |       / chord-tone-outside-scale
-  |
-  └── IntervalService — POMINIĘTY (role-based zamiast interval colors)
-  |
-  v
-RelationshipStripComponent (zamiast LegendComponent)
-  |  Legenda ról + lista chordTonesInScale / chordTonesOutsideScale
-  v
-FreatboardComponent (renderowanie)
-  |  getRoleCssClass() → .guitar-neck__role-chord-root, itp.
-  |  getMarkerCssClass() → '' (role-based override)
-```
-
-## Backend API (music-theory-api)
-
-Osobne repozytorium, uruchamiane przez Docker na porcie 3000.
-
-| Metoda | Endpoint | Opis |
-|--------|----------|------|
-| GET | `/api/scales` | Lista dostępnych skal |
-| GET | `/api/scales/:name/:root` | Nuty skali |
-| GET | `/api/chords` | Lista dostępnych akordów |
-| GET | `/api/chords/:name/:root` | Nuty akordu |
-| GET | `/api/find-compatible-scales/:name/:root` | Kompatybilne skale |
-
-Wszystkie parametry `:name` i `:root` powinny być URL-encoded (przez `encodeURIComponent`) i dekodowane przez backend (przez `decodeURIComponent`).
-
-## Backlog / Dead Code
-
-Elementy wykryte w kodzie, które wymagają decyzji:
-
-| Element | Status | Lokalizacja |
-|---------|--------|-------------|
-| AI Chat (Gemini) | **POSTPONED** — kod istnieje, wyłączony flagą `chatEnabled: false` | `projects/guitar-chat`, `src/environments` |
-| `refreshNotesInRange()` | **Dead code** — pusta metoda, nigdy nie wywoływana | `src/app/freatboard/freatboard.component.ts:50` |
-| `ToolboxSearchQuery` typing | Do refactoringu — custom patterny używają runtime coercion zamiast dedykowanego typu | `src/app/shared/model/musicElements.ts` |
-| `toolboxSubmit()` | Do refactoringu — można wydzielić do command factory | `src/app/home-page/home-page.component.ts:31` |
-| Duplikacja `resolveChordNoteNames` / `resolveScaleNoteNames` | **🔴 Do refactoringu** — funkcja istnieje w 3 miejscach: `marker-role.service.ts`, `relationship-strip.component.ts`, `music-theory-facade.service.ts` (inlined). Powinna być w `guitar-neck-shared` lub shared utility | `src/app/services/marker-role.service.ts:29`, `src/app/relationship-strip/relationship-strip.component.ts:22`, `src/app/services/music-theory-facade.service.ts:109` |
-| Niespójna rezolucja nut — API vs klient | **🟡 Uwaga** — `displayScaleWithChord()` rozwiązuje nuty akordu kliencko z `CHORD_PATTERNS`, podczas gdy `displayScale()` woła API. Jeśli patterny się rozejdą, wyniki będą niespójne | `src/app/services/music-theory-facade.service.ts:104` |
-| `applyHighlightedNotes()` resetuje wszystkie nuty | **🟢 Kosmetyka** — iteruje wszystkie ~150 nut i ustawia `visible=false`. Działa, ale nie komponuje się jeśli wiele warstw chce dodawać nuty | `src/app/services/guitar-neck.service.ts:49` |

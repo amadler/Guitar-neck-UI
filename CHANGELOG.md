@@ -7,6 +7,46 @@ a projekt stosuje [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.8.0] — 2026-08-29
+
+### Added
+- Tonal.js integration — local music theory engine replaces backend API ([`src/app/services/music-theory-facade.service.ts`](src/app/services/music-theory-facade.service.ts))
+- `FretboardNoteQueryService` — query helper for fretboard note lookups ([`src/app/services/fretboard-note-query.service.ts`](src/app/services/fretboard-note-query.service.ts))
+- `PatternBuilderService` — builds PatternInfo for UI display ([`src/app/services/pattern-builder.service.ts`](src/app/services/pattern-builder.service.ts))
+- `FretboardDisplayService` — CSS class decision layer for markers ([`src/app/services/fretboard-display.service.ts`](src/app/services/fretboard-display.service.ts))
+- `FormsWrapperComponent` from `guitar-toolbox-lib` — new toolbox form (selector `lib-forms-wrapper`)
+- `FretboardCommand` event type for toolbox → UI communication
+- Fallback resolution for exotic scales/chords not in Tonal.js ([`src/app/services/music-theory-facade.service.ts`](src/app/services/music-theory-facade.service.ts:207))
+- `tonal-adapter.ts` — pattern name mapping (UI → Tonal) and interval name mapping ([`src/app/shared/tonal-adapter.ts`](src/app/shared/tonal-adapter.ts))
+- `MusicSelection` domain abstraction — unified model for scale/chord/note/custom selection state ([`src/app/shared/model/music-selection.ts`](src/app/shared/model/music-selection.ts))
+
+### Changed
+- `AppMode` values: `'idle' | 'scale' | 'scale-chord'` → `'custom-pattern' | 'scale-or-chord' | 'scale-chord'` ([`src/app/app-state.service.ts`](src/app/app-state.service.ts:4))
+- Default app mode: `'idle'` → `'scale-or-chord'` (no start screen, app starts immediately with toolbox)
+- Toolbox: local `ToolboxFormComponent` → `FormsWrapperComponent` from `guitar-toolbox-lib` ([`src/app/home-page/home-page.component.ts`](src/app/home-page/home-page.component.ts:14))
+- `guitar-toolbox-lib` dependency: `^1.0.2` → `file:../guitar-toolbox/dist/guitar-toolbox-lib` ([`package.json`](package.json:30))
+- `FretboardOrchestrationService` — interval logic moved inline, added Tonal.js resolution with fallback ([`src/app/services/music-theory-facade.service.ts`](src/app/services/music-theory-facade.service.ts))
+- `FretboardStateService` — added `activeStrings`, `markerDisplayMode`, `hasActiveResult`, `currentSelection`, O(1) `notesMap` ([`src/app/services/guitar-neck.service.ts`](src/app/services/guitar-neck.service.ts))
+- Environment config — removed `apiUrl`, removed `music-theory-api` references ([`src/environments/environment.ts`](src/environments/environment.ts))
+- `HomePageComponent` — refactored to use `onToolboxEvent()` with `FretboardCommand` dispatch ([`src/app/home-page/home-page.component.ts`](src/app/home-page/home-page.component.ts:50))
+
+### Removed
+- `ModeSelectorComponent` — start screen removed
+- `ScaleFormComponent`, `ScaleChordFormComponent` — replaced by library forms
+- `IntervalService` (`interval.service.ts`) — logic inline in facade
+- `MusicPatternApiService` (`scales-and-triads.service.ts`) — replaced by Tonal.js
+- `GuitarNeck.ts` — replaced by `FretboardNotePositionService`
+- Docker: `Dockerfile`, `docker-compose.yml`, `nginx.conf`, docker scripts (`docker:build`, `docker:up`, `docker:down`, `docker:logs`)
+- `UICommands.ts` — replaced by `FretboardCommand` from library
+- `ChordDegreeSelectorComponent` — tagged in git, removed from codebase
+- `LoadingService` — no HTTP calls remain
+- `toolbox.models.ts` — unused types removed
+
+### Planned
+- Cloudflare Pages deployment (replacing Docker/VPS)
+
+---
+
 ## [0.7.0] — 2025-07-05
 
 ### Added
@@ -155,12 +195,48 @@ The following features have been identified in the codebase but are not being ac
 
 ---
 
+# Cloudflare Pages Deployment
+
+## Motivation
+
+Docker-based deployment was removed along with the backend API. The app is now a pure static Angular frontend with no backend dependency. Cloudflare Pages offers free static hosting with global CDN, HTTPS, and custom domains — ideal for this project.
+
+## Solution
+
+Migrate from Docker/VPS to Cloudflare Pages:
+1. Connect the GitHub repository to Cloudflare Pages
+2. Configure build command: `npm run build`
+3. Configure output directory: `dist/guitar-neck-ui`
+4. Set environment variables (geminiApiKey) via Cloudflare Pages Secrets
+5. Configure custom domain (optional)
+
+## MVP
+
+- App is deployed and accessible via Cloudflare Pages URL
+- Build succeeds on Cloudflare Pages
+- All static assets (images, fonts) load correctly
+- Environment variables are configured for production
+
+## Done when
+
+- `npm run build` produces a deployable `dist/guitar-neck-ui/` directory
+- Cloudflare Pages deployment is configured and working
+- App is accessible via public URL
+- No Docker or VPS infrastructure is required
+
+## Status
+
+OPEN
+
+---
+
 ## Backlog
 
 Full backlog is in [`BACKLOG.md`](BACKLOG.md). Open tasks:
 
 - Localization (pl/en) for practice prompts — internationalization of practice prompts
 - Metronome — visual beat indicator improvement — improvement of visual beat indicator
+- Cloudflare Pages Deployment — migration from Docker/VPS to Cloudflare Pages
 
 ---
 

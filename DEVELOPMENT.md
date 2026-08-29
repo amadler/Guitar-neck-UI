@@ -1,11 +1,11 @@
-# Guitar Neck UI - Informacje Rozwojowe
+# Guitar Neck UI — Informacje Rozwojowe
 
 ## Technologie
 
 - **Frontend:** Angular 18.2, TypeScript 5.5, RxJS 7.8
 - **Teoria muzyki:** Tonal.js 4 (`@tonaljs/tonal`) — lokalny silnik, bez backendu
 - **Testy:** Karma 6.4, Jasmine 5.2, ChromeHeadless
-- **Pakiety:** `guitar-neck-shared` ^1.0.2, `guitar-toolbox-lib` ^1.0.2
+- **Pakiety:** `guitar-neck-shared` ^1.0.2, `guitar-toolbox-lib` (lokalny workspace)
 - **AI (POSTPONED):** Gemini AI API (biblioteka `projects/guitar-chat`)
 
 ## Uruchomienie Projektu
@@ -23,13 +23,22 @@ npm install
 ```bash
 npm start           # ng serve → http://localhost:4200
 npm run build       # ng build → dist/guitar-neck-ui
-npm run build:prod  # ng build --configuration production
 npm run watch       # ng build --watch --configuration development
 ```
 
 ### Testy
 ```bash
 npm test            # ng test → Karma + ChromeHeadless
+```
+
+### Biblioteka guitar-toolbox-lib (wymagana przed buildem)
+Toolbox jest lokalnym workspace. Przed pierwszym buildem GNUI:
+```bash
+cd ../guitar-toolbox
+npm install
+ng build guitar-toolbox-lib
+cd ../Guitar\ neck\ UI
+npm start
 ```
 
 ### Biblioteka guitar-chat (AI)
@@ -46,7 +55,7 @@ guitar-neck-ui/
 │   │   ├── freatboard/                    # Renderowanie gryfu
 │   │   │   └── freatboard.component.{ts,html,scss}
 │   │   ├── guitar-neck/                   # Kontener gryfu
-│   │   ├── home-page/                     # Główna strona (toolbox + gryf + metronome)
+│   │   ├── home-page/                     # Główna strona (toolbox + gryf + metronom)
 │   │   ├── header/                        # Nagłówek strony
 │   │   ├── footer/                        # Stopka strony
 │   │   ├── legend/                        # Legenda interwałów
@@ -58,27 +67,26 @@ guitar-neck-ui/
 │   │   ├── string-toggle/                 # Włącznik/wyłącznik strun
 │   │   ├── services/                      # Serwisy aplikacji
 │   │   │   ├── guitar-neck.service.ts         # FretboardStateService
-│   │   │   ├── interval.service.ts            # IntervalService
-│   │   │   ├── loading.service.ts             # LoadingService
 │   │   │   ├── music-theory-facade.service.ts # FretboardOrchestrationService
 │   │   │   ├── note.service.ts                # FretboardNotePositionService
-│   │   │   └── scales-and-triads.service.ts   # MusicPatternApiService
+│   │   │   ├── fretboard-note-query.service.ts # FretboardNoteQueryService
+│   │   │   ├── fretboard-display.service.ts    # FretboardDisplayService
+│   │   │   ├── marker-role.service.ts          # MarkerRoleService
+│   │   │   └── pattern-builder.service.ts      # PatternBuilderService
 │   │   └── shared/
-│   │       ├── GuitarNeck.ts             # Klasa generująca tablicę gryfu
-│   │       ├── UICommands.ts             # Command Pattern
+│   │       ├── UICommands.ts             # DEPRECATED — Command Pattern (do usunięcia)
 │   │       ├── interval-note.helper.ts   # Helper do nut z interwałów
 │   │       ├── practice-prompts.data.ts  # Podpowiedzi ćwiczeń
+│   │       ├── tonal-adapter.ts          # Mapowanie nazw Tonal ↔ UI
 │   │       └── model/
 │   │           ├── guitarNote.ts         # Model nuty
+│   │           ├── music-selection.ts    # Model wyboru muzycznego
 │   │           └── patternInfo.ts        # Model informacji o patternie
 │   ├── environments/
 │   │   ├── environment.ts               # Konfiguracja dev
 │   │   └── environment.prod.ts          # Konfiguracja prod
 │   └── styles.scss                      # Globalne CSS + zmienne
 ├── projects/guitar-chat/                # AI chat (POSTPONED)
-├── docker-compose.yml                   # Backend + frontend
-├── Dockerfile                           # Frontend (nginx)
-├── nginx.conf                           # Konfiguracja nginx
 ├── BACKLOG.md                           # Backlog projektu
 ├── AGENTS.md                            # Instrukcje dla agentów AI
 └── *.md                                 # Dokumentacja (ARCHITECTURE, API, PRODUCT)
@@ -86,21 +94,31 @@ guitar-neck-ui/
 
 ## Konfiguracja
 
-### Zmienne środowiskowe (`.env`)
-```
-CORS_ORIGIN=http://localhost:4200
-```
-
 ### Środowiska Angular
 `src/environments/environment.ts`:
 ```typescript
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:3000',  // music-theory-api
   geminiApiKey: '',                  // POSTPONED
   features: { chatEnabled: false }
 };
 ```
+
+Brak `apiUrl` — wszystkie obliczenia są lokalne (Tonal.js).
+
+## Deployment (Cloudflare Pages)
+
+Planowane: migracja z Docker/VPS na Cloudflare Pages (darmowy hosting statyczny).
+
+### Wymagania
+- Konto Cloudflare
+- `npm run build` produkuje `dist/guitar-neck-ui/`
+
+### Kroki (do zrobienia)
+1. Podłączenie repozytorium do Cloudflare Pages
+2. Konfiguracja build command: `npm run build`
+3. Konfiguracja output directory: `dist/guitar-neck-ui`
+4. Ustawienie zmiennych środowiskowych (geminiApiKey) przez Cloudflare Pages Secrets
 
 ## Dokumentacja
 

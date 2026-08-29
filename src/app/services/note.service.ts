@@ -51,8 +51,4 @@ export class FretboardNotePositionService {
   findPositionsByScaleNotes(scaleNotes: string[]): GuitarNote[] {
     return this.guitarNotes.filter(note => scaleNotes.includes(note.note));
   }
-
-  findPositionsByChordNotes(triadNotes: string[]): GuitarNote[] {
-    return this.guitarNotes.filter(note => triadNotes.includes(note.note));
-  }
 }

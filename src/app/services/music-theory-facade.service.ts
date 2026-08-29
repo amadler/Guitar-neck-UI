@@ -41,7 +41,7 @@ export class FretboardOrchestrationService {
   displayChord(triadType: string, rootNote: string): GuitarNote[] {
     this.clearFretboard();
     const { simplified, raw } = this.resolveChordNotes(triadType, rootNote);
-    const positions = this.noteService.findPositionsByChordNotes(simplified);
+    const positions = this.noteService.findPositionsByScaleNotes(simplified);
     const highlighted = this.guitarNeckService.applyHighlightedNotes(positions);
     this.markIntervals(rootNote, raw, highlighted);
     return highlighted;

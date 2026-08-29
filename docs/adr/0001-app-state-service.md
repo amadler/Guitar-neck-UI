@@ -1,10 +1,17 @@
 # ADR 0001: AppStateService for UI mode management
 
-**Status**: accepted
+**Status**: accepted (updated 2026-08-29)
 
-The application mode (`idle`, `scale`, `scale-chord`) is managed by a dedicated `AppStateService` rather than being added to the existing `FretboardStateService`.
+The application mode (`custom-pattern`, `scale-or-chord`, `scale-chord`) is managed by a dedicated `AppStateService` rather than being added to the existing `FretboardStateService`.
 
 **Context**: The plan initially proposed adding `appMode` directly to `FretboardStateService`. However, `FretboardStateService` owns fretboard state (notes, selection, string toggles, `scaleChordState`). `AppMode` is UI routing state — it controls which components are visible, not how the fretboard renders. Mixing them would violate SRP and make `FretboardStateService` harder to test and reason about.
+
+**Changes from original (v0.7.0 → v0.8.0)**:
+- `AppMode` values changed from `'idle' | 'scale' | 'scale-chord'` to `'custom-pattern' | 'scale-or-chord' | 'scale-chord'`
+- `'idle'` mode removed — the start screen (`ModeSelectorComponent`) was removed
+- `'scale'` mode renamed to `'scale-or-chord'` — reflects that the toolbox combines both in one form
+- `'custom-pattern'` added — new mode for the custom interval builder
+- Default mode changed from `'idle'` to `'scale-or-chord'`
 
 **Alternatives considered**:
 - **In `FretboardStateService`**: simpler, fewer files, but couples fretboard state to UI mode

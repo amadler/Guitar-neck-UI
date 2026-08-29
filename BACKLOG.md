@@ -125,6 +125,40 @@ OPEN
 
 ---
 
+# Cloudflare Pages Deployment
+
+## Motivation
+
+Docker-based deployment was removed along with the backend API. The app is now a pure static Angular frontend with no backend dependency. Cloudflare Pages offers free static hosting with global CDN, HTTPS, and custom domains — ideal for this project.
+
+## Solution
+
+Migrate from Docker/VPS to Cloudflare Pages:
+1. Connect the GitHub repository to Cloudflare Pages
+2. Configure build command: `npm run build`
+3. Configure output directory: `dist/guitar-neck-ui`
+4. Set environment variables (geminiApiKey) via Cloudflare Pages Secrets
+5. Configure custom domain (optional)
+
+## MVP
+
+- App is deployed and accessible via Cloudflare Pages URL
+- Build succeeds on Cloudflare Pages
+- All static assets (images, fonts) load correctly
+- Environment variables are configured for production
+
+## Done when
+
+- `npm run build` produces a deployable `dist/guitar-neck-ui/` directory
+- Cloudflare Pages deployment is configured and working
+- App is accessible via public URL
+- No Docker or VPS infrastructure is required
+
+## Status
+
+OPEN
+
+---
 # Metronome — visual beat indicator improvement
 
 ## Motivation

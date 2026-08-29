@@ -1,12 +1,10 @@
 import { AsyncPipe, NgIf } from '@angular/common';
 import { Component, ViewChild } from '@angular/core';
-import { Observable } from 'rxjs';
 import { neckConfig } from 'guitar-neck-shared';
 import { FreatboardComponent } from '../freatboard/freatboard.component';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { FretboardNotePositionService } from '../services/note.service';
 import { FretboardStateService } from '../services/guitar-neck.service';
-import { LoadingService } from '../services/loading.service';
 
 @Component({
   selector: 'app-guitar-neck',
@@ -18,15 +16,12 @@ import { LoadingService } from '../services/loading.service';
 export class GuitarNeckComponent {
   neckConfig = neckConfig;
   guitarNotes: GuitarNote[];
-  loading$!: Observable<boolean>;
   @ViewChild(FreatboardComponent) freatboardComponent!: FreatboardComponent;
 
   constructor(
     private noteService: FretboardNotePositionService,
     private guitarNeckService: FretboardStateService,
-    private loadingService: LoadingService
   ) {
-    this.loading$ = this.loadingService.loading$;
     this.guitarNotes =  this.noteService.getAllPositions();
     this.guitarNeckService.notes = this.guitarNotes;
     this.guitarNeckService.hideAllNotes();

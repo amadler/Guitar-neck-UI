@@ -57,9 +57,9 @@ describe('NoteService', () => {
     });
   });
 
-  it('should return correct notes for a triad', () => {
+  it('should return correct notes for a triad (via findPositionsByScaleNotes)', () => {
     const cMajorTriad = ['C', 'E', 'G'];
-    const triadNotes = service.findPositionsByChordNotes(cMajorTriad);
+    const triadNotes = service.findPositionsByScaleNotes(cMajorTriad);
 
     triadNotes.forEach(note => {
       expect(cMajorTriad).toContain(note.note);

@@ -6,18 +6,16 @@ Interactive fretboard visualization for learning scales, chords, and their relat
 
 **AppMode**:
 The current mode of the application, determining which UI controls and visualizations are shown.
-Values: `'idle'` (start screen), `'scale'` (single scale/chord learning), `'scale-chord'` (scale-chord relation comparison).
+Values: `'custom-pattern'` (custom interval builder), `'scale-or-chord'` (single scale/chord learning, default), `'scale-chord'` (scale-chord relation comparison).
 _Avoid_: View, screen, state
 
-**ModeSelectorComponent**:
-The start screen component shown when `appMode === 'idle'`. Presents two choices: "Scale" and "Scale + Chord".
+**FormsWrapperComponent**:
+The toolbox component from `guitar-toolbox-lib` (selector `lib-forms-wrapper`). Provides three modes: Show (scale/chord), Compare (scale+chord), Build (custom pattern). Communicates via `@Output() toolboxEv: EventEmitter<FretboardCommand>`.
+_Avoid_: ToolboxFormComponent, toolbox form
 
-**ScaleFormComponent**:
-Form for selecting a scale (type + root key) in scale-only mode. Shown when `appMode === 'scale'`.
-
-**ScaleChordFormComponent**:
-Form for independently selecting a scale (type + root key) AND a chord (type + root key) in relation mode. The chord is independent — it does not need to be a diatonic chord of the selected scale.
-_Avoid_: Degree form (degree is a future shortcut, not the primary selection mechanism)
+**FretboardCommand**:
+The event type emitted by `FormsWrapperComponent`. Variants: `scale`, `chord`, `intervalPattern`, `scaleChordRelation`. Each carries the selected pattern name(s) and root note(s).
+_Avoid_: ToolboxSearchQuery, UICommand
 
 **RelationshipStripComponent**:
 Compact bar showing the relationship between a scale and a chord. Includes: role legend (scale-root, chord-tone, chord-root, chord-tone-outside-scale), chord tone overlap info, and a degree shortcut (future). Replaces the legend in scale-chord mode.
@@ -31,14 +29,6 @@ _Avoid_: Interval role, note role
 Service managing the current `AppMode` and providing reactive state for UI visibility. Separated from `FretboardStateService` to keep fretboard state independent of UI mode logic.
 _Avoid_: Mode service, UI state service
 
-**ChordDegreeResolverService**:
-Service (future) that computes diatonic chord types and root notes from a scale degree. Currently the logic lives in `ChordDegreeSelectorComponent` — will be extracted during degree feature implementation.
-_Avoid_: Degree service
-
-**Fit info**:
-Raw data showing which chord tones are inside the scale and which are outside. Displayed as a list of note names, without evaluation (no "Great fit" / "Partial fit" labels).
-_Avoid_: Fit score, match rating
-
 **ScaleChordState**:
 Dual selection state held by `FretboardStateService`, containing a `scale: MusicSelection` and an optional `chord: MusicSelection | null`. When `chord` is null, the app is in single-pattern mode (scale-only or chord-only).
 _Avoid_: Relation state, dual state
@@ -48,9 +38,37 @@ Component showing the current pattern info (scale card and/or chord card). In sc
 _Avoid_: Pattern info, selected patterns
 
 **Tonal.js**:
-Local music theory engine (`@tonaljs/tonal` v4) used for calculating scale notes, chord notes, and interval names. Replaces the former `music-theory-api` backend. All Tonal imports are confined to `FretboardOrchestrationService` — no UI component imports Tonal directly.
+Local music theory engine (`@tonaljs/tonal` v4) used for calculating scale notes, chord notes, and interval names. Replaces the former `music-theory-api` backend. All Tonal imports are confined to `FretboardOrchestrationService` — no UI component imports Tonal directly. For exotic patterns not in Tonal, falls back to `CHORD_PATTERNS`/`SCALE_PATTERNS` from `guitar-neck-shared`.
 _Avoid_: Backend API, music theory API
 
 **TonalAdapter**:
-Map of interval names between Tonal.js notation (`'3M'`, `'3m'`) and Guitar Neck UI notation (`'major-3rd'`, `'minor-3rd'`). Lives in `src/app/shared/tonal-adapter.ts`.
+Map of interval names between Tonal.js notation (`'3M'`, `'3m'`) and Guitar Neck UI notation (`'major-3rd'`, `'minor-3rd'`). Also maps pattern names (UI `'dominant-7th'` → Tonal `'7'`). Lives in `src/app/shared/tonal-adapter.ts`.
 _Avoid_: Interval converter, tonal mapper
+
+**FretboardOrchestrationService**:
+Main facade integrating music theory logic. Synchronous — uses Tonal.js instead of HTTP API. All Tonal.js imports are confined to this service.
+_Avoid_: Music theory facade, scale service
+
+**FretboardStateService**:
+Central fretboard state manager. Owns the notes array, active strings, marker display mode, current selection, and scale-chord state.
+_Avoid_: Guitar neck service, neck state
+
+**FretboardNotePositionService**:
+Generates the note map on the fretboard (6 strings × 24 frets) and provides position lookup methods.
+_Avoid_: Note service, position service
+
+**FretboardNoteQueryService**:
+Query helper for the fretboard template. Provides `isNoteOnFret()`, `getNote()`, `getNoteName()` with active string awareness.
+_Avoid_: Note query, fret query
+
+**MarkerRoleService**:
+Computes visual roles for notes when both a scale and a chord are displayed. Uses `CHORD_PATTERNS`/`SCALE_PATTERNS` directly (not Tonal.js) for role resolution.
+_Avoid_: Role service, visual role service
+
+**FretboardDisplayService**:
+Presentation layer for fretboard markers. Decides CSS classes based on mode (interval-based vs role-based).
+_Avoid_: Display service, marker service
+
+**PatternBuilderService**:
+Builds `PatternInfo` objects for the UI — notes, intervals, semitones, and whole/half steps for the selected scale or chord.
+_Avoid_: Pattern service, info builder
