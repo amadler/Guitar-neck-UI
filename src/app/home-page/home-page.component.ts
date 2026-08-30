@@ -11,8 +11,8 @@ import { LegendComponent } from '../legend/legend.component';
 import { PatternDisplayComponent } from '../pattern-display/pattern-display.component';
 import { MetronomeComponent } from '../metronome/metronome.component';
 import { RelationshipStripComponent } from '../relationship-strip/relationship-strip.component';
-import { FormsWrapperComponent } from 'guitar-toolbox-lib';
-import { FretboardCommand, intervalsToNoteNames } from 'guitar-toolbox-lib';
+import { FretboardCommand } from 'guitar-toolbox-lib';
+import { ToolboxBuilderComponent } from 'guitar-toolbox-lib';
 import { ChatComponent } from '../../../projects/guitar-chat/src/lib/components/chat/chat.component';
 
 export type DisplayMode = 'legend' | 'relationship' | null;
@@ -29,7 +29,7 @@ export type DisplayMode = 'legend' | 'relationship' | null;
     PatternDisplayComponent,
     MetronomeComponent,
     RelationshipStripComponent,
-    FormsWrapperComponent,
+    ToolboxBuilderComponent,
     ChatComponent
   ],
   templateUrl: './home-page.component.html',
@@ -45,7 +45,7 @@ export class HomePageComponent {
     private guitarNeckService: FretboardStateService,
     private fretboardOrchestrationService: FretboardOrchestrationService,
     private patternBuilder: PatternBuilderService,
-  ) {}
+  ) { }
 
   onToolboxEvent(command: FretboardCommand): void {
     this.guitarNeckService.clearFretboard();
@@ -58,8 +58,8 @@ export class HomePageComponent {
       case 'chord':
         this.handleShowChord(command);
         break;
-      case 'intervalPattern':
-        this.handleShowIntervalPattern(command);
+      case 'interval':
+        this.handleShowInterval(command);
         break;
       case 'scaleChordRelation':
         this.handleCompare(command);
@@ -69,7 +69,6 @@ export class HomePageComponent {
 
   private handleShowScale(command: FretboardCommand & { kind: 'scale' }): void {
     const { key, scaleType } = command;
-    if (!key || !scaleType) return;
 
     this.fretboardOrchestrationService.displayScale(scaleType, key);
     this.patternBuilder.setCurrentPattern(scaleType, key, 'scale');
@@ -82,18 +81,31 @@ export class HomePageComponent {
 
   private handleShowChord(command: FretboardCommand & { kind: 'chord' }): void {
     const { key, chordType } = command;
-    if (!key || !chordType) return;
 
     this.fretboardOrchestrationService.displayChord(chordType, key);
     this.patternBuilder.setCurrentPattern(chordType, key, 'chord');
     this.displayMode.set('legend');
   }
 
-  private handleShowIntervalPattern(command: FretboardCommand & { kind: 'intervalPattern' }): void {
-    const { key, intervals } = command;
-    if (!key || !intervals) return;
+  private handleShowInterval(command: FretboardCommand & { kind: 'interval' }): void {
+    const { key, interval } = command;
+    if (!key || !interval) return;
 
-    const notes = intervalsToNoteNames(key, intervals);
+    // Single interval: show root + the interval note
+    const chromatic = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    const rootIndex = chromatic.indexOf(key);
+    if (rootIndex === -1) return;
+
+    const semitoneMap: Record<string, number> = {
+      '1': 0, 'b2': 1, '2': 2, 'b3': 3, '3': 4,
+      '4': 5, 'b5': 6, '5': 7, 'b6': 8, '6': 9,
+      'b7': 10, '7': 11,
+    };
+    const semitone = semitoneMap[interval];
+    if (semitone === undefined) return;
+
+    const note = chromatic[(rootIndex + semitone) % 12];
+    const notes = [key, note];
     this.fretboardOrchestrationService.displayCustomPattern(notes, key);
     this.displayMode.set('legend');
   }

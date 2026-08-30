@@ -16,9 +16,9 @@
   <section class="dock">
     <div class="dock__body">
       <section id="toolbox-container">
-        <lib-forms-wrapper
-          (toolboxEv)="onToolboxEvent($event)"
-        ></lib-forms-wrapper>
+        <app-toolbox-builder
+          (toolboxEvent)="onToolboxEvent($event)"
+        ></app-toolbox-builder>
       </section>
 
       <section id="chat-container" *ngIf="chatEnabled; else chatDisabled">
