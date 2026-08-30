@@ -50,17 +50,17 @@ describe('MarkerRoleService', () => {
     it('should return scale-tone for scale notes and scale-root for root', () => {
       const roles = service.computeRoles(mockNotes, scaleSelection, null);
 
-      // C (1-8) = scale-root
-      expect(roles.get('1-8')).toBe('scale-root');
+      // C (string 1, fret 8) = scale-root → key '0-8'
+      expect(roles.get('0-8')).toBe('scale-root');
 
-      // A (1-5) = scale-tone
-      expect(roles.get('1-5')).toBe('scale-tone');
+      // A (string 1, fret 5) = scale-tone → key '0-5'
+      expect(roles.get('0-5')).toBe('scale-tone');
 
-      // B (1-7) = scale-tone
-      expect(roles.get('1-7')).toBe('scale-tone');
+      // B (string 1, fret 7) = scale-tone → key '0-7'
+      expect(roles.get('0-7')).toBe('scale-tone');
 
-      // F (2-1) = not in scale → no role
-      expect(roles.has('2-1')).toBeFalse();
+      // F# (string 2, fret 1) = not in scale → no role → key '1-1'
+      expect(roles.has('1-1')).toBeFalse();
     });
   });
 
@@ -68,31 +68,31 @@ describe('MarkerRoleService', () => {
     it('should return chord-tone for notes in both scale and chord', () => {
       const roles = service.computeRoles(mockNotes, scaleSelection, chordSelection);
 
-      // G (1-3) = in C major scale AND C major chord → chord-tone
-      expect(roles.get('1-3')).toBe('chord-tone');
+      // G (string 1, fret 3) = in C major scale AND C major chord → chord-tone → key '0-3'
+      expect(roles.get('0-3')).toBe('chord-tone');
 
-      // E (1-0) = in C major scale AND C major chord → chord-tone
-      expect(roles.get('1-0')).toBe('chord-tone');
+      // E (string 1, fret 0) = in C major scale AND C major chord → chord-tone → key '0-0'
+      expect(roles.get('0-0')).toBe('chord-tone');
 
-      // E (1-12) = in C major scale AND C major chord → chord-tone
-      expect(roles.get('1-12')).toBe('chord-tone');
+      // E (string 1, fret 12) = in C major scale AND C major chord → chord-tone → key '0-12'
+      expect(roles.get('0-12')).toBe('chord-tone');
     });
 
     it('should return scale-tone for notes in scale but not in chord', () => {
       const roles = service.computeRoles(mockNotes, scaleSelection, chordSelection);
 
-      // A (1-5) = in C major scale, NOT in C major chord → scale-tone
-      expect(roles.get('1-5')).toBe('scale-tone');
+      // A (string 1, fret 5) = in C major scale, NOT in C major chord → scale-tone → key '0-5'
+      expect(roles.get('0-5')).toBe('scale-tone');
 
-      // B (1-7) = in C major scale, NOT in C major chord → scale-tone
-      expect(roles.get('1-7')).toBe('scale-tone');
+      // B (string 1, fret 7) = in C major scale, NOT in C major chord → scale-tone → key '0-7'
+      expect(roles.get('0-7')).toBe('scale-tone');
     });
 
     it('should return chord-root for C when scale-root equals chord-root', () => {
       const roles = service.computeRoles(mockNotes, scaleSelection, chordSelection);
 
-      // C (1-8) = root of scale AND root of chord → chord-root wins
-      expect(roles.get('1-8')).toBe('chord-root');
+      // C (string 1, fret 8) = root of scale AND root of chord → chord-root wins → key '0-8'
+      expect(roles.get('0-8')).toBe('chord-root');
     });
 
     it('should return chord-root when chord root differs from scale root', () => {
@@ -104,10 +104,10 @@ describe('MarkerRoleService', () => {
 
       const roles = service.computeRoles(mockNotes, scaleSelection, chordOnG);
 
-      // G is the chord root
-      expect(roles.get('1-3')).toBe('chord-root');
-      // C is still the scale root
-      expect(roles.get('1-8')).toBe('scale-root');
+      // G (string 1, fret 3) is the chord root → key '0-3'
+      expect(roles.get('0-3')).toBe('chord-root');
+      // C (string 1, fret 8) is still the scale root → key '0-8'
+      expect(roles.get('0-8')).toBe('scale-root');
     });
 
     it('should return chord-tone-outside-scale for chord notes not in the scale', () => {
@@ -123,8 +123,8 @@ describe('MarkerRoleService', () => {
 
       const roles = service.computeRoles(notesWithGb, scaleSelection, diminishedChord);
 
-      // F# (3-2) = in C diminished chord, NOT in C major scale → chord-tone-outside-scale
-      expect(roles.get('3-2')).toBe('chord-tone-outside-scale');
+      // F# (string 3, fret 2) = in C diminished chord, NOT in C major scale → chord-tone-outside-scale → key '2-2'
+      expect(roles.get('2-2')).toBe('chord-tone-outside-scale');
     });
   });
 
@@ -132,7 +132,7 @@ describe('MarkerRoleService', () => {
     it('should store the last computed roles', () => {
       service.computeRoles(mockNotes, scaleSelection, null);
       expect(service.lastRoles.size).toBeGreaterThan(0);
-      expect(service.lastRoles.get('1-8')).toBe('scale-root');
+      expect(service.lastRoles.get('0-8')).toBe('scale-root');
     });
   });
 });

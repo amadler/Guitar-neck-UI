@@ -17,6 +17,8 @@ describe('MetronomeComponent', () => {
       isReady: true,
       currentTime: 0
     });
+    // scheduleMeasure must return an array, otherwise spreading it crashes
+    mockEngine.scheduleMeasure.and.returnValue([]);
 
     await TestBed.configureTestingModule({
       imports: [MetronomeComponent],
@@ -124,25 +126,27 @@ describe('MetronomeComponent', () => {
     it('should reset tap array if gap exceeds 2000ms', () => {
       const now = Date.now();
       let callIndex = 0;
-      const timestamps = [0, 500, 1000, 4000]; // gap of 3000ms > 2000ms
+      // Tap at 0ms, 500ms (valid pair → BPM=120), then gap to 4000ms (>2000ms → reset),
+      // then tap at 5000ms (new pair with 1000ms interval → BPM=60)
+      const timestamps = [0, 500, 4000, 5000];
       spyOn(Date, 'now').and.callFake(() => now + timestamps[callIndex++]);
 
-      // First two taps
-      component.tapTempo(); // 0
-      component.tapTempo(); // 500
+      // Tap 1: 0ms → array = [0], < 2 taps, no BPM change
+      component.tapTempo();
+      expect(component.bpm).toBe(120); // still default
+
+      // Tap 2: 500ms → array = [0, 500], interval = 500ms → BPM = 120
+      component.tapTempo();
       expect(component.bpm).toBe(120); // 60000/500 = 120
 
-      // Third tap at +4000ms - gap is 3000ms > 2000ms, should reset
-      component.tapTempo(); // 4000
+      // Tap 3: 4000ms → gap from 500 to 4000 = 3500ms > 2000ms → reset
+      // array becomes [4000], < 2 taps, BPM unchanged
+      component.tapTempo();
+      expect(component.bpm).toBe(120);
 
-      // Need 2 taps after reset, so BPM shouldn't change until next tap
-      // Actually after reset, one tap exists. Next tap will use that.
-      component.tapTempo(); // No timestamp, just check BPM unchanged
-      // After the reset, the third tap is first in a new array
-      // Fourth tap at... we need to think: timestamps = [0, 500, 4000, 5000]
-      // Tap at 4000ms resets, array becomes [4000]
-      // Tap at 5000ms: interval = 1000ms → BPM = 60
-      expect(component.bpm).toBe(60);
+      // Tap 4: 5000ms → array = [4000, 5000], interval = 1000ms → BPM = 60
+      component.tapTempo();
+      expect(component.bpm).toBe(60); // 60000/1000 = 60
     });
 
     it('should ignore intervals less than 200ms', () => {

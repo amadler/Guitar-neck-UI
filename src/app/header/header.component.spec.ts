@@ -23,6 +23,13 @@ describe('HeaderComponent', () => {
   });
 
   describe('help modal', () => {
+    // ngOnInit opens the modal on first visit (no localStorage key).
+    // Close it so tests start from a known closed state.
+    beforeEach(() => {
+      component.helpModalOpen = false;
+      fixture.detectChanges();
+    });
+
     function getHelpButton(): HTMLButtonElement {
       const buttons = fixture.debugElement.queryAll(By.css('.icon-btn'));
       const helpBtn = buttons.find(btn =>

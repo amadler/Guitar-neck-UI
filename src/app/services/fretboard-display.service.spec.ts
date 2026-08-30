@@ -76,7 +76,7 @@ describe('FretboardDisplayService', () => {
       const state = guitarNeckService.scaleChordState!;
       markerRoleService.computeRoles(mockNote as any, state.scale, state.chord);
 
-      const cssClass = service.getRoleCssClass(1, 0);
+      const cssClass = service.getRoleCssClass(0, 0);
       expect(cssClass).toBe('guitar-neck__role-chord-root');
     });
 
