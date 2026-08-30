@@ -18,6 +18,9 @@ export class FretboardNoteQueryService {
   }
 
   getNote(stringIndex: number, fret: number): GuitarNote | undefined {
+    if (stringIndex >= 0 && !this.guitarNeckService.activeStrings[stringIndex]) {
+      return undefined;
+    }
     return this.guitarNeckService.notes.find(note => this.isMatchingNoteOnFret(note, stringIndex, fret));
   }
 

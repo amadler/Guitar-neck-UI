@@ -65,7 +65,7 @@ export class RangeToolbarComponent {
 
   applyCustom(): void {
     const min = Math.max(0, Math.min(this.customMin, this.customMax));
-    const max = Math.min(neckConfig.numberOfFrets, Math.max(this.customMax, min));
+    const max = Math.min(neckConfig.numberOfFrets, Math.max(this.customMin, this.customMax));
     this.customMin = min;
     this.customMax = max;
     this.isCustom = false;
