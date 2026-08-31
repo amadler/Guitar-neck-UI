@@ -3,6 +3,7 @@ import { CHORD_PATTERNS, SCALE_PATTERNS } from 'guitar-neck-shared';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { MusicSelection } from '../shared/model/music-selection';
 import { resolveNotesFromIntervals } from '../shared/pattern-resolver';
+import { noteToChroma } from '../shared/note-utils';
 
 /**
  * Marker role describes the visual role of a note on the fretboard
@@ -23,27 +24,31 @@ export type MarkerRole =
   | 'chord-tone-outside-scale';
 
 /**
- * Resolves the set of note names for a chord pattern rooted at a given root note.
+ * Resolves the set of chroma values for a chord pattern rooted at a given root note.
+ * Uses chroma (pitch class) instead of note names to avoid enharmonic mismatches.
  */
-function resolveChordNoteNames(chordName: string, rootNote: string): Set<string> {
+function resolveChordChromas(chordName: string, rootNote: string): Set<number> {
   const pattern = CHORD_PATTERNS.find(p => p.name === chordName);
   if (!pattern) {
     console.warn(`[MarkerRoleService] Unknown chord pattern: ${chordName}`);
     return new Set();
   }
-  return new Set(resolveNotesFromIntervals(rootNote, pattern.intervals));
+  const names = resolveNotesFromIntervals(rootNote, pattern.intervals);
+  return new Set(names.map(noteToChroma));
 }
 
 /**
- * Resolves the set of note names for a scale pattern rooted at a given root note.
+ * Resolves the set of chroma values for a scale pattern rooted at a given root note.
+ * Uses chroma (pitch class) instead of note names to avoid enharmonic mismatches.
  */
-function resolveScaleNoteNames(scaleName: string, rootNote: string): Set<string> {
+function resolveScaleChromas(scaleName: string, rootNote: string): Set<number> {
   const pattern = SCALE_PATTERNS.find(p => p.name === scaleName);
   if (!pattern) {
     console.warn(`[MarkerRoleService] Unknown scale pattern: ${scaleName}`);
     return new Set();
   }
-  return new Set(resolveNotesFromIntervals(rootNote, pattern.intervals));
+  const names = resolveNotesFromIntervals(rootNote, pattern.intervals);
+  return new Set(names.map(noteToChroma));
 }
 
 @Injectable({ providedIn: 'root' })
@@ -74,27 +79,28 @@ export class MarkerRoleService {
       return roles;
     }
 
-    const scaleNoteNames = resolveScaleNoteNames(scaleSelection.name, scaleSelection.rootNote);
-    const scaleRoot = scaleSelection.rootNote;
+    const scaleChromas = resolveScaleChromas(scaleSelection.name, scaleSelection.rootNote);
+    const scaleRootChroma = noteToChroma(scaleSelection.rootNote);
 
     if (chordSelection?.rootNote && chordSelection?.name) {
       // --- Dual mode: scale + chord ---
-      const chordNoteNames = resolveChordNoteNames(chordSelection.name, chordSelection.rootNote);
-      const chordRoot = chordSelection.rootNote;
+      const chordChromas = resolveChordChromas(chordSelection.name, chordSelection.rootNote);
+      const chordRootChroma = noteToChroma(chordSelection.rootNote);
 
       for (const note of notes) {
         // Use 0-based string index to match template's `let i = index`
         const key = `${note.string - 1}-${note.fret}`;
-        const inScale = scaleNoteNames.has(note.note);
-        const inChord = chordNoteNames.has(note.note);
+        const noteChroma = noteToChroma(note.note);
+        const inScale = scaleChromas.has(noteChroma);
+        const inChord = chordChromas.has(noteChroma);
 
         if (inScale && inChord) {
           // Could be both scale-root and chord-root simultaneously
-          if (note.note === scaleRoot && note.note === chordRoot) {
+          if (noteChroma === scaleRootChroma && noteChroma === chordRootChroma) {
             roles.set(key, 'chord-root'); // chord-root wins when both roots are the same note
-          } else if (note.note === chordRoot) {
+          } else if (noteChroma === chordRootChroma) {
             roles.set(key, 'chord-root');
-          } else if (note.note === scaleRoot) {
+          } else if (noteChroma === scaleRootChroma) {
             roles.set(key, 'scale-root');
           } else {
             roles.set(key, 'chord-tone');
@@ -102,7 +108,7 @@ export class MarkerRoleService {
         } else if (inChord && !inScale) {
           roles.set(key, 'chord-tone-outside-scale');
         } else if (inScale) {
-          if (note.note === scaleRoot) {
+          if (noteChroma === scaleRootChroma) {
             roles.set(key, 'scale-root');
           } else {
             roles.set(key, 'scale-tone');
@@ -112,10 +118,11 @@ export class MarkerRoleService {
     } else {
       // --- Single mode: scale only ---
       for (const note of notes) {
-        if (scaleNoteNames.has(note.note)) {
+        const noteChroma = noteToChroma(note.note);
+        if (scaleChromas.has(noteChroma)) {
           // Use 0-based string index to match template's `let i = index`
           const key = `${note.string - 1}-${note.fret}`;
-          roles.set(key, note.note === scaleRoot ? 'scale-root' : 'scale-tone');
+          roles.set(key, noteChroma === scaleRootChroma ? 'scale-root' : 'scale-tone');
         }
       }
     }

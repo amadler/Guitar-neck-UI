@@ -14,6 +14,7 @@ import { RelationshipStripComponent } from '../relationship-strip/relationship-s
 import { FretboardCommand } from 'guitar-toolbox-lib';
 import { ToolboxBuilderComponent } from 'guitar-toolbox-lib';
 import { ChatComponent } from '../../../projects/guitar-chat/src/lib/components/chat/chat.component';
+import { spellNote } from '../shared/note-utils';
 
 export type DisplayMode = 'legend' | 'relationship' | null;
 
@@ -91,11 +92,6 @@ export class HomePageComponent {
     const { key, interval } = command;
     if (!key || !interval) return;
 
-    // Single interval: show root + the interval note
-    const chromatic = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-    const rootIndex = chromatic.indexOf(key);
-    if (rootIndex === -1) return;
-
     const semitoneMap: Record<string, number> = {
       '1': 0, 'b2': 1, '2': 2, 'b3': 3, '3': 4,
       '4': 5, 'b5': 6, '5': 7, 'b6': 8, '6': 9,
@@ -104,7 +100,11 @@ export class HomePageComponent {
     const semitone = semitoneMap[interval];
     if (semitone === undefined) return;
 
-    const note = chromatic[(rootIndex + semitone) % 12];
+    // Use spellNote() to get the correct enharmonic spelling:
+    // minor intervals (b2, b3, b5, b6, b7) → flat spellings (Db, Eb, Gb, Ab, Bb)
+    // major/perfect intervals → sharp spellings
+    // This ensures Tonal's distance() returns the expected interval name.
+    const note = spellNote(key, semitone, interval);
     const notes = [key, note];
     this.fretboardOrchestrationService.displayCustomPattern(notes, key);
     this.displayMode.set('legend');

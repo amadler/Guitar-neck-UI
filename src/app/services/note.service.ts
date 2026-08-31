@@ -5,6 +5,7 @@
 import { Injectable } from '@angular/core';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { neckConfig } from 'guitar-neck-shared';
+import { noteToChroma } from '../shared/note-utils';
 
 @Injectable({ providedIn: 'root' })
 export class FretboardNotePositionService {
@@ -49,6 +50,7 @@ export class FretboardNotePositionService {
   }
 
   findPositionsByScaleNotes(scaleNotes: string[]): GuitarNote[] {
-    return this.guitarNotes.filter(note => scaleNotes.includes(note.note));
+    const chromas = new Set(scaleNotes.map(noteToChroma));
+    return this.guitarNotes.filter(note => chromas.has(noteToChroma(note.note)));
   }
 }

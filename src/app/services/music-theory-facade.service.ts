@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { get as scaleGet } from '@tonaljs/scale';
 import { get as chordGet } from '@tonaljs/chord';
 import { simplify } from '@tonaljs/note';
-import { distance } from '@tonaljs/interval';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { MusicSelection } from '../shared/model/music-selection';
 import { FretboardNotePositionService } from './note.service';
@@ -11,6 +10,7 @@ import { MarkerRoleService } from './marker-role.service';
 import { INTERVAL_MAP, CHORD_NAME_TO_TONAL, SCALE_NAME_TO_TONAL, SCALES_NOT_IN_TONAL, CHORDS_NOT_IN_TONAL } from '../shared/tonal-adapter';
 import { CHORD_PATTERNS, SCALE_PATTERNS, neckConfig } from 'guitar-neck-shared';
 import { resolveNotesFromIntervals } from '../shared/pattern-resolver';
+import { intervalBetween } from '../shared/note-utils';
 
 /**
  * FretboardOrchestrationService — fasada dla logiki teorii muzyki.
@@ -195,8 +195,8 @@ export class FretboardOrchestrationService {
 
   /**
    * Oznacza nuty interwałami.
-   * Gdy podano rawNoteNames, używa ich do distance() (enharmonic-aware).
-   * Gdy brak rawNoteNames, używa bezpośrednio note.note (custom pattern).
+   * Używa intervalBetween() z note-utils, który porównuje po pitch class (chroma),
+   * więc działa poprawnie niezależnie od pisowni enharmonicznej (Eb vs D#).
    */
   private markIntervals(rootNote: string, notes: GuitarNote[], rawNoteNames?: string[]): void {
     for (const note of notes) {
@@ -206,7 +206,7 @@ export class FretboardOrchestrationService {
         const rawName = rawNoteNames
           ? (rawNoteNames.find(n => simplify(n) === note.note) || note.note)
           : note.note;
-        const tonalInterval = distance(rootNote, rawName);
+        const tonalInterval = intervalBetween(rootNote, rawName);
         note.interval = INTERVAL_MAP[tonalInterval] || '';
       }
     }

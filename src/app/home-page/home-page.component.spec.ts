@@ -88,8 +88,8 @@ describe('HomePageComponent', () => {
       expect(component.displayMode()).toBe('legend');
     });
 
-    it('should handle intervalPattern command', () => {
-      component.onToolboxEvent({ kind: 'intervalPattern', key: 'C', intervals: [0, 4, 7] } as any);
+    it('should handle interval command', () => {
+      component.onToolboxEvent({ kind: 'interval', key: 'C', interval: 'b3' } as any);
       expect(fretboardOrchestration.displayCustomPattern).toHaveBeenCalled();
       expect(component.displayMode()).toBe('legend');
     });
