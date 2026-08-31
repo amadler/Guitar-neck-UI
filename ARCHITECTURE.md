@@ -37,8 +37,8 @@ Logika teorii muzyki (skale, akordy, interwały) jest obliczana lokalnie przez *
 | Serwis (klasa) | Plik | Odpowiedzialność |
 |---------------|------|-----------------|
 | `AppStateService` | `app-state.service.ts` | Tryb aplikacji: `custom-pattern` / `scale-or-chord` / `scale-chord` |
-| `FretboardOrchestrationService` | `music-theory-facade.service.ts` | **Fasada** — wyświetlanie skal, akordów, nut, relacji scale+chord. Używa Tonal.js do obliczeń. |
-| `FretboardStateService` | `guitar-neck.service.ts` | Stan gryfu — visible, selected, interval, ScaleChordState, activeStrings, markerDisplayMode |
+| `FretboardOrchestrationService` | `fretboard-orchestration.service.ts` | **Orkiestrator** — koordynuje pipeline: teoria → pozycje → podświetlenie → interwały. Używa TonalFacadeService. |
+| `FretboardStateService` | `fretboard-state.service.ts` | Stan gryfu — visible, selected, interval, ScaleChordState, activeStrings, markerDisplayMode |
 | `FretboardNotePositionService` | `note.service.ts` | Generuje mapę nut na gryfie, wyszukuje pozycje |
 | `FretboardNoteQueryService` | `fretboard-note-query.service.ts` | Zapytania o nuty na gryfie (isNoteOnFret, getNote, getNoteName) |
 | `MarkerRoleService` | `marker-role.service.ts` | Oblicza role wizualne (scale-tone, chord-root, chord-tone-outside-scale itd.) |
@@ -166,7 +166,7 @@ Logika teorii muzyki jest obliczana lokalnie przez **Tonal.js** (`@tonaljs/tonal
 Nie wszystkie patterny z `guitar-neck-shared` istnieją w Tonal.js. Dla nich używany jest fallback:
 
 ```typescript
-// src/app/services/music-theory-facade.service.ts
+// src/app/services/tonal-facade.service.ts
 private resolveFromPatterns(patternName, rootNote, patterns): { simplified, raw }
 ```
 

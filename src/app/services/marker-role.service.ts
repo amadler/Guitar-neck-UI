@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
-import { CHORD_PATTERNS, SCALE_PATTERNS } from 'guitar-neck-shared';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { MusicSelection } from '../shared/model/music-selection';
-import { resolveNotesFromIntervals } from '../shared/pattern-resolver';
-import { noteToChroma } from '../shared/note-utils';
+import { TonalFacadeService } from './tonal-facade.service';
 
 /**
  * Marker role describes the visual role of a note on the fretboard
@@ -25,30 +23,20 @@ export type MarkerRole =
 
 /**
  * Resolves the set of chroma values for a chord pattern rooted at a given root note.
- * Uses chroma (pitch class) instead of note names to avoid enharmonic mismatches.
+ * Uses TonalFacadeService for resolution, with chroma (pitch class) to avoid enharmonic mismatches.
  */
-function resolveChordChromas(chordName: string, rootNote: string): Set<number> {
-  const pattern = CHORD_PATTERNS.find(p => p.name === chordName);
-  if (!pattern) {
-    console.warn(`[MarkerRoleService] Unknown chord pattern: ${chordName}`);
-    return new Set();
-  }
-  const names = resolveNotesFromIntervals(rootNote, pattern.intervals);
-  return new Set(names.map(noteToChroma));
+function resolveChordChromas(chordName: string, rootNote: string, tonal: TonalFacadeService): Set<number> {
+  const { simplified } = tonal.resolvePattern(chordName, rootNote, 'chord');
+  return new Set(simplified.map(n => tonal.chroma(n)));
 }
 
 /**
  * Resolves the set of chroma values for a scale pattern rooted at a given root note.
- * Uses chroma (pitch class) instead of note names to avoid enharmonic mismatches.
+ * Uses TonalFacadeService for resolution, with chroma (pitch class) to avoid enharmonic mismatches.
  */
-function resolveScaleChromas(scaleName: string, rootNote: string): Set<number> {
-  const pattern = SCALE_PATTERNS.find(p => p.name === scaleName);
-  if (!pattern) {
-    console.warn(`[MarkerRoleService] Unknown scale pattern: ${scaleName}`);
-    return new Set();
-  }
-  const names = resolveNotesFromIntervals(rootNote, pattern.intervals);
-  return new Set(names.map(noteToChroma));
+function resolveScaleChromas(scaleName: string, rootNote: string, tonal: TonalFacadeService): Set<number> {
+  const { simplified } = tonal.resolvePattern(scaleName, rootNote, 'scale');
+  return new Set(simplified.map(n => tonal.chroma(n)));
 }
 
 @Injectable({ providedIn: 'root' })
@@ -56,6 +44,8 @@ export class MarkerRoleService {
 
   /** Cached result of the last computeRoles() call, for read access by display layer. */
   lastRoles: Map<string, MarkerRole> = new Map();
+
+  constructor(private tonal: TonalFacadeService) {}
 
   /**
    * Compute marker roles for every note on the fretboard given a scale
@@ -79,18 +69,18 @@ export class MarkerRoleService {
       return roles;
     }
 
-    const scaleChromas = resolveScaleChromas(scaleSelection.name, scaleSelection.rootNote);
-    const scaleRootChroma = noteToChroma(scaleSelection.rootNote);
+    const scaleChromas = resolveScaleChromas(scaleSelection.name, scaleSelection.rootNote, this.tonal);
+    const scaleRootChroma = this.tonal.chroma(scaleSelection.rootNote);
 
     if (chordSelection?.rootNote && chordSelection?.name) {
       // --- Dual mode: scale + chord ---
-      const chordChromas = resolveChordChromas(chordSelection.name, chordSelection.rootNote);
-      const chordRootChroma = noteToChroma(chordSelection.rootNote);
+      const chordChromas = resolveChordChromas(chordSelection.name, chordSelection.rootNote, this.tonal);
+      const chordRootChroma = this.tonal.chroma(chordSelection.rootNote);
 
       for (const note of notes) {
         // Use 0-based string index to match template's `let i = index`
         const key = `${note.string - 1}-${note.fret}`;
-        const noteChroma = noteToChroma(note.note);
+        const noteChroma = this.tonal.chroma(note.note);
         const inScale = scaleChromas.has(noteChroma);
         const inChord = chordChromas.has(noteChroma);
 
@@ -118,7 +108,7 @@ export class MarkerRoleService {
     } else {
       // --- Single mode: scale only ---
       for (const note of notes) {
-        const noteChroma = noteToChroma(note.note);
+        const noteChroma = this.tonal.chroma(note.note);
         if (scaleChromas.has(noteChroma)) {
           // Use 0-based string index to match template's `let i = index`
           const key = `${note.string - 1}-${note.fret}`;

@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FreatboardComponent } from './freatboard.component';
-import { FretboardStateService } from '../services/guitar-neck.service';
+import { FretboardStateService } from '../services/fretboard-state.service';
 import { FretboardNoteQueryService } from '../services/fretboard-note-query.service';
 import { FretboardDisplayService } from '../services/fretboard-display.service';
 import { FretboardNotePositionService } from '../services/note.service';

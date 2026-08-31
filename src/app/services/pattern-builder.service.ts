@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { neckConfig, CHORD_PATTERNS, SCALE_PATTERNS } from 'guitar-neck-shared';
 import { PatternInfo } from '../shared/model/patternInfo';
 import { MusicSelection } from '../shared/model/music-selection';
-import { FretboardStateService } from './guitar-neck.service';
+import { FretboardStateService } from './fretboard-state.service';
 import { resolveNotesFromIntervals } from '../shared/pattern-resolver';
 
 const SEMITONE_TO_INTERVAL: Record<number, string> = {

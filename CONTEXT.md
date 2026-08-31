@@ -38,7 +38,7 @@ Component showing the current pattern info (scale card and/or chord card). In sc
 _Avoid_: Pattern info, selected patterns
 
 **Tonal.js**:
-Local music theory engine (`@tonaljs/tonal` v4) used for calculating scale notes, chord notes, and interval names. Replaces the former `music-theory-api` backend. All Tonal imports are confined to `FretboardOrchestrationService` — no UI component imports Tonal directly. For exotic patterns not in Tonal, falls back to `CHORD_PATTERNS`/`SCALE_PATTERNS` from `guitar-neck-shared`.
+Local music theory engine (`@tonaljs/tonal` v4) used for calculating scale notes, chord notes, and interval names. Replaces the former `music-theory-api` backend. All Tonal imports are confined to `TonalFacadeService` — no other service or UI component imports Tonal directly. For exotic patterns not in Tonal, falls back to `CHORD_PATTERNS`/`SCALE_PATTERNS` from `guitar-neck-shared`.
 _Avoid_: Backend API, music theory API
 
 **TonalAdapter**:
@@ -46,7 +46,7 @@ Map of interval names between Tonal.js notation (`'3M'`, `'3m'`) and Guitar Neck
 _Avoid_: Interval converter, tonal mapper
 
 **FretboardOrchestrationService**:
-Main facade integrating music theory logic. Synchronous — uses Tonal.js instead of HTTP API. All Tonal.js imports are confined to this service.
+Main orchestrator coordinating the pipeline: music theory → positions → highlighting → intervals. Uses `TonalFacadeService` for all Tonal.js calls.
 _Avoid_: Music theory facade, scale service
 
 **FretboardStateService**:

@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { FretboardStateService } from './guitar-neck.service';
+import { FretboardStateService } from './fretboard-state.service';
 import { FretboardNotePositionService } from './note.service';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { neckConfig } from 'guitar-neck-shared';

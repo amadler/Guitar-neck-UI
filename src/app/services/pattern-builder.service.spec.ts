@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { PatternBuilderService } from './pattern-builder.service';
-import { FretboardStateService } from './guitar-neck.service';
+import { FretboardStateService } from './fretboard-state.service';
 import { FretboardNotePositionService } from './note.service';
 
 describe('PatternBuilderService', () => {

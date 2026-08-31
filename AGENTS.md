@@ -41,10 +41,11 @@ Agent instructions for the Guitar neck UI workspace.
 - Treat keys in environment files as sensitive. Do not print, duplicate, or move secrets into docs, logs, tests, or commits.
 - If work involves API credentials, prefer environment-specific handling and recommend rotation if exposed.
 
-## Local machine setup 
-Local machine: Wndows 11
+## Local machine setup
+Local machine: Windows 11
 prefer using npm over npx
-if some commands crashes log it to /TOOLS_CRASHINT_LOG.MD WITH 
+Terminal uses cmd.exe, not PowerShell — use cmd syntax (del, rename, copy) instead of PowerShell (Remove-Item, Rename-Item, Copy-Item)
+if some commands crashes log it to /TOOLS_CRASHINT_LOG.MD WITH
 [] - PROBLEM
 [] - SOLUTION
 sections
@@ -82,13 +83,14 @@ When updating or reviewing `.md` documentation files, derive a validation checkl
 
 ```
 Documentation consistency — checklist template:
-- [ ] Nazwy serwisów (FretboardOrchestrationService, FretboardStateService, itd.) są takie same we wszystkich .md
+- [ ] Nazwy serwisów (FretboardOrchestrationService, FretboardStateService, TonalFacadeService, itd.) są takie same we wszystkich .md
 - [ ] apiUrl (http://localhost:3000) jest spójny we wszystkich plikach
 - [ ] BACKLOG.md statusy są zgodne z resztą dokumentów
 - [ ] Ścieżki do plików (src/app/...) faktycznie istnieją w repozytorium
 - [ ] Endpointy backend API (GET /api/chords/:name/:root) są spójne
 - [ ] AI Chat oznaczony jako POSTPONED wszędzie gdzie występuje
 - [ ] Żaden .md nie zawiera starych/nieaktualnych nazw serwisów (np. MusicTheoryFacadeService, ScaleAndTriadService)
+- [ ] Ścieżki plików serwisów: fretboard-orchestration.service.ts, fretboard-state.service.ts, tonal-facade.service.ts
 ```
 
 Before committing documentation changes, run through all 7 checks. If a check fails, fix the inconsistency before merge.

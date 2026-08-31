@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HomePageComponent } from './home-page.component';
-import { FretboardStateService } from '../services/guitar-neck.service';
-import { FretboardOrchestrationService } from '../services/music-theory-facade.service';
+import { FretboardStateService } from '../services/fretboard-state.service';
+import { FretboardOrchestrationService } from '../services/fretboard-orchestration.service';
 import { PatternBuilderService } from '../services/pattern-builder.service';
 import { FretboardNotePositionService } from '../services/note.service';
 import { FretboardDisplayService } from '../services/fretboard-display.service';

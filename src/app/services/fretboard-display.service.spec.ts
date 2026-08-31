@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { FretboardDisplayService } from './fretboard-display.service';
-import { FretboardStateService } from './guitar-neck.service';
+import { FretboardStateService } from './fretboard-state.service';
 import { MarkerRoleService } from './marker-role.service';
 import { FretboardNotePositionService } from './note.service';
 

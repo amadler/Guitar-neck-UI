@@ -1,9 +1,8 @@
 import { Component } from '@angular/core';
 import { NgIf, NgFor } from '@angular/common';
-import { neckConfig, CHORD_PATTERNS, SCALE_PATTERNS } from 'guitar-neck-shared';
-import { FretboardStateService } from '../services/guitar-neck.service';
+import { FretboardStateService } from '../services/fretboard-state.service';
 import { MarkerRoleService, MarkerRole } from '../services/marker-role.service';
-import { noteToChroma } from '../shared/note-utils';
+import { TonalFacadeService } from '../services/tonal-facade.service';
 
 interface RoleLegendItem {
   role: MarkerRole;
@@ -19,36 +18,16 @@ const ROLE_LEGEND: RoleLegendItem[] = [
   { role: 'chord-tone-outside-scale', label: 'chord outside scale', cssClass: 'rel-legend__dot--outside' },
 ];
 
-/** Resolve chroma values for a chord pattern. */
-function resolveChordChromas(chordName: string, rootNote: string): Set<number> {
-  const pattern = CHORD_PATTERNS.find(p => p.name === chordName);
-  if (!pattern) return new Set();
-  const chromatic = neckConfig.chromaticNotes;
-  const rootIndex = chromatic.indexOf(rootNote);
-  if (rootIndex === -1) return new Set();
-  const chromas = new Set<number>([noteToChroma(rootNote)]);
-  let cumulative = 0;
-  for (const step of pattern.intervals) {
-    cumulative += step;
-    chromas.add(noteToChroma(chromatic[(rootIndex + cumulative) % 12]));
-  }
-  return chromas;
+/** Resolve chroma values for a chord pattern via TonalFacadeService. */
+function resolveChordChromas(chordName: string, rootNote: string, tonal: TonalFacadeService): Set<number> {
+  const { simplified } = tonal.resolvePattern(chordName, rootNote, 'chord');
+  return new Set(simplified.map(n => tonal.chroma(n)));
 }
 
-/** Resolve chroma values for a scale pattern. */
-function resolveScaleChromas(scaleName: string, rootNote: string): Set<number> {
-  const pattern = SCALE_PATTERNS.find(p => p.name === scaleName);
-  if (!pattern) return new Set();
-  const chromatic = neckConfig.chromaticNotes;
-  const rootIndex = chromatic.indexOf(rootNote);
-  if (rootIndex === -1) return new Set();
-  const chromas = new Set<number>([noteToChroma(rootNote)]);
-  let cumulative = 0;
-  for (const step of pattern.intervals) {
-    cumulative += step;
-    chromas.add(noteToChroma(chromatic[(rootIndex + cumulative) % 12]));
-  }
-  return chromas;
+/** Resolve chroma values for a scale pattern via TonalFacadeService. */
+function resolveScaleChromas(scaleName: string, rootNote: string, tonal: TonalFacadeService): Set<number> {
+  const { simplified } = tonal.resolvePattern(scaleName, rootNote, 'scale');
+  return new Set(simplified.map(n => tonal.chroma(n)));
 }
 
 @Component({
@@ -64,6 +43,7 @@ export class RelationshipStripComponent {
   constructor(
     private fretboardState: FretboardStateService,
     public markerRole: MarkerRoleService,
+    private tonal: TonalFacadeService,
   ) {}
 
   get hasRelation(): boolean {
@@ -88,8 +68,8 @@ export class RelationshipStripComponent {
 
   get chordTonesInScale(): string[] {
     if (!this.hasRelation) return [];
-    const chordChromas = resolveChordChromas(this.chordName, this.chordRoot);
-    const scaleChromas = resolveScaleChromas(this.scaleName, this.scaleRoot);
+    const chordChromas = resolveChordChromas(this.chordName, this.chordRoot, this.tonal);
+    const scaleChromas = resolveScaleChromas(this.scaleName, this.scaleRoot, this.tonal);
     const sharpNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
     return [...chordChromas]
       .filter(c => scaleChromas.has(c))
@@ -99,8 +79,8 @@ export class RelationshipStripComponent {
 
   get chordTonesOutsideScale(): string[] {
     if (!this.hasRelation) return [];
-    const chordChromas = resolveChordChromas(this.chordName, this.chordRoot);
-    const scaleChromas = resolveScaleChromas(this.scaleName, this.scaleRoot);
+    const chordChromas = resolveChordChromas(this.chordName, this.chordRoot, this.tonal);
+    const scaleChromas = resolveScaleChromas(this.scaleName, this.scaleRoot, this.tonal);
     const sharpNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
     return [...chordChromas]
       .filter(c => !scaleChromas.has(c))

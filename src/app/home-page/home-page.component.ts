@@ -1,8 +1,8 @@
 import { Component, signal } from '@angular/core';
 import { NgIf } from '@angular/common';
-import { FretboardStateService } from '../services/guitar-neck.service';
+import { FretboardStateService } from '../services/fretboard-state.service';
 import { PatternBuilderService } from '../services/pattern-builder.service';
-import { FretboardOrchestrationService } from '../services/music-theory-facade.service';
+import { FretboardOrchestrationService } from '../services/fretboard-orchestration.service';
 import { GuitarNeckComponent } from '../guitar-neck/guitar-neck.component';
 import { environment } from '../../environments/environment';
 import { HeaderComponent } from '../header/header.component';
@@ -51,9 +51,10 @@ export class HomePageComponent {
   onToolboxEvent(command: FretboardCommand): void {
     this.guitarNeckService.clearFretboard();
     this.patternBuilder.clearCurrentPattern();
-
     switch (command.kind) {
       case 'scale':
+        debugger
+
         this.handleShowScale(command);
         break;
       case 'chord':
@@ -70,7 +71,7 @@ export class HomePageComponent {
 
   private handleShowScale(command: FretboardCommand & { kind: 'scale' }): void {
     const { key, scaleType } = command;
-
+    debugger
     this.fretboardOrchestrationService.displayScale(scaleType, key);
     this.patternBuilder.setCurrentPattern(scaleType, key, 'scale');
     this.guitarNeckService.scaleChordState = {

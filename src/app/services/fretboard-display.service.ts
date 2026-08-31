@@ -1,16 +1,18 @@
 import { Injectable } from '@angular/core';
-import { FretboardStateService } from './guitar-neck.service';
+import { FretboardStateService } from './fretboard-state.service';
 import { MarkerRoleService, MarkerRole } from './marker-role.service';
 
 /**
  * CSS class suffix for each marker role.
  * Used as `guitar-neck__role-${suffix}`.
  */
+
+// TODO: po co ta mapa?
 const ROLE_CSS: Record<MarkerRole, string> = {
-  'scale-tone':               'scale-tone',
-  'chord-tone':               'chord-tone',
-  'scale-root':               'scale-root',
-  'chord-root':               'chord-root',
+  'scale-tone': 'scale-tone',
+  'chord-tone': 'chord-tone',
+  'scale-root': 'scale-root',
+  'chord-root': 'chord-root',
   'chord-tone-outside-scale': 'chord-tone-outside',
 };
 
@@ -19,7 +21,7 @@ export class FretboardDisplayService {
   constructor(
     private guitarNeckService: FretboardStateService,
     private markerRoleService: MarkerRoleService,
-  ) {}
+  ) { }
 
   getMarkerCssClass(interval: string | undefined): string {
     // When a chord relation is active, use role-based coloring instead of interval colors

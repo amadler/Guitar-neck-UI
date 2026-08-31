@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { GuitarNote } from '../shared/model/guitarNote';
-import { FretboardStateService } from '../services/guitar-neck.service';
+import { FretboardStateService } from '../services/fretboard-state.service';
 import { FretboardNoteQueryService } from '../services/fretboard-note-query.service';
 import { FretboardDisplayService } from '../services/fretboard-display.service';
 import { NgIf, NgFor, NgClass } from '@angular/common';

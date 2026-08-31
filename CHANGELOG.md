@@ -10,13 +10,13 @@ a projekt stosuje [Semantic Versioning](https://semver.org/).
 ## [0.8.0] — 2026-08-29
 
 ### Added
-- Tonal.js integration — local music theory engine replaces backend API ([`src/app/services/music-theory-facade.service.ts`](src/app/services/music-theory-facade.service.ts))
+- Tonal.js integration — local music theory engine replaces backend API ([`src/app/services/tonal-facade.service.ts`](src/app/services/tonal-facade.service.ts))
 - `FretboardNoteQueryService` — query helper for fretboard note lookups ([`src/app/services/fretboard-note-query.service.ts`](src/app/services/fretboard-note-query.service.ts))
 - `PatternBuilderService` — builds PatternInfo for UI display ([`src/app/services/pattern-builder.service.ts`](src/app/services/pattern-builder.service.ts))
 - `FretboardDisplayService` — CSS class decision layer for markers ([`src/app/services/fretboard-display.service.ts`](src/app/services/fretboard-display.service.ts))
 - `FormsWrapperComponent` from `guitar-toolbox-lib` — new toolbox form (selector `lib-forms-wrapper`)
 - `FretboardCommand` event type for toolbox → UI communication
-- Fallback resolution for exotic scales/chords not in Tonal.js ([`src/app/services/music-theory-facade.service.ts`](src/app/services/music-theory-facade.service.ts:207))
+- Fallback resolution for exotic scales/chords not in Tonal.js ([`src/app/services/tonal-facade.service.ts`](src/app/services/tonal-facade.service.ts))
 - `tonal-adapter.ts` — pattern name mapping (UI → Tonal) and interval name mapping ([`src/app/shared/tonal-adapter.ts`](src/app/shared/tonal-adapter.ts))
 - `MusicSelection` domain abstraction — unified model for scale/chord/note/custom selection state ([`src/app/shared/model/music-selection.ts`](src/app/shared/model/music-selection.ts))
 
@@ -25,8 +25,8 @@ a projekt stosuje [Semantic Versioning](https://semver.org/).
 - Default app mode: `'idle'` → `'scale-or-chord'` (no start screen, app starts immediately with toolbox)
 - Toolbox: local `ToolboxFormComponent` → `FormsWrapperComponent` from `guitar-toolbox-lib` ([`src/app/home-page/home-page.component.ts`](src/app/home-page/home-page.component.ts:14))
 - `guitar-toolbox-lib` dependency: `^1.0.2` → `file:../guitar-toolbox/dist/guitar-toolbox-lib` ([`package.json`](package.json:30))
-- `FretboardOrchestrationService` — interval logic moved inline, added Tonal.js resolution with fallback ([`src/app/services/music-theory-facade.service.ts`](src/app/services/music-theory-facade.service.ts))
-- `FretboardStateService` — added `activeStrings`, `markerDisplayMode`, `hasActiveResult`, `currentSelection`, O(1) `notesMap` ([`src/app/services/guitar-neck.service.ts`](src/app/services/guitar-neck.service.ts))
+- `FretboardOrchestrationService` — interval logic moved inline, added Tonal.js resolution with fallback ([`src/app/services/fretboard-orchestration.service.ts`](src/app/services/fretboard-orchestration.service.ts))
+- `FretboardStateService` — added `activeStrings`, `markerDisplayMode`, `hasActiveResult`, `currentSelection`, O(1) `notesMap` ([`src/app/services/fretboard-state.service.ts`](src/app/services/fretboard-state.service.ts))
 - Environment config — removed `apiUrl`, removed `music-theory-api` references ([`src/environments/environment.ts`](src/environments/environment.ts))
 - `HomePageComponent` — refactored to use `onToolboxEvent()` with `FretboardCommand` dispatch ([`src/app/home-page/home-page.component.ts`](src/app/home-page/home-page.component.ts:50))
 
@@ -53,7 +53,7 @@ a projekt stosuje [Semantic Versioning](https://semver.org/).
 - `MusicSelection` domain abstraction — unified model for scale/chord/note/custom selection state ([`src/app/shared/model/music-selection.ts`](src/app/shared/model/music-selection.ts))
 
 ### Fixed
-- `FretboardStateService.applyHighlightedNotes()` — replaced O(n) `Array.filter()` note lookup with O(1) `Map<string, GuitarNote>` lookup for ~150× performance improvement on hot paths ([`src/app/services/guitar-neck.service.ts`](src/app/services/guitar-neck.service.ts:25))
+- `FretboardStateService.applyHighlightedNotes()` — replaced O(n) `Array.filter()` note lookup with O(1) `Map<string, GuitarNote>` lookup for ~150× performance improvement on hot paths ([`src/app/services/fretboard-state.service.ts`](src/app/services/fretboard-state.service.ts:25))
 - `toolboxSubmit()` in `HomePageComponent` — refactored into private builder methods (`buildSingleNoteCommand()`, `buildScaleCommand()`, `buildChordCommand()`, `buildCustomPatternCommand()`) ([`src/app/home-page/home-page.component.ts`](src/app/home-page/home-page.component.ts:31))
 - Pattern name Unicode in backend (`music-theory-api`) — URL `:name` parameter decoding using `decodeURIComponent()` ([`API_DOCUMENTATION.md`](API_DOCUMENTATION.md))
 - `guitar-toolbox-lib` version bump to `^1.2.1` ([`package.json`](package.json))
@@ -143,8 +143,8 @@ a projekt stosuje [Semantic Versioning](https://semver.org/).
   - `DisplayScaleCommand` — display a scale
   - `DisplayChordCommand` — display a chord
   - `DisplayCustomPatternCommand` — display a custom pattern
-- Facade `FretboardOrchestrationService` (`music-theory-facade.service.ts`) hiding service complexity from UI components
-- `FretboardStateService` (`guitar-neck.service.ts`) — central fretboard state (visible, selected, interval)
+- Orchestrator `FretboardOrchestrationService` (`fretboard-orchestration.service.ts`) coordinating the pipeline: theory → positions → highlighting → intervals
+- `FretboardStateService` (`fretboard-state.service.ts`) — central fretboard state (visible, selected, interval)
 - `FretboardNotePositionService` (`note.service.ts`) — generating note map on the fretboard (6 strings × 24 frets) and position lookup
 - Angular routing: path `''` → `HomePageComponent`
 - `HomePageComponent` — aggregation of toolbox and fretboard on a single page

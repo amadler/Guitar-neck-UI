@@ -1,9 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { RelationshipStripComponent } from './relationship-strip.component';
-import { FretboardStateService } from '../services/guitar-neck.service';
+import { FretboardStateService } from '../services/fretboard-state.service';
 import { MarkerRoleService } from '../services/marker-role.service';
 import { FretboardNotePositionService } from '../services/note.service';
+import { TonalFacadeService } from '../services/tonal-facade.service';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { MusicSelection } from '../shared/model/music-selection';
 
@@ -25,6 +26,7 @@ describe('RelationshipStripComponent', () => {
         FretboardStateService,
         MarkerRoleService,
         FretboardNotePositionService,
+        TonalFacadeService,
       ],
     }).compileComponents();
 

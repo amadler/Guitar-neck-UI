@@ -1,6 +1,6 @@
 import { NgFor, NgIf } from '@angular/common';
 import { Component } from '@angular/core';
-import { FretboardStateService } from '../services/guitar-neck.service';
+import { FretboardStateService } from '../services/fretboard-state.service';
 import { FretboardDisplayService } from '../services/fretboard-display.service';
 
 export interface IntervalDef {

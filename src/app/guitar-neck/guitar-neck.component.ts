@@ -4,7 +4,7 @@ import { neckConfig } from 'guitar-neck-shared';
 import { FreatboardComponent } from '../freatboard/freatboard.component';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { FretboardNotePositionService } from '../services/note.service';
-import { FretboardStateService } from '../services/guitar-neck.service';
+import { FretboardStateService } from '../services/fretboard-state.service';
 
 @Component({
   selector: 'app-guitar-neck',

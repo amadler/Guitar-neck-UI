@@ -7,7 +7,7 @@ Główna fasada integrująca logikę muzyczną. **Synchroniczna** — używa Ton
 
 ```typescript
 /**
- * @file src/app/services/music-theory-facade.service.ts
+ * @file src/app/services/fretboard-orchestration.service.ts
  */
 class FretboardOrchestrationService {
   /**
@@ -130,7 +130,7 @@ Zarządza stanem gryfu gitary — tablicą nut, widocznością, zaznaczeniem.
 
 ```typescript
 /**
- * @file src/app/services/guitar-neck.service.ts
+ * @file src/app/services/fretboard-state.service.ts
  */
 class FretboardStateService {
   notes: GuitarNote[];        // Pełna tablica nut na gryfie (6 strun × 25 progów)

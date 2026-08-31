@@ -1,0 +1,130 @@
+import { Injectable } from '@angular/core';
+import { GuitarNote } from '../shared/model/guitarNote';
+import { MusicSelection } from '../shared/model/music-selection';
+import { FretboardNotePositionService } from './note.service';
+import { FretboardStateService } from './fretboard-state.service';
+import { MarkerRoleService } from './marker-role.service';
+import { TonalFacadeService } from './tonal-facade.service';
+
+/**
+ * FretboardOrchestrationService — koordynator pipeline'u wyświetlania koncepcji muzycznych na gryfie.
+ *
+ * Pipeline: teoria muzyki (TonalFacadeService) → pozycje (FretboardNotePositionService)
+ *           → podświetlenie (FretboardStateService) → interwały/role (MarkerRoleService)
+ *
+ * Żadnej logiki Tonal.js — wszystko delegowane do TonalFacadeService.
+ * Żadnego stanu — wszystko w FretboardStateService.
+ */
+@Injectable({ providedIn: 'root' })
+export class FretboardOrchestrationService {
+  constructor(
+    private noteService: FretboardNotePositionService,
+    private guitarNeckService: FretboardStateService,
+    private markerRoleService: MarkerRoleService,
+    private tonalFacade: TonalFacadeService,
+  ) { }
+
+  /** Wyświetla skalę na gryfie z oznaczeniem interwałów. */
+  displayScale(scaleName: string, rootNote: string): GuitarNote[] {
+    const { simplified, raw } = this.tonalFacade.resolvePattern(scaleName, rootNote, 'scale');
+    const positions = this.noteService.findPositionsByScaleNotes(simplified);
+    const highlighted = this.guitarNeckService.applyHighlightedNotes(positions);
+    this.markIntervals(rootNote, highlighted, raw);
+    return highlighted;
+  }
+
+  /** Wyświetla akord na gryfie z oznaczeniem interwałów. */
+  displayChord(triadType: string, rootNote: string): GuitarNote[] {
+    this.clearFretboard();
+    const { simplified, raw } = this.tonalFacade.resolvePattern(triadType, rootNote, 'chord');
+    const positions = this.noteService.findPositionsByScaleNotes(simplified);
+    const highlighted = this.guitarNeckService.applyHighlightedNotes(positions);
+    this.markIntervals(rootNote, highlighted, raw);
+    return highlighted;
+  }
+
+  private clearFretboard(): void {
+    this.removeIntervals(this.guitarNeckService.notes);
+    this.guitarNeckService.clearFretboard();
+  }
+
+  /** Wyświetla custom pattern nut z interwałami względem rootNote. */
+  displayCustomPattern(notes: string[], rootNote: string): GuitarNote[] {
+    this.clearFretboard();
+    const positions = this.noteService.findPositionsByScaleNotes(notes);
+    const highlighted = this.guitarNeckService.applyHighlightedNotes(positions);
+    this.markIntervals(rootNote, highlighted);
+    return highlighted;
+  }
+
+  // ---- Scale + Chord relation ----
+
+  /** Wyświetla skalę z nałożonym akordem w trybie scale-chord. */
+  displayScaleWithChord(
+    scaleName: string,
+    scaleRoot: string,
+    chordName: string,
+    chordRoot: string,
+  ): GuitarNote[] {
+    this.removeIntervals(this.guitarNeckService.notes);
+
+    const { simplified: simplifiedScaleNotes } = this.tonalFacade.resolvePattern(scaleName, scaleRoot, 'scale');
+    const { simplified: simplifiedChordNotes } = this.tonalFacade.resolvePattern(chordName, chordRoot, 'chord');
+
+    const outsideChordNotes = simplifiedChordNotes.filter(n => !simplifiedScaleNotes.includes(n));
+
+    const scalePositions = this.noteService.findPositionsByScaleNotes(simplifiedScaleNotes);
+    const outsidePositions = this.noteService.findPositionsByScaleNotes(outsideChordNotes);
+    const allPositions = [...scalePositions, ...outsidePositions];
+    const highlightedNotes = this.guitarNeckService.applyHighlightedNotes(allPositions);
+
+    const chordSelection: MusicSelection = {
+      type: 'chord',
+      name: chordName,
+      rootNote: chordRoot,
+    };
+
+    this.guitarNeckService.scaleChordState = {
+      scale: {
+        type: 'scale',
+        name: scaleName,
+        rootNote: scaleRoot,
+        notes: simplifiedScaleNotes,
+      },
+      chord: chordSelection,
+    };
+
+    this.markerRoleService.computeRoles(
+      this.guitarNeckService.notes,
+      this.guitarNeckService.scaleChordState.scale,
+      chordSelection,
+    );
+
+    return highlightedNotes;
+  }
+
+  // ---- Private helpers ----
+
+  /**
+   * Oznacza nuty interwałami.
+   * Używa TonalFacadeService.intervalBetween() który jest enharmonicznie bezpieczny.
+   */
+  private markIntervals(rootNote: string, notes: GuitarNote[], rawNoteNames?: string[]): void {
+    for (const note of notes) {
+      if (note.note === rootNote) {
+        note.interval = 'root';
+      } else {
+        const rawName = rawNoteNames
+          ? (rawNoteNames.find(n => this.tonalFacade.simplifyNote(n) === note.note) || note.note)
+          : note.note;
+        const tonalInterval = this.tonalFacade.intervalBetween(rootNote, rawName);
+        note.interval = this.tonalFacade.mapInterval(tonalInterval) || '';
+      }
+    }
+  }
+
+  /** Usuwa oznaczenia interwałowe z nut. */
+  private removeIntervals(notes: GuitarNote[]): void {
+    notes.forEach(note => { note.interval = ''; });
+  }
+}

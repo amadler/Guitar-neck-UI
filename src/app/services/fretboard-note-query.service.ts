@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { GuitarNote } from '../shared/model/guitarNote';
-import { FretboardStateService } from './guitar-neck.service';
+import { FretboardStateService } from './fretboard-state.service';
 
 @Injectable({ providedIn: 'root' })
 export class FretboardNoteQueryService {

@@ -66,9 +66,10 @@ guitar-neck-ui/
 │   │   ├── range-toolbar/                 # Selektor zakresu progów (presety)
 │   │   ├── string-toggle/                 # Włącznik/wyłącznik strun
 │   │   ├── services/                      # Serwisy aplikacji
-│   │   │   ├── guitar-neck.service.ts         # FretboardStateService
-│   │   │   ├── music-theory-facade.service.ts # FretboardOrchestrationService
-│   │   │   ├── note.service.ts                # FretboardNotePositionService
+│   │   │   ├── fretboard-state.service.ts         # FretboardStateService
+│   │   │   ├── fretboard-orchestration.service.ts # FretboardOrchestrationService
+│   │   │   ├── tonal-facade.service.ts            # TonalFacadeService
+│   │   │   ├── note.service.ts                    # FretboardNotePositionService
 │   │   │   ├── fretboard-note-query.service.ts # FretboardNoteQueryService
 │   │   │   ├── fretboard-display.service.ts    # FretboardDisplayService
 │   │   │   ├── marker-role.service.ts          # MarkerRoleService
