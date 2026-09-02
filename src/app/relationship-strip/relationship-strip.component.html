@@ -4,12 +4,29 @@
   </div>
 
   <div class="rel-strip__legend">
-    <span
-      *ngFor="let item of legendItems"
-      class="rel-legend__item"
-    >
-      <span class="rel-legend__dot {{ item.cssClass }}"></span>
-      {{ item.label }}
+    <span class="rel-legend__item">
+      <span class="rel-legend__dot rel-legend__dot--scale-tone"></span>
+      Scale Note
+    </span>
+    <span class="rel-legend__item">
+      <span class="rel-legend__dot rel-legend__dot--scale-root">
+        <span class="rel-legend__icon">👑</span>
+      </span>
+      Scale Root
+    </span>
+    <span class="rel-legend__item">
+      <span class="rel-legend__dot rel-legend__dot--chord-tone"></span>
+      Chord Tone in Scale
+    </span>
+    <span class="rel-legend__item">
+      <span class="rel-legend__dot rel-legend__dot--chord-root">
+        <span class="rel-legend__icon">★</span>
+      </span>
+      Chord Root
+    </span>
+    <span class="rel-legend__item">
+      <span class="rel-legend__dot rel-legend__dot--outside"></span>
+      Chord Outside Scale
     </span>
   </div>
 
@@ -17,6 +34,7 @@
     <span class="rel-strip__info-item">
       Chord tones in scale: <strong>{{ chordTonesInScale.length > 0 ? chordTonesInScale.join(', ') : '(none)' }}</strong>
     </span>
+    <span class="rel-strip__info-separator">|</span>
     <span class="rel-strip__info-item rel-strip__info-item--outside">
       Outside: <strong>{{ chordTonesOutsideScale.length > 0 ? chordTonesOutsideScale.join(', ') : '(none)' }}</strong>
     </span>

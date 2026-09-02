@@ -4,6 +4,7 @@ import { FretboardStateService } from '../services/fretboard-state.service';
 import { PatternBuilderService } from '../services/pattern-builder.service';
 import { FretboardOrchestrationService } from '../services/fretboard-orchestration.service';
 import { GuitarNeckComponent } from '../guitar-neck/guitar-neck.component';
+import { RangeToolbarComponent } from '../range-toolbar/range-toolbar.component';
 import { environment } from '../../environments/environment';
 import { HeaderComponent } from '../header/header.component';
 import { FooterComponent } from '../footer/footer.component';
@@ -24,6 +25,7 @@ export type DisplayMode = 'legend' | 'relationship' | null;
   imports: [
     NgIf,
     GuitarNeckComponent,
+    RangeToolbarComponent,
     HeaderComponent,
     FooterComponent,
     LegendComponent,
@@ -48,13 +50,15 @@ export class HomePageComponent {
     private patternBuilder: PatternBuilderService,
   ) { }
 
+  onRangeChange(range: { minFret: number; maxFret: number }): void {
+    this.guitarNeckService.fretRange = range;
+  }
+
   onToolboxEvent(command: FretboardCommand): void {
     this.guitarNeckService.clearFretboard();
     this.patternBuilder.clearCurrentPattern();
     switch (command.kind) {
       case 'scale':
-        debugger
-
         this.handleShowScale(command);
         break;
       case 'chord':
@@ -71,7 +75,6 @@ export class HomePageComponent {
 
   private handleShowScale(command: FretboardCommand & { kind: 'scale' }): void {
     const { key, scaleType } = command;
-    debugger
     this.fretboardOrchestrationService.displayScale(scaleType, key);
     this.patternBuilder.setCurrentPattern(scaleType, key, 'scale');
     this.guitarNeckService.scaleChordState = {

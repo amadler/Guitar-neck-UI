@@ -4,10 +4,8 @@ import { MarkerRoleService, MarkerRole } from './marker-role.service';
 
 /**
  * CSS class suffix for each marker role.
- * Used as `guitar-neck__role-${suffix}`.
+ * Used as `fretboard__dot--role-${suffix}`.
  */
-
-// TODO: po co ta mapa?
 const ROLE_CSS: Record<MarkerRole, string> = {
   'scale-tone': 'scale-tone',
   'chord-tone': 'chord-tone',
@@ -31,12 +29,12 @@ export class FretboardDisplayService {
 
     const mode = this.guitarNeckService.markerDisplayMode;
     if (mode === 'interval-colors' && interval) {
-      return 'guitar-neck__' + interval;
+      return 'fretboard__dot--' + interval;
     }
     if (mode === 'note-names') {
-      return 'guitar-neck__neutral';
+      return 'fretboard__dot--neutral';
     }
-    return 'guitar-neck__neutral-dot';
+    return 'fretboard__dot--neutral-dot';
   }
 
   get showNoteLabels(): boolean {
@@ -69,7 +67,7 @@ export class FretboardDisplayService {
       return '';
     }
     const suffix = ROLE_CSS[role];
-    return suffix ? `guitar-neck__role-${suffix}` : '';
+    return suffix ? `fretboard__dot--role-${suffix}` : '';
   }
 
   /** Returns true if there is an active scale+chord relation. */

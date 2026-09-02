@@ -72,3 +72,19 @@ _Avoid_: Display service, marker service
 **PatternBuilderService**:
 Builds `PatternInfo` objects for the UI — notes, intervals, semitones, and whole/half steps for the selected scale or chord.
 _Avoid_: Pattern service, info builder
+
+**CommandBarComponent**:
+Top bar replacing the dock/toolbox. Contains mode selector (Show/Compare/Build), key/pattern selects, Apply button, and range preset buttons. Communicates via `FretboardCommand` events.
+_Avoid_: Toolbox bar, top toolbar
+
+**BottomPanelComponent**:
+Bottom section with three columns: Scale Info (pattern notes/intervals), Chord Info (related chord notes/intervals), and Metronome. Replaces the old dock + separate pattern-display layout.
+_Avoid_: Info panel, dock panel
+
+**FretboardSectionComponent**:
+Wrapper component containing the fretboard, string toggles (vertical left), and relationship strip (below fretboard). Provides visual grouping for the main interaction area.
+_Avoid_: Neck section, fretboard wrapper
+
+**MarkerPalette**:
+The set of CSS Custom Properties in `:root` defining all marker colors and sizes. Single source of truth consumed by fretboard, legend, and relationship-strip via `var(--marker-*)`.
+_Avoid_: Marker colors, dot palette

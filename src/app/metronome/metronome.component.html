@@ -1,66 +1,73 @@
-<div class="metronome-card">
-  <h2 class="metronome__title">Metronome</h2>
+<div class="metronome">
+  <h3 class="metronome__title">Metronome</h3>
 
-  <!-- Beat indicator -->
-  <div class="beat-indicator">
-    <div class="beat-circle"
-         [class.accent]="currentBeat === 0"
-         [class.pulse]="isRunning && currentBeat >= 0">
-      <span class="beat-number">{{ currentBeat >= 0 ? currentBeat + 1 : '—' }}</span>
+  <div class="metronome__controls">
+    <!-- BPM display + +/- buttons -->
+    <div class="metronome__bpm-group">
+      <div class="metronome__bpm-display">
+        <span class="metronome__bpm-value">{{ bpm }}</span>
+        <span class="metronome__bpm-unit">BPM</span>
+      </div>
+      <div class="metronome__bpm-buttons">
+        <button class="metronome__bpm-btn" (click)="setTempo(bpm - 1)" title="Decrease BPM">−</button>
+        <button class="metronome__bpm-btn" (click)="setTempo(bpm + 1)" title="Increase BPM">+</button>
+      </div>
     </div>
+
+    <!-- Start/Stop button -->
+    <button class="metronome__start-btn"
+            [class.metronome__start-btn--running]="isRunning"
+            (click)="isRunning ? stop() : start()">
+      {{ isRunning ? 'Stop' : 'Start' }}
+    </button>
   </div>
 
-  <!-- Beat dots row -->
-  <div class="beat-dots">
-    <div class="beat-dot"
-         *ngFor="let beat of [].constructor(timeSignature); let i = index"
-         [class.active]="i === currentBeat"
-         [class.accent]="i === 0">
+  <!-- Extended controls (collapsible) -->
+  <div class="metronome__extended">
+    <!-- Beat indicator -->
+    <div class="metronome__beat">
+      <div class="metronome__beat-circle"
+           [class.metronome__beat-circle--accent]="currentBeat === 0"
+           [class.metronome__beat-circle--pulse]="isRunning && currentBeat >= 0">
+        <span class="metronome__beat-number">{{ currentBeat >= 0 ? currentBeat + 1 : '—' }}</span>
+      </div>
+      <div class="metronome__beat-dots">
+        <div class="metronome__beat-dot"
+             *ngFor="let beat of [].constructor(timeSignature); let i = index"
+             [class.metronome__beat-dot--active]="i === currentBeat"
+             [class.metronome__beat-dot--accent]="i === 0">
+        </div>
+      </div>
     </div>
-  </div>
 
-  <!-- Tempo slider + input -->
-  <div class="tempo-section">
-    <label class="tempo-label">Tempo</label>
-    <div class="tempo-controls">
+    <!-- Tempo slider -->
+    <div class="metronome__slider-group">
       <input type="range"
-             class="tempo-slider"
+             class="metronome__slider"
              [min]="tempoRange.min"
              [max]="tempoRange.max"
              [(ngModel)]="bpm"
              (input)="setTempo(bpm)" />
-      <input type="number"
-             class="tempo-input"
-             [min]="tempoRange.min"
-             [max]="tempoRange.max"
-             [(ngModel)]="bpm"
-             (change)="setTempo(bpm)" />
-      <span class="bpm-unit">BPM</span>
     </div>
-  </div>
 
-  <!-- Time signature -->
-  <div class="time-sig-section">
-    <label class="time-sig-label">Time Signature</label>
-    <div class="time-sig-buttons">
-      <button *ngFor="let ts of timeSignatures"
-              class="time-sig-btn"
-              [class.active]="ts.value === timeSignature"
-              (click)="selectTimeSignature(ts.value)">
-        {{ ts.label }}
-      </button>
+    <!-- Time signature -->
+    <div class="metronome__time-sig">
+      <span class="metronome__time-sig-label">Time</span>
+      <div class="metronome__time-sig-btns">
+        <button *ngFor="let ts of timeSignatures"
+                class="metronome__time-sig-btn"
+                [class.metronome__time-sig-btn--active]="ts.value === timeSignature"
+                (click)="selectTimeSignature(ts.value)">
+          {{ ts.label }}
+        </button>
+      </div>
     </div>
-  </div>
 
-  <!-- Controls -->
-  <div class="controls-section">
-    <button class="btn-start"
-            [class.running]="isRunning"
-            (click)="isRunning ? stop() : start()">
-      {{ isRunning ? 'Stop' : 'Start' }}
-    </button>
-    <button class="btn-tap"
+    <!-- Tap tempo -->
+    <button class="metronome__tap-btn"
             (click)="tapTempo()"
-            [disabled]="isRunning">Tap Tempo</button>
+            [disabled]="isRunning">
+      Tap
+    </button>
   </div>
 </div>

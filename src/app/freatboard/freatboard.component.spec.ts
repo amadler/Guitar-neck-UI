@@ -43,7 +43,7 @@ describe('FreatboardComponent', () => {
   });
 
   it('should render the correct number of strings', () => {
-    const stringsElements = fixture.debugElement.queryAll(By.css('.guitar-neck__string'));
+    const stringsElements = fixture.debugElement.queryAll(By.css('.fretboard__string'));
     expect(component.strings.length).toBe(stringsElements.length);
   });
 
@@ -53,30 +53,30 @@ describe('FreatboardComponent', () => {
   });
 
   it('should render the correct number of frets', () => {
-    const fretElements = fixture.debugElement.queryAll(By.css('.guitar-neck__fret'));
+    const fretElements = fixture.debugElement.queryAll(By.css('.fretboard__fret'));
     expect(fretElements.length).toBe(component.frets.length * component.strings.length);
   });
 
   it('should render fret index labels', () => {
-    const fretIndexElements = fixture.debugElement.queryAll(By.css('.guitar-neck__fret-index-cell'));
+    const fretIndexElements = fixture.debugElement.queryAll(By.css('.fretboard__fret-index-cell'));
     expect(fretIndexElements.length).toBe(component.frets.length);
   });
 
   it('should number frets from 1 instead of 0', () => {
-    const fretIndexElements = fixture.debugElement.queryAll(By.css('.guitar-neck__fret-index-cell'));
+    const fretIndexElements = fixture.debugElement.queryAll(By.css('.fretboard__fret-index-cell'));
     expect(fretIndexElements.length).toBe(component.frets.length);
     expect(fretIndexElements[0].nativeElement.textContent.trim()).toBe('1');
     expect(fretIndexElements[fretIndexElements.length - 1].nativeElement.textContent.trim()).toBe(String(component.frets.length));
   });
 
   it('should render one nut label per string', () => {
-    const nutLabelElements = fixture.debugElement.queryAll(By.css('.guitar-neck__nut-label'));
+    const nutLabelElements = fixture.debugElement.queryAll(By.css('.fretboard__nut-label'));
     expect(nutLabelElements.length).toBe(component.strings.length);
   });
 
   it('should emit onNoteClicked$ when a fret is clicked', () => {
     spyOn(component.onNoteClicked$, 'emit');
-    const noteOnfret = fixture.debugElement.query(By.css('.guitar-neck__dot')).nativeElement;
+    const noteOnfret = fixture.debugElement.query(By.css('.fretboard__dot')).nativeElement;
     noteOnfret.click();
     fixture.detectChanges();
     expect(component.onNoteClicked$.emit).toHaveBeenCalledOnceWith(jasmine.objectContaining({note:'E'}))

@@ -1,13 +1,13 @@
 .rel-strip {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-  padding: 0.5rem 1rem;
-  background: var(--app-surface, #1e1e1e);
-  border: 1px solid var(--app-border-strong, #444);
-  border-radius: var(--radius-lg, 12px);
+  gap: 8px;
+  padding: 12px 16px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-md);
   font-size: 0.85rem;
-  color: var(--app-text-primary, #e0e0e0);
+  color: var(--app-text);
   line-height: 1.4;
 }
 
@@ -18,64 +18,79 @@
 
 .rel-strip__legend {
   display: flex;
-  gap: 0.75rem;
+  gap: 16px;
   flex-wrap: wrap;
+  align-items: center;
 }
 
 .rel-legend__item {
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
-  font-size: 1.4rem;
-  color: var(--app-text-secondary, #a0a0a0);
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--app-muted);
 }
 
 .rel-legend__dot {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   flex-shrink: 0;
+  position: relative;
+}
+
+.rel-legend__icon {
+  font-size: 9px;
+  line-height: 1;
+  color: #fff;
 }
 
 .rel-legend__dot--scale-tone {
-  background: #888;
-  border: 1px solid #666;
+  background: var(--marker-scale-tone);
+  border: 1px solid var(--marker-scale-tone-border);
 }
 
 .rel-legend__dot--scale-root {
-  background: #888;
-  border: 1px solid #666;
-  box-shadow: 0 0 0 2px #ffc107;
+  background: var(--marker-scale-tone);
+  border: 2px solid var(--marker-scale-tone-border);
+  box-shadow: 0 0 0 2px var(--marker-scale-root-glow);
 }
 
 .rel-legend__dot--chord-tone {
-  background: #2196f3;
-  border: 1px solid #1565c0;
+  background: var(--marker-chord-tone);
+  border: 1px solid var(--marker-chord-tone-border);
 }
 
 .rel-legend__dot--chord-root {
-  background: #2196f3;
-  border: 1px solid #1565c0;
-  box-shadow: 0 0 0 2px #ffc107;
+  background: var(--marker-chord-tone);
+  border: 2px solid var(--marker-chord-tone-border);
+  box-shadow: 0 0 0 2px var(--marker-chord-root-glow);
 }
 
 .rel-legend__dot--outside {
   background: transparent;
-  border: 2px dashed #ff9800;
+  border: 2px dashed var(--marker-outside-border);
 }
 
 .rel-strip__info {
   display: flex;
-  gap: 1rem;
+  gap: 8px;
   flex-wrap: wrap;
+  align-items: center;
   font-size: 0.8rem;
 }
 
+.rel-strip__info-separator {
+  color: var(--app-border);
+}
+
 .rel-strip__info-item {
-  color: var(--app-text-secondary, #a0a0a0);
+  color: var(--app-muted);
 }
 
 .rel-strip__info-item--outside strong {
-  color: #ff9800;
+  color: var(--marker-outside-border);
 }

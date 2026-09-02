@@ -1,32 +1,109 @@
-/* Styles are defined globally in styles.scss */
-
-.range-card__title {
+.range-group {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 4px;
+  flex-wrap: wrap;
 }
 
-.range-card__mode-btn {
-  display: inline-flex;
+.range-group__label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--app-muted);
+  margin-right: 4px;
+  white-space: nowrap;
+}
+
+.range-btn {
+  padding: 4px 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--app-muted);
+  background: transparent;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.range-btn:hover {
+  background: var(--md-surface-container-low);
+  color: var(--app-text);
+}
+
+.range-btn--active {
+  border-color: var(--md-primary);
+  background: var(--md-primary-container);
+  color: var(--md-on-primary-container);
+  font-weight: 600;
+}
+
+.range-btn--custom-trigger {
+  border-color: var(--md-primary);
+  background: var(--md-primary-container);
+  color: var(--md-on-primary-container);
+  font-weight: 600;
+}
+
+/* Custom range inputs */
+
+.range-custom {
+  display: flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 12px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--app-text-primary, #e0e0e0);
-  background: var(--app-surface, #1e1e1e);
-  border: 1px solid var(--app-accent, #7c4dff);
-  border-radius: var(--radius-md, 6px);
-  cursor: pointer;
-  transition: background 0.15s, box-shadow 0.15s;
-
-  &:hover {
-    background: rgba(124, 77, 255, 0.1);
-    box-shadow: 0 0 0 1px var(--app-accent, #7c4dff);
-  }
+  margin-left: 8px;
 }
 
-.range-card__mode-btn-icon {
-  font-size: 16px;
-  line-height: 1;
+.range-custom__input {
+  width: 48px;
+  height: 28px;
+  padding: 0 4px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-sm);
+  color: var(--app-text);
+  outline: none;
+  font-family: inherit;
+}
+
+.range-custom__input:focus {
+  border-color: var(--md-primary);
+  box-shadow: 0 0 0 2px rgba(56, 105, 72, 0.15);
+}
+
+.range-custom__input::-webkit-inner-spin-button,
+.range-custom__input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.range-custom__input[type='number'] {
+  -moz-appearance: textfield;
+}
+
+.range-custom__separator {
+  color: var(--app-muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.range-custom__apply {
+  height: 28px;
+  padding: 0 10px;
+  background: var(--md-primary);
+  color: var(--md-on-primary);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.range-custom__apply:hover {
+  background: var(--md-primary-dim);
 }

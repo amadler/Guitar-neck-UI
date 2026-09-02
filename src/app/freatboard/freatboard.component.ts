@@ -5,14 +5,13 @@ import { FretboardNoteQueryService } from '../services/fretboard-note-query.serv
 import { FretboardDisplayService } from '../services/fretboard-display.service';
 import { NgIf, NgFor, NgClass } from '@angular/common';
 import { neckConfig } from 'guitar-neck-shared';
-import { RangeToolbarComponent } from '../range-toolbar/range-toolbar.component';
 import { StringToggleComponent } from '../string-toggle/string-toggle.component';
 
 @Component({
   selector: 'app-freatboard',
   templateUrl: './freatboard.component.html',
   standalone: true,
-  imports: [NgIf, NgFor, NgClass, RangeToolbarComponent, StringToggleComponent],
+  imports: [NgIf, NgFor, NgClass, StringToggleComponent],
   styleUrls: ['./freatboard.component.scss']
 })
 export class FreatboardComponent implements OnInit {
@@ -20,7 +19,6 @@ export class FreatboardComponent implements OnInit {
   @Input({required: true}) notes: GuitarNote[] = []; // Initialize with empty array
   strings: string[] = [];
   frets: number[] = [];
-  private _fretRange = { minFret: 0, maxFret: 24 };
 
   constructor(
     private guitarNeckService: FretboardStateService,
@@ -38,11 +36,7 @@ export class FreatboardComponent implements OnInit {
   }
 
   get fretRange() {
-    return this._fretRange;
-  }
-
-  set fretRange(range: { minFret: number, maxFret: number }) {
-    this._fretRange = range;
+    return this.guitarNeckService.fretRange;
   }
 
   // -- Delegating properties: shield template from direct service access --
@@ -67,7 +61,7 @@ export class FreatboardComponent implements OnInit {
   // -- End delegating properties --
 
   protected isNoteInRange(fret: number): boolean {
-    return fret >= this._fretRange.minFret && fret <= this._fretRange.maxFret;
+    return fret >= this.fretRange.minFret && fret <= this.fretRange.maxFret;
   }
 
   protected isNoteOnFret(stringIndex: number, fret: number) {

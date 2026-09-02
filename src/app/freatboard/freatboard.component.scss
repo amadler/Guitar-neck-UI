@@ -1,11 +1,11 @@
-.guitar-neck {
+.fretboard {
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
 }
 
-.guitar-neck__fret-indices {
+.fretboard__fret-indices {
   display: flex;
   align-items: center;
   width: 100%;
@@ -13,7 +13,7 @@
   background-color: #fff;
 }
 
-.guitar-neck__fret-index-spacer {
+.fretboard__fret-index-spacer {
   width: 50px;
   min-width: 50px;
   display: flex;
@@ -23,17 +23,17 @@
   color: rgba(70, 85, 105, 0.5);
 }
 
-.guitar-neck__fret-index-spacer__label {
+.fretboard__fret-index-spacer__label {
   user-select: none;
   line-height: 1;
 }
 
-.guitar-neck__fret-index-track {
+.fretboard__fret-index-track {
   display: flex;
   width: 100%;
 }
 
-.guitar-neck__fret-index-cell {
+.fretboard__fret-index-cell {
   flex: 1;
   text-align: center;
   color: rgba(70, 85, 105, 0.82);
@@ -42,35 +42,35 @@
   line-height: 1;
 }
 
-.guitar-neck__fretboard {
+.fretboard__body {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   background-color: var(--guitar-neck-bg-color);
   width: 100%;
-  padding: 0 0;
+  padding: 0;
 }
 
-.guitar-neck__string {
+.fretboard__string {
   display: flex;
   align-items: center;
   flex-direction: row;
   min-width: 100%;
-  outline: 1px  var(--guitar-neck-string-color) solid;
+  outline: 1px var(--guitar-neck-string-color) solid;
   outline-offset: -12px;
 }
 
 /* Hide all note dots/selected/interval elements on a disabled string.
    Nut label and fret markers remain visible for layout reference. */
-.guitar-neck__string--disabled {
-  .guitar-neck__dot,
-  .guitar-neck__selected {
+.fretboard__string--disabled {
+  .fretboard__dot,
+  .fretboard__selected {
     display: none;
   }
 }
 
-.guitar-neck__nut-label {
+.fretboard__nut-label {
   width: 20px;
   min-width: 20px;
   height: 22px;
@@ -86,15 +86,15 @@
   z-index: 1;
 }
 
-.guitar-neck__nut-label__string-name {
+.fretboard__nut-label__string-name {
   z-index: 0;
 }
 
-.guitar-neck__open-note-btn {
+.fretboard__open-note-btn {
   z-index: 2;
 }
 
-.guitar-neck__fret {
+.fretboard__fret {
   height: 22px;
   width: 22px;
   display: flex;
@@ -105,7 +105,7 @@
   border-right: 1px solid var(--guitar-neck-fret-color);
 }
 
-.guitar-neck__marker{
+.fretboard__marker {
   top: 50%;
   margin-top: -20px;
   position: absolute;
@@ -115,26 +115,29 @@
   width: var(--guitar-neck-dot-size);
 }
 
-.guitar-neck__marker_12{
-  position:absolute;
+.fretboard__marker--double {
+  position: absolute;
   top: 50%;
   margin-top: -42px;
   width: var(--guitar-neck-dot-size);
-  &::before, &::after{
-    content: "";
-    position: absolute;
-    background-color: var(--guitar-neck-dot-color);
-    border-radius: var(--guitar-neck-dot-border-radius);
-    height: var(--guitar-neck-dot-size);
-    width: var(--guitar-neck-dot-size);
-
-  }
-  &::after{
-    top: 45px;
-  }
 }
-.guitar-neck__dot,
-.guitar-neck__selected{
+
+.fretboard__marker--double::before,
+.fretboard__marker--double::after {
+  content: "";
+  position: absolute;
+  background-color: var(--guitar-neck-dot-color);
+  border-radius: var(--guitar-neck-dot-border-radius);
+  height: var(--guitar-neck-dot-size);
+  width: var(--guitar-neck-dot-size);
+}
+
+.fretboard__marker--double::after {
+  top: 45px;
+}
+
+.fretboard__dot,
+.fretboard__selected {
   background-color: var(--guitar-neck-marker-bg-color);
   border-radius: var(--guitar-neck-dot-border-radius);
   color: var(--guitar-neck-marker--color);
@@ -152,65 +155,36 @@
   cursor: pointer;
   z-index: 1;
 }
-.guitar-neck__selected{
+
+.fretboard__selected {
   background-color: rgb(32, 1, 27);
 }
 
-.guitar-neck__neutral {
+/* ---- Neutral display modes ---- */
+
+.fretboard__dot--neutral {
   background-color: var(--guitar-neck-marker--color);
   color: var(--dark-color);
 }
 
-.guitar-neck__neutral-dot {
+.fretboard__dot--neutral-dot {
   background-color: rgba(255, 255, 255, 0.92);
 }
 
-.guitar-neck__root{
-  background-color: var(--interval-root);
-}
+/* ---- Interval color classes ---- */
 
-.guitar-neck__minor-2nd {
-  background-color: var(--interval-minor-2nd);
-}
-
-.guitar-neck__major-2nd {
-  background-color: var(--interval-major-2nd);
-}
-
-.guitar-neck__minor-3rd {
-  background-color: var(--interval-minor-3rd);
-}
-
-.guitar-neck__major-3rd {
-  background-color: var(--interval-major-3rd);
-}
-
-.guitar-neck__perfect-4th {
-  background-color: var(--interval-perfect-4th);
-}
-
-.guitar-neck__diminished-5th {
-  background-color: var(--interval-diminished-5th);
-}
-
-.guitar-neck__perfect-5th {
-  background-color: var(--interval-perfect-5th);
-}
-
-.guitar-neck__minor-6th {
-  background-color: var(--interval-minor-6th);
-}
-
-.guitar-neck__major-6th {
-  background-color: var(--interval-major-6th);
-}
-
-.guitar-neck__minor-7th {
-  background-color: var(--interval-minor-7th);
-}
-.guitar-neck__major-7th {
-  background-color: var(--interval-major-7th);
-}
+.fretboard__dot--root { background-color: var(--marker-root); }
+.fretboard__dot--minor-2nd { background-color: var(--marker-minor-2nd); }
+.fretboard__dot--major-2nd { background-color: var(--marker-major-2nd); }
+.fretboard__dot--minor-3rd { background-color: var(--marker-minor-3rd); }
+.fretboard__dot--major-3rd { background-color: var(--marker-major-3rd); }
+.fretboard__dot--perfect-4th { background-color: var(--marker-perfect-4th); }
+.fretboard__dot--diminished-5th { background-color: var(--marker-diminished-5th); }
+.fretboard__dot--perfect-5th { background-color: var(--marker-perfect-5th); }
+.fretboard__dot--minor-6th { background-color: var(--marker-minor-6th); }
+.fretboard__dot--major-6th { background-color: var(--marker-major-6th); }
+.fretboard__dot--minor-7th { background-color: var(--marker-minor-7th); }
+.fretboard__dot--major-7th { background-color: var(--marker-major-7th); }
 
 /* ---- Marker role classes (scale + chord relation) ---- */
 /* In scale-only mode: these add box-shadow overlay on top of interval colors.
@@ -218,37 +192,36 @@
    so background-color fill is used instead. */
 
 /* Scale tone (non-root) — gray fill = nuta skali */
-.guitar-neck__role-scale-tone {
-  background: #888;
-  border: 1px solid #666;
+.fretboard__dot--role-scale-tone {
+  background: var(--marker-scale-tone);
+  border: 1px solid var(--marker-scale-tone-border);
   box-shadow: none;
 }
 
 /* Scale root — gray fill + yellow border = żółta obwódka = root */
-.guitar-neck__role-scale-root {
-  background: #888;
-  border: 2px solid #666;
-  box-shadow: 0 0 0 2px #ffc107;
+.fretboard__dot--role-scale-root {
+  background: var(--marker-scale-tone);
+  border: 2px solid var(--marker-scale-tone-border);
+  box-shadow: 0 0 0 2px var(--marker-scale-root-glow);
 }
 
 /* Chord tone in scale — blue fill = niebieski dot = nuta akordu w skali */
-.guitar-neck__role-chord-tone {
-  background: #2196f3;
-  border: 2px solid #1565c0;
+.fretboard__dot--role-chord-tone {
+  background: var(--marker-chord-tone);
+  border: 2px solid var(--marker-chord-tone-border);
   box-shadow: none;
 }
 
 /* Chord root — blue fill + yellow border = żółta obwódka = root */
-.guitar-neck__role-chord-root {
-  background: #2196f3;
-  border: 2px solid #1565c0;
-  box-shadow: 0 0 0 2px #ffc107;
+.fretboard__dot--role-chord-root {
+  background: var(--marker-chord-tone);
+  border: 2px solid var(--marker-chord-tone-border);
+  box-shadow: 0 0 0 2px var(--marker-chord-root-glow);
 }
 
 /* Chord tone outside scale — orange dashed outline, transparent fill = pomarańczowy kontur */
-.guitar-neck__role-chord-tone-outside {
+.fretboard__dot--role-chord-tone-outside {
   background: transparent;
-  border: 2px dashed #ff9800;
+  border: 2px dashed var(--marker-outside-border);
   box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.3);
 }
-

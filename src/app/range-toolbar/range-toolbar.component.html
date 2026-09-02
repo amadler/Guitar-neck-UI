@@ -1,47 +1,38 @@
-<section class="range-card">
-  <div class="range-card__title">
-    <span>Fret Range</span>
-  </div>
+<div class="range-group">
+  <span class="range-group__label">Range:</span>
+  <button
+    *ngFor="let preset of presets"
+    class="range-btn"
+    [class.range-btn--active]="activePreset === preset"
+    [class.range-btn--custom-trigger]="preset.label === 'Custom' && isCustom"
+    type="button"
+    (click)="selectPreset(preset)"
+  >
+    {{ preset.label === 'Custom' ? 'Custom' : '[' + preset.min + '–' + preset.max + ']' }}
+  </button>
 
-  <div class="range-toolbar">
+  <div class="range-custom" *ngIf="isCustom">
+    <input
+      class="range-custom__input"
+      type="number"
+      [(ngModel)]="customMin"
+      min="0"
+      [max]="customMax"
+    />
+    <span class="range-custom__separator">–</span>
+    <input
+      class="range-custom__input"
+      type="number"
+      [(ngModel)]="customMax"
+      [min]="customMin"
+      [max]="neckConfig.numberOfFrets"
+    />
     <button
-      *ngFor="let preset of presets"
-      class="range-preset"
-      [class.range-preset--active]="activePreset === preset"
-      [class.range-preset--custom]="preset.label === 'Custom' && isCustom"
+      class="range-custom__apply"
       type="button"
-      (click)="selectPreset(preset)"
+      (click)="applyCustom()"
     >
-      <span class="range-preset__icon">{{ preset.icon }}</span>
-      <span class="range-preset__label">{{ preset.label }}</span>
-      <span class="range-preset__value"
-        >{{ preset.min }} – {{ preset.max }}</span
-      >
+      Show
     </button>
-
-    <div class="range-custom" *ngIf="isCustom">
-      <input
-        class="form-control range-custom__input"
-        type="number"
-        [(ngModel)]="customMin"
-        min="0"
-        [max]="customMax"
-      />
-      <span class="range-custom__separator">–</span>
-      <input
-        class="form-control range-custom__input"
-        type="number"
-        [(ngModel)]="customMax"
-        [min]="customMin"
-        [max]="neckConfig.numberOfFrets"
-      />
-      <button
-        class="btn btn-success range-custom__button"
-        type="button"
-        (click)="applyCustom()"
-      >
-        Show
-      </button>
-    </div>
   </div>
-</section>
+</div>

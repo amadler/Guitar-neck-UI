@@ -1,3 +1,72 @@
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  padding: 14px 24px;
+  width: 100%;
+}
+
+.app-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.app-brand__icon {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.app-brand__name {
+  font-family: var(--font-headline);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--app-text);
+  margin: 0;
+}
+
+.app-brand__name--light {
+  font-weight: 400;
+  color: var(--app-muted);
+}
+
+.app-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon-btn {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--app-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.icon-btn:hover {
+  background: var(--md-surface-container-low);
+  color: var(--app-text);
+}
+
+.help-btn__icon {
+  width: 22px;
+  height: 22px;
+}
+
+/* ── Help modal ── */
+
 .help-modal-overlay {
   position: fixed;
   inset: 0;
@@ -9,8 +78,8 @@
 }
 
 .help-modal {
-  background: #fff;
-  border-radius: 12px;
+  background: var(--app-surface);
+  border-radius: var(--radius-lg);
   padding: 32px;
   max-width: 480px;
   width: 90%;
@@ -19,8 +88,8 @@
   position: relative;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 
-  h2 { margin-top: 0; }
-  h3 { margin-top: 20px; }
+  h2 { margin-top: 0; font-family: var(--font-headline); }
+  h3 { margin-top: 20px; font-family: var(--font-headline); }
   ul { padding-left: 20px; }
   li { margin-bottom: 4px; }
 }
@@ -33,25 +102,9 @@
   border: none;
   font-size: 20px;
   cursor: pointer;
-  color: #666;
+  color: var(--app-muted);
 }
 
-/* ── Prominent help button ── */
-.help-btn {
-  width: 40px;
-  height: 40px;
-  background: var(--green-800, #075018);
-  color: #fff;
-  font-size: 20px;
-  font-weight: 700;
-  transition: background 0.2s, transform 0.15s;
-}
-
-.help-btn:hover {
-  background: var(--green-700, #08631e);
-  transform: scale(1.1);
-}
-
-.help-btn:active {
-  transform: scale(0.95);
+.help-modal__close:hover {
+  color: var(--app-text);
 }

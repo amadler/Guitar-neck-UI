@@ -1,289 +1,291 @@
-$beat-circle-size: 40px;
+$beat-circle-size: 36px;
 $beat-dot-size: 5px;
 $beat-dot-accent-size: 7px;
 
-.metronome-card {
-  padding: 22px;
+.metronome {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 12px;
 }
 
 .metronome__title {
   margin: 0;
-  font-size: 16px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--app-text);
+  font-family: var(--font-headline);
+}
+
+/* ─── Controls row (BPM + Start) ─── */
+
+.metronome__controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.metronome__bpm-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.metronome__bpm-display {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.metronome__bpm-value {
+  font-size: 28px;
   font-weight: 700;
+  color: var(--app-text);
+  line-height: 1;
+}
+
+.metronome__bpm-unit {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--app-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.metronome__bpm-buttons {
+  display: flex;
+  gap: 2px;
+}
+
+.metronome__bpm-btn {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-sm);
+  color: var(--app-muted);
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.metronome__bpm-btn:hover {
+  background: var(--md-surface-container-low);
   color: var(--app-text);
 }
 
-// ─── Beat indicator ────────────────────────────
-
-.beat-indicator {
-  display: flex;
-  justify-content: center;
+.metronome__start-btn {
+  height: 32px;
+  padding: 0 16px;
+  background: var(--md-primary);
+  color: var(--md-on-primary);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-left: auto;
 }
 
-.beat-circle {
+.metronome__start-btn:hover {
+  background: var(--md-primary-dim);
+}
+
+.metronome__start-btn--running {
+  background: var(--md-error);
+  color: var(--md-on-error);
+}
+
+.metronome__start-btn--running:hover {
+  background: var(--md-error-dim);
+}
+
+/* ─── Extended controls ─── */
+
+.metronome__extended {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+  background: var(--md-surface-container-low);
+  border-radius: var(--radius-sm);
+}
+
+/* Beat indicator */
+
+.metronome__beat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.metronome__beat-circle {
   width: $beat-circle-size;
   height: $beat-circle-size;
   border-radius: 50%;
-  background: var(--interval-major-7th);
+  background: var(--marker-major-7th);
   display: flex;
   align-items: center;
   justify-content: center;
   transition: transform 80ms ease, background 80ms ease;
 }
 
-.beat-circle.accent {
-  background: var(--green-700);
-  box-shadow: 0 0 8px rgba(8, 99, 30, 0.25);
+.metronome__beat-circle--accent {
+  background: var(--md-primary);
+  box-shadow: 0 0 8px rgba(56, 105, 72, 0.25);
 }
 
-.beat-circle.pulse {
-  animation: pulse 0.3s ease-in-out;
+.metronome__beat-circle--pulse {
+  animation: metronome-pulse 0.3s ease-in-out;
 }
 
-.beat-number {
+.metronome__beat-number {
   color: #fff;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 700;
 }
 
-// ─── Beat dots ─────────────────────────────────
-
-.beat-dots {
+.metronome__beat-dots {
   display: flex;
-  gap: 6px;
-  justify-content: center;
+  gap: 5px;
 }
 
-.beat-dot {
+.metronome__beat-dot {
   width: $beat-dot-size;
   height: $beat-dot-size;
   border-radius: 50%;
-  background: var(--bg-dark-lighter, #444);
+  background: var(--app-border);
   transition: background 80ms ease, transform 80ms ease;
 }
 
-.beat-dot.active {
-  background: var(--green-700);
+.metronome__beat-dot--active {
+  background: var(--md-primary);
   transform: scale(1.2);
 }
 
-.beat-dot.accent {
+.metronome__beat-dot--accent {
   width: $beat-dot-accent-size;
   height: $beat-dot-accent-size;
 }
 
-.beat-dot.active.accent {
-  background: var(--green-700);
+.metronome__beat-dot--active.metronome__beat-dot--accent {
+  background: var(--md-primary);
   transform: scale(1.3);
 }
 
-// ─── Tempo section ─────────────────────────────
+/* Tempo slider */
 
-.tempo-section {
+.metronome__slider-group {
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
 }
 
-.tempo-label {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--app-text);
-  margin: 0;
-}
-
-.tempo-controls {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.tempo-slider {
-  flex: 1;
+.metronome__slider {
+  width: 100%;
   appearance: none;
   -webkit-appearance: none;
-  height: 6px;
+  height: 5px;
   background: var(--app-border);
   border-radius: 3px;
   outline: none;
   cursor: pointer;
 }
 
-.tempo-slider::-webkit-slider-thumb {
+.metronome__slider::-webkit-slider-thumb {
   appearance: none;
   -webkit-appearance: none;
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
-  background: var(--green-700);
+  background: var(--md-primary);
   cursor: pointer;
   border: 2px solid #fff;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
-.tempo-slider::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
+.metronome__slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
-  background: var(--green-700);
+  background: var(--md-primary);
   cursor: pointer;
   border: 2px solid #fff;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
-.tempo-input {
-  width: 60px;
-  height: 40px;
-  padding: 0 8px;
-  text-align: center;
-  font-size: 14px;
-  font-weight: 600;
-  background: var(--app-surface);
-  border: 1px solid var(--app-border);
-  border-radius: var(--radius-sm);
-  color: var(--app-text);
-  outline: none;
-  font-family: inherit;
+/* Time signature */
+
+.metronome__time-sig {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.tempo-input:focus {
-  border-color: var(--green-700);
-  box-shadow: 0 0 0 2px rgba(8, 99, 30, 0.15);
-}
-
-.tempo-input::-webkit-inner-spin-button,
-.tempo-input::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-.tempo-input[type='number'] {
-  -moz-appearance: textfield;
-}
-
-.bpm-unit {
-  font-size: 14px;
+.metronome__time-sig-label {
+  font-size: 12px;
   font-weight: 600;
   color: var(--app-muted);
+  min-width: 32px;
 }
 
-// ─── Time signature ────────────────────────────
-
-.time-sig-section {
-  width: 100%;
+.metronome__time-sig-btns {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.time-sig-label {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--app-text);
-  margin: 0;
-}
-
-.time-sig-buttons {
-  display: flex;
-  gap: 6px;
-}
-
-.time-sig-btn {
+  gap: 4px;
   flex: 1;
-  height: 40px;
+}
+
+.metronome__time-sig-btn {
+  flex: 1;
+  height: 28px;
   padding: 0;
   border: 1px solid var(--app-border);
   border-radius: var(--radius-sm);
   background: var(--app-surface);
-  color: var(--app-text);
-  font-size: 14px;
+  color: var(--app-muted);
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 120ms ease, border-color 120ms ease;
-  font-family: inherit;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
 }
 
-.time-sig-btn:hover {
-  background: var(--app-surface-soft);
-  border-color: var(--app-border-strong);
+.metronome__time-sig-btn:hover {
+  background: var(--md-surface-container-low);
 }
 
-.time-sig-btn.active {
-  border-color: var(--green-700);
-  background: var(--green-100);
-  color: var(--green-800);
+.metronome__time-sig-btn--active {
+  border-color: var(--md-primary);
+  background: var(--md-primary-container);
+  color: var(--md-on-primary-container);
 }
 
-// ─── Controls ──────────────────────────────────
+/* Tap tempo */
 
-.controls-section {
-  width: 100%;
-  display: flex;
-  gap: 10px;
-}
-
-.btn-start {
-  flex: 1;
-  height: 40px;
-  padding: 0 20px;
-  border: none;
+.metronome__tap-btn {
+  height: 28px;
+  padding: 0 12px;
+  border: 1px solid var(--app-border);
   border-radius: var(--radius-sm);
-  background: var(--green-700);
-  color: #fff;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 120ms ease, transform 80ms ease;
-  font-family: inherit;
-}
-
-.btn-start:hover {
-  background: var(--green-800);
-}
-
-.btn-start:active {
-  transform: translateY(1px);
-}
-
-.btn-start.running {
-  background: var(--app-muted);
-}
-
-.btn-tap {
-  flex: 1;
-  height: 40px;
-  padding: 0 20px;
-  border: 1px solid var(--green-700);
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--green-700);
-  font-size: 14px;
+  background: var(--app-surface);
+  color: var(--app-muted);
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 120ms ease, transform 80ms ease;
-  font-family: inherit;
+  transition: background 0.15s;
 }
 
-.btn-tap:hover:not(:disabled) {
-  background: var(--green-100);
+.metronome__tap-btn:hover:not(:disabled) {
+  background: var(--md-surface-container-low);
 }
 
-.btn-tap:active:not(:disabled) {
-  transform: translateY(1px);
+.metronome__tap-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
 }
 
-.btn-tap:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-// ─── Pulse animation ───────────────────────────
-
-@keyframes pulse {
+@keyframes metronome-pulse {
   0% { transform: scale(1); }
   50% { transform: scale(1.15); }
   100% { transform: scale(1); }

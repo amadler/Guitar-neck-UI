@@ -44,18 +44,53 @@
   // markery
   --guitar-neck-marker-bg-color: rgba(168, 110, 110, 0.3);
   --guitar-neck-marker--color: rgb(255, 255, 255);
-  --interval-root: rgb(168, 18, 35);
-  --interval-minor-2nd: rgb(180, 110, 60);
-  --interval-major-2nd: rgb(185, 140, 55);
-  --interval-minor-3rd: rgb(165, 155, 75);
-  --interval-major-3rd: rgb(110, 160, 70);
-  --interval-perfect-4th: rgb(60, 140, 100);
-  --interval-diminished-5th: rgb(60, 125, 120);
-  --interval-perfect-5th: rgb(60, 115, 170);
-  --interval-minor-6th: rgb(110, 75, 155);
-  --interval-major-6th: rgb(140, 85, 165);
-  --interval-minor-7th: rgb(145, 65, 115);
-  --interval-major-7th: rgb(130, 130, 130);
+
+  // === Marker Palette — single source of truth ===
+  // Interval colors (used by fretboard markers + legend)
+  --marker-root: rgb(168, 18, 35);
+  --marker-minor-2nd: rgb(180, 110, 60);
+  --marker-major-2nd: rgb(185, 140, 55);
+  --marker-minor-3rd: rgb(165, 155, 75);
+  --marker-major-3rd: rgb(110, 160, 70);
+  --marker-perfect-4th: rgb(60, 140, 100);
+  --marker-diminished-5th: rgb(60, 125, 120);
+  --marker-perfect-5th: rgb(60, 115, 170);
+  --marker-minor-6th: rgb(110, 75, 155);
+  --marker-major-6th: rgb(140, 85, 165);
+  --marker-minor-7th: rgb(145, 65, 115);
+  --marker-major-7th: rgb(130, 130, 130);
+
+  // Role colors (used by fretboard markers + relationship-strip)
+  --marker-scale-tone: #888;
+  --marker-scale-tone-border: #666;
+  --marker-scale-root-glow: #ffc107;
+  --marker-chord-tone: #2196f3;
+  --marker-chord-tone-border: #1565c0;
+  --marker-chord-root-glow: #ffc107;
+  --marker-outside-border: #ff9800;
+
+  // Marker sizes
+  --marker-size: 24px;
+  --marker-font-size: 11px;
+  --marker-border-radius: 50%;
+
+  // Neutral markers
+  --marker-neutral-bg: rgba(255, 255, 255, 0.92);
+  --marker-neutral-color: rgb(255, 255, 255);
+
+  // === Legacy aliases (backward compat, will be removed after BEM refactor) ===
+  --interval-root: var(--marker-root);
+  --interval-minor-2nd: var(--marker-minor-2nd);
+  --interval-major-2nd: var(--marker-major-2nd);
+  --interval-minor-3rd: var(--marker-minor-3rd);
+  --interval-major-3rd: var(--marker-major-3rd);
+  --interval-perfect-4th: var(--marker-perfect-4th);
+  --interval-diminished-5th: var(--marker-diminished-5th);
+  --interval-perfect-5th: var(--marker-perfect-5th);
+  --interval-minor-6th: var(--marker-minor-6th);
+  --interval-major-6th: var(--marker-major-6th);
+  --interval-minor-7th: var(--marker-minor-7th);
+  --interval-major-7th: var(--marker-major-7th);
 }
 
 /* ==========================================================================
@@ -63,13 +98,46 @@
    ========================================================================== */
 
 :root {
-  --app-bg: #f6f7f8;
-  --app-surface: #ffffff;
-  --app-surface-soft: #f8faf8;
-  --app-border: #dfe4e0;
-  --app-border-strong: #bfc8c0;
-  --app-text: #121a16;
-  --app-muted: #65706a;
+  // === Design tokens — Organic Professional ===
+  --md-surface: #f7faf4;
+  --md-surface-dim: #d3dcd3;
+  --md-surface-bright: #f7faf4;
+  --md-surface-container-lowest: #ffffff;
+  --md-surface-container-low: #f0f5ee;
+  --md-surface-container: #e9f0e8;
+  --md-surface-container-high: #e3eae2;
+  --md-surface-container-highest: #dce5db;
+  --md-on-surface: #2c342e;
+  --md-on-surface-variant: #59615a;
+  --md-primary: #386948;
+  --md-primary-dim: #2b5d3c;
+  --md-on-primary: #e8ffe9;
+  --md-primary-container: #b9efc5;
+  --md-secondary: #665e53;
+  --md-secondary-dim: #595248;
+  --md-on-secondary: #fff8f2;
+  --md-secondary-container: #ece1d3;
+  --md-tertiary: #745c27;
+  --md-tertiary-dim: #67501c;
+  --md-on-tertiary: #fff8f1;
+  --md-tertiary-container: #fad998;
+  --md-error: #a83836;
+  --md-error-dim: #67040d;
+  --md-on-error: #fff7f6;
+  --md-error-container: #fa746f;
+
+  // Typography
+  --font-headline: 'Literata', serif;
+  --font-body: 'Nunito Sans', sans-serif;
+
+  // Legacy app tokens (mapped to new design tokens)
+  --app-bg: var(--md-surface);
+  --app-surface: var(--md-surface-container-lowest);
+  --app-surface-soft: var(--md-surface-container-low);
+  --app-border: var(--md-surface-container-highest);
+  --app-border-strong: var(--md-on-surface-variant);
+  --app-text: var(--md-on-surface);
+  --app-muted: var(--md-on-surface-variant);
 
   --green-900: #053c13;
   --green-800: #075018;
@@ -91,9 +159,9 @@
   --toolbox-radius: var(--radius-md);
   --toolbox-radius-sm: var(--radius-sm);
   --toolbox-gap: 18px;
-  --toolbox-accent: var(--green-800);
-  --toolbox-accent-text: #ffffff;
-  --toolbox-accent-bg: var(--green-100);
+  --toolbox-accent: var(--md-primary);
+  --toolbox-accent-text: var(--md-on-primary);
+  --toolbox-accent-bg: var(--md-primary-container);
 
   --toolbox-warn: #c21717;
   --toolbox-warn-text: #c21717;
@@ -121,7 +189,7 @@ body {
   color: var(--app-text);
   background: var(--app-bg);
   font-family:
-    Inter,
+    var(--font-body),
     ui-sans-serif,
     system-ui,
     -apple-system,
@@ -150,243 +218,10 @@ body {
 }
 
 /* ==========================================================================
-   Header
-   ========================================================================== */
-
-.app-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.app-brand {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  font-size: 24px;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-}
-
-.app-brand__icon {
-  font-size: 30px;
-}
-
-.app-header__actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.icon-btn {
-  width: 34px;
-  height: 34px;
-  border: 0;
-  border-radius: 999px;
-  background: transparent;
-  color: #1f2933;
-  font-size: 22px;
-  line-height: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.icon-btn:hover {
-  background: rgba(5, 60, 19, 0.08);
-}
-
-/* ==========================================================================
    Range Toolbar
    ========================================================================== */
 app-range-toolbar {
-  display: block;
-  width: 100%;
-}
-
-.range-card {
-  padding: 18px 18px 20px;
-  background: var(--app-surface);
-  border: 1px solid var(--app-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-soft);
-}
-
-.range-card__title {
-  margin-bottom: 12px;
-  font-size: 16px;
-  font-weight: 800;
-}
-
-.range-toolbar {
-  display: flex;
-  align-items: stretch;
-  gap: 14px;
-}
-
-.range-preset {
-  min-width: 140px;
-  height: 64px;
-  padding: 8px 16px;
-  border: 1px solid var(--app-border);
-  border-radius: var(--radius-md);
-  background: #fff;
-  display: grid;
-  grid-template-columns: 28px 1fr;
-  grid-template-rows: 1fr 1fr;
-  column-gap: 10px;
-  align-items: center;
-  cursor: pointer;
-}
-
-.range-preset__icon {
-  grid-row: 1 / 3;
-  font-size: 21px;
-}
-
-.range-preset__label {
-  font-size: 16px;
-  font-weight: 800;
-  line-height: 1.1;
-}
-
-.range-preset__value {
-  color: #26332b;
-  font-size: 15px;
-  line-height: 1.1;
-}
-
-.range-preset--active {
-  border-color: var(--green-700);
-  color: var(--green-800);
-  background: linear-gradient(180deg, #ffffff 0%, #eef8f0 100%);
-  box-shadow: inset 0 -3px 0 var(--green-700);
-}
-
-.range-custom {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.range-custom__input {
-  width: 78px;
-  height: 42px;
-  font-weight: 700;
-  text-align: center;
-}
-
-.range-custom__separator {
-  color: var(--app-muted);
-  font-weight: 700;
-}
-
-.range-custom__button {
-  height: 42px;
-  min-width: 76px;
-  font-weight: 800;
-  background: var(--green-800);
-  border-color: var(--green-800);
-}
-
-/* ==========================================================================
-   Fretboard Placeholder
-   ========================================================================== */
-
-.fretboard-area {
-  min-height: 0;
-  display: flex;
-  align-items: center;
-}
-
-.mock-fretboard {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  min-height: 220px;
-  max-height: 292px;
-  border-radius: 6px;
-  background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.22) 0 1px, transparent 1px) 0
-      0 / 72px 100%,
-    linear-gradient(#8f8f8f 0 1px, transparent 1px) 0 19px / 100% 38px,
-    #252525;
-  overflow: hidden;
-}
-
-.mock-fretboard::before,
-.mock-fretboard::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  width: 18px;
-  height: 18px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.18);
-  transform: translateY(-50%);
-}
-
-.mock-fretboard::before {
-  left: 16%;
-}
-
-.mock-fretboard::after {
-  left: 48%;
-}
-
-.mock-fretboard__string {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: #bdbdbd;
-}
-
-.mock-fretboard__string--1 {
-  top: 14%;
-}
-.mock-fretboard__string--2 {
-  top: 28%;
-}
-.mock-fretboard__string--3 {
-  top: 42%;
-}
-.mock-fretboard__string--4 {
-  top: 56%;
-}
-.mock-fretboard__string--5 {
-  top: 70%;
-}
-.mock-fretboard__string--6 {
-  top: 84%;
-}
-
-.note {
-  position: absolute;
-  top: 50%;
-  width: 34px;
-  height: 34px;
-  border-radius: 999px;
-  color: #fff;
-  font-size: 15px;
-  font-weight: 900;
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transform: translate(-50%, -50%);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
-}
-
-.note--root {
-  background: var(--interval-root);
-}
-.note--3 {
-  background: var(--interval-major-3rd);
-}
-.note--5 {
-  background: var(--interval-perfect-5th);
 }
 
 /* ==========================================================================
@@ -492,41 +327,8 @@ app-legend {
 }
 
 /* ==========================================================================
-   Dock
+   Toolbox — host-level styles for guitar-toolbox-lib
    ========================================================================== */
-
-.dock {
-  position: relative;
-  min-height: 0;
-  border: 1px solid var(--app-border-strong);
-  border-radius: var(--radius-lg);
-  background: var(--app-surface);
-  box-shadow: var(--shadow-soft);
-  overflow: hidden;
-}
-
-.status-badge {
-  margin-left: 4px;
-  padding: 2px 7px;
-  border-radius: 4px;
-  background: #6b7280;
-  color: #fff;
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 0.03em;
-}
-
-.status-badge--large {
-  margin: 0;
-  font-size: 11px;
-}
-
-.dock__body {
-  min-height: 0;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  min-height: 0;
-}
 
 /* ==========================================================================
    Toolbox — host-level styles for guitar-toolbox-lib
@@ -679,71 +481,6 @@ app-metronome .metronome-card > * + * {
     gap: 10px;
   }
 
-  .range-card {
-    padding: 12px 12px 16px;
-  }
-
-  .range-card__title {
-    margin-bottom: 8px;
-    font-size: 14px;
-  }
-
-  .range-toolbar {
-    gap: 10px;
-  }
-
-  .range-preset {
-    min-width: 104px;
-    height: 52px;
-    padding: 6px 10px;
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr 1fr;
-    column-gap: 0;
-  }
-
-  .range-preset__icon {
-    display: none;
-  }
-
-  .range-preset__label {
-    font-size: 14px;
-  }
-
-  .range-preset__value {
-    font-size: 12px;
-  }
-
-  .range-custom {
-    gap: 6px;
-    min-width: 0;
-  }
-
-  .range-custom__input {
-    width: 60px;
-  }
-
-  .range-custom__button {
-    min-width: 66px;
-    height: 38px;
-    font-size: 14px;
-  }
-
-  .range-custom__separator {
-    font-size: 14px;
-  }
-
-  .dock__body {
-    grid-template-columns: 1fr;
-  }
-
-  .ai-placeholder {
-    display: none;
-  }
-
-  app-metronome {
-    display: none !important;
-  }
-
   lib-toolbox-form {
     border-right: 0;
   }
@@ -756,31 +493,11 @@ app-metronome .metronome-card > * + * {
     grid-template-rows: auto;
   }
 
-  .range-toolbar {
-    flex-wrap: nowrap;
-  }
-
-  .range-toolbar {
-    .range-preset {
-      flex: 1;
-    }
-    .range-preset:nth-child(6) {
-      display: none;
-    }
-    .range-custom {
-      display: none !important;
-    }
-  }
-
   .legend-row {
     align-items: flex-start;
     flex-direction: column;
   }
   lib-toolbox-form .toolbox__form {
     grid-template-columns: 1fr;
-  }
-
-  .dock {
-    height: auto;
   }
 }

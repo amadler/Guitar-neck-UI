@@ -26,6 +26,8 @@ export class FretboardStateService {
   currentSelection: MusicSelection | null = null;
   /** Dual selection state for scale + chord relation. null when no relation is active. */
   scaleChordState: ScaleChordState | null = null;
+  /** Current fret range filter. Updated by RangeToolbarComponent via home-page. */
+  fretRange = { minFret: 0, maxFret: 24 };
   /** O(1) lookup map keyed by "${string}-${fret}". Rebuilt when notes are initialized. */
   private notesMap: Map<string, GuitarNote> = new Map();
 

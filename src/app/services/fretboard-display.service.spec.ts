@@ -39,20 +39,20 @@ describe('FretboardDisplayService', () => {
     it('should return interval class when no chord relation', () => {
       guitarNeckService.scaleChordState = null;
       guitarNeckService.markerDisplayMode = 'interval-colors';
-      expect(service.getMarkerCssClass('root')).toBe('guitar-neck__root');
-      expect(service.getMarkerCssClass('major-3rd')).toBe('guitar-neck__major-3rd');
+      expect(service.getMarkerCssClass('root')).toBe('fretboard__dot--root');
+      expect(service.getMarkerCssClass('major-3rd')).toBe('fretboard__dot--major-3rd');
     });
 
     it('should return neutral class in note-names mode', () => {
       guitarNeckService.scaleChordState = null;
       guitarNeckService.markerDisplayMode = 'note-names';
-      expect(service.getMarkerCssClass('root')).toBe('guitar-neck__neutral');
+      expect(service.getMarkerCssClass('root')).toBe('fretboard__dot--neutral');
     });
 
     it('should return neutral-dot class in neutral-dots mode', () => {
       guitarNeckService.scaleChordState = null;
       guitarNeckService.markerDisplayMode = 'neutral-dots';
-      expect(service.getMarkerCssClass('root')).toBe('guitar-neck__neutral-dot');
+      expect(service.getMarkerCssClass('root')).toBe('fretboard__dot--neutral-dot');
     });
   });
 
@@ -77,7 +77,7 @@ describe('FretboardDisplayService', () => {
       markerRoleService.computeRoles(mockNote as any, state.scale, state.chord);
 
       const cssClass = service.getRoleCssClass(0, 0);
-      expect(cssClass).toBe('guitar-neck__role-chord-root');
+      expect(cssClass).toBe('fretboard__dot--role-chord-root');
     });
 
     it('should return empty string for note without a role', () => {
