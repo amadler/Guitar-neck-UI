@@ -1,153 +1,168 @@
-.pattern-panel {
-  border: 1px solid var(--app-border-strong);
-  border-radius: var(--radius-lg);
-  background: var(--app-surface);
-  padding: 12px 18px;
-  box-shadow: var(--shadow-soft);
-}
-
-.pattern-panel__title {
-  font-size: 18px;
-  font-weight: 800;
-  margin-bottom: 10px;
-  color: var(--green-800);
-}
-
-.pattern-panel__grid {
-  display: grid;
-  grid-template-columns: auto auto auto auto;
-  grid-template-areas:
-    "notes  intervals semitones steps"
-    "notes-v intervals-v semitones-v steps-v"
-   ;
-  gap: 4px 14px;
-  align-items: center;
-}
-
-.pattern-panel__label--notes     { grid-area: notes; }
-.pattern-panel__label--intervals { grid-area: intervals; }
-.pattern-panel__label--semitones { grid-area: semitones; }
-.pattern-panel__label--steps     { grid-area: steps; }
-
-.pattern-panel__row--notes     { grid-area: notes-v; }
-.pattern-panel__row--intervals { grid-area: intervals-v; }
-.pattern-panel__row--semitones { grid-area: semitones-v; }
-.pattern-panel__row--steps     { grid-area: steps-v; }
-
-.pattern-panel__label {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--app-muted);
-  text-align: left;
-  white-space: nowrap;
-}
-
-.pattern-panel__value-row {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.pattern-panel__value {
-  font-size: 14px;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  color: var(--app-text);
-}
-
-/* ---- Practice prompts ---- */
-
-.pattern-panel__prompts {
-  margin-top: 14px;
-  padding-top: 12px;
-  border-top: 1px solid var(--app-border-light);
-}
-
-.pattern-panel__prompts-title {
-  font-size: 14px;
-  font-weight: 700;
-  margin-bottom: 6px;
-  color: var(--green-700);
-}
-
-.pattern-panel__prompts-list {
-  margin: 0;
-  padding-left: 20px;
-  list-style: disc;
-}
-
-.pattern-panel__prompt-item {
-  font-size: 13px;
-  line-height: 1.6;
-  color: var(--app-text);
-}
-
-/* ---- Scale + Chord split layout (60/40) ---- */
-
-.pattern-split {
-  display: grid;
-  grid-template-columns: 3fr 2fr;
-  gap: 1rem;
-  border: 1px solid var(--app-border-strong);
-  border-radius: var(--radius-lg);
-  background: var(--app-surface);
-  padding: 12px 18px;
-  box-shadow: var(--shadow-soft);
-}
-
-.pattern-split__cards {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
 .pattern-card {
-  border: 1px solid var(--app-border-light, #333);
-  border-radius: var(--radius-sm, 6px);
-  padding: 0.5rem 0.75rem;
-  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-md);
+  background: var(--app-surface);
+  padding: 14px 18px;
 }
 
 .pattern-card__header {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.25rem;
+  gap: 8px;
+  margin-bottom: 10px;
 }
 
 .pattern-card__title {
+  margin: 0;
   font-size: 16px;
-  font-weight: 700;
-  color: var(--green-800);
+  font-weight: 600;
+  color: var(--app-text);
+  font-family: var(--font-headline);
+}
+
+.pattern-card__badge {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--md-primary-container);
+  color: var(--md-on-primary-container);
+}
+
+.pattern-card__badge--chord {
+  background: var(--md-secondary-container);
+  color: var(--md-on-secondary-container);
 }
 
 .pattern-card__body {
-  margin-bottom: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .pattern-card__notes {
   display: flex;
-  gap: 0.5rem;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
-.pattern-card__change-btn {
-  background: none;
-  border: none;
-  color: var(--app-accent, #7c4dff);
-  cursor: pointer;
-  font-size: 0.8rem;
-  font-family: inherit;
-  padding: 0;
-  opacity: 0.7;
-  transition: opacity 0.15s;
+.pattern-card__note {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--md-surface-container);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--app-text);
+}
 
-  &:hover {
-    opacity: 1;
-  }
+.pattern-card__intervals {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: var(--app-muted);
+}
+
+.pattern-card__interval-paren {
+  font-weight: 400;
+}
+
+.pattern-card__interval {
+  font-weight: 500;
+}
+
+/* Related chord section */
+.pattern-card__related {
+  margin-top: 12px;
+}
+
+.pattern-card__divider {
+  height: 1px;
+  background: var(--app-border);
+  margin-bottom: 12px;
+}
+
+/* Full data grid (semitones, steps) */
+.pattern-card__grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 16px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--app-border);
+}
+
+.pattern-card__grid-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--app-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.pattern-card__grid-value {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pattern-card__grid-item {
+  font-size: 13px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--app-text);
+}
+
+/* Practice prompts */
+.pattern-card__prompts {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--app-border);
+}
+
+.pattern-card__prompts-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--app-text);
+  margin-bottom: 6px;
+}
+
+.pattern-card__prompts-list {
+  margin: 0;
+  padding-left: 18px;
+  list-style: disc;
+}
+
+.pattern-card__prompt-item {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--app-muted);
+}
+
+/* Scale + Chord split layout */
+.pattern-split {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 1rem;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-md);
+  background: var(--app-surface);
+  padding: 14px 18px;
+}
+
+.pattern-split__cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .pattern-split__prompts {
-  border-left: 1px solid var(--app-border-light, #333);
+  border-left: 1px solid var(--app-border);
   padding-left: 1rem;
 }
