@@ -12,8 +12,6 @@ import { TonalFacadeService } from './tonal-facade.service';
  * Pipeline: teoria muzyki (TonalFacadeService) → pozycje (FretboardNotePositionService)
  *           → podświetlenie (FretboardStateService) → interwały/role (MarkerRoleService)
  *
- * Żadnej logiki Tonal.js — wszystko delegowane do TonalFacadeService.
- * Żadnego stanu — wszystko w FretboardStateService.
  */
 @Injectable({ providedIn: 'root' })
 export class FretboardOrchestrationService {
