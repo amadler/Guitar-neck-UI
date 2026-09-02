@@ -1,5 +1,10 @@
 <div class="metronome">
-  <h3 class="metronome__title">Metronome</h3>
+  <div class="metronome__header">
+    <h3 class="metronome__title">Metronome</h3>
+    <button class="metronome__toggle-btn" (click)="toggleExtended()" title="{{ extendedOpen() ? 'Hide' : 'Show' }} extended controls">
+      <span class="metronome__toggle-arrow" [class.metronome__toggle-arrow--open]="extendedOpen()">▶</span>
+    </button>
+  </div>
 
   <div class="metronome__controls">
     <!-- BPM display + +/- buttons -->
@@ -23,6 +28,7 @@
   </div>
 
   <!-- Extended controls (collapsible) -->
+  @if (extendedOpen()) {
   <div class="metronome__extended">
     <!-- Beat indicator -->
     <div class="metronome__beat">
@@ -70,4 +76,5 @@
       Tap
     </button>
   </div>
+  }
 </div>

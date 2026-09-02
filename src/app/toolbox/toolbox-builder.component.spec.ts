@@ -41,7 +41,7 @@ describe('ToolboxBuilderComponent', () => {
       kind: 'chord',
       key: 'C',
       chordType: 'major'
-    } as ShowScaleCommand);
+    });
   });
 
   it('should emit interval command when showKind is interval', () => {
