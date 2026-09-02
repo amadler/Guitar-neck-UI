@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, signal } from '@angular/core';
 import { NgIf, NgFor } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MetronomeEngineService } from './metronome-engine.service';
@@ -28,6 +28,7 @@ export class MetronomeComponent implements OnDestroy {
   timeSignature = DEFAULT_TIME_SIGNATURE;
   isRunning = false;
   currentBeat = -1;
+  extendedOpen = signal(false);
 
   timeSignatures = [
     { value: 2, label: '2/4' },
@@ -80,6 +81,10 @@ export class MetronomeComponent implements OnDestroy {
 
   setTempo(value: number): void {
     this.bpm = Math.max(TEMPO_MIN, Math.min(TEMPO_MAX, Math.round(value)));
+  }
+
+  toggleExtended(): void {
+    this.extendedOpen.update(v => !v);
   }
 
   selectTimeSignature(value: number): void {
