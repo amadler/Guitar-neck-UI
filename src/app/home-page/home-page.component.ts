@@ -1,5 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { NgIf } from '@angular/common';
+import { AppStateService } from '../app-state.service';
 import { FretboardStateService } from '../services/fretboard-state.service';
 import { PatternBuilderService } from '../services/pattern-builder.service';
 import { FretboardOrchestrationService } from '../services/fretboard-orchestration.service';
@@ -45,6 +46,7 @@ export class HomePageComponent {
   displayMode = signal<DisplayMode>(null);
 
   constructor(
+    private appState: AppStateService,
     private guitarNeckService: FretboardStateService,
     private fretboardOrchestrationService: FretboardOrchestrationService,
     private patternBuilder: PatternBuilderService,
@@ -75,6 +77,7 @@ export class HomePageComponent {
 
   private handleShowScale(command: FretboardCommand & { kind: 'scale' }): void {
     const { key, scaleType } = command;
+    this.appState.setMode('scale-or-chord');
     this.fretboardOrchestrationService.displayScale(scaleType, key);
     this.patternBuilder.setCurrentPattern(scaleType, key, 'scale');
     this.guitarNeckService.scaleChordState = {
@@ -86,7 +89,7 @@ export class HomePageComponent {
 
   private handleShowChord(command: FretboardCommand & { kind: 'chord' }): void {
     const { key, chordType } = command;
-
+    this.appState.setMode('scale-or-chord');
     this.fretboardOrchestrationService.displayChord(chordType, key);
     this.patternBuilder.setCurrentPattern(chordType, key, 'chord');
     this.displayMode.set('legend');
@@ -95,6 +98,7 @@ export class HomePageComponent {
   private handleShowInterval(command: FretboardCommand & { kind: 'interval' }): void {
     const { key, interval } = command;
     if (!key || !interval) return;
+    this.appState.setMode('scale-or-chord');
 
     const semitoneMap: Record<string, number> = {
       '1': 0, 'b2': 1, '2': 2, 'b3': 3, '3': 4,
@@ -117,6 +121,7 @@ export class HomePageComponent {
   private handleCompare(command: FretboardCommand & { kind: 'scaleChordRelation' }): void {
     const { scaleKey, scaleType, chordKey, chordType } = command;
 
+    this.appState.setMode('scale-chord');
     this.fretboardOrchestrationService.displayScaleWithChord(
       scaleType, scaleKey, chordType, chordKey,
     );

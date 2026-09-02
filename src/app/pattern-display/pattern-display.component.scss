@@ -1,8 +1,5 @@
 .pattern-card {
-  border: 1px solid var(--app-border);
-  border-radius: var(--radius-md);
-  background: var(--app-surface);
-  padding: 14px 18px;
+  padding: 14px 0;
 }
 
 .pattern-card__header {
@@ -148,21 +145,6 @@
 /* Scale + Chord split layout */
 .pattern-split {
   display: grid;
-  grid-template-columns: 3fr 2fr;
-  gap: 1rem;
-  border: 1px solid var(--app-border);
-  border-radius: var(--radius-md);
-  background: var(--app-surface);
-  padding: 14px 18px;
-}
-
-.pattern-split__cards {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.pattern-split__prompts {
-  border-left: 1px solid var(--app-border);
-  padding-left: 1rem;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
 }
