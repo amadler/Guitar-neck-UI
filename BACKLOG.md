@@ -49,3 +49,47 @@ Then refactor all 5 consumers to derive their data from this single source.
 ## Status
 
 OPEN
+
+# P3: Cloudflare Pages deployment
+
+## Motivation
+
+Aplikacja jest w pełni lokalna (Tonal.js, żadnego backendu) i gotowa do hostowania jako statyczna strona. Obecnie:
+
+- [`README.md`](README.md:135) wskazuje na żywy preview na Render.com (`guitar-neck-ui.onrender.com`) — ale to nie jest docelowy deployment
+- [`DEVELOPMENT.md`](DEVELOPMENT.md:101) opisuje Cloudflare Pages jako planowany hosting, ale bez konkretnych kroków
+- Docker i VPS zostały już usunięte z projektu ([`CHANGELOG.md`](CHANGELOG.md:39))
+- Brak automatycznego deploymentu z GitHub — każda zmiana wymaga ręcznego builda i uploadu
+
+Cloudflare Pages to darmowy hosting statyczny z automatycznym deploymentem z GitHub, idealny dla SPA bez backendu.
+
+## Solution
+
+1. Podłączyć repozytorium GitHub do Cloudflare Pages
+2. Skonfigurować build command: `npm run build:prod` (produkcyjny build Angular)
+3. Skonfigurować output directory: `dist/guitar-neck-ui`
+4. Ustawić zmienne środowiskowe przez Cloudflare Pages Secrets (geminiApiKey — puste, chatEnabled: false)
+5. Skonfigurować SPA fallback (dla Angular routing) — Cloudflare Pages wymaga reguły `/_redirects` lub `_headers` dla SPA
+6. Przetestować deployment i ustawić domenę (np. `guitar-neck-ui.pages.dev`)
+7. Zaktualizować dokumentację: README.md, DEVELOPMENT.md — usunąć Docker/VPS, dodać Cloudflare Pages
+
+## MVP
+
+- Repozytorium podłączone do Cloudflare Pages
+- Build i deploy automatycznie z gałęzi `master`
+- Aplikacja działa pod domeną `.pages.dev`
+- Plik `_redirects` dla SPA fallback (obsługa Angular routing)
+- Dokumentacja zaktualizowana
+
+## Done when
+
+- `https://guitar-neck-ui.pages.dev` (lub własna domena) wyświetla aplikację
+- `npm run build:prod` produkuje poprawny build
+- Automatyczny deployment działa na push do `master`
+- Angular routing działa (odświeżenie strony nie powoduje 404)
+- `README.md` i `DEVELOPMENT.md` nie zawierają już instrukcji Docker/VPS
+- Wszystkie zmienne środowiskowe są ustawione w Cloudflare Pages dashboard
+
+## Status
+
+OPEN

@@ -1,11 +1,10 @@
 # GuitarNeckUI
 
+Angular application for visualizing notes, intervals, scales and chords on a guitar fretboard.
 
-## Angular application for visualizing notes, intervals, scales and chords on a guitar fretboard.
-
-The project is part of a larger Guitar Neck ecosystem and uses:
-- music-theory-api for music theory data,
-- shared models for scales, chords and fretboard configuration.
+The project uses:
+- **Tonal.js** — local music theory engine (no backend needed)
+- **guitar-neck-shared** — shared models for scales, chords and fretboard configuration
 
 Current product focus:
 visualizing relationships between scales and chords on the fretboard.
@@ -15,121 +14,114 @@ visualizing relationships between scales and chords on the fretboard.
 
 - **Angular 18** (standalone components)
 - **TypeScript**, RxJS
-- **Karma/Jasmine** (testy)
-- **Docker** (deploy)
+- **Karma/Jasmine** (tests)
+- **Cloudflare Pages** (deployment)
 
-## Zależności zewnętrzne
+## External Dependencies
 
-| Pakiet | Źródło | Opis |
+| Package | Source | Description |
 |---|---|---|
-| `guitar-neck-shared` ^1.0.2 | [public npm](https://npmjs.com) | Konfiguracja gryfu + wzorce interwałowe |
-| **Music Theory API** | osobne repo (Docker) | REST API do rozwiązywania nut skal/akordów (`localhost:3000`) |
-| **Gemini AI** (opcjonalnie) | zewnętrzne API | AI chat (wylączony feature flagą w V1) |
+| `guitar-neck-shared` ^1.0.2 | [public npm](https://npmjs.com) | Fretboard config + interval patterns |
+| `@tonaljs/tonal` ^4.10.0 | [npm](https://npmjs.com) | Local music theory engine (scales, chords, intervals) |
+| **Gemini AI** (optional) | external API | AI chat (disabled by feature flag) |
 
 ## Development
 
-### Frontend + backend lokalnie
-
 ```bash
-# Terminal 1 – backend (osobne repo)
-cd ../music-theory-api
-docker compose up -d        # backend na http://localhost:3000
-
-# Terminal 2 – frontend
 npm install
-npm start                   # frontend na http://localhost:4200
+npm start                   # frontend on http://localhost:4200
 ```
 
-### Lub wszystko przez Docker
+### Environment config
 
-```bash
-# Wymaga zbudowanego obrazu music-theory-api
-npm run docker:build        # buduje obraz frontendu
-npm run docker:up           # startuje backend + frontend
-# Frontend na http://localhost:80
-npm run docker:down         # zatrzymuje
-npm run docker:logs         # logi
-```
-
-### Zmienne środowiskowe
-
-Konfiguracja w [`src/environments/`](src/environments/):
+Configuration in [`src/environments/`](src/environments/):
 
 ```ts
 // environment.ts (dev)
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:3000',        // backend API
-  geminiApiKey: '',                        // Gemini AI (nieużywane w V1)
-  features: { chatEnabled: false }        // feature flagi
+  geminiApiKey: '',
+  features: { chatEnabled: false }
 };
 ```
+
+All music theory is computed locally by Tonal.js — no backend required.
 
 ## Build
 
 ```bash
-npm run build             # development build → dist/
-npm run build:prod        # production build → dist/
+npm run build             # development build → dist/guitar-neck-ui
+npm run build:prod        # production build → dist/guitar-neck-ui
 ```
 
-## Testy
+## Tests
 
 ```bash
 npm test                  # Karma / Jasmine
 ```
 
-## Deploy na VPS (AWS / Hetzner / inny)
+## Deployment (Cloudflare Pages)
 
-### Opcja A – SCP na serwer
+The app is a static SPA (no backend) and is deployed via **Cloudflare Pages**.
 
-```bash
-npm run build:prod
-scp -r dist/guitar-neck-ui/* user@server:/var/www/guitar-neck/
+### Setup
+
+1. Connect the GitHub repository to Cloudflare Pages
+2. Build command: `npm run build:prod`
+3. Output directory: `dist/guitar-neck-ui/browser`
+4. Add SPA fallback rule (see below)
+
+### SPA fallback
+
+Create a `_redirects` file in the output directory (or configure in Cloudflare dashboard):
+
+```
+/*    /index.html    200
 ```
 
-### Opcja B – Docker
+This ensures Angular routing works on page refresh.
 
-```bash
-npm run build:prod
-npm run docker:build
-docker save -o guitar-neck-ui.tar guitar-neck-ui:latest
-# Przenieś na serwer i uruchom:
-docker load -i guitar-neck-ui.tar
-docker compose up -d
-```
+### Environment variables (Cloudflare Pages Secrets)
 
-## Feature flagi
+| Variable | Value |
+|---|---|
+| `geminiApiKey` | (empty) |
+| `chatEnabled` | `false` |
 
-| Flaga | Plik | Domyślnie | Opis |
+### Domain
+
+Default: `https://guitar-neck-ui.pages.dev`
+
+## Feature flags
+
+| Flag | File | Default | Description |
 |---|---|---|---|
-| `features.chatEnabled` | `environment.ts` | `false` | Włącza/wyłącza czat AI (Gemini) |
+| `features.chatEnabled` | `environment.ts` | `false` | Enables/disables AI chat (Gemini) |
 
-## Struktura projektu
+## Project structure
 
 ```
 src/
 ├── app/
-│   ├── home-page/           # Główna strona (agregator)
-│   ├── guitar-neck/         # Kontener gryfu
-│   ├── freatboard/          # Siatka gryfu (stringi × progi)
-│   │   ├── components/legend/
-│   │   └── fret-range-selector/
-│   ├── services/            # Serwisy (stan, API, interwały, nuty)
-│   └── shared/              # Modele, commandy, helpery
-├── environments/            # Konfiguracja środowisk
-└── assets/                  # Obrazy, scss
+│   ├── home-page/           # Main page (aggregator)
+│   ├── guitar-neck/         # Fretboard container
+│   ├── freatboard/          # Fretboard grid (strings x frets)
+│   ├── services/            # Services (state, intervals, notes)
+│   └── shared/              # Models, helpers
+├── environments/            # Environment config
+└── assets/                  # Images, scss
 projects/
-└── guitar-chat/             # Biblioteka AI chat (feature flag)
+└── guitar-chat/             # AI chat library (feature flagged)
 ```
 
-## Dokumentacja
+## Documentation
 
 - [Product overview](PRODUCT_OVERVIEW.md)
 - [Architecture](ARCHITECTURE.md)
 - [API docs](API_DOCUMENTATION.md)
 - [Dev setup](DEVELOPMENT.md)
-- [Deployment checklist](TODO_DEPLOY.md)
+- [Backlog](BACKLOG.md)
 
+## Live preview (temporary)
 
-## Live preview: 
 https://guitar-neck-ui.onrender.com/

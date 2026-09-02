@@ -100,17 +100,35 @@ Brak `apiUrl` — wszystkie obliczenia są lokalne (Tonal.js).
 
 ## Deployment (Cloudflare Pages)
 
-Planowane: migracja z Docker/VPS na Cloudflare Pages (darmowy hosting statyczny).
+Aplikacja jest statycznym SPA (cała logika muzyczna po stronie klienta przez Tonal.js) i deployowana na **Cloudflare Pages** (darmowy hosting statyczny).
 
 ### Wymagania
-- Konto Cloudflare
-- `npm run build` produkuje `dist/guitar-neck-ui/`
+- Konto Cloudflare ([dash.cloudflare.com](https://dash.cloudflare.com))
+- Repozytorium pushnięte na GitHub
+- `npm run build:prod` produkuje `dist/guitar-neck-ui/`
 
-### Kroki (do zrobienia)
-1. Podłączenie repozytorium do Cloudflare Pages
-2. Konfiguracja build command: `npm run build`
-3. Konfiguracja output directory: `dist/guitar-neck-ui`
-4. Ustawienie zmiennych środowiskowych (geminiApiKey) przez Cloudflare Pages Secrets
+### Konfiguracja w Cloudflare Pages Dashboard
+
+1. **Podłącz repozytorium**: Cloudflare Dashboard → Workers & Pages → Create → Connect to Git → wybierz repozytorium
+2. **Build command**: `npm run build:prod`
+3. **Output directory**: `dist/guitar-neck-ui/browser`
+4. **SPA fallback**: Cloudflare Pages automatycznie wykrywa plik `_redirects` w output directory — reguła `/* /index.html 200` zapewnia działanie Angular routingu przy odświeżeniu strony
+5. **Environment variables** (Production):
+
+   | Variable | Value |
+   |---|---|
+   | `geminiApiKey` | (pusty string) |
+   | `chatEnabled` | `false` |
+
+### Automatyczny deployment
+
+Po podłączeniu każdy push do gałęzi `master` automatycznie:
+1. Odpala `npm run build:prod`
+2. Publikuje zawartość `dist/guitar-neck-ui` na `https://guitar-neck-ui.pages.dev`
+
+### Własna domena (opcjonalnie)
+
+W Cloudflare Pages dashboard → Custom domains → dodaj domenę (wymaga DNS prowadzonego przez Cloudflare).
 
 ## Dokumentacja
 
