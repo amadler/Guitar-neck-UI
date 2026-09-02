@@ -403,7 +403,7 @@ function calculateNotesFromIntervals(rootNote: string, intervals: number[]): str
 ```
 
 ### UICommands (DEPRECATED)
-> **UWAGA**: Command Pattern (`UICommands.ts`) jest **nieużywany** — został zastąpiony przez `FretboardCommand` z `guitar-toolbox-lib`. Plik istnieje tylko jako referencja i zostanie usunięty w przyszłości.
+> **UWAGA**: Command Pattern (`UICommands.ts`) jest **nieużywany** — został zastąpiony przez `FretboardCommand` z `src/app/toolbox/model.ts`. Plik istnieje tylko jako referencja i zostanie usunięty w przyszłości.
 
 ```typescript
 /**
@@ -509,31 +509,25 @@ class ChatComponent {
 }
 ```
 
-## Integracja z guitar-toolbox-lib
+## Toolbox (`src/app/toolbox/`)
 
-Toolbox komunikuje się z `HomePageComponent` przez `FretboardCommand`:
+Toolbox jest wbudowany bezpośrednio w aplikację jako `src/app/toolbox/`. Zawiera 3 pliki źródłowe:
 
-```typescript
-// Z guitar-toolbox-lib (public-api.ts)
-type FretboardCommand =
-  | { kind: 'scale'; key: string; scaleType: string }
-  | { kind: 'chord'; key: string; chordType: string }
-  | { kind: 'intervalPattern'; key: string; intervals: number[] }
-  | { kind: 'scaleChordRelation'; scaleKey: string; scaleType: string; chordKey: string; chordType: string };
+| Plik | Odpowiedzialność |
+|------|-----------------|
+| `toolbox-builder.component.ts` | Główny komponent toolbox (sentence-style UI) |
+| `dropdown.component.ts` | Reużywalny dropdown z filtrowaniem |
+| `model.ts` | Typy: `FretboardCommand`, `MusicKey`, `Interval` |
 
-// Helper
-function intervalsToNoteNames(rootNote: string, intervals: number[]): string[];
-```
-
-### FormsWrapperComponent
+### ToolboxBuilderComponent
 
 ```typescript
 /**
- * @selector lib-forms-wrapper
- * @package guitar-toolbox-lib
+ * @selector app-toolbox-builder
+ * @file src/app/toolbox/toolbox-builder.component.ts
  */
-class FormsWrapperComponent {
-  @Output() toolboxEv: EventEmitter<FretboardCommand>;
+class ToolboxBuilderComponent {
+  @Output() toolboxEvent: EventEmitter<FretboardCommand>;
 }
 ```
 

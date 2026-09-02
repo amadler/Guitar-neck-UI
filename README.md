@@ -5,7 +5,6 @@
 
 The project is part of a larger Guitar Neck ecosystem and uses:
 - music-theory-api for music theory data,
-- guitar-toolbox-lib for reusable guitar UI logic,
 - shared models for scales, chords and fretboard configuration.
 
 Current product focus:
@@ -24,7 +23,6 @@ visualizing relationships between scales and chords on the fretboard.
 | Pakiet | Źródło | Opis |
 |---|---|---|
 | `guitar-neck-shared` ^1.0.2 | [public npm](https://npmjs.com) | Konfiguracja gryfu + wzorce interwałowe |
-| `guitar-toolbox-lib` ^1.0.2 | [public npm](https://npmjs.com) | Komponent formularza skal/akordów |
 | **Music Theory API** | osobne repo (Docker) | REST API do rozwiązywania nut skal/akordów (`localhost:3000`) |
 | **Gemini AI** (opcjonalnie) | zewnętrzne API | AI chat (wylączony feature flagą w V1) |
 

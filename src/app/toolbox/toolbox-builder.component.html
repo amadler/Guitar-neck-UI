@@ -1,0 +1,128 @@
+<div class="sentence-toolbox">
+  <span class="sentence-toolbox__label">I want to:</span>
+
+  <!-- Intent chip: Show / Compare -->
+  <div class="sentence-toolbox__chip-wrapper">
+    <button
+      class="sentence-toolbox__chip sentence-toolbox__chip--select"
+      (click)="setIntent(intent() === 'show' ? 'compare' : 'show')"
+    >
+      {{ intent() === "show" ? "Show" : "Compare" }}
+      <span class="sentence-toolbox__arrow">▼</span>
+    </button>
+  </div>
+
+  <!-- Show sentence -->
+  @if (intent() === "show") {
+    <!-- Show kind chip -->
+    <div class="sentence-toolbox__chip-wrapper">
+      <button
+        class="sentence-toolbox__chip sentence-toolbox__chip--select"
+        (click)="setShowKind(showKind() === 'scale' ? 'chord' : showKind() === 'chord' ? 'interval' : 'scale')"
+      >
+        {{ showKind() }}
+        <span class="sentence-toolbox__arrow">▼</span>
+      </button>
+    </div>
+
+    <!-- Scale path -->
+    @if (showKind() === "scale") {
+      <app-dropdown
+        [options]="musicKeys"
+        [displayFn]="keyDisplayFn"
+        [selectedValue]="selectedKey()"
+        (valueChange)="selectedKey.set($event)"
+      ></app-dropdown>
+
+      <app-dropdown
+        [options]="scalePatternNames"
+        [displayFn]="stringDisplayFn"
+        [selectedValue]="selectedScaleType()"
+        [showFilter]="true"
+        (valueChange)="selectedScaleType.set($event)"
+      ></app-dropdown>
+
+      <span class="sentence-toolbox__text">on fretboard</span>
+    }
+
+    <!-- Chord path -->
+    @if (showKind() === "chord") {
+      <app-dropdown
+        [options]="musicKeys"
+        [displayFn]="keyDisplayFn"
+        [selectedValue]="selectedKey()"
+        (valueChange)="selectedKey.set($event)"
+      ></app-dropdown>
+
+      <app-dropdown
+        [options]="chordPatternNames"
+        [displayFn]="stringDisplayFn"
+        [selectedValue]="selectedChordType()"
+        [showFilter]="true"
+        (valueChange)="selectedChordType.set($event)"
+      ></app-dropdown>
+
+      <span class="sentence-toolbox__text">on fretboard</span>
+    }
+
+    <!-- Interval path -->
+    @if (showKind() === "interval") {
+      <app-dropdown
+        [options]="musicKeys"
+        [displayFn]="keyDisplayFn"
+        [selectedValue]="selectedKey()"
+        (valueChange)="selectedKey.set($event)"
+      ></app-dropdown>
+
+      <app-dropdown
+        [options]="intervalOptions"
+        [displayFn]="intervalDisplayFn"
+        [selectedValue]="selectedInterval()"
+        [trackByFn]="intervalTrackByFn"
+        (valueChange)="selectedInterval.set($event)"
+      ></app-dropdown>
+
+      <span class="sentence-toolbox__text">on fretboard</span>
+    }
+  }
+
+  <!-- Compare sentence -->
+  @if (intent() === "compare") {
+    <span class="sentence-toolbox__text">scale</span>
+
+    <app-dropdown
+      [options]="musicKeys"
+      [displayFn]="keyDisplayFn"
+      [selectedValue]="compareScaleKey()"
+      (valueChange)="compareScaleKey.set($event)"
+    ></app-dropdown>
+
+    <app-dropdown
+      [options]="scalePatternNames"
+      [displayFn]="stringDisplayFn"
+      [selectedValue]="compareScaleType()"
+      [showFilter]="true"
+      (valueChange)="compareScaleType.set($event)"
+    ></app-dropdown>
+
+    <span class="sentence-toolbox__text">with chord</span>
+
+    <app-dropdown
+      [options]="musicKeys"
+      [displayFn]="keyDisplayFn"
+      [selectedValue]="compareChordKey()"
+      (valueChange)="compareChordKey.set($event)"
+    ></app-dropdown>
+
+    <app-dropdown
+      [options]="chordPatternNames"
+      [displayFn]="stringDisplayFn"
+      [selectedValue]="compareChordType()"
+      [showFilter]="true"
+      (valueChange)="compareChordType.set($event)"
+    ></app-dropdown>
+  }
+
+  <!-- Submit button -->
+  <button class="sentence-toolbox__submit" (click)="submit()">Show</button>
+</div>

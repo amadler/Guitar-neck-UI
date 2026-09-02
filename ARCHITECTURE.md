@@ -3,9 +3,8 @@
 ## Przegląd Architektury
 Aplikacja wykorzystuje architekturę warstwową opartą na wzorcu **Facade**, z centralnym zarządzaniem stanem gryfu i **synchronicznym silnikiem teorii muzyki** (Tonal.js).
 
-System składa się z 2 części:
-1. **`guitar-neck-ui`** — Angular 18 frontend (to repo)
-2. **`guitar-toolbox-lib`** — lokalny workspace (`file:../guitar-toolbox/dist/guitar-toolbox-lib`) z komponentem toolbox
+System składa się z 1 części:
+1. **`guitar-neck-ui`** — Angular 18 frontend (to repo), zawiera toolbox w `src/app/toolbox/`
 
 Logika teorii muzyki (skale, akordy, interwały) jest obliczana lokalnie przez **Tonal.js** — nie ma zależności od backendu `music-theory-api`.
 
@@ -25,7 +24,7 @@ Logika teorii muzyki (skale, akordy, interwały) jest obliczana lokalnie przez *
 | `StringToggleComponent` | `app-string-toggle` | Włączanie/wyłączanie poszczególnych strun | `src/app/string-toggle` |
 | `PatternDisplayComponent` | `app-pattern-display` | Panel wyświetlający szczegóły patternu + practice prompts | `src/app/pattern-display` |
 | `MetronomeComponent` | `app-metronome` | Metronom z AudioContext i tap-tempo | `src/app/metronome` |
-| `FormsWrapperComponent` | `lib-forms-wrapper` | Formularz wyboru skali/akordu/custom pattern (z `guitar-toolbox-lib`) | `../guitar-toolbox` |
+| `ToolboxBuilderComponent` | `app-toolbox-builder` | Formularz wyboru skali/akordu/interwału (sentence-style UI) | `src/app/toolbox` |
 | `ChatComponent` | `lib-chat` | **POSTPONED** — czat AI | `projects/guitar-chat` |
 | `AISuggestionsComponent` | `lib-ai-suggestions` | **POSTPONED** — sugestie AI | `projects/guitar-chat` |
 | `FooterComponent` | `app-footer` | Stopka strony z informacjami o projekcie | `src/app/footer` |
@@ -55,15 +54,15 @@ Logika teorii muzyki (skale, akordy, interwały) jest obliczana lokalnie przez *
 
 ### 3. Komunikacja Toolbox → UI (FretboardCommand)
 
-Toolbox (`FormsWrapperComponent`) komunikuje się z `HomePageComponent` przez event `FretboardCommand`:
+Toolbox (`ToolboxBuilderComponent`) komunikuje się z `HomePageComponent` przez event `FretboardCommand`:
 
 ```typescript
-// Z guitar-toolbox-lib
+// src/app/toolbox/model.ts
 type FretboardCommand =
-  | { kind: 'scale'; key: string; scaleType: string }
-  | { kind: 'chord'; key: string; chordType: string }
-  | { kind: 'intervalPattern'; key: string; intervals: number[] }
-  | { kind: 'scaleChordRelation'; scaleKey: string; scaleType: string; chordKey: string; chordType: string };
+  | { kind: 'scale'; key: MusicKey; scaleType: string }
+  | { kind: 'chord'; key: MusicKey; chordType: string }
+  | { kind: 'interval'; key: MusicKey; interval: Interval }
+  | { kind: 'scaleChordRelation'; scaleKey: MusicKey; scaleType: string; chordKey: MusicKey; chordType: string };
 ```
 
 `HomePageComponent.onToolboxEvent()` dispatchuje bezpośrednio do serwisów — **nie używa już Command Pattern**.
@@ -106,7 +105,7 @@ SCALE_PATTERNS             // 26 patternów skal
 ## Przepływ Danych
 
 ```
-User → FormsWrapperComponent (select type, pattern, key)
+User → ToolboxBuilderComponent (select type, pattern, key)
   → HomePageComponent.onToolboxEvent(FretboardCommand)
     → FretboardOrchestrationService.displayScale / displayChord / displayCustomPattern / displayScaleWithChord
       → [Tonal.js] scaleGet() / chordGet() → string[]
@@ -121,7 +120,7 @@ User → FormsWrapperComponent (select type, pattern, key)
 ### Przepływ Scale-Chord (tryb scale-chord)
 
 ```
-FormsWrapperComponent (wybór skali + akordu)
+ToolboxBuilderComponent (wybór skali + akordu)
   → HomePageComponent.onToolboxEvent({ kind: 'scaleChordRelation' })
     → FretboardOrchestrationService.displayScaleWithChord(scale, root, chord, chordRoot)
       → [Tonal.js] scaleGet(root, scaleName) → scale notes
@@ -147,7 +146,7 @@ FormsWrapperComponent (wybór skali + akordu)
 Każda odpowiedzialność w osobnej klasie: `FretboardNotePositionService` → geometria, `FretboardStateService` → stan, `MarkerRoleService` → role wizualne, `FretboardNoteQueryService` → zapytania.
 
 ### 3. Event-driven Communication
-Toolbox komunikuje się z `HomePageComponent` przez `@Output() toolboxEv: EventEmitter<FretboardCommand>` — prostsze niż Command Pattern, wystarczające dla obecnej architektury.
+Toolbox komunikuje się z `HomePageComponent` przez `@Output() toolboxEvent: EventEmitter<FretboardCommand>` — prostsze niż Command Pattern, wystarczające dla obecnej architektury.
 
 ## Silnik Teorii Muzyki (Tonal.js)
 
@@ -189,25 +188,25 @@ const environment = {
 
 Brak `apiUrl` — wszystkie obliczenia są lokalne (Tonal.js).
 
-## Integracja z guitar-toolbox-lib
+## Toolbox (`src/app/toolbox/`)
 
-Toolbox jest lokalnym workspace (nie npm package):
+Toolbox jest wbudowany bezpośrednio w aplikację jako `src/app/toolbox/` (3 pliki źródłowe):
 
-```json
-// package.json
-"guitar-toolbox-lib": "file:../guitar-toolbox/dist/guitar-toolbox-lib"
-```
+| Plik | Odpowiedzialność |
+|------|-----------------|
+| `toolbox-builder.component.ts` | Główny komponent toolbox (sentence-style UI) |
+| `dropdown.component.ts` | Reużywalny dropdown z filtrowaniem |
+| `model.ts` | Typy: `FretboardCommand`, `MusicKey`, `Interval` |
 
-### Kontrakt integracji
+### Kontrakt
 
 | Aspekt | Szczegóły |
 |--------|-----------|
-| **Event** | `@Output() toolboxEv: EventEmitter<FretboardCommand>` |
-| **Selektor** | `lib-forms-wrapper` |
-| **Styling** | CSS Custom Properties (patrz ARCHITECTURE.md w toolbox) |
-| **Build** | `cd ../guitar-toolbox && ng build guitar-toolbox-lib` przed `npm run build` w GNUI |
+| **Event** | `@Output() toolboxEvent: EventEmitter<FretboardCommand>` |
+| **Selektor** | `app-toolbox-builder` |
+| **Styling** | CSS Custom Properties (patrz niżej) |
 
-### CSS Custom Properties API (kontrakt z toolbox)
+### CSS Custom Properties API
 
 | Variable | Fallback | Kategoria |
 |----------|----------|-----------|
