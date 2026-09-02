@@ -9,8 +9,8 @@ The current mode of the application, determining which UI controls and visualiza
 Values: `'custom-pattern'` (custom interval builder), `'scale-or-chord'` (single scale/chord learning, default), `'scale-chord'` (scale-chord relation comparison).
 _Avoid_: View, screen, state
 
-**FormsWrapperComponent**:
-The toolbox component from `guitar-toolbox-lib` (selector `lib-forms-wrapper`). Provides three modes: Show (scale/chord), Compare (scale+chord), Build (custom pattern). Communicates via `@Output() toolboxEv: EventEmitter<FretboardCommand>`.
+**ToolboxBuilderComponent**:
+The toolbox component from `src/app/toolbox/` (selector `app-toolbox-builder`). Provides three modes: Show (scale/chord/interval), Compare (scale+chord). Communicates via `@Output() toolboxEvent: EventEmitter<FretboardCommand>`.
 _Avoid_: ToolboxFormComponent, toolbox form
 
 **FretboardCommand**:

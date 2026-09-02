@@ -13,8 +13,8 @@ import { LegendComponent } from '../legend/legend.component';
 import { PatternDisplayComponent } from '../pattern-display/pattern-display.component';
 import { MetronomeComponent } from '../metronome/metronome.component';
 import { RelationshipStripComponent } from '../relationship-strip/relationship-strip.component';
-import { FretboardCommand } from 'guitar-toolbox-lib';
-import { ToolboxBuilderComponent } from 'guitar-toolbox-lib';
+import { FretboardCommand } from '../toolbox/model';
+import { ToolboxBuilderComponent } from '../toolbox/toolbox-builder.component';
 import { ChatComponent } from '../../../projects/guitar-chat/src/lib/components/chat/chat.component';
 import { spellNote } from '../shared/note-utils';
 

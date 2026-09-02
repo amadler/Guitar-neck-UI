@@ -14,7 +14,7 @@ a projekt stosuje [Semantic Versioning](https://semver.org/).
 - `FretboardNoteQueryService` — query helper for fretboard note lookups ([`src/app/services/fretboard-note-query.service.ts`](src/app/services/fretboard-note-query.service.ts))
 - `PatternBuilderService` — builds PatternInfo for UI display ([`src/app/services/pattern-builder.service.ts`](src/app/services/pattern-builder.service.ts))
 - `FretboardDisplayService` — CSS class decision layer for markers ([`src/app/services/fretboard-display.service.ts`](src/app/services/fretboard-display.service.ts))
-- `FormsWrapperComponent` from `guitar-toolbox-lib` — new toolbox form (selector `lib-forms-wrapper`)
+- `ToolboxBuilderComponent` from `src/app/toolbox/` — new toolbox form (selector `app-toolbox-builder`)
 - `FretboardCommand` event type for toolbox → UI communication
 - Fallback resolution for exotic scales/chords not in Tonal.js ([`src/app/services/tonal-facade.service.ts`](src/app/services/tonal-facade.service.ts))
 - `tonal-adapter.ts` — pattern name mapping (UI → Tonal) and interval name mapping ([`src/app/shared/tonal-adapter.ts`](src/app/shared/tonal-adapter.ts))
@@ -25,6 +25,7 @@ a projekt stosuje [Semantic Versioning](https://semver.org/).
 - Default app mode: `'idle'` → `'scale-or-chord'` (no start screen, app starts immediately with toolbox)
 - Toolbox: local `ToolboxFormComponent` → `FormsWrapperComponent` from `guitar-toolbox-lib` ([`src/app/home-page/home-page.component.ts`](src/app/home-page/home-page.component.ts:14))
 - `guitar-toolbox-lib` dependency: `^1.0.2` → `file:../guitar-toolbox/dist/guitar-toolbox-lib` ([`package.json`](package.json:30))
+- **2026-09-02:** `guitar-toolbox-lib` inlined into `src/app/toolbox/` — removed external dependency
 - `FretboardOrchestrationService` — interval logic moved inline, added Tonal.js resolution with fallback ([`src/app/services/fretboard-orchestration.service.ts`](src/app/services/fretboard-orchestration.service.ts))
 - `FretboardStateService` — added `activeStrings`, `markerDisplayMode`, `hasActiveResult`, `currentSelection`, O(1) `notesMap` ([`src/app/services/fretboard-state.service.ts`](src/app/services/fretboard-state.service.ts))
 - Environment config — removed `apiUrl`, removed `music-theory-api` references ([`src/environments/environment.ts`](src/environments/environment.ts))

@@ -81,7 +81,6 @@ Guitar Neck UI to interaktywne narzędzie edukacyjne zaprojektowane, aby pomóc 
 - **Tonal.js** — lokalny silnik teorii muzyki (skale, akordy, interwały). Żadnego backendu.
 - **Gemini AI** — (**POSTPONED**) silnik AI dla sugestii muzycznych, wymaga klucza API
 - **guitar-neck-shared** — npm pakiet z patternami i konfiguracją gryfu
-- **guitar-toolbox-lib** — lokalny workspace z komponentem toolbox (FormsWrapperComponent)
 
 ## Planowany Rozwój
 - Cloudflare Pages deployment (zastępuje Docker/VPS)

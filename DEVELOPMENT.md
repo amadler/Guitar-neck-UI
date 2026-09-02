@@ -5,7 +5,7 @@
 - **Frontend:** Angular 18.2, TypeScript 5.5, RxJS 7.8
 - **Teoria muzyki:** Tonal.js 4 (`@tonaljs/tonal`) — lokalny silnik, bez backendu
 - **Testy:** Karma 6.4, Jasmine 5.2, ChromeHeadless
-- **Pakiety:** `guitar-neck-shared` ^1.0.2, `guitar-toolbox-lib` (lokalny workspace)
+- **Pakiety:** `guitar-neck-shared` ^1.0.2
 - **AI (POSTPONED):** Gemini AI API (biblioteka `projects/guitar-chat`)
 
 ## Uruchomienie Projektu
@@ -31,15 +31,6 @@ npm run watch       # ng build --watch --configuration development
 npm test            # ng test → Karma + ChromeHeadless
 ```
 
-### Biblioteka guitar-toolbox-lib (wymagana przed buildem)
-Toolbox jest lokalnym workspace. Przed pierwszym buildem GNUI:
-```bash
-cd ../guitar-toolbox
-npm install
-ng build guitar-toolbox-lib
-cd ../Guitar\ neck\ UI
-npm start
-```
 
 ### Biblioteka guitar-chat (AI)
 ```bash
