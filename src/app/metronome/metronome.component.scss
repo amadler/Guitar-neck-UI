@@ -8,6 +8,41 @@ $beat-dot-accent-size: 7px;
   gap: 12px;
 }
 
+.metronome__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.metronome__toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: var(--app-muted);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background 0.15s, color 0.15s;
+}
+
+.metronome__toggle-btn:hover {
+  background: var(--md-surface-container-low);
+  color: var(--app-text);
+}
+
+.metronome__toggle-arrow {
+  display: inline-block;
+  font-size: 10px;
+  transition: transform 0.2s ease;
+}
+
+.metronome__toggle-arrow--open {
+  transform: rotate(90deg);
+}
+
 .metronome__title {
   margin: 0;
   font-size: 15px;
