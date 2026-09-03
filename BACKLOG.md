@@ -178,3 +178,66 @@ execute(command: DomainCommand): DomainResult<DomainState> {
 ## Status
 
 OPEN
+
+# P5: Stale state after compare → single pattern (marker colors + duplicate chord display)
+
+## Motivation
+
+Two related state-clearing bugs when switching from Compare mode to a single pattern:
+
+1. **Stale marker styles:** [`displayScale()`](src/app/services/fretboard-orchestration.service.ts:26) and [`displayChord()`](src/app/services/fretboard-orchestration.service.ts:35) do not clear `scaleChordState`, so [`getMarkerCssClass()`](src/app/services/fretboard-display.service.ts:26) returns empty string and [`getRoleCssClass()`](src/app/services/fretboard-display.service.ts:62) returns stale role CSS from the previous compare session.
+
+2. **Stale relatedChord in PatternDisplay:** [`handleShowPattern()`](src/app/domain/domain.service.ts:104) calls `patternBuilder.setCurrentPattern()` but does NOT clear `patternBuilder.relatedChord`. Since [`PatternDisplayComponent`](src/app/pattern-display/pattern-display.component.ts:22-28) shows both `currentPattern` and `relatedChord`, the chord pattern appears twice after compare → show-chord.
+
+## Solution
+
+1. Add `this.guitarNeckService.scaleChordState = null;` at the start of both `displayScale()` and `displayChord()` in [`FretboardOrchestrationService`](src/app/services/fretboard-orchestration.service.ts).
+2. Add `this.patternBuilder.relatedChord = null;` in [`handleShowPattern()`](src/app/domain/domain.service.ts:104) after `setCurrentPattern()`.
+
+## MVP
+
+- `scaleChordState` is cleared in `displayScale()` and `displayChord()`
+- `relatedChord` is cleared in `handleShowPattern()`
+- After compare → show-scale, markers show interval-based colors
+- After compare → show-chord, pattern display shows chord only once
+- All existing tests pass
+
+## Done when
+
+- `npm test` passes
+- `npm run build` succeeds
+- Manual test: Compare (e.g. C major + Cmaj7) → Show Scale (C major) → markers show interval colors, not role colors
+- Manual test: Compare (e.g. C major + Cmaj7) → Show Chord (Cmaj7) → pattern display shows chord once, not twice
+
+## Status
+
+OPEN
+
+# P6: Compare mode — marker display mode forced to note-names
+
+## Motivation
+
+In Compare mode (scale + chord relation), the marker display mode selector from [`<app-legend>`](src/app/legend/legend.component.html:24-34) is hidden because [`home-page.component.html`](src/app/home-page/home-page.component.html:24-27) shows `<app-relationship-strip>` instead. The `interval-colors` option is meaningless in compare mode because role-based CSS overrides interval colors anyway. Only `note-names` and `neutral-dots` would be useful.
+
+## Solution
+
+Force the marker display mode to `note-names` when entering Compare mode. This is a pragmatic decision: in compare mode, markers show role-based colors (scale-tone, chord-tone, etc.), so interval colors are irrelevant. Note names provide the most useful information alongside role colors.
+
+Implementation: in [`handleComparePatterns()`](src/app/domain/domain.service.ts:152), set `markerDisplayMode: 'note-names'` in the emitted state.
+
+## MVP
+
+- Compare mode always uses `note-names` marker display mode
+- Switching back to Show Scale/Chord restores the previous marker display mode
+- All existing tests pass
+
+## Done when
+
+- `npm test` passes
+- `npm run build` succeeds
+- Manual test: Compare mode → markers show note names, not interval colors
+- Manual test: Switch back to Show Scale → previous marker display mode is restored
+
+## Status
+
+OPEN

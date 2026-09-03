@@ -116,6 +116,7 @@ export class DomainService {
     }
 
     this.patternBuilder.setCurrentPattern(patternName, rootNote, patternType);
+    this.patternBuilder.relatedChord = null; // clear stale relatedChord from compare mode
 
     return this.emitState({
       ...this.currentState,
