@@ -9,9 +9,6 @@ Jednolite API dla wszystkich klientów (Toolbox, AI, konsola). Zdefiniowane w [`
  * @file src/app/domain/domain.service.ts
  */
 class DomainService {
-  /** Observable stanu — immutable snapshot po każdej komendzie */
-  state$: Observable<DomainState>;
-
   /** Bieżący snapshot stanu (getter synchroniczny) */
   currentState: DomainState;
 

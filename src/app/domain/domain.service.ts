@@ -1,5 +1,4 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Injectable, signal } from '@angular/core';
 import { SCALE_PATTERNS, CHORD_PATTERNS } from 'guitar-neck-shared';
 import { DomainCommand } from './commands';
 import { DomainQuery, GetPatternDetailsResult } from './queries';
@@ -19,21 +18,18 @@ type QueryHandler = (query: any) => DomainResult<any>;
  *
  * Accepts DomainCommand (user intents) and DomainQuery (read requests).
  * Validates inputs via DomainValidator, delegates to existing application services,
- * and maintains immutable DomainState via BehaviorSubject.
+ * and maintains immutable DomainState via signal.
  *
  * Both Toolbox and AI use this same service.
  * Commands are dispatched via Registry Pattern — no switch/if-else chains.
  */
 @Injectable({ providedIn: 'root' })
 export class DomainService {
-  private stateSubject = new BehaviorSubject<DomainState>(DEFAULT_DOMAIN_STATE);
-
-  /** Observable stream of state snapshots. */
-  state$: Observable<DomainState> = this.stateSubject.asObservable();
+  private stateSignal = signal<DomainState>(DEFAULT_DOMAIN_STATE);
 
   /** Current state snapshot. */
   get currentState(): DomainState {
-    return this.stateSubject.value;
+    return this.stateSignal();
   }
 
   /** Saved marker display mode to restore after Compare mode. */
@@ -251,7 +247,7 @@ export class DomainService {
   // ─── Helpers ─────────────────────────────────────────────────────────
 
   private emitState(newState: DomainState): DomainResult<DomainState> {
-    this.stateSubject.next(newState);
+    this.stateSignal.set(newState);
     return { success: true, data: newState };
   }
 }

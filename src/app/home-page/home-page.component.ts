@@ -1,4 +1,4 @@
-import { Component, signal, ApplicationRef } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { NgIf } from '@angular/common';
 import { DomainService } from '../domain/domain.service';
 import { DomainCommand } from '../domain/commands';
@@ -44,16 +44,9 @@ export class HomePageComponent {
 
   constructor(
     private domainService: DomainService,
-    private appRef: ApplicationRef,
   ) {
     // Expose DomainService for console testing in dev mode
     (window as any).__ds = domainService;
-
-    // Subscribe to state changes to trigger change detection
-    // when commands are executed from console (outside Angular zone)
-    this.domainService.state$.subscribe(() => {
-      this.appRef.tick();
-    });
   }
 
   onRangeChange(range: { minFret: number; maxFret: number }): void {
