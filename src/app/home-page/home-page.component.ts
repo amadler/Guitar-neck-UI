@@ -1,9 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ApplicationRef } from '@angular/core';
 import { NgIf } from '@angular/common';
-import { AppStateService } from '../app-state.service';
-import { FretboardStateService } from '../services/fretboard-state.service';
-import { PatternBuilderService } from '../services/pattern-builder.service';
-import { FretboardOrchestrationService } from '../services/fretboard-orchestration.service';
+import { DomainService } from '../domain/domain.service';
+import { DomainCommand } from '../domain/commands';
 import { GuitarNeckComponent } from '../guitar-neck/guitar-neck.component';
 import { RangeToolbarComponent } from '../range-toolbar/range-toolbar.component';
 import { environment } from '../../environments/environment';
@@ -13,10 +11,8 @@ import { LegendComponent } from '../legend/legend.component';
 import { PatternDisplayComponent } from '../pattern-display/pattern-display.component';
 import { MetronomeComponent } from '../metronome/metronome.component';
 import { RelationshipStripComponent } from '../relationship-strip/relationship-strip.component';
-import { FretboardCommand } from '../toolbox/model';
 import { ToolboxBuilderComponent } from '../toolbox/toolbox-builder.component';
 import { ChatComponent } from '../../../projects/guitar-chat/src/lib/components/chat/chat.component';
-import { spellNote } from '../shared/note-utils';
 
 export type DisplayMode = 'legend' | 'relationship' | null;
 
@@ -46,88 +42,53 @@ export class HomePageComponent {
   displayMode = signal<DisplayMode>(null);
 
   constructor(
-    private appState: AppStateService,
-    private guitarNeckService: FretboardStateService,
-    private fretboardOrchestrationService: FretboardOrchestrationService,
-    private patternBuilder: PatternBuilderService,
-  ) { }
+    private domainService: DomainService,
+    private appRef: ApplicationRef,
+  ) {
+    // Expose DomainService for console testing in dev mode
+    (window as any).__ds = domainService;
+
+    // Subscribe to state changes to trigger change detection
+    // when commands are executed from console (outside Angular zone)
+    this.domainService.state$.subscribe(() => {
+      this.appRef.tick();
+    });
+  }
 
   onRangeChange(range: { minFret: number; maxFret: number }): void {
-    this.guitarNeckService.fretRange = range;
+    // TODO: handle range change through DomainService.setView()
   }
 
-  onToolboxEvent(command: FretboardCommand): void {
-    this.guitarNeckService.clearFretboard();
-    this.patternBuilder.clearCurrentPattern();
-    switch (command.kind) {
-      case 'scale':
-        this.handleShowScale(command);
+  /**
+   * Handle DomainCommand from Toolbox (or any client).
+   * Delegates to DomainService for standard commands,
+   * handles interval show as a special case.
+   */
+  onToolboxEvent(command: DomainCommand): void {
+    switch (command.type) {
+      case 'show-pattern':
+      case 'show-interval':
+        this.domainService.execute(command);
+        this.displayMode.set('legend');
         break;
-      case 'chord':
-        this.handleShowChord(command);
+
+      case 'compare-patterns':
+        this.domainService.execute(command);
+        this.displayMode.set('relationship');
         break;
-      case 'interval':
-        this.handleShowInterval(command);
+
+      case 'set-view':
+        this.domainService.execute(command);
         break;
-      case 'scaleChordRelation':
-        this.handleCompare(command);
+
+      case 'set-emphasis':
+        this.domainService.execute(command);
+        break;
+
+      case 'clear-view':
+        this.domainService.execute(command);
+        this.displayMode.set(null);
         break;
     }
-  }
-
-  private handleShowScale(command: FretboardCommand & { kind: 'scale' }): void {
-    const { key, scaleType } = command;
-    this.appState.setMode('scale-or-chord');
-    this.fretboardOrchestrationService.displayScale(scaleType, key);
-    this.patternBuilder.setCurrentPattern(scaleType, key, 'scale');
-    this.guitarNeckService.scaleChordState = {
-      scale: { type: 'scale', name: scaleType, rootNote: key },
-      chord: null,
-    };
-    this.displayMode.set('legend');
-  }
-
-  private handleShowChord(command: FretboardCommand & { kind: 'chord' }): void {
-    const { key, chordType } = command;
-    this.appState.setMode('scale-or-chord');
-    this.fretboardOrchestrationService.displayChord(chordType, key);
-    this.patternBuilder.setCurrentPattern(chordType, key, 'chord');
-    this.displayMode.set('legend');
-  }
-
-  private handleShowInterval(command: FretboardCommand & { kind: 'interval' }): void {
-    const { key, interval } = command;
-    if (!key || !interval) return;
-    this.appState.setMode('scale-or-chord');
-
-    const semitoneMap: Record<string, number> = {
-      '1': 0, 'b2': 1, '2': 2, 'b3': 3, '3': 4,
-      '4': 5, 'b5': 6, '5': 7, 'b6': 8, '6': 9,
-      'b7': 10, '7': 11,
-    };
-    const semitone = semitoneMap[interval];
-    if (semitone === undefined) return;
-
-    // Use spellNote() to get the correct enharmonic spelling:
-    // minor intervals (b2, b3, b5, b6, b7) → flat spellings (Db, Eb, Gb, Ab, Bb)
-    // major/perfect intervals → sharp spellings
-    // This ensures Tonal's distance() returns the expected interval name.
-    const note = spellNote(key, semitone, interval);
-    const notes = [key, note];
-    this.fretboardOrchestrationService.displayCustomPattern(notes, key);
-    this.displayMode.set('legend');
-  }
-
-  private handleCompare(command: FretboardCommand & { kind: 'scaleChordRelation' }): void {
-    const { scaleKey, scaleType, chordKey, chordType } = command;
-
-    this.appState.setMode('scale-chord');
-    this.fretboardOrchestrationService.displayScaleWithChord(
-      scaleType, scaleKey, chordType, chordKey,
-    );
-
-    this.patternBuilder.setCurrentPattern(scaleType, scaleKey, 'scale');
-    this.patternBuilder.setRelatedChord(chordType, chordKey);
-    this.displayMode.set('relationship');
   }
 }

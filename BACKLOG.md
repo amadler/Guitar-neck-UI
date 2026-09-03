@@ -128,3 +128,53 @@ Update the popup content in [`header.component.html`](src/app/header/header.comp
 ## Status
 
 OPEN
+
+# Registry Pattern dla DomainService
+
+## Motivation
+
+Obecny [`DomainService`](src/app/domain/domain.service.ts) używa switch statement do dyspozycji komend. Łamie to OCP (Open-Closed Principle) — dodanie nowej komendy wymaga modyfikacji switcha. Registry Pattern pozwala na rejestrację handlerów w konstruktorze, co daje zero ifów/switchów w `execute()`.
+
+## Solution
+
+Zastąpić switch w `DomainService.execute()` registry patternem:
+
+```typescript
+type CommandHandler = (command: any) => DomainResult<DomainState>;
+
+private handlers = new Map<string, CommandHandler>();
+
+constructor() {
+  this.handlers.set('show-pattern', (c) => this.handleShowPattern(c));
+  this.handlers.set('show-interval', (c) => this.handleShowInterval(c));
+  this.handlers.set('compare-patterns', (c) => this.handleComparePatterns(c));
+  this.handlers.set('set-view', (c) => this.handleSetView(c));
+  this.handlers.set('set-emphasis', (c) => this.handleSetEmphasis(c));
+  this.handlers.set('clear-view', (_c) => this.handleClearView());
+}
+
+execute(command: DomainCommand): DomainResult<DomainState> {
+  const handler = this.handlers.get(command.type);
+  if (!handler) {
+    return { success: false, error: DomainError.UNKNOWN_COMMAND, message: `Unknown: ${command.type}` };
+  }
+  return handler(command);
+}
+```
+
+## MVP
+
+- Registry pattern w `DomainService.execute()`
+- Wszystkie istniejące testy przechodzą
+- `npm run build` succeeds
+
+## Done when
+
+- `DomainService.execute()` nie zawiera switch/if-else dla dyspozycji komend
+- Nową komendę można dodać przez jeden wpis w `handlers.set()`
+- `npm test` passes
+- `npm run build` succeeds
+
+## Status
+
+OPEN

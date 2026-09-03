@@ -1,11 +1,11 @@
 import { Component, Output, EventEmitter, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { neckConfig, SCALE_PATTERNS, CHORD_PATTERNS } from 'guitar-neck-shared';
-import { FretboardCommand, MusicKey, ShowKind, ToolboxIntent, Interval } from './model';
+import { DomainCommand, ShowPatternCommand, ComparePatternsCommand } from '../domain/commands';
 import { DropdownComponent } from './dropdown.component';
 
 export interface IntervalOption {
-  symbol: Interval;
+  symbol: string;
   label: string;
 }
 
@@ -27,6 +27,12 @@ const INTERVAL_OPTIONS: IntervalOption[] = [
 const DEFAULT_SCALE_TYPE = 'major';
 const DEFAULT_CHORD_TYPE = 'major';
 
+export type ToolboxIntent = 'show' | 'compare';
+export type ShowKind = 'chord' | 'scale' | 'interval';
+export type MusicKey =
+  | 'C' | 'C#' | 'D' | 'D#' | 'E' | 'F'
+  | 'F#' | 'G' | 'G#' | 'A' | 'A#' | 'B';
+
 @Component({
   selector: 'app-toolbox-builder',
   standalone: true,
@@ -36,10 +42,9 @@ const DEFAULT_CHORD_TYPE = 'major';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ToolboxBuilderComponent {
-  @Output() toolboxEvent: EventEmitter<FretboardCommand> = new EventEmitter<FretboardCommand>();
+  @Output() toolboxEvent: EventEmitter<DomainCommand> = new EventEmitter<DomainCommand>();
 
   // --- Data sources ---
-  /** @todo Move to guitar-neck-shared alongside intervalDefinitions. */
   musicKeys: MusicKey[] = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
   scalePatternNames = SCALE_PATTERNS.map(s => s.name);
   chordPatternNames = CHORD_PATTERNS.map(c => c.name);
@@ -80,26 +85,24 @@ export class ToolboxBuilderComponent {
       const kind = this.showKind();
       const key = this.selectedKey();
 
-      let command: FretboardCommand;
+      let command: DomainCommand;
       switch (kind) {
         case 'scale':
-          command = { kind: 'scale', key, scaleType: this.selectedScaleType() };
+          command = { type: 'show-pattern', patternType: 'scale', patternName: this.selectedScaleType(), rootNote: key } as ShowPatternCommand;
           break;
         case 'chord':
-          command = { kind: 'chord', key, chordType: this.selectedChordType() };
+          command = { type: 'show-pattern', patternType: 'chord', patternName: this.selectedChordType(), rootNote: key } as ShowPatternCommand;
           break;
         case 'interval':
-          command = { kind: 'interval', key, interval: this.selectedInterval().symbol };
+          command = { type: 'show-interval', rootNote: key, interval: this.selectedInterval().symbol };
           break;
       }
       this.toolboxEvent.emit(command);
     } else {
-      const command: FretboardCommand = {
-        kind: 'scaleChordRelation',
-        scaleKey: this.compareScaleKey(),
-        scaleType: this.compareScaleType(),
-        chordKey: this.compareChordKey(),
-        chordType: this.compareChordType(),
+      const command: ComparePatternsCommand = {
+        type: 'compare-patterns',
+        primary: { patternType: 'scale', patternName: this.compareScaleType(), rootNote: this.compareScaleKey() },
+        secondary: { patternType: 'chord', patternName: this.compareChordType(), rootNote: this.compareChordKey() },
       };
       this.toolboxEvent.emit(command);
     }
