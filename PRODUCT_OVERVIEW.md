@@ -83,7 +83,6 @@ Guitar Neck UI to interaktywne narzędzie edukacyjne zaprojektowane, aby pomóc 
 - **guitar-neck-shared** — npm pakiet z patternami i konfiguracją gryfu
 
 ## Planowany Rozwój
-- Cloudflare Pages deployment (zastępuje Docker/VPS)
 - Dodanie nowych wzorów muzycznych
 - Rozszerzenie możliwości AI
 - Wprowadzenie ćwiczeń i zadań
@@ -94,7 +93,7 @@ Guitar Neck UI to interaktywne narzędzie edukacyjne zaprojektowane, aby pomóc 
 ## Ograniczenia Techniczne
 - AI Chat (Gemini) — **wstrzymany**, wymaga klucza API i włączenia flagi `chatEnabled`
 - Logika teorii muzyki jest obliczana lokalnie przez Tonal.js — nie wymaga backendu
-- Deployment: obecnie brak (Docker usunięty), planowane Cloudflare Pages
+- Deployment: Cloudflare Pages (https://guitar-neck-ui.madler-andrzej.workers.dev/)
 
 ## Wsparcie
 - Dokumentacja użytkownika dostępna w aplikacji
