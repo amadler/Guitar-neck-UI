@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { GuitarNote } from '../shared/model/guitarNote';
+import { DomainService } from '../domain/domain.service';
 import { FretboardStateService } from '../services/fretboard-state.service';
 import { FretboardNoteQueryService } from '../services/fretboard-note-query.service';
 import { FretboardDisplayService } from '../services/fretboard-display.service';
@@ -21,6 +22,7 @@ export class FreatboardComponent implements OnInit {
   frets: number[] = [];
 
   constructor(
+    private domainService: DomainService,
     private guitarNeckService: FretboardStateService,
     private noteQueryService: FretboardNoteQueryService,
     private displayService: FretboardDisplayService
@@ -36,13 +38,13 @@ export class FreatboardComponent implements OnInit {
   }
 
   get fretRange() {
-    return this.guitarNeckService.fretRange;
+    return this.domainService.currentState.fretRange;
   }
 
   // -- Delegating properties: shield template from direct service access --
 
   get activeStrings(): boolean[] {
-    return this.guitarNeckService.activeStrings;
+    return this.domainService.currentState.enabledStrings;
   }
 
   get showNoteLabels(): boolean {
@@ -61,7 +63,7 @@ export class FreatboardComponent implements OnInit {
   // -- End delegating properties --
 
   protected isNoteInRange(fret: number): boolean {
-    return fret >= this.fretRange.minFret && fret <= this.fretRange.maxFret;
+    return fret >= this.fretRange.min && fret <= this.fretRange.max;
   }
 
   protected isNoteOnFret(stringIndex: number, fret: number) {
@@ -104,6 +106,10 @@ export class FreatboardComponent implements OnInit {
 
   /** Handle string toggle checkbox events from StringToggleComponent. */
   protected onStringToggled(event: { stringIndex: number; active: boolean }): void {
-    this.guitarNeckService.toggleString(event.stringIndex, event.active);
+    const enabled = [...this.domainService.currentState.enabledStrings];
+    if (event.stringIndex >= 0 && event.stringIndex < enabled.length) {
+      enabled[event.stringIndex] = event.active;
+    }
+    this.domainService.execute({ type: 'set-view', enabledStrings: enabled });
   }
 }

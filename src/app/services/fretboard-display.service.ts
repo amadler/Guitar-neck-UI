@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { DomainService } from '../domain/domain.service';
 import { FretboardStateService } from './fretboard-state.service';
 import { MarkerRoleService, MarkerRole } from './marker-role.service';
 
@@ -17,6 +18,7 @@ const ROLE_CSS: Record<MarkerRole, string> = {
 @Injectable({ providedIn: 'root' })
 export class FretboardDisplayService {
   constructor(
+    private domainService: DomainService,
     private guitarNeckService: FretboardStateService,
     private markerRoleService: MarkerRoleService,
   ) { }
@@ -27,7 +29,7 @@ export class FretboardDisplayService {
       return '';
     }
 
-    const mode = this.guitarNeckService.markerDisplayMode;
+    const mode = this.domainService.currentState.markerDisplayMode;
     if (mode === 'interval-colors' && interval) {
       return 'fretboard__dot--' + interval;
     }
@@ -38,7 +40,7 @@ export class FretboardDisplayService {
   }
 
   get showNoteLabels(): boolean {
-    return this.guitarNeckService.markerDisplayMode !== 'neutral-dots';
+    return this.domainService.currentState.markerDisplayMode !== 'neutral-dots';
   }
 
   getActiveIntervals(): string[] {

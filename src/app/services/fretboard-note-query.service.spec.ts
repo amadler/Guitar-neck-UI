@@ -3,17 +3,31 @@ import { FretboardNoteQueryService } from './fretboard-note-query.service';
 import { FretboardStateService } from './fretboard-state.service';
 import { FretboardNotePositionService } from './note.service';
 import { GuitarNote } from '../shared/model/guitarNote';
+import { DomainService } from '../domain/domain.service';
 
 describe('FretboardNoteQueryService', () => {
   let service: FretboardNoteQueryService;
   let guitarNeckService: FretboardStateService;
+  let domainService: jasmine.SpyObj<DomainService>;
+  let mockState: any;
 
   beforeEach(() => {
+    mockState = {
+      enabledStrings: [true, true, true, true, true, true],
+      markerDisplayMode: 'interval-colors',
+      fretRange: { min: 0, max: 24 },
+    };
+
+    domainService = jasmine.createSpyObj('DomainService', ['execute'], {
+      currentState: mockState,
+    });
+
     TestBed.configureTestingModule({
       providers: [
         FretboardNoteQueryService,
         FretboardStateService,
         FretboardNotePositionService,
+        { provide: DomainService, useValue: domainService },
       ],
     });
     service = TestBed.inject(FretboardNoteQueryService);
@@ -33,7 +47,7 @@ describe('FretboardNoteQueryService', () => {
     });
 
     it('should return false when the string is inactive', () => {
-      guitarNeckService.activeStrings[0] = false;
+      mockState.enabledStrings[0] = false;
       expect(service.isNoteOnFret(0, 0)).toBeFalse();
     });
 
@@ -61,7 +75,7 @@ describe('FretboardNoteQueryService', () => {
     });
 
     it('should return undefined when string is inactive', () => {
-      guitarNeckService.activeStrings[0] = false;
+      mockState.enabledStrings[0] = false;
       expect(service.getNote(0, 0)).toBeUndefined();
     });
 

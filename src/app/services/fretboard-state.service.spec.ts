@@ -2,7 +2,6 @@ import { TestBed } from '@angular/core/testing';
 import { FretboardStateService } from './fretboard-state.service';
 import { FretboardNotePositionService } from './note.service';
 import { GuitarNote } from '../shared/model/guitarNote';
-import { neckConfig } from 'guitar-neck-shared';
 
 describe('GuitarNeckService', () => {
   let service: FretboardStateService;
@@ -34,11 +33,6 @@ describe('GuitarNeckService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should initialize activeStrings with all true', () => {
-    expect(service.activeStrings.length).toBe(neckConfig.stringNotes.length);
-    expect(service.activeStrings.every(Boolean)).toBeTrue();
-  });
-
   it('should initialize notes from NoteService', () => {
     expect(noteServiceSpy.getAllPositions).toHaveBeenCalled();
     expect(service.notes).toEqual(mockNotes);
@@ -62,22 +56,6 @@ describe('GuitarNeckService', () => {
     expect(note3.note).toBe('A');
     expect(note3.string).toBe(1);
     expect(note3.fret).toBe(5);
-  });
-
-  describe('markerDisplayMode', () => {
-    it('should default to interval-colors', () => {
-      expect(service.markerDisplayMode).toBe('interval-colors');
-    });
-
-    it('should allow switching to note-names', () => {
-      service.markerDisplayMode = 'note-names';
-      expect(service.markerDisplayMode).toBe('note-names');
-    });
-
-    it('should allow switching to neutral-dots', () => {
-      service.markerDisplayMode = 'neutral-dots';
-      expect(service.markerDisplayMode).toBe('neutral-dots');
-    });
   });
 
   describe('selectNotes', () => {
@@ -123,35 +101,12 @@ describe('GuitarNeckService', () => {
     });
   });
 
-  describe('toggleString', () => {
-    it('should set a string as inactive', () => {
-      service.toggleString(0, false);
-      expect(service.activeStrings[0]).toBeFalse();
-    });
-
-    it('should set a string as active', () => {
-      service.toggleString(0, false);
-      service.toggleString(0, true);
-      expect(service.activeStrings[0]).toBeTrue();
-    });
-
-    it('should ignore out-of-range index', () => {
-      service.toggleString(99, false);
-      expect(service.activeStrings.every(Boolean)).toBeTrue();
-    });
-  });
-
   describe('clearFretboard', () => {
-    it('should clear notes, selections, and intervals but preserve activeStrings', () => {
-      service.toggleString(0, false);
-      service.toggleString(1, false);
+    it('should clear notes, selections, and intervals', () => {
       service.clearFretboard();
 
       expect(service.notes.every(note => !note.visible)).toBeTrue();
       expect(service.notes.every(note => !note.selected)).toBeTrue();
-      // activeStrings must persist — only the user can change them manually
-      expect(service.activeStrings[0]).toBeFalse();
-      expect(service.activeStrings[1]).toBeFalse();
     });
   });
 

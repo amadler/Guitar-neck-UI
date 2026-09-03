@@ -24,6 +24,7 @@ export class FretboardOrchestrationService {
 
   /** Wyświetla skalę na gryfie z oznaczeniem interwałów. */
   displayScale(scaleName: string, rootNote: string): GuitarNote[] {
+    this.guitarNeckService.scaleChordState = null; // clear stale compare state
     const { simplified, raw } = this.tonalFacade.resolvePattern(scaleName, rootNote, 'scale');
     const positions = this.noteService.findPositionsByScaleNotes(simplified);
     const highlighted = this.guitarNeckService.applyHighlightedNotes(positions);
@@ -34,6 +35,7 @@ export class FretboardOrchestrationService {
   /** Wyświetla akord na gryfie z oznaczeniem interwałów. */
   displayChord(triadType: string, rootNote: string): GuitarNote[] {
     this.clearFretboard();
+    this.guitarNeckService.scaleChordState = null; // clear stale compare state
     const { simplified, raw } = this.tonalFacade.resolvePattern(triadType, rootNote, 'chord');
     const positions = this.noteService.findPositionsByScaleNotes(simplified);
     const highlighted = this.guitarNeckService.applyHighlightedNotes(positions);

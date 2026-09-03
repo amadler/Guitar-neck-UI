@@ -1,6 +1,5 @@
 /* GuitarNeckService zarządza stanem gryfu.*/
 import { Injectable } from '@angular/core';
-import { neckConfig } from 'guitar-neck-shared';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { MusicSelection } from '../shared/model/music-selection';
 
@@ -11,23 +10,15 @@ export interface ScaleChordState {
 }
 import { FretboardNotePositionService } from './note.service';
 
-export type MarkerDisplayMode = 'interval-colors' | 'note-names' | 'neutral-dots';
-
 @Injectable({ providedIn: 'root' })
 export class FretboardStateService {
   notes: GuitarNote[];
-  /** Per-string active state. true = show notes on this string. Reset on clearFretboard(). */
-  activeStrings: boolean[];
-  /** Which visual mode the fretboard markers use. */
-  markerDisplayMode: MarkerDisplayMode = 'interval-colors';
   /** Whether there is an active result (notes highlighted/show all) on the fretboard. */
   hasActiveResult = false;
   /** Unified domain model describing what is currently selected. */
   currentSelection: MusicSelection | null = null;
   /** Dual selection state for scale + chord relation. null when no relation is active. */
   scaleChordState: ScaleChordState | null = null;
-  /** Current fret range filter. Updated by RangeToolbarComponent via home-page. */
-  fretRange = { minFret: 0, maxFret: 24 };
   /** O(1) lookup map keyed by "${string}-${fret}". Rebuilt when notes are initialized. */
   private notesMap: Map<string, GuitarNote> = new Map();
 
@@ -35,7 +26,6 @@ export class FretboardStateService {
     private noteService: FretboardNotePositionService,
   ) {
     this.notes = this.noteService.getAllPositions();
-    this.activeStrings = neckConfig.stringNotes.map(() => true);
     this.buildNotesMap();
   }
 
@@ -68,19 +58,6 @@ export class FretboardStateService {
     return this.notes.filter(note => note.selected);
   }
 
-  /** Toggle a single string on/off. Used by StringToggleComponent events. */
-  toggleString(index: number, active: boolean): void {
-    if (index >= 0 && index < this.activeStrings.length) {
-      this.activeStrings[index] = active;
-    }
-  }
-
-  /** Reset all strings to active. Called on clearFretboard(). */
-  // TODO: It looks dead.
-  private resetActiveStrings(): void {
-    this.activeStrings = neckConfig.stringNotes.map(() => true);
-  }
-
   hideAllNotes() {
     this.notes.forEach(note => note.visible = false);
   }
@@ -100,6 +77,6 @@ export class FretboardStateService {
     this.hasActiveResult = false;
     this.currentSelection = null;
     this.scaleChordState = null;
-    // Note: activeStrings are NOT reset here — they persist until the user manually toggles them.
+    // Note: enabledStrings are NOT reset here — they persist in DomainState until the user manually toggles them.
   }
 }
