@@ -93,3 +93,38 @@ Cloudflare Pages to darmowy hosting statyczny z automatycznym deploymentem z Git
 ## Status
 
 OPEN
+
+# P4: Update first-launch welcome popup content
+
+## Motivation
+
+The help modal (first-launch popup) in [`header.component.html`](src/app/header/header.component.html:18-31) lists what the app can do, but it's outdated. Since the popup was written, several features have been added:
+
+- **Compare mode** — Scale + Chord relation with 5 marker roles (scale-tone, chord-tone, etc.) and independent key/type selection
+- **Metronome** — built-in AudioContext engine with 2/4, 3/4, 4/4, 6/8 time signatures, 20–300 BPM, tap-tempo
+- **Pattern display panel** — shows scale/chord details (notes, intervals, semitones, steps) plus practice prompts
+- **Relationship strip** — replaces Legend in Compare mode, shows role legend + which chord tones are inside/outside the scale
+
+Additionally the line _"AI chat and practice features are planned"_ is misleading: practice prompts already exist (see [`practice-prompts.data.ts`](src/app/shared/practice-prompts.data.ts)), only AI chat remains postponed.
+
+## Solution
+
+Update the popup content in [`header.component.html`](src/app/header/header.component.html:18-31) to accurately describe all current features. Remove the "planned" note about practice features; keep the AI chat note as postponed if desired.
+
+## MVP
+
+- Popup lists all current features: notes, scales, chords, custom intervals, Compare mode, fret range, string toggle, marker display, metronome, pattern display with practice prompts
+- The "planned" line is corrected to reflect reality (practice exists, AI postponed)
+- Tests in [`header.component.spec.ts`](src/app/header/header.component.spec.ts) still pass (modal open/close logic unchanged)
+
+## Done when
+
+- Popup content matches the feature set described in [`PRODUCT_OVERVIEW.md`](PRODUCT_OVERVIEW.md)
+- No mention of practice features as "planned" — they exist
+- AI chat still noted as postponed (accurate)
+- `npm test` passes
+- `npm run build` succeeds
+
+## Status
+
+OPEN

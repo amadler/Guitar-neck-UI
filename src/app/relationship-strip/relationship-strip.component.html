@@ -1,16 +1,25 @@
 <div class="rel-strip" *ngIf="hasRelation">
   <div class="rel-strip__row">
     <div class="rel-strip__header">
-      Relationship: {{ scaleRoot }} {{ scaleName }} + {{ chordRoot }} {{ chordName }}
+      Relationship: {{ scaleRoot }} {{ scaleName }} + {{ chordRoot }}
+      {{ chordName }}
     </div>
 
     <div class="rel-strip__info">
       <span class="rel-strip__info-item">
-        Chord tones in scale: <strong>{{ chordTonesInScale.length > 0 ? chordTonesInScale.join(', ') : '(none)' }}</strong>
+        Chord tones in scale:
+        <strong>{{
+          chordTonesInScale.length > 0 ? chordTonesInScale.join(", ") : "(none)"
+        }}</strong>
       </span>
       <span class="rel-strip__info-separator">|</span>
       <span class="rel-strip__info-item rel-strip__info-item--outside">
-        Outside: <strong>{{ chordTonesOutsideScale.length > 0 ? chordTonesOutsideScale.join(', ') : '(none)' }}</strong>
+        Outside:
+        <strong>{{
+          chordTonesOutsideScale.length > 0
+            ? chordTonesOutsideScale.join(", ")
+            : "(none)"
+        }}</strong>
       </span>
     </div>
   </div>
@@ -21,9 +30,7 @@
       Scale Note
     </span>
     <span class="rel-legend__item">
-      <span class="rel-legend__dot rel-legend__dot--scale-root">
-        <span class="rel-legend__icon">👑</span>
-      </span>
+      <span class="rel-legend__dot rel-legend__dot--scale-root"> </span>
       Scale Root
     </span>
     <span class="rel-legend__item">
@@ -31,9 +38,7 @@
       Chord Tone in Scale
     </span>
     <span class="rel-legend__item">
-      <span class="rel-legend__dot rel-legend__dot--chord-root">
-        <span class="rel-legend__icon">★</span>
-      </span>
+      <span class="rel-legend__dot rel-legend__dot--chord-root"> </span>
       Chord Root
     </span>
     <span class="rel-legend__item">
