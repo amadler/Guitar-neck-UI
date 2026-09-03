@@ -241,7 +241,7 @@ Implementation: in [`handleComparePatterns()`](src/app/domain/domain.service.ts:
 
 ## Status
 
-OPEN
+FIXED
 
 # P7: DomainService — BehaviorSubject → signal
 
@@ -299,6 +299,72 @@ Changes needed:
 - `npm test` passes
 - `npm run build` succeeds
 - Manual test: all commands from toolbox still work correctly
+
+## Status
+
+OPEN
+
+# P8: Extract exotic patterns from tonal-adapter.ts into dedicated file
+
+## Motivation
+
+[`tonal-adapter.ts`](src/app/shared/tonal-adapter.ts:126-140) currently hardcodes two sets of pattern names that Tonal.js does not support:
+
+- `SCALES_NOT_IN_TONAL` — 8 scales (`melodic-minor-descending`, `neapolitan-minor`, `byzantine-scale`, `arabic-scale`, `japanese-scale`, `flamenco-scale`, `tritone-scale`, `custom_metal_riff`)
+- `CHORDS_NOT_IN_TONAL` — 1 chord (`add11`)
+
+These are checked in [`TonalFacadeService`](src/app/services/tonal-facade.service.ts:87-88) to decide whether to use Tonal.js or fallback to `guitar-neck-shared` patterns. This approach does not scale — adding a new exotic pattern requires:
+1. Adding to `SCALES_NOT_IN_TONAL` or `CHORDS_NOT_IN_TONAL` in `tonal-adapter.ts`
+2. Adding the pattern definition to `guitar-neck-shared` (npm package → release cycle)
+
+## Solution
+
+Create a local file [`exotic-patterns.ts`](src/app/shared/) that contains both the pattern definitions (name + intervals) and the set of names not in Tonal. This eliminates the dependency on `guitar-neck-shared` for pattern fallback and makes adding new patterns a single-file change.
+
+```typescript
+// src/app/shared/exotic-patterns.ts
+export interface ExoticPattern {
+  name: string;
+  intervals: number[];
+}
+
+export const EXOTIC_SCALES: ExoticPattern[] = [
+  { name: 'melodic-minor-descending', intervals: [2, 1, 2, 2, 1, 2, 2] },
+  // ...
+];
+
+export const EXOTIC_CHORDS: ExoticPattern[] = [
+  { name: 'add11', intervals: [4, 3, 5] },
+  // ...
+];
+
+/** Set of scale names not available in Tonal.js. */
+export const SCALES_NOT_IN_TONAL = new Set(EXOTIC_SCALES.map(s => s.name));
+
+/** Set of chord names not available in Tonal.js. */
+export const CHORDS_NOT_IN_TONAL = new Set(EXOTIC_CHORDS.map(c => c.name));
+```
+
+Then:
+1. Move `SCALES_NOT_IN_TONAL` and `CHORDS_NOT_IN_TONAL` from `tonal-adapter.ts` to `exotic-patterns.ts`
+2. Update `TonalFacadeService` to import from `exotic-patterns.ts` instead of `tonal-adapter.ts`
+3. Remove `guitar-neck-shared` dependency from `TonalFacadeService` (it already has `resolveFromPatterns()` which works with any `{name, intervals}[]`)
+
+## MVP
+
+- `exotic-patterns.ts` contains all exotic scale and chord definitions
+- `SCALES_NOT_IN_TONAL` and `CHORDS_NOT_IN_TONAL` are removed from `tonal-adapter.ts`
+- `TonalFacadeService` imports exotic patterns from the new file
+- Adding a new exotic pattern requires only editing `exotic-patterns.ts`
+- All existing tests pass
+
+## Done when
+
+- `grep -n 'SCALES_NOT_IN_TONAL\|CHORDS_NOT_IN_TONAL' src/app/shared/tonal-adapter.ts` returns zero results
+- `grep -n 'SCALES_NOT_IN_TONAL\|CHORDS_NOT_IN_TONAL' src/app/services/tonal-facade.service.ts` imports from `exotic-patterns.ts`
+- New exotic pattern can be added by editing one file (`exotic-patterns.ts`)
+- `npm test` passes
+- `npm run build` succeeds
 
 ## Status
 

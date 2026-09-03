@@ -36,6 +36,9 @@ export class DomainService {
     return this.stateSubject.value;
   }
 
+  /** Saved marker display mode to restore after Compare mode. */
+  private previousMarkerDisplayMode: DomainState['markerDisplayMode'] = 'interval-colors';
+
   private commandHandlers = new Map<string, CommandHandler>();
   private queryHandlers = new Map<string, QueryHandler>();
 
@@ -126,6 +129,7 @@ export class DomainService {
       compareTarget: undefined,
       emphasis: command.emphasis ?? this.currentState.emphasis,
       fretRange: command.fretRange ?? this.currentState.fretRange,
+      markerDisplayMode: this.previousMarkerDisplayMode, // restore saved mode from compare
     });
   }
 
@@ -167,6 +171,9 @@ export class DomainService {
     this.patternBuilder.setCurrentPattern(primary.patternName, primary.rootNote, primary.patternType);
     this.patternBuilder.setRelatedChord(secondary.patternName, secondary.rootNote);
 
+    // Save current marker display mode and force note-names for compare mode
+    this.previousMarkerDisplayMode = this.currentState.markerDisplayMode;
+
     return this.emitState({
       ...this.currentState,
       mode: 'scale-chord',
@@ -177,6 +184,7 @@ export class DomainService {
         patternName: secondary.patternName,
         patternType: secondary.patternType,
       },
+      markerDisplayMode: 'note-names',
     });
   }
 
