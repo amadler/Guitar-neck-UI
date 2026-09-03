@@ -43,31 +43,41 @@ npm run build-chat   # ng build guitar-chat → dist/guitar-chat
 guitar-neck-ui/
 ├── src/
 │   ├── app/
-│   │   ├── freatboard/                    # Renderowanie gryfu
+│   │   ├── domain/                       # Domain contract (commands, queries, state)
+│   │   │   ├── commands.ts              # DomainCommand types
+│   │   │   ├── queries.ts               # DomainQuery types
+│   │   │   ├── state.ts                 # DomainState, DomainError, DomainResult
+│   │   │   └── domain.service.ts        # DomainService — centralna fasada domenowa
+│   │   ├── freatboard/                   # Renderowanie gryfu
 │   │   │   └── freatboard.component.{ts,html,scss}
-│   │   ├── guitar-neck/                   # Kontener gryfu
-│   │   ├── home-page/                     # Główna strona (toolbox + gryf + metronom)
-│   │   ├── header/                        # Nagłówek strony
-│   │   ├── footer/                        # Stopka strony
-│   │   ├── legend/                        # Legenda interwałów
-│   │   ├── metronome/                     # Metronom z AudioContext
+│   │   ├── guitar-neck/                  # Kontener gryfu
+│   │   ├── home-page/                    # Główna strona (toolbox + gryf + metronom)
+│   │   ├── header/                       # Nagłówek strony
+│   │   ├── footer/                       # Stopka strony
+│   │   ├── legend/                       # Legenda interwałów
+│   │   ├── metronome/                    # Metronom z AudioContext
 │   │   │   ├── metronome-engine.service.ts
 │   │   │   └── metronome.component.{ts,html,scss}
-│   │   ├── pattern-display/               # Panel wyświetlania patternu + practice prompts
-│   │   ├── range-toolbar/                 # Selektor zakresu progów (presety)
-│   │   ├── string-toggle/                 # Włącznik/wyłącznik strun
-│   │   ├── services/                      # Serwisy aplikacji
+│   │   ├── pattern-display/              # Panel wyświetlania patternu + practice prompts
+│   │   ├── range-toolbar/                # Selektor zakresu progów (presety)
+│   │   ├── string-toggle/                # Włącznik/wyłącznik strun
+│   │   ├── toolbox/                      # Toolbox UI (sentence-style builder)
+│   │   │   ├── toolbox-builder.component.ts
+│   │   │   ├── dropdown.component.ts
+│   │   │   └── model.ts
+│   │   ├── services/                     # Serwisy aplikacji
 │   │   │   ├── fretboard-state.service.ts         # FretboardStateService
 │   │   │   ├── fretboard-orchestration.service.ts # FretboardOrchestrationService
 │   │   │   ├── tonal-facade.service.ts            # TonalFacadeService
 │   │   │   ├── note.service.ts                    # FretboardNotePositionService
-│   │   │   ├── fretboard-note-query.service.ts # FretboardNoteQueryService
-│   │   │   ├── fretboard-display.service.ts    # FretboardDisplayService
-│   │   │   ├── marker-role.service.ts          # MarkerRoleService
-│   │   │   └── pattern-builder.service.ts      # PatternBuilderService
+│   │   │   ├── fretboard-note-query.service.ts    # FretboardNoteQueryService
+│   │   │   ├── fretboard-display.service.ts       # FretboardDisplayService
+│   │   │   ├── marker-role.service.ts             # MarkerRoleService
+│   │   │   └── pattern-builder.service.ts         # PatternBuilderService
 │   │   └── shared/
 │   │       ├── UICommands.ts             # DEPRECATED — Command Pattern (do usunięcia)
-│   │       ├── interval-note.helper.ts   # Helper do nut z interwałów
+│   │       ├── note-utils.ts             # Helper do nut z interwałów
+│   │       ├── pattern-resolver.ts       # Resolver patternów
 │   │       ├── practice-prompts.data.ts  # Podpowiedzi ćwiczeń
 │   │       ├── tonal-adapter.ts          # Mapowanie nazw Tonal ↔ UI
 │   │       └── model/
@@ -79,6 +89,11 @@ guitar-neck-ui/
 │   │   └── environment.prod.ts          # Konfiguracja prod
 │   └── styles.scss                      # Globalne CSS + zmienne
 ├── projects/guitar-chat/                # AI chat (POSTPONED)
+├── docs/
+│   ├── adr/                             # Architecture Decision Records
+│   ├── api/                             # API documentation
+│   └── color-palette.md
+├── plans/                               # Plany implementacji
 ├── BACKLOG.md                           # Backlog projektu
 ├── AGENTS.md                            # Instrukcje dla agentów AI
 └── *.md                                 # Dokumentacja (ARCHITECTURE, API, PRODUCT)
@@ -141,5 +156,8 @@ W Cloudflare Workers dashboard → Triggers → Custom domains → dodaj domenę
 
 - Dokumentacja techniczna generowana przez Compodoc: `npm run compodoc`
 - Dokumentacja API: [`API_DOCUMENTATION.md`](API_DOCUMENTATION.md)
+- **Domain Contract API** (nowość): [`docs/api/domain-contract-api.md`](docs/api/domain-contract-api.md)
 - Architektura: [`ARCHITECTURE.md`](ARCHITECTURE.md)
+- ADR 0005 — Domain Contract: [`docs/adr/0005-domain-contract-toolbox-ai.md`](docs/adr/0005-domain-contract-toolbox-ai.md)
+- Glossary: [`docs/glossary.md`](docs/glossary.md)
 - Backlog: [`BACKLOG.md`](BACKLOG.md)

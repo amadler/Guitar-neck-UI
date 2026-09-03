@@ -1,5 +1,28 @@
 # Guitar Neck UI — Dokumentacja API
 
+## Domain Contract (nowość)
+
+Wspólny kontrakt domeny dla Toolbox i AI. Zdefiniowany w [`src/app/domain/`](src/app/domain/).
+
+- [Pełna dokumentacja Domain Contract API](docs/api/domain-contract-api.md)
+- [ADR 0005 — decyzje architektoniczne](docs/adr/0005-domain-contract-toolbox-ai.md)
+- [Glossary — Ubiquitous Language](docs/glossary.md)
+
+**W skrócie:** `DomainService` przyjmuje `DomainCommand` (intencje użytkownika) i `DomainQuery` (odczyt stanu), zwraca `DomainResult<T>`. Toolbox i AI używają tego samego kontraktu.
+
+```typescript
+// Przykład: AI woła to samo co Toolbox
+domainService.execute({
+  type: 'show-pattern',
+  patternType: 'scale',
+  patternName: 'minor-pentatonic',
+  rootNote: 'A'
+});
+
+// Odczyt stanu
+domainService.query({ type: 'get-current-view' });
+```
+
 ## Core Services
 
 ### FretboardOrchestrationService

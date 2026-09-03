@@ -100,6 +100,7 @@ Default: `https://guitar-neck-ui.pages.dev`
 src/
 ├── app/
 │   ├── home-page/           # Main page (aggregator)
+│   ├── domain/              # Domain contract (commands, queries, state)
 │   ├── guitar-neck/         # Fretboard container
 │   ├── freatboard/          # Fretboard grid (strings x frets)
 │   ├── services/            # Services (state, intervals, notes)
@@ -115,6 +116,9 @@ projects/
 - [Product overview](PRODUCT_OVERVIEW.md)
 - [Architecture](ARCHITECTURE.md)
 - [API docs](API_DOCUMENTATION.md)
+- [Domain Contract API](docs/api/domain-contract-api.md) — **nowość**: wspólny kontrakt dla Toolbox i AI
+- [ADR 0005 — decyzje architektoniczne](docs/adr/0005-domain-contract-toolbox-ai.md)
+- [Glossary — Ubiquitous Language](docs/glossary.md)
 - [Dev setup](DEVELOPMENT.md)
 - [Backlog](BACKLOG.md)
 
