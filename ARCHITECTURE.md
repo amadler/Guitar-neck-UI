@@ -35,7 +35,7 @@ Logika teorii muzyki (skale, akordy, interwały) jest obliczana lokalnie przez *
 
 | Serwis (klasa) | Plik | Odpowiedzialność |
 |---------------|------|-----------------|
-| `AppStateService` | `app-state.service.ts` | Tryb aplikacji: `custom-pattern` / `scale-or-chord` / `scale-chord` |
+| `DomainState.mode` | `src/app/domain/state.ts` | Tryb aplikacji: `'scale' | 'chord' | 'scale-chord' | 'custom'`. Ustawiany przez `DomainService`, czytany przez komponenty. Zastępuje usunięty `AppStateService`. |
 | `FretboardOrchestrationService` | `fretboard-orchestration.service.ts` | **Orkiestrator** — koordynuje pipeline: teoria → pozycje → podświetlenie → interwały. Używa TonalFacadeService. |
 | `FretboardStateService` | `fretboard-state.service.ts` | Stan gryfu — visible, selected, interval, ScaleChordState, activeStrings, markerDisplayMode |
 | `FretboardNotePositionService` | `note.service.ts` | Generuje mapę nut na gryfie, wyszukuje pozycje |

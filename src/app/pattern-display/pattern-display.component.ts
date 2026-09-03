@@ -1,6 +1,6 @@
 import { NgFor, NgIf } from '@angular/common';
 import { Component } from '@angular/core';
-import { AppStateService, AppMode } from '../app-state.service';
+import { DomainService } from '../domain/domain.service';
 import { PatternBuilderService } from '../services/pattern-builder.service';
 import { PRACTICE_PROMPTS, PromptType } from '../shared/practice-prompts.data';
 
@@ -13,13 +13,9 @@ import { PRACTICE_PROMPTS, PromptType } from '../shared/practice-prompts.data';
 })
 export class PatternDisplayComponent {
   constructor(
-    private appState: AppStateService,
+    private domainService: DomainService,
     private patternBuilder: PatternBuilderService,
   ) {}
-
-  get appMode(): AppMode {
-    return this.appState.appMode;
-  }
 
   // -- Delegating properties: shield template from direct service access --
 
@@ -32,7 +28,7 @@ export class PatternDisplayComponent {
   }
 
   get isScaleChordMode(): boolean {
-    return this.appMode === 'scale-chord';
+    return this.domainService.currentState.mode === 'scale-chord';
   }
 
   getPromptsForType(type: PromptType): string[] {

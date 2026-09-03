@@ -25,9 +25,9 @@ _Avoid_: Chord legend, relation legend
 The visual role of a note on the fretboard when both a scale and a chord are displayed. Values: `scale-tone`, `chord-tone` (belongs to both), `scale-root`, `chord-root`, `chord-tone-outside-scale` (belongs to chord but not scale).
 _Avoid_: Interval role, note role
 
-**AppStateService**:
-Service managing the current `AppMode` and providing reactive state for UI visibility. Separated from `FretboardStateService` to keep fretboard state independent of UI mode logic.
-_Avoid_: Mode service, UI state service
+**DomainState.mode**:
+The application mode stored in `DomainState.mode` (values: `'scale' | 'chord' | 'scale-chord' | 'custom'`). Set by `DomainService` command handlers. Components read it via `domainService.currentState.mode`. Replaces the former `AppStateService.appMode`.
+_Avoid_: AppMode, app state
 
 **ScaleChordState**:
 Dual selection state held by `FretboardStateService`, containing a `scale: MusicSelection` and an optional `chord: MusicSelection | null`. When `chord` is null, the app is in single-pattern mode (scale-only or chord-only).

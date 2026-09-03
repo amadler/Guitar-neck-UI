@@ -347,34 +347,12 @@ class FretboardDisplayService {
 }
 ```
 
-### AppStateService
-Zarządza trybem aplikacji (`AppMode`). Oddzielony od `FretboardStateService`,
-żeby stan gryfu był niezależny od logiki UI.
+### DomainState.mode (zastępuje AppStateService)
 
-```typescript
-/**
- * @file src/app/app-state.service.ts
- */
+Tryb aplikacji jest teraz przechowywany w `DomainState.mode` (zob. [`src/app/domain/state.ts`](../domain/state.ts)).
+Ustawiany przez `DomainService` przy wykonywaniu komend, czytany przez komponenty przez `domainService.currentState.mode`.
 
-type AppMode = 'custom-pattern' | 'scale-or-chord' | 'scale-chord';
-
-class AppStateService {
-  /** Observable dla reactive UI */
-  appMode$: Observable<AppMode>;
-
-  /** Bieżący tryb (getter synchroniczny) */
-  appMode: AppMode;
-
-  /** Ustawia tryb aplikacji. */
-  setMode(mode: AppMode): void;
-
-  /**
-   * Przełącza między trybami — zachowuje stan gryfu.
-   * Nic nie robi jeśli tryb jest ten sam.
-   */
-  switchMode(mode: AppMode): void;
-}
-```
+Usunięty `AppStateService` został zastąpiony przez canonical state w warstwie domenowej.
 
 ### PatternBuilderService
 Buduje `PatternInfo` dla UI — szczegóły wybranej skali/akordu (nuty, interwały, kroki W/H).
