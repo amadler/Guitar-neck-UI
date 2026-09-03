@@ -3,26 +3,18 @@ import { CommonModule } from '@angular/common';
 import { neckConfig, SCALE_PATTERNS, CHORD_PATTERNS } from 'guitar-neck-shared';
 import { DomainCommand, ShowPatternCommand, ComparePatternsCommand } from '../domain/commands';
 import { DropdownComponent } from './dropdown.component';
+import { INTERVAL_CONFIG } from '../shared/tonal-adapter';
 
 export interface IntervalOption {
   symbol: string;
   label: string;
 }
 
-const INTERVAL_OPTIONS: IntervalOption[] = [
-  { symbol: '1', label: 'unison' },
-  { symbol: 'b2', label: 'minor 2' },
-  { symbol: '2', label: 'major 2' },
-  { symbol: 'b3', label: 'minor 3' },
-  { symbol: '3', label: 'major 3' },
-  { symbol: '4', label: 'perfect 4' },
-  { symbol: 'b5', label: 'tritone' },
-  { symbol: '5', label: 'perfect 5' },
-  { symbol: 'b6', label: 'minor 6' },
-  { symbol: '6', label: 'major 6' },
-  { symbol: 'b7', label: 'minor 7' },
-  { symbol: '7', label: 'major 7' },
-];
+/** Derived from INTERVAL_CONFIG — single source of truth. */
+const INTERVAL_OPTIONS: IntervalOption[] = INTERVAL_CONFIG.map(i => ({
+  symbol: i.symbol,
+  label: i.label,
+}));
 
 const DEFAULT_SCALE_TYPE = 'major';
 const DEFAULT_CHORD_TYPE = 'major';

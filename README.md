@@ -122,6 +122,6 @@ projects/
 - [Dev setup](DEVELOPMENT.md)
 - [Backlog](BACKLOG.md)
 
-## Live preview (temporary)
+## Live preview
 
-https://guitar-neck-ui.onrender.com/
+https://guitar-neck-ui.madler-andrzej.workers.dev/

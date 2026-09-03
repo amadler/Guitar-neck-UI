@@ -43,8 +43,8 @@ a projekt stosuje [Semantic Versioning](https://semver.org/).
 - `LoadingService` — no HTTP calls remain
 - `toolbox.models.ts` — unused types removed
 
-### Planned
-- Cloudflare Pages deployment (replacing Docker/VPS)
+### Added
+- Cloudflare Pages deployment — `wrangler.toml` with SPA routing, live at https://guitar-neck-ui.madler-andrzej.workers.dev/
 
 ---
 
@@ -227,7 +227,7 @@ Migrate from Docker/VPS to Cloudflare Pages:
 
 ## Status
 
-OPEN
+FIXED
 
 ---
 
@@ -237,7 +237,6 @@ Full backlog is in [`BACKLOG.md`](BACKLOG.md). Open tasks:
 
 - Localization (pl/en) for practice prompts — internationalization of practice prompts
 - Metronome — visual beat indicator improvement — improvement of visual beat indicator
-- Cloudflare Pages Deployment — migration from Docker/VPS to Cloudflare Pages
 
 ---
 

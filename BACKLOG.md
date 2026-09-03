@@ -14,7 +14,7 @@ Each is a partial view of the same 12 intervals. Adding a new interval or fixing
 
 ## Solution
 
-Create a single `INTERVAL_CONFIG` array in `guitar-neck-shared` (the shared library already used by both projects) that contains all properties for each interval:
+Create a single `INTERVAL_CONFIG` array in [`tonal-adapter.ts`](src/app/shared/tonal-adapter.ts) (the existing single source of truth for interval mappings) that contains all properties for each interval:
 
 ```typescript
 export interface IntervalConfig {
@@ -28,14 +28,15 @@ export interface IntervalConfig {
 
 Then refactor all 5 consumers to derive their data from this single source.
 
+`tonal-adapter.ts` is the correct home because `IntervalConfig` includes `tonalName` (Tonal.js-specific) and `cssClass` (UI-specific) — these are adapter concerns, not pure music theory. `guitar-neck-shared` (npm package) would require a release cycle for every change.
+
 ## MVP
 
-- `INTERVAL_CONFIG` is exported from `guitar-neck-shared`
+- `INTERVAL_CONFIG` is exported from [`tonal-adapter.ts`](src/app/shared/tonal-adapter.ts)
 - Toolbox `INTERVAL_OPTIONS` is derived from `INTERVAL_CONFIG`
-- `home-page.component.ts` `semitoneMap` is replaced by lookup in `INTERVAL_CONFIG`
 - `pattern-builder.service.ts` `SEMITONE_TO_INTERVAL` is replaced by lookup in `INTERVAL_CONFIG`
 - `note-utils.ts` `CHROMA_TO_INTERVAL` is replaced by lookup in `INTERVAL_CONFIG`
-- `tonal-adapter.ts` `INTERVAL_MAP` is replaced by lookup in `INTERVAL_CONFIG`
+- `tonal-adapter.ts` `INTERVAL_MAP` is derived from `INTERVAL_CONFIG`
 - All existing tests pass
 
 ## Done when
@@ -48,7 +49,7 @@ Then refactor all 5 consumers to derive their data from this single source.
 
 ## Status
 
-OPEN
+FIXED
 
 # P3: Cloudflare Pages deployment
 
@@ -92,7 +93,7 @@ Cloudflare Pages to darmowy hosting statyczny z automatycznym deploymentem z Git
 
 ## Status
 
-OPEN
+FIXED
 
 # P4: Update first-launch welcome popup content
 
@@ -177,7 +178,7 @@ execute(command: DomainCommand): DomainResult<DomainState> {
 
 ## Status
 
-OPEN
+FIXED
 
 # P5: Stale state after compare → single pattern (marker colors + duplicate chord display)
 
@@ -211,7 +212,7 @@ Two related state-clearing bugs when switching from Compare mode to a single pat
 
 ## Status
 
-OPEN
+FIXED
 
 # P6: Compare mode — marker display mode forced to note-names
 
@@ -237,6 +238,67 @@ Implementation: in [`handleComparePatterns()`](src/app/domain/domain.service.ts:
 - `npm run build` succeeds
 - Manual test: Compare mode → markers show note names, not interval colors
 - Manual test: Switch back to Show Scale → previous marker display mode is restored
+
+## Status
+
+OPEN
+
+# P7: DomainService — BehaviorSubject → signal
+
+## Motivation
+
+[`DomainService`](src/app/domain/domain.service.ts:29) uses `BehaviorSubject<DomainState>` to manage application state. This requires a hack in [`HomePageComponent`](src/app/home-page/home-page.component.ts:54) — `this.domainService.state$.subscribe(() => this.appRef.tick())` — to force change detection when commands are executed from the browser console. Angular 18 has full signal support, which would:
+
+1. Eliminate the `appRef.tick()` hack — signals automatically trigger change detection
+2. Reduce boilerplate (no `BehaviorSubject` + `asObservable()` + getter)
+3. Align with the rest of the codebase (components already use signals)
+4. Enable future migration to zoneless change detection
+
+## Solution
+
+Replace `BehaviorSubject<DomainState>` with `signal<DomainState>` in `DomainService`:
+
+```typescript
+import { signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
+
+private state = signal<DomainState>(DEFAULT_DOMAIN_STATE);
+
+// Observable for external consumers (AI chat)
+state$: Observable<DomainState> = toObservable(this.state);
+
+get currentState(): DomainState {
+  return this.state();
+}
+
+private emitState(newState: DomainState): DomainResult<DomainState> {
+  this.state.set(newState);
+  return { success: true, data: newState };
+}
+```
+
+Changes needed:
+1. [`DomainService`](src/app/domain/domain.service.ts) — replace `BehaviorSubject` with `signal`, add `toObservable()` for `state$`
+2. [`HomePageComponent`](src/app/home-page/home-page.component.ts) — remove `appRef.tick()` subscription, remove `ApplicationRef` dependency
+3. All consumers of `currentState` — no changes needed (getter stays)
+4. Tests — verify `state$` subscription still works (may need `TestBed.flushEffects()`)
+
+## MVP
+
+- `DomainService` uses `signal<DomainState>` internally
+- `state$` is exposed as `Observable` via `toObservable()` for AI chat compatibility
+- `currentState` getter works identically
+- `HomePageComponent` no longer injects `ApplicationRef` or subscribes to `state$`
+- All existing tests pass
+
+## Done when
+
+- `grep -n 'BehaviorSubject' src/app/domain/domain.service.ts` returns zero results
+- `grep -n 'appRef.tick' src/app/` returns zero results
+- `grep -n 'ApplicationRef' src/app/home-page/home-page.component.ts` returns zero results
+- `npm test` passes
+- `npm run build` succeeds
+- Manual test: all commands from toolbox still work correctly
 
 ## Status
 
