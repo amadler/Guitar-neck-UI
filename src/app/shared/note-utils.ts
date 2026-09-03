@@ -29,21 +29,12 @@ export function samePitch(a: string, b: string): boolean {
 /**
  * Chroma-to-interval mapping: semitone distance → Tonal interval name.
  * Used as a spelling-safe alternative to Tonal's distance().
+ * Derived from INTERVAL_CONFIG in tonal-adapter.ts.
  */
-const CHROMA_TO_INTERVAL: Record<number, string> = {
-  0: '1P',   // root / perfect unison
-  1: '2m',   // minor 2nd
-  2: '2M',   // major 2nd
-  3: '3m',   // minor 3rd
-  4: '3M',   // major 3rd
-  5: '4P',   // perfect 4th
-  6: '5d',   // diminished 5th
-  7: '5P',   // perfect 5th
-  8: '6m',   // minor 6th
-  9: '6M',   // major 6th
-  10: '7m',  // minor 7th
-  11: '7M',  // major 7th
-};
+import { INTERVAL_CONFIG } from './tonal-adapter';
+
+const CHROMA_TO_INTERVAL: Record<number, string> =
+  Object.fromEntries(INTERVAL_CONFIG.map(i => [i.semitone, i.tonalName]));
 
 /**
  * Calculate the interval between two notes using pitch class only.

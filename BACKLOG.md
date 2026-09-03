@@ -48,7 +48,7 @@ Then refactor all 5 consumers to derive their data from this single source.
 
 ## Status
 
-OPEN
+FIXED
 
 # P3: Cloudflare Pages deployment
 

@@ -4,11 +4,11 @@ import { PatternInfo } from '../shared/model/patternInfo';
 import { MusicSelection } from '../shared/model/music-selection';
 import { FretboardStateService } from './fretboard-state.service';
 import { resolveNotesFromIntervals } from '../shared/pattern-resolver';
+import { INTERVAL_CONFIG } from '../shared/tonal-adapter';
 
-const SEMITONE_TO_INTERVAL: Record<number, string> = {
-  0: '1', 1: 'b2', 2: '2', 3: 'b3', 4: '3', 5: '4',
-  6: 'b5', 7: '5', 8: 'b6', 9: '6', 10: 'b7', 11: '7',
-};
+/** Maps semitone → interval symbol. Derived from INTERVAL_CONFIG. */
+const SEMITONE_TO_INTERVAL: Record<number, string> =
+  Object.fromEntries(INTERVAL_CONFIG.map(i => [i.semitone, i.symbol]));
 
 @Injectable({ providedIn: 'root' })
 export class PatternBuilderService {
