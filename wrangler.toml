@@ -1,0 +1,6 @@
+name = "guitar-neck-ui"
+compatibility_date = "2026-09-03"
+
+[assets]
+directory = "./dist/guitar-neck-ui/browser"
+not_found_handling = "single-page-application"

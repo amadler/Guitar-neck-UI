@@ -60,16 +60,22 @@ npm run build:prod        # production build → dist/guitar-neck-ui
 npm test                  # Karma / Jasmine
 ```
 
-## Deployment (Cloudflare Pages)
+## Deployment (Cloudflare Workers)
 
-The app is a static SPA (no backend) and is deployed via **Cloudflare Pages**.
+The app is deployed as a **Cloudflare Worker with static assets**. The [`wrangler.toml`](wrangler.toml) file in the repo root configures the SPA routing automatically.
 
-### Setup
+### How it works
 
-1. Connect the GitHub repository to Cloudflare Pages
-2. Build command: `npm run build:prod`
-3. Output directory: `dist/guitar-neck-ui/browser`
-4. After first deploy, go to Settings → toggle **SPA mode** ON (handles Angular routing on page refresh)
+- Cloudflare detects [`wrangler.toml`](wrangler.toml) and treats the project as a Worker with static assets
+- `not_found_handling = "single-page-application"` ensures Angular routing works on page refresh
+- No `_redirects` or `functions/` files needed
+
+### Setup in Cloudflare Dashboard
+
+1. Delete the existing project, then create a new one: **Workers & Pages → Create → Connect to Git** → select repo
+2. **Build command**: `npm run build:prod`
+3. **Build output directory**: `dist/guitar-neck-ui/browser`
+4. **Deploy command**: `npx wrangler deploy` (pre-filled by Cloudflare)
 
 ### Environment variables (Cloudflare Pages Secrets)
 

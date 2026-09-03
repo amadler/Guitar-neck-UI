@@ -65,30 +65,30 @@ Cloudflare Pages to darmowy hosting statyczny z automatycznym deploymentem z Git
 
 ## Solution
 
-1. Podłączyć repozytorium GitHub do Cloudflare Pages
-2. Skonfigurować build command: `npm run build:prod` (produkcyjny build Angular)
-3. Skonfigurować output directory: `dist/guitar-neck-ui/browser`
-4. Ustawić zmienne środowiskowe przez Cloudflare Pages Secrets (geminiApiKey — puste, chatEnabled: false)
-5. Włączyć **SPA mode** w Cloudflare Pages dashboard (Settings → SPA → ON) — to zapewnia Angular routing bez potrzeby plików `_redirects` w repo
-6. Przetestować deployment i ustawić domenę (np. `guitar-neck-ui.pages.dev`)
-7. Zaktualizować dokumentację: README.md, DEVELOPMENT.md — usunąć Docker/VPS, dodać Cloudflare Pages
+1. Dodać plik [`wrangler.toml`](wrangler.toml) z `not_found_handling = "single-page-application"` — Cloudflare wykryje go i skonfiguruje SPA routing
+2. Podłączyć repozytorium GitHub do Cloudflare Pages/Workers
+3. Skonfigurować build command: `npm run build:prod` (produkcyjny build Angular)
+4. Skonfigurować output directory: `dist/guitar-neck-ui/browser`
+5. Ustawić zmienne środowiskowe przez Cloudflare Secrets (geminiApiKey — puste, chatEnabled: false)
+6. Przetestować deployment i ustawić domenę
+7. Zaktualizować dokumentację
 
 ## MVP
 
-- Repozytorium podłączone do Cloudflare Pages
+- Plik [`wrangler.toml`](wrangler.toml) w repo z `not_found_handling = "single-page-application"`
+- Repozytorium podłączone do Cloudflare (Workers static assets)
 - Build i deploy automatycznie z gałęzi `master`
-- Aplikacja działa pod domeną `.pages.dev`
-- SPA mode włączony w Cloudflare Pages dashboard (Angular routing działa bez dodatkowych plików)
+- Aplikacja działa pod domeną `.workers.dev`
 - Dokumentacja zaktualizowana
 
 ## Done when
 
-- `https://guitar-neck-ui.pages.dev` (lub własna domena) wyświetla aplikację
+- `https://guitar-neck-ui.madler-andrzej.workers.dev` (lub własna domena) wyświetla aplikację
 - `npm run build:prod` produkuje poprawny build
 - Automatyczny deployment działa na push do `master`
-- Angular routing działa (odświeżenie strony nie powoduje 404) — SPA mode włączony w Cloudflare dashboard
+- Angular routing działa (odświeżenie strony nie powoduje 404) — obsłużone przez `not_found_handling` w [`wrangler.toml`](wrangler.toml)
 - `README.md` i `DEVELOPMENT.md` nie zawierają już instrukcji Docker/VPS
-- Wszystkie zmienne środowiskowe są ustawione w Cloudflare Pages dashboard
+- Wszystkie zmienne środowiskowe są ustawione w Cloudflare dashboard
 
 ## Status
 

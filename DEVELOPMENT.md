@@ -98,37 +98,44 @@ export const environment = {
 
 Brak `apiUrl` — wszystkie obliczenia są lokalne (Tonal.js).
 
-## Deployment (Cloudflare Pages)
+## Deployment (Cloudflare Workers — static assets)
 
-Aplikacja jest statycznym SPA (cała logika muzyczna po stronie klienta przez Tonal.js) i deployowana na **Cloudflare Pages** (darmowy hosting statyczny).
+Aplikacja jest statycznym SPA deployowanym jako **Cloudflare Worker z assetami statycznymi**. Plik [`wrangler.toml`](wrangler.toml) w katalogu głównym repo konfiguruje SPA routing.
+
+### Jak to działa
+
+- Cloudflare wykrywa [`wrangler.toml`](wrangler.toml) i traktuje projekt jako Worker z assetami statycznymi
+- `not_found_handling = "single-page-application"` zapewnia Angular routing przy odświeżeniu strony
+- Żadne dodatkowe pliki (`_redirects`, `functions/`, `_middleware.ts`) nie są potrzebne
 
 ### Wymagania
 - Konto Cloudflare ([dash.cloudflare.com](https://dash.cloudflare.com))
 - Repozytorium pushnięte na GitHub
-- `npm run build:prod` produkuje `dist/guitar-neck-ui/`
 
-### Konfiguracja w Cloudflare Pages Dashboard
+### Konfiguracja w Cloudflare Dashboard
 
-1. **Podłącz repozytorium**: Cloudflare Dashboard → Workers & Pages → Create → Connect to Git → wybierz repozytorium
-2. **Build command**: `npm run build:prod`
-3. **Output directory**: `dist/guitar-neck-ui/browser`
-4. **SPA mode**: Po pierwszym deployu, w Cloudflare Pages dashboard → Settings → włącz **SPA mode** (toggle). Dzięki temu Angular routing działa przy odświeżeniu strony — bez potrzeby plików `_redirects` w repo.
-5. **Environment variables** (Production):
+1. **Usuń istniejący projekt** (jeśli istnieje): Workers & Pages → `guitar-neck-ui` → Settings → Danger zone → Delete
+2. **Stwórz nowy**: Workers & Pages → Create → Connect to Git → wybierz repozytorium
+3. **Build command**: `npm run build:prod`
+4. **Build output directory**: `dist/guitar-neck-ui/browser`
+5. **Deploy command**: `npx wrangler deploy` (pre-filled przez Cloudflare)
 
-   | Variable | Value |
-   |---|---|
-   | `geminiApiKey` | (pusty string) |
-   | `chatEnabled` | `false` |
+### Environment variables (Production)
+
+| Variable | Value |
+|---|---|
+| `geminiApiKey` | (pusty string) |
+| `chatEnabled` | `false` |
 
 ### Automatyczny deployment
 
-Po podłączeniu każdy push do gałęzi `master` automatycznie:
+Po podłączeniu każdy push do `master` automatycznie:
 1. Odpala `npm run build:prod`
-2. Publikuje zawartość `dist/guitar-neck-ui` na `https://guitar-neck-ui.pages.dev`
+2. Publikuje na `https://guitar-neck-ui.madler-andrzej.workers.dev`
 
 ### Własna domena (opcjonalnie)
 
-W Cloudflare Pages dashboard → Custom domains → dodaj domenę (wymaga DNS prowadzonego przez Cloudflare).
+W Cloudflare Workers dashboard → Triggers → Custom domains → dodaj domenę.
 
 ## Dokumentacja
 
