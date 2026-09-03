@@ -69,11 +69,7 @@ The app is a static SPA (no backend) and is deployed via **Cloudflare Pages**.
 1. Connect the GitHub repository to Cloudflare Pages
 2. Build command: `npm run build:prod`
 3. Output directory: `dist/guitar-neck-ui/browser`
-4. Add SPA fallback rule (see below)
-
-### SPA fallback (Angular routing)
-
-Cloudflare Pages Functions handle SPA routing automatically via the [`functions/_middleware.ts`](functions/_middleware.ts) file. This catch-all middleware serves `index.html` for any route that doesn't match a static file (like `.js`, `.css`, `.png`), ensuring Angular routing works on page refresh.
+4. After first deploy, go to Settings → toggle **SPA mode** ON (handles Angular routing on page refresh)
 
 ### Environment variables (Cloudflare Pages Secrets)
 

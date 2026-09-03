@@ -67,9 +67,9 @@ Cloudflare Pages to darmowy hosting statyczny z automatycznym deploymentem z Git
 
 1. Podłączyć repozytorium GitHub do Cloudflare Pages
 2. Skonfigurować build command: `npm run build:prod` (produkcyjny build Angular)
-3. Skonfigurować output directory: `dist/guitar-neck-ui`
+3. Skonfigurować output directory: `dist/guitar-neck-ui/browser`
 4. Ustawić zmienne środowiskowe przez Cloudflare Pages Secrets (geminiApiKey — puste, chatEnabled: false)
-5. Skonfigurować SPA fallback (dla Angular routing) — Cloudflare Pages wymaga reguły `/_redirects` lub `_headers` dla SPA
+5. Włączyć **SPA mode** w Cloudflare Pages dashboard (Settings → SPA → ON) — to zapewnia Angular routing bez potrzeby plików `_redirects` w repo
 6. Przetestować deployment i ustawić domenę (np. `guitar-neck-ui.pages.dev`)
 7. Zaktualizować dokumentację: README.md, DEVELOPMENT.md — usunąć Docker/VPS, dodać Cloudflare Pages
 
@@ -78,7 +78,7 @@ Cloudflare Pages to darmowy hosting statyczny z automatycznym deploymentem z Git
 - Repozytorium podłączone do Cloudflare Pages
 - Build i deploy automatycznie z gałęzi `master`
 - Aplikacja działa pod domeną `.pages.dev`
-- Plik `functions/_middleware.ts` dla SPA fallback (obsługa Angular routing przez Pages Functions)
+- SPA mode włączony w Cloudflare Pages dashboard (Angular routing działa bez dodatkowych plików)
 - Dokumentacja zaktualizowana
 
 ## Done when
@@ -86,7 +86,7 @@ Cloudflare Pages to darmowy hosting statyczny z automatycznym deploymentem z Git
 - `https://guitar-neck-ui.pages.dev` (lub własna domena) wyświetla aplikację
 - `npm run build:prod` produkuje poprawny build
 - Automatyczny deployment działa na push do `master`
-- Angular routing działa (odświeżenie strony nie powoduje 404) — obsłużone przez [`functions/_middleware.ts`](functions/_middleware.ts)
+- Angular routing działa (odświeżenie strony nie powoduje 404) — SPA mode włączony w Cloudflare dashboard
 - `README.md` i `DEVELOPMENT.md` nie zawierają już instrukcji Docker/VPS
 - Wszystkie zmienne środowiskowe są ustawione w Cloudflare Pages dashboard
 
