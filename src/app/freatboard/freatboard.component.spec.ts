@@ -4,6 +4,7 @@ import { FretboardStateService } from '../services/fretboard-state.service';
 import { FretboardNoteQueryService } from '../services/fretboard-note-query.service';
 import { FretboardDisplayService } from '../services/fretboard-display.service';
 import { FretboardNotePositionService } from '../services/note.service';
+import { DomainService } from '../domain/domain.service';
 import { ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { neckConfig } from 'guitar-neck-shared';
@@ -13,12 +14,29 @@ describe('FreatboardComponent', () => {
   let fixture: ComponentFixture<FreatboardComponent>;
   let guitarNeckService: FretboardStateService;
   let noteService: FretboardNotePositionService;
-
+  let domainService: jasmine.SpyObj<DomainService>;
+  let mockState: any;
 
   beforeEach(async () => {
+    mockState = {
+      fretRange: { min: 0, max: 24 },
+      enabledStrings: [true, true, true, true, true, true],
+      markerDisplayMode: 'interval-colors',
+    };
+
+    domainService = jasmine.createSpyObj('DomainService', ['execute'], {
+      currentState: mockState,
+    });
+
     await TestBed.configureTestingModule({
       imports: [ReactiveFormsModule, FreatboardComponent],
-      providers:[FretboardStateService, FretboardNotePositionService, FretboardDisplayService, FretboardNoteQueryService]
+      providers: [
+        FretboardStateService,
+        FretboardNotePositionService,
+        FretboardDisplayService,
+        FretboardNoteQueryService,
+        { provide: DomainService, useValue: domainService },
+      ]
     })
     .compileComponents();
 
@@ -82,11 +100,10 @@ describe('FreatboardComponent', () => {
     expect(component.onNoteClicked$.emit).toHaveBeenCalledOnceWith(jasmine.objectContaining({note:'E'}))
   });
 
-  it('should toggle string visibility via guitarNeckService', () => {
-    spyOn(guitarNeckService, 'toggleString');
+  it('should toggle string visibility via DomainService', () => {
     const toggle = fixture.debugElement.query(By.css('app-string-toggle'));
     toggle.triggerEventHandler('stringToggled', { stringIndex: 0, active: false });
     fixture.detectChanges();
-    expect(guitarNeckService.toggleString).toHaveBeenCalledWith(0, false);
+    expect(domainService.execute).toHaveBeenCalledWith({ type: 'set-view', enabledStrings: [false, true, true, true, true, true] });
   });
 });

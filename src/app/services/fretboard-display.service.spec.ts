@@ -3,19 +3,33 @@ import { FretboardDisplayService } from './fretboard-display.service';
 import { FretboardStateService } from './fretboard-state.service';
 import { MarkerRoleService } from './marker-role.service';
 import { FretboardNotePositionService } from './note.service';
+import { DomainService } from '../domain/domain.service';
 
 describe('FretboardDisplayService', () => {
   let service: FretboardDisplayService;
   let guitarNeckService: FretboardStateService;
   let markerRoleService: MarkerRoleService;
+  let domainService: jasmine.SpyObj<DomainService>;
+  let mockState: any;
 
   beforeEach(() => {
+    mockState = {
+      markerDisplayMode: 'interval-colors',
+      fretRange: { min: 0, max: 24 },
+      enabledStrings: [true, true, true, true, true, true],
+    };
+
+    domainService = jasmine.createSpyObj('DomainService', ['execute'], {
+      currentState: mockState,
+    });
+
     TestBed.configureTestingModule({
       providers: [
         FretboardDisplayService,
         FretboardStateService,
         MarkerRoleService,
         FretboardNotePositionService,
+        { provide: DomainService, useValue: domainService },
       ],
     });
     service = TestBed.inject(FretboardDisplayService);
@@ -38,20 +52,20 @@ describe('FretboardDisplayService', () => {
 
     it('should return interval class when no chord relation', () => {
       guitarNeckService.scaleChordState = null;
-      guitarNeckService.markerDisplayMode = 'interval-colors';
+      mockState.markerDisplayMode = 'interval-colors';
       expect(service.getMarkerCssClass('root')).toBe('fretboard__dot--root');
       expect(service.getMarkerCssClass('major-3rd')).toBe('fretboard__dot--major-3rd');
     });
 
     it('should return neutral class in note-names mode', () => {
       guitarNeckService.scaleChordState = null;
-      guitarNeckService.markerDisplayMode = 'note-names';
+      mockState.markerDisplayMode = 'note-names';
       expect(service.getMarkerCssClass('root')).toBe('fretboard__dot--neutral');
     });
 
     it('should return neutral-dot class in neutral-dots mode', () => {
       guitarNeckService.scaleChordState = null;
-      guitarNeckService.markerDisplayMode = 'neutral-dots';
+      mockState.markerDisplayMode = 'neutral-dots';
       expect(service.getMarkerCssClass('root')).toBe('fretboard__dot--neutral-dot');
     });
   });
@@ -91,17 +105,17 @@ describe('FretboardDisplayService', () => {
 
   describe('showNoteLabels', () => {
     it('should be true in interval-colors mode', () => {
-      guitarNeckService.markerDisplayMode = 'interval-colors';
+      mockState.markerDisplayMode = 'interval-colors';
       expect(service.showNoteLabels).toBeTrue();
     });
 
     it('should be true in note-names mode', () => {
-      guitarNeckService.markerDisplayMode = 'note-names';
+      mockState.markerDisplayMode = 'note-names';
       expect(service.showNoteLabels).toBeTrue();
     });
 
     it('should be false in neutral-dots mode', () => {
-      guitarNeckService.markerDisplayMode = 'neutral-dots';
+      mockState.markerDisplayMode = 'neutral-dots';
       expect(service.showNoteLabels).toBeFalse();
     });
   });

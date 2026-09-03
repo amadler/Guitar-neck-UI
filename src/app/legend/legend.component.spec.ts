@@ -4,16 +4,32 @@ import { By } from '@angular/platform-browser';
 import { LegendComponent } from './legend.component';
 import { FretboardStateService } from '../services/fretboard-state.service';
 import { FretboardDisplayService } from '../services/fretboard-display.service';
+import { DomainService } from '../domain/domain.service';
 
 describe('LegendComponent', () => {
   let component: LegendComponent;
   let fixture: ComponentFixture<LegendComponent>;
   let guitarNeckService: FretboardStateService;
+  let domainService: jasmine.SpyObj<DomainService>;
+  let mockState: any;
 
   beforeEach(async () => {
+    mockState = {
+      markerDisplayMode: 'interval-colors',
+      fretRange: { min: 0, max: 24 },
+      enabledStrings: [true, true, true, true, true, true],
+    };
+
+    domainService = jasmine.createSpyObj('DomainService', ['execute'], {
+      currentState: mockState,
+    });
+
     await TestBed.configureTestingModule({
       imports: [LegendComponent],
-      providers: [FretboardDisplayService]
+      providers: [
+        FretboardDisplayService,
+        { provide: DomainService, useValue: domainService },
+      ]
     })
     .compileComponents();
 
@@ -52,7 +68,7 @@ describe('LegendComponent', () => {
   });
 
   it('should switch display mode when dropdown changes', () => {
-    expect(guitarNeckService.markerDisplayMode).toBe('interval-colors');
+    expect(mockState.markerDisplayMode).toBe('interval-colors');
 
     const labels = fixture.debugElement.queryAll(By.css('.switch-line'));
     const markersLabel = labels.find(label =>
@@ -64,13 +80,13 @@ describe('LegendComponent', () => {
     select!.nativeElement.value = 'note-names';
     select!.nativeElement.dispatchEvent(new Event('change'));
     fixture.detectChanges();
-    expect(guitarNeckService.markerDisplayMode).toBe('note-names');
+    expect(domainService.execute).toHaveBeenCalledWith({ type: 'set-view', markerDisplayMode: 'note-names' });
 
     // Switch to neutral-dots
     select!.nativeElement.value = 'neutral-dots';
     select!.nativeElement.dispatchEvent(new Event('change'));
     fixture.detectChanges();
-    expect(guitarNeckService.markerDisplayMode).toBe('neutral-dots');
+    expect(domainService.execute).toHaveBeenCalledWith({ type: 'set-view', markerDisplayMode: 'neutral-dots' });
   });
 
   describe('markers select disabled state', () => {

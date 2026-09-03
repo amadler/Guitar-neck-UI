@@ -14,6 +14,7 @@ import { RelationshipStripComponent } from '../relationship-strip/relationship-s
 import { ToolboxBuilderComponent } from '../toolbox/toolbox-builder.component';
 import { ChatComponent } from '../../../projects/guitar-chat/src/lib/components/chat/chat.component';
 
+// TODO: Czy displayMode nie powinno być z DomainState.mode zsynchronizowane?
 export type DisplayMode = 'legend' | 'relationship' | null;
 
 @Component({
@@ -56,8 +57,7 @@ export class HomePageComponent {
   }
 
   onRangeChange(range: { minFret: number; maxFret: number }): void {
-    // TODO: handle range change through DomainService.setView()
-
+    this.domainService.execute({ type: 'set-view', fretRange: { min: range.minFret, max: range.maxFret } });
   }
 
   /**

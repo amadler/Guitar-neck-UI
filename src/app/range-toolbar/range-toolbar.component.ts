@@ -36,8 +36,6 @@ export class RangeToolbarComponent {
   customMax = neckConfig.numberOfFrets;
 
   selectPreset(preset: Preset): void {
-    debugger
-
     if (preset.label === 'Custom') {
       this.isCustom = true;
       this.activePreset = null;
