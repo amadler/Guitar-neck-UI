@@ -14,7 +14,7 @@ Each is a partial view of the same 12 intervals. Adding a new interval or fixing
 
 ## Solution
 
-Create a single `INTERVAL_CONFIG` array in `guitar-neck-shared` (the shared library already used by both projects) that contains all properties for each interval:
+Create a single `INTERVAL_CONFIG` array in [`tonal-adapter.ts`](src/app/shared/tonal-adapter.ts) (the existing single source of truth for interval mappings) that contains all properties for each interval:
 
 ```typescript
 export interface IntervalConfig {
@@ -28,14 +28,15 @@ export interface IntervalConfig {
 
 Then refactor all 5 consumers to derive their data from this single source.
 
+`tonal-adapter.ts` is the correct home because `IntervalConfig` includes `tonalName` (Tonal.js-specific) and `cssClass` (UI-specific) — these are adapter concerns, not pure music theory. `guitar-neck-shared` (npm package) would require a release cycle for every change.
+
 ## MVP
 
-- `INTERVAL_CONFIG` is exported from `guitar-neck-shared`
+- `INTERVAL_CONFIG` is exported from [`tonal-adapter.ts`](src/app/shared/tonal-adapter.ts)
 - Toolbox `INTERVAL_OPTIONS` is derived from `INTERVAL_CONFIG`
-- `home-page.component.ts` `semitoneMap` is replaced by lookup in `INTERVAL_CONFIG`
 - `pattern-builder.service.ts` `SEMITONE_TO_INTERVAL` is replaced by lookup in `INTERVAL_CONFIG`
 - `note-utils.ts` `CHROMA_TO_INTERVAL` is replaced by lookup in `INTERVAL_CONFIG`
-- `tonal-adapter.ts` `INTERVAL_MAP` is replaced by lookup in `INTERVAL_CONFIG`
+- `tonal-adapter.ts` `INTERVAL_MAP` is derived from `INTERVAL_CONFIG`
 - All existing tests pass
 
 ## Done when
