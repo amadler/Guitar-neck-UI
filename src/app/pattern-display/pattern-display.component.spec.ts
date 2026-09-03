@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
+import { DomainService } from '../domain/domain.service';
 import { PatternBuilderService } from '../services/pattern-builder.service';
 import { PatternInfo } from '../shared/model/patternInfo';
 
@@ -38,6 +39,7 @@ describe('PatternDisplayComponent', () => {
     await TestBed.configureTestingModule({
       imports: [PatternDisplayComponent],
       providers: [
+        DomainService,
         { provide: PatternBuilderService, useValue: mockState },
       ],
     }).compileComponents();
@@ -69,11 +71,11 @@ describe('PatternDisplayComponent', () => {
       mockState.currentPattern = scalePattern;
       fixture.detectChanges();
 
-      const promptsTitle = fixture.debugElement.query(By.css('.pattern-panel__prompts-title'));
+      const promptsTitle = fixture.debugElement.query(By.css('.pattern-card__prompts-title'));
       expect(promptsTitle).toBeTruthy();
-      expect(promptsTitle.nativeElement.textContent).toContain('Pomysły na ćwiczenia');
+      expect(promptsTitle.nativeElement.textContent).toContain('Practice ideas');
 
-      const items = fixture.debugElement.queryAll(By.css('.pattern-panel__prompt-item'));
+      const items = fixture.debugElement.queryAll(By.css('.pattern-card__prompt-item'));
       expect(items.length).toBe(5);
       expect(items[0].nativeElement.textContent).toContain('Graj gamę w górę i w dół');
     });
@@ -82,11 +84,11 @@ describe('PatternDisplayComponent', () => {
       mockState.currentPattern = chordPattern;
       fixture.detectChanges();
 
-      const promptsTitle = fixture.debugElement.query(By.css('.pattern-panel__prompts-title'));
+      const promptsTitle = fixture.debugElement.query(By.css('.pattern-card__prompts-title'));
       expect(promptsTitle).toBeTruthy();
-      expect(promptsTitle.nativeElement.textContent).toContain('Pomysły na ćwiczenia');
+      expect(promptsTitle.nativeElement.textContent).toContain('Practice ideas');
 
-      const items = fixture.debugElement.queryAll(By.css('.pattern-panel__prompt-item'));
+      const items = fixture.debugElement.queryAll(By.css('.pattern-card__prompt-item'));
       expect(items.length).toBe(5);
       expect(items[0].nativeElement.textContent).toContain('Uderz akord — wszystkie struny naraz');
     });
@@ -95,7 +97,7 @@ describe('PatternDisplayComponent', () => {
       mockState.currentPattern = null;
       fixture.detectChanges();
 
-      const panel = fixture.debugElement.query(By.css('.pattern-panel'));
+      const panel = fixture.debugElement.query(By.css('.pattern-card'));
       expect(panel).toBeNull();
     });
   });

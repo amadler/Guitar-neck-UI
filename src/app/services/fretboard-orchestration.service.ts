@@ -41,7 +41,8 @@ export class FretboardOrchestrationService {
     return highlighted;
   }
 
-  private clearFretboard(): void {
+  /** Clear the fretboard — reset notes, selection, and intervals. */
+  clearFretboard(): void {
     this.removeIntervals(this.guitarNeckService.notes);
     this.guitarNeckService.clearFretboard();
   }

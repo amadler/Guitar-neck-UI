@@ -32,6 +32,17 @@ export const INTERVAL_MAP: Record<string, IntervalName> = {
 };
 
 // ============================================================
+// Interval semitone mapping — single source of truth
+// ============================================================
+
+/** Maps interval symbol to semitone count. Used by DomainService.handleShowInterval(). */
+export const INTERVAL_SEMITONE_MAP: Record<string, number> = {
+  '1': 0, 'b2': 1, '2': 2, 'b3': 3, '3': 4,
+  '4': 5, 'b5': 6, '5': 7, 'b6': 8, '6': 9,
+  'b7': 10, '7': 11,
+};
+
+// ============================================================
 // Pattern name mapping: UI name → Tonal name
 // ============================================================
 

@@ -35,7 +35,7 @@ Logika teorii muzyki (skale, akordy, interwały) jest obliczana lokalnie przez *
 
 | Serwis (klasa) | Plik | Odpowiedzialność |
 |---------------|------|-----------------|
-| `AppStateService` | `app-state.service.ts` | Tryb aplikacji: `custom-pattern` / `scale-or-chord` / `scale-chord` |
+| `DomainState.mode` | `src/app/domain/state.ts` | Tryb aplikacji: `'scale' | 'chord' | 'scale-chord' | 'custom'`. Ustawiany przez `DomainService`, czytany przez komponenty. Zastępuje usunięty `AppStateService`. |
 | `FretboardOrchestrationService` | `fretboard-orchestration.service.ts` | **Orkiestrator** — koordynuje pipeline: teoria → pozycje → podświetlenie → interwały. Używa TonalFacadeService. |
 | `FretboardStateService` | `fretboard-state.service.ts` | Stan gryfu — visible, selected, interval, ScaleChordState, activeStrings, markerDisplayMode |
 | `FretboardNotePositionService` | `note.service.ts` | Generuje mapę nut na gryfie, wyszukuje pozycje |
@@ -52,20 +52,29 @@ Logika teorii muzyki (skale, akordy, interwały) jest obliczana lokalnie przez *
 | `AISuggestionService` | Zarządzanie sugestiami AI |
 | `AIFacadeService` | Fasada AI → UI |
 
-### 3. Komunikacja Toolbox → UI (FretboardCommand)
+### 3. Warstwa Domenowa — Domain Contract (nowość)
 
-Toolbox (`ToolboxBuilderComponent`) komunikuje się z `HomePageComponent` przez event `FretboardCommand`:
+Wspólny kontrakt domeny dla Toolbox i AI. Zdefiniowany w [`src/app/domain/`](src/app/domain/).
+
+- [Pełna dokumentacja API](docs/api/domain-contract-api.md)
+- [ADR 0005](docs/adr/0005-domain-contract-toolbox-ai.md)
+- [Glossary](docs/glossary.md)
+
+`DomainService` przyjmuje `DomainCommand` (intencje użytkownika) i `DomainQuery` (odczyt stanu), zwraca `DomainResult<T>`.
+
+### 4. Komunikacja Toolbox → DomainService
+
+Toolbox (`ToolboxBuilderComponent`) emituje `DomainCommand` zamiast starego `FretboardCommand`:
 
 ```typescript
-// src/app/toolbox/model.ts
-type FretboardCommand =
-  | { kind: 'scale'; key: MusicKey; scaleType: string }
-  | { kind: 'chord'; key: MusicKey; chordType: string }
-  | { kind: 'interval'; key: MusicKey; interval: Interval }
-  | { kind: 'scaleChordRelation'; scaleKey: MusicKey; scaleType: string; chordKey: MusicKey; chordType: string };
+// Toolbox emituje DomainCommand
+{ type: 'show-pattern', patternType: 'scale', patternName: 'major', rootNote: 'C' }
+{ type: 'show-pattern', patternType: 'chord', patternName: 'maj7', rootNote: 'C' }
+{ type: 'show-interval', rootNote: 'C', interval: 'b3' }
+{ type: 'compare-patterns', primary: {...}, secondary: {...} }
 ```
 
-`HomePageComponent.onToolboxEvent()` dispatchuje bezpośrednio do serwisów — **nie używa już Command Pattern**.
+`HomePageComponent.onToolboxEvent()` woła `DomainService.execute(command)`, który waliduje i deleguje do serwisów.
 
 ### 4. Model Danych
 

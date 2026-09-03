@@ -1,22 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RangeToolbarComponent } from './range-toolbar.component';
-import { AppStateService } from '../app-state.service';
 import { neckConfig } from 'guitar-neck-shared';
 
 describe('RangeToolbarComponent', () => {
   let component: RangeToolbarComponent;
   let fixture: ComponentFixture<RangeToolbarComponent>;
-  let appState: AppStateService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [RangeToolbarComponent],
-      providers: [AppStateService],
     }).compileComponents();
 
     fixture = TestBed.createComponent(RangeToolbarComponent);
     component = fixture.componentInstance;
-    appState = TestBed.inject(AppStateService);
     fixture.detectChanges();
   });
 
@@ -82,28 +78,6 @@ describe('RangeToolbarComponent', () => {
       component.applyCustom();
       expect(component.customMin).toBe(3);
       expect(component.customMax).toBe(10);
-    });
-  });
-
-  describe('switchMode', () => {
-    it('should toggle from scale-or-chord to scale-chord', () => {
-      expect(appState.appMode).toBe('scale-or-chord');
-      component.switchMode();
-      expect(appState.appMode).toBe('scale-chord');
-    });
-
-    it('should toggle from scale-chord to scale-or-chord', () => {
-      appState.setMode('scale-chord');
-      component.switchMode();
-      expect(appState.appMode).toBe('scale-or-chord');
-    });
-  });
-
-  describe('appMode', () => {
-    it('should reflect AppStateService mode', () => {
-      expect(component.appMode).toBe('scale-or-chord');
-      appState.setMode('scale-chord');
-      expect(component.appMode).toBe('scale-chord');
     });
   });
 });

@@ -1,8 +1,12 @@
 # ADR 0001: AppStateService for UI mode management
 
-**Status**: accepted (updated 2026-08-29)
+**Status**: SUPERSEDED by ADR 0005 (2026-09-03)
 
-The application mode (`custom-pattern`, `scale-or-chord`, `scale-chord`) is managed by a dedicated `AppStateService` rather than being added to the existing `FretboardStateService`.
+**Reason**: `AppStateService` has been removed. The application mode is now managed by `DomainState.mode` in [`src/app/domain/state.ts`](../domain/state.ts), set by `DomainService` command handlers. See [ADR 0005](0005-domain-contract-toolbox-ai.md) for the current architecture.
+
+---
+
+The application mode (`custom-pattern`, `scale-or-chord`, `scale-chord`) was managed by a dedicated `AppStateService` rather than being added to the existing `FretboardStateService`.
 
 **Context**: The plan initially proposed adding `appMode` directly to `FretboardStateService`. However, `FretboardStateService` owns fretboard state (notes, selection, string toggles, `scaleChordState`). `AppMode` is UI routing state — it controls which components are visible, not how the fretboard renders. Mixing them would violate SRP and make `FretboardStateService` harder to test and reason about.
 
