@@ -9,6 +9,7 @@ import { PatternBuilderService } from '../services/pattern-builder.service';
 import { TonalFacadeService, PatternType } from '../services/tonal-facade.service';
 import { PatternInfo } from '../shared/model/patternInfo';
 import { spellNote } from '../shared/note-utils';
+import { INTERVAL_SEMITONE_MAP } from '../shared/tonal-adapter';
 
 /**
  * DomainService — central facade for the domain contract.
@@ -172,19 +173,13 @@ export class DomainService {
       };
     }
 
-    // Validate interval
-    // TODO: Jedno źródło prawdy!!!
-    const semitoneMap: Record<string, number> = {
-      '1': 0, 'b2': 1, '2': 2, 'b3': 3, '3': 4,
-      '4': 5, 'b5': 6, '5': 7, 'b6': 8, '6': 9,
-      'b7': 10, '7': 11,
-    };
-    const semitone = semitoneMap[interval];
+    // Validate interval using single source of truth
+    const semitone = INTERVAL_SEMITONE_MAP[interval];
     if (semitone === undefined) {
       return {
         success: false,
         error: DomainError.INVALID_INTERVAL,
-        message: `Invalid interval: "${interval}". Valid intervals: ${Object.keys(semitoneMap).join(', ')}`,
+        message: `Invalid interval: "${interval}". Valid intervals: ${Object.keys(INTERVAL_SEMITONE_MAP).join(', ')}`,
       };
     }
 

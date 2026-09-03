@@ -29,9 +29,7 @@ const DEFAULT_CHORD_TYPE = 'major';
 
 export type ToolboxIntent = 'show' | 'compare';
 export type ShowKind = 'chord' | 'scale' | 'interval';
-export type MusicKey =
-  | 'C' | 'C#' | 'D' | 'D#' | 'E' | 'F'
-  | 'F#' | 'G' | 'G#' | 'A' | 'A#' | 'B';
+export type MusicKey = string;
 
 @Component({
   selector: 'app-toolbox-builder',
