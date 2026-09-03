@@ -57,6 +57,7 @@ export class HomePageComponent {
 
   onRangeChange(range: { minFret: number; maxFret: number }): void {
     // TODO: handle range change through DomainService.setView()
+
   }
 
   /**

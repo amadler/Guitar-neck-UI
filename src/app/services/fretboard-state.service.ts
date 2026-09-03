@@ -76,6 +76,7 @@ export class FretboardStateService {
   }
 
   /** Reset all strings to active. Called on clearFretboard(). */
+  // TODO: It looks dead.
   private resetActiveStrings(): void {
     this.activeStrings = neckConfig.stringNotes.map(() => true);
   }
