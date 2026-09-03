@@ -11,6 +11,9 @@ import { PatternInfo } from '../shared/model/patternInfo';
 import { spellNote } from '../shared/note-utils';
 import { INTERVAL_SEMITONE_MAP } from '../shared/tonal-adapter';
 
+type CommandHandler = (command: any) => DomainResult<DomainState>;
+type QueryHandler = (query: any) => DomainResult<any>;
+
 /**
  * DomainService — central facade for the domain contract.
  *
@@ -19,6 +22,8 @@ import { INTERVAL_SEMITONE_MAP } from '../shared/tonal-adapter';
  * and maintains immutable DomainState via BehaviorSubject.
  *
  * Both Toolbox and AI use this same service.
+ *
+ * Commands are dispatched via Registry Pattern — no switch/if-else chains.
  */
 @Injectable({ providedIn: 'root' })
 export class DomainService {
@@ -32,11 +37,40 @@ export class DomainService {
     return this.stateSubject.value;
   }
 
+  private commandHandlers = new Map<string, CommandHandler>();
+  private queryHandlers = new Map<string, QueryHandler>();
+
   constructor(
     private orchestration: FretboardOrchestrationService,
     private patternBuilder: PatternBuilderService,
     private tonalFacade: TonalFacadeService,
-  ) { }
+  ) {
+    this.registerCommandHandlers();
+    this.registerQueryHandlers();
+  }
+
+  // ─── Registry ─────────────────────────────────────────────────────────
+
+  private registerCommandHandlers(): void {
+    this.commandHandlers.set('show-pattern', (c) => this.handleShowPattern(c));
+    this.commandHandlers.set('show-interval', (c) => this.handleShowInterval(c));
+    this.commandHandlers.set('compare-patterns', (c) => this.handleComparePatterns(c));
+    this.commandHandlers.set('set-view', (c) => this.handleSetView(c));
+    this.commandHandlers.set('set-emphasis', (c) => this.handleSetEmphasis(c));
+    this.commandHandlers.set('clear-view', (_c) => this.handleClearView());
+  }
+
+  private registerQueryHandlers(): void {
+    this.queryHandlers.set('get-current-view', (_q) => ({ success: true as const, data: this.currentState }));
+    this.queryHandlers.set('get-available-patterns', (_q) => ({
+      success: true as const,
+      data: {
+        scales: SCALE_PATTERNS.map(p => p.name),
+        chords: CHORD_PATTERNS.map(p => p.name),
+      },
+    }));
+    this.queryHandlers.set('get-pattern-details', (q) => this.handleGetPatternDetails(q));
+  }
 
   // ─── Commands ───────────────────────────────────────────────────────
 
@@ -45,26 +79,15 @@ export class DomainService {
    * Returns the new state on success, or an error on validation failure.
    */
   execute(command: DomainCommand): DomainResult<DomainState> {
-    switch (command.type) {
-      case 'show-pattern':
-        return this.handleShowPattern(command);
-      case 'show-interval':
-        return this.handleShowInterval(command);
-      case 'compare-patterns':
-        return this.handleComparePatterns(command);
-      case 'set-view':
-        return this.handleSetView(command);
-      case 'set-emphasis':
-        return this.handleSetEmphasis(command);
-      case 'clear-view':
-        return this.handleClearView();
-      default:
-        return {
-          success: false,
-          error: DomainError.UNKNOWN_COMMAND,
-          message: `Unknown command type: ${(command as any).type}`,
-        };
+    const handler = this.commandHandlers.get(command.type);
+    if (!handler) {
+      return {
+        success: false,
+        error: DomainError.UNKNOWN_COMMAND,
+        message: `Unknown command type: ${(command as any).type}`,
+      };
     }
+    return handler(command);
   }
 
   // ─── Queries ─────────────────────────────────────────────────────────
@@ -74,28 +97,15 @@ export class DomainService {
    * Returns the requested data on success, or an error on failure.
    */
   query<T = unknown>(query: DomainQuery): DomainResult<T> {
-    switch (query.type) {
-      case 'get-current-view':
-        return { success: true, data: this.currentState as unknown as T };
-
-      case 'get-available-patterns': {
-        const data = {
-          scales: SCALE_PATTERNS.map(p => p.name),
-          chords: CHORD_PATTERNS.map(p => p.name),
-        } as unknown as T;
-        return { success: true, data };
-      }
-
-      case 'get-pattern-details':
-        return this.handleGetPatternDetails(query) as DomainResult<T>;
-
-      default:
-        return {
-          success: false,
-          error: DomainError.UNKNOWN_COMMAND,
-          message: `Unknown query type: ${(query as any).type}`,
-        };
+    const handler = this.queryHandlers.get(query.type);
+    if (!handler) {
+      return {
+        success: false,
+        error: DomainError.UNKNOWN_COMMAND,
+        message: `Unknown query type: ${(query as any).type}`,
+      };
     }
+    return handler(query) as DomainResult<T>;
   }
 
   // ─── Command handlers ────────────────────────────────────────────────
@@ -103,7 +113,6 @@ export class DomainService {
   private handleShowPattern(command: DomainCommand & { type: 'show-pattern' }): DomainResult<DomainState> {
     const { patternType, patternName, rootNote } = command;
 
-    // Validate pattern exists
     if (!this.isValidPattern(patternName, patternType)) {
       return {
         success: false,
@@ -115,7 +124,6 @@ export class DomainService {
       };
     }
 
-    // Validate root note
     if (!this.isValidRootNote(rootNote)) {
       return {
         success: false,
@@ -124,7 +132,6 @@ export class DomainService {
       };
     }
 
-    // Validate fret range if provided
     if (command.fretRange) {
       const { min, max } = command.fretRange;
       if (min < 0 || max > 24 || min > max) {
@@ -136,17 +143,14 @@ export class DomainService {
       }
     }
 
-    // Delegate to existing orchestration service
     if (patternType === 'scale') {
       this.orchestration.displayScale(patternName, rootNote);
     } else {
       this.orchestration.displayChord(patternName, rootNote);
     }
 
-    // Update PatternBuilder for downstream consumers
     this.patternBuilder.setCurrentPattern(patternName, rootNote, patternType);
 
-    // Build new immutable state snapshot
     const newState: DomainState = {
       ...this.currentState,
       mode: patternType === 'scale' ? 'scale' : 'chord',
@@ -164,7 +168,6 @@ export class DomainService {
   private handleShowInterval(command: DomainCommand & { type: 'show-interval' }): DomainResult<DomainState> {
     const { rootNote, interval } = command;
 
-    // Validate root note
     if (!this.isValidRootNote(rootNote)) {
       return {
         success: false,
@@ -173,7 +176,6 @@ export class DomainService {
       };
     }
 
-    // Validate interval using single source of truth
     const semitone = INTERVAL_SEMITONE_MAP[interval];
     if (semitone === undefined) {
       return {
@@ -183,12 +185,10 @@ export class DomainService {
       };
     }
 
-    // Use spellNote for correct enharmonic spelling
     const note = spellNote(rootNote, semitone, interval);
     const notes = [rootNote, note];
     this.orchestration.displayCustomPattern(notes, rootNote);
 
-    // Build new state snapshot
     const newState: DomainState = {
       ...this.currentState,
       mode: 'custom',
@@ -204,7 +204,6 @@ export class DomainService {
   private handleComparePatterns(command: DomainCommand & { type: 'compare-patterns' }): DomainResult<DomainState> {
     const { primary, secondary } = command;
 
-    // Validate both patterns
     if (!this.isValidPattern(primary.patternName, primary.patternType)) {
       return {
         success: false,
@@ -220,7 +219,6 @@ export class DomainService {
       };
     }
 
-    // Validate root notes
     if (!this.isValidRootNote(primary.rootNote)) {
       return {
         success: false,
@@ -236,17 +234,14 @@ export class DomainService {
       };
     }
 
-    // Delegate to existing orchestration
     this.orchestration.displayScaleWithChord(
       primary.patternName, primary.rootNote,
       secondary.patternName, secondary.rootNote,
     );
 
-    // Update PatternBuilder
     this.patternBuilder.setCurrentPattern(primary.patternName, primary.rootNote, primary.patternType);
     this.patternBuilder.setRelatedChord(secondary.patternName, secondary.rootNote);
 
-    // Build new state snapshot
     const newState: DomainState = {
       ...this.currentState,
       mode: 'scale-chord',
@@ -291,7 +286,7 @@ export class DomainService {
 
     const newState: DomainState = {
       ...DEFAULT_DOMAIN_STATE,
-      enabledStrings: this.currentState.enabledStrings, // preserve string toggles
+      enabledStrings: this.currentState.enabledStrings,
     };
 
     this.stateSubject.next(newState);
