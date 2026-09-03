@@ -71,15 +71,9 @@ The app is a static SPA (no backend) and is deployed via **Cloudflare Pages**.
 3. Output directory: `dist/guitar-neck-ui/browser`
 4. Add SPA fallback rule (see below)
 
-### SPA fallback
+### SPA fallback (Angular routing)
 
-Create a `_redirects` file in the output directory (or configure in Cloudflare dashboard):
-
-```
-/*    /index.html    200
-```
-
-This ensures Angular routing works on page refresh.
+Cloudflare Pages Functions handle SPA routing automatically via the [`functions/_middleware.ts`](functions/_middleware.ts) file. This catch-all middleware serves `index.html` for any route that doesn't match a static file (like `.js`, `.css`, `.png`), ensuring Angular routing works on page refresh.
 
 ### Environment variables (Cloudflare Pages Secrets)
 

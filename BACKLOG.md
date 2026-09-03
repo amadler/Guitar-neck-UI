@@ -78,7 +78,7 @@ Cloudflare Pages to darmowy hosting statyczny z automatycznym deploymentem z Git
 - Repozytorium podłączone do Cloudflare Pages
 - Build i deploy automatycznie z gałęzi `master`
 - Aplikacja działa pod domeną `.pages.dev`
-- Plik `_redirects` dla SPA fallback (obsługa Angular routing)
+- Plik `functions/_middleware.ts` dla SPA fallback (obsługa Angular routing przez Pages Functions)
 - Dokumentacja zaktualizowana
 
 ## Done when
@@ -86,7 +86,7 @@ Cloudflare Pages to darmowy hosting statyczny z automatycznym deploymentem z Git
 - `https://guitar-neck-ui.pages.dev` (lub własna domena) wyświetla aplikację
 - `npm run build:prod` produkuje poprawny build
 - Automatyczny deployment działa na push do `master`
-- Angular routing działa (odświeżenie strony nie powoduje 404)
+- Angular routing działa (odświeżenie strony nie powoduje 404) — obsłużone przez [`functions/_middleware.ts`](functions/_middleware.ts)
 - `README.md` i `DEVELOPMENT.md` nie zawierają już instrukcji Docker/VPS
 - Wszystkie zmienne środowiskowe są ustawione w Cloudflare Pages dashboard
 

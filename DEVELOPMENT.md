@@ -112,7 +112,7 @@ Aplikacja jest statycznym SPA (cała logika muzyczna po stronie klienta przez To
 1. **Podłącz repozytorium**: Cloudflare Dashboard → Workers & Pages → Create → Connect to Git → wybierz repozytorium
 2. **Build command**: `npm run build:prod`
 3. **Output directory**: `dist/guitar-neck-ui/browser`
-4. **SPA fallback**: Cloudflare Pages automatycznie wykrywa plik `_redirects` w output directory — reguła `/* /index.html 200` zapewnia działanie Angular routingu przy odświeżeniu strony
+4. **SPA fallback**: Plik [`functions/_middleware.ts`](functions/_middleware.ts) automatycznie serwuje `index.html` dla wszystkich ścieżek Angular SPA — Cloudflare Pages Functions są wykrywane automatycznie z katalogu `functions/`
 5. **Environment variables** (Production):
 
    | Variable | Value |
