@@ -1,5 +1,5 @@
 import { Component, OnDestroy, signal } from '@angular/core';
-import { NgIf, NgFor } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { MetronomeEngineService } from './metronome-engine.service';
 
@@ -18,7 +18,7 @@ const MIN_TAP_INTERVAL_MS = 200;
 
 @Component({
     selector: 'app-metronome',
-    imports: [NgIf, NgFor, FormsModule],
+    imports: [FormsModule],
     templateUrl: './metronome.component.html',
     styleUrl: './metronome.component.scss'
 })

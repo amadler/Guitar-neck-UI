@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { AIService } from '../../services/ai.service';
 import { finalize } from 'rxjs/operators';
@@ -8,31 +8,37 @@ import { AISuggestionService } from '../../services/ai-suggestion.service';
 
 @Component({
   selector: 'app-chat',
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   template: `
     <div class="chat-container">
       <div class="chat-messages" #messagesContainer>
-        <div *ngFor="let message of messages"
-             [class]="'message ' + (message.isUser ? 'user-message' : 'ai-message')">
-          <p>{{ message.text }}</p>
-          <div *ngIf="message.suggestions" class="message-suggestions">
-            <button *ngFor="let suggestion of message.suggestions"
+        @for (message of messages; track message) {
+          <div
+            [class]="'message ' + (message.isUser ? 'user-message' : 'ai-message')">
+            <p>{{ message.text }}</p>
+            @if (message.suggestions) {
+              <div class="message-suggestions">
+                @for (suggestion of message.suggestions; track suggestion) {
+                  <button
                     (click)="applySuggestion(suggestion)"
                     class="suggestion-link">
-              {{ suggestion.displayName }}
-            </button>
+                    {{ suggestion.displayName }}
+                  </button>
+                }
+              </div>
+            }
           </div>
-        </div>
+        }
       </div>
       <div class="chat-input">
         <input [(ngModel)]="currentMessage"
-               (keyup.enter)="sendMessage()"
-               placeholder="Type your message...">
-        <button (click)="sendMessage()"
-                [disabled]="isLoading">Send</button>
+          (keyup.enter)="sendMessage()"
+          placeholder="Type your message...">
+          <button (click)="sendMessage()"
+          [disabled]="isLoading">Send</button>
+        </div>
       </div>
-    </div>
-  `,
+    `,
   styles: [`
     .chat-container {
       height: 400px;

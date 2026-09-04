@@ -1,38 +1,41 @@
 <div class="range-group">
   <span class="range-group__label">Range:</span>
-  <button
-    *ngFor="let preset of presets"
-    class="range-btn"
-    [class.range-btn--active]="activePreset === preset"
-    [class.range-btn--custom-trigger]="preset.label === 'Custom' && isCustom"
-    type="button"
-    (click)="selectPreset(preset)"
-  >
-    {{ preset.label === 'Custom' ? 'Custom' : '[' + preset.min + '–' + preset.max + ']' }}
-  </button>
-
-  <div class="range-custom" *ngIf="isCustom">
-    <input
-      class="range-custom__input"
-      type="number"
-      [(ngModel)]="customMin"
-      min="0"
-      [max]="customMax"
-    />
-    <span class="range-custom__separator">–</span>
-    <input
-      class="range-custom__input"
-      type="number"
-      [(ngModel)]="customMax"
-      [min]="customMin"
-      [max]="neckConfig.numberOfFrets"
-    />
+  @for (preset of presets; track preset) {
     <button
-      class="range-custom__apply"
+      class="range-btn"
+      [class.range-btn--active]="activePreset === preset"
+      [class.range-btn--custom-trigger]="preset.label === 'Custom' && isCustom"
       type="button"
-      (click)="applyCustom()"
-    >
-      Show
+      (click)="selectPreset(preset)"
+      >
+      {{ preset.label === 'Custom' ? 'Custom' : '[' + preset.min + '–' + preset.max + ']' }}
     </button>
-  </div>
-</div>
+  }
+
+  @if (isCustom) {
+    <div class="range-custom">
+      <input
+        class="range-custom__input"
+        type="number"
+        [(ngModel)]="customMin"
+        min="0"
+        [max]="customMax"
+        />
+        <span class="range-custom__separator">–</span>
+        <input
+          class="range-custom__input"
+          type="number"
+          [(ngModel)]="customMax"
+          [min]="customMin"
+          [max]="neckConfig.numberOfFrets"
+          />
+          <button
+            class="range-custom__apply"
+            type="button"
+            (click)="applyCustom()"
+            >
+            Show
+          </button>
+        </div>
+      }
+    </div>

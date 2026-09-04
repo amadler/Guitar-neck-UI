@@ -21,10 +21,14 @@
     </div>
 
     <!-- Legend — shown only for Show commands (scale, chord, interval pattern) -->
-    <app-legend *ngIf="displayMode() === 'legend'" class="fretboard-section__legend"></app-legend>
+    @if (displayMode() === 'legend') {
+      <app-legend class="fretboard-section__legend"></app-legend>
+    }
 
     <!-- Relationship strip — shown only for Compare (scale + chord relation) -->
-    <app-relationship-strip *ngIf="displayMode() === 'relationship'" class="fretboard-section__relationship"></app-relationship-strip>
+    @if (displayMode() === 'relationship') {
+      <app-relationship-strip class="fretboard-section__relationship"></app-relationship-strip>
+    }
   </section>
   <!-- END: Fretboard Section -->
 

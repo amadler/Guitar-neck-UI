@@ -1,65 +1,95 @@
-<div class="fretboard" *ngIf="notes">
-  <div class="fretboard__body">
-    <div class="fretboard__fret-indices">
-      <div class="fretboard__fret-index-spacer">
-        <span class="fretboard__fret-index-spacer__label">on</span>
+@if (notes) {
+  <div class="fretboard">
+    <div class="fretboard__body">
+      <div class="fretboard__fret-indices">
+        <div class="fretboard__fret-index-spacer">
+          <span class="fretboard__fret-index-spacer__label">on</span>
+        </div>
+        <div class="fretboard__fret-index-track">
+          @for (fret of frets; track fret) {
+            <div class="fretboard__fret-index-cell">{{ fret }}</div>
+          }
+        </div>
       </div>
-      <div class="fretboard__fret-index-track">
-        <div *ngFor="let fret of frets" class="fretboard__fret-index-cell">{{ fret }}</div>
-      </div>
-    </div>
-
-    <div *ngFor="let string of strings; let i = index"
-         [class]="'fretboard__string '+ string"
-         [class.fretboard__string--disabled]="!activeStrings[i]">
-
-      <app-string-toggle
-        [stringName]="string"
-        [stringIndex]="i"
-        [active]="activeStrings[i]"
-        (stringToggled)="onStringToggled($event)">
-      </app-string-toggle>
-
-      <div class="fretboard__nut-label">
-        <span class="fretboard__nut-label__string-name">{{ string }}</span>
-        <ng-container *ngIf="isNoteOnFret(i, 0) && isNoteInRange(0)">
-          <button class="fretboard__dot fretboard__open-note-btn"
-                  *ngIf="!isNoteSelected(i, 0)"
+      @for (string of strings; track string; let i = $index) {
+        <div
+          [class]="'fretboard__string '+ string"
+          [class.fretboard__string--disabled]="!activeStrings[i]">
+          <app-string-toggle
+            [stringName]="string"
+            [stringIndex]="i"
+            [active]="activeStrings[i]"
+            (stringToggled)="onStringToggled($event)">
+          </app-string-toggle>
+          <div class="fretboard__nut-label">
+            <span class="fretboard__nut-label__string-name">{{ string }}</span>
+            @if (isNoteOnFret(i, 0) && isNoteInRange(0)) {
+              @if (!isNoteSelected(i, 0)) {
+                <button class="fretboard__dot fretboard__open-note-btn"
                   (click)="fretNoteClicked(i, 0)">
-            <span *ngIf="showNoteLabels">{{ getNoteName(i, 0) }}</span>
-          </button>
-          <div *ngIf="isNoteSelected(i, 0) && !getNoteInterval(i, 0)"
-               [ngClass]="['fretboard__dot', getRoleCssClass(i, 0)]"
-               (click)="fretNoteClicked(i, 0)">
-            <span *ngIf="showNoteLabels">{{ getNoteName(i, 0) }}</span>
+                  @if (showNoteLabels) {
+                    <span>{{ getNoteName(i, 0) }}</span>
+                  }
+                </button>
+              }
+              @if (isNoteSelected(i, 0) && !getNoteInterval(i, 0)) {
+                <div
+                  [ngClass]="['fretboard__dot', getRoleCssClass(i, 0)]"
+                  (click)="fretNoteClicked(i, 0)">
+                  @if (showNoteLabels) {
+                    <span>{{ getNoteName(i, 0) }}</span>
+                  }
+                </div>
+              }
+              @if (getNoteInterval(i, 0)) {
+                <div
+                  [ngClass]="['fretboard__dot', getMarkerCssClass(getNoteInterval(i, 0)), getRoleCssClass(i, 0)]"
+                  (click)="fretNoteClicked(i, 0)">
+                  @if (showNoteLabels) {
+                    <span>{{ getNoteName(i, 0) }}</span>
+                  }
+                </div>
+              }
+            }
           </div>
-          <div *ngIf="getNoteInterval(i, 0)"
-               [ngClass]="['fretboard__dot', getMarkerCssClass(getNoteInterval(i, 0)), getRoleCssClass(i, 0)]"
-               (click)="fretNoteClicked(i, 0)">
-            <span *ngIf="showNoteLabels">{{ getNoteName(i, 0) }}</span>
-          </div>
-        </ng-container>
-      </div>
-      <div *ngFor="let fret of frets" class="fretboard__fret">
-        <div class="fretboard__marker" *ngIf="isMarkedFret(i, fret)"></div>
-        <div class="fretboard__marker--double" *ngIf="isMarkedTwelffeFret(i, fret)"></div>
-        <ng-container *ngIf="isNoteOnFret(i, fret) && isNoteInRange(fret)">
-          <button class="fretboard__dot"
-                  *ngIf="!isNoteSelected(i, fret)"
-                  (click)="fretNoteClicked(i, fret)">
-            <span *ngIf="showNoteLabels">{{ getNoteName(i, fret) }}</span>
-          </button>
-          <div *ngIf="isNoteSelected(i, fret) && !getNoteInterval(i, fret)"
-               [ngClass]="['fretboard__dot', getRoleCssClass(i, fret)]">
-            <span *ngIf="showNoteLabels">{{ getNoteName(i, fret) }}</span>
-          </div>
-          <div *ngIf="getNoteInterval(i, fret)"
-               [ngClass]="['fretboard__dot', getMarkerCssClass(getNoteInterval(i, fret)), getRoleCssClass(i, fret)]">
-            <span *ngIf="showNoteLabels">{{ getNoteName(i, fret) }}</span>
-          </div>
-        </ng-container>
-      </div>
+          @for (fret of frets; track fret) {
+            <div class="fretboard__fret">
+              @if (isMarkedFret(i, fret)) {
+                <div class="fretboard__marker"></div>
+              }
+              @if (isMarkedTwelffeFret(i, fret)) {
+                <div class="fretboard__marker--double"></div>
+              }
+              @if (isNoteOnFret(i, fret) && isNoteInRange(fret)) {
+                @if (!isNoteSelected(i, fret)) {
+                  <button class="fretboard__dot"
+                    (click)="fretNoteClicked(i, fret)">
+                    @if (showNoteLabels) {
+                      <span>{{ getNoteName(i, fret) }}</span>
+                    }
+                  </button>
+                }
+                @if (isNoteSelected(i, fret) && !getNoteInterval(i, fret)) {
+                  <div
+                    [ngClass]="['fretboard__dot', getRoleCssClass(i, fret)]">
+                    @if (showNoteLabels) {
+                      <span>{{ getNoteName(i, fret) }}</span>
+                    }
+                  </div>
+                }
+                @if (getNoteInterval(i, fret)) {
+                  <div
+                    [ngClass]="['fretboard__dot', getMarkerCssClass(getNoteInterval(i, fret)), getRoleCssClass(i, fret)]">
+                    @if (showNoteLabels) {
+                      <span>{{ getNoteName(i, fret) }}</span>
+                    }
+                  </div>
+                }
+              }
+            </div>
+          }
+        </div>
+      }
     </div>
   </div>
-
-</div>
+}

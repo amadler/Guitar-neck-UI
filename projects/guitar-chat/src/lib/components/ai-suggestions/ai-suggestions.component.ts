@@ -1,23 +1,27 @@
 import { Component, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Subscription } from 'rxjs';
 import { AISuggestionService } from '../../services/ai-suggestion.service';
 import { AIResponse, MusicalSuggestion } from '../../models/ai-response.model';
 
 @Component({
     selector: 'app-ai-suggestions',
-    imports: [CommonModule],
+    imports: [],
     template: `
-    <div class="ai-suggestions" *ngIf="currentResponse">
-      <div class="suggestion-buttons">
-        <button *ngFor="let suggestion of currentResponse.suggestions"
-                class="suggestion-btn"
-                (click)="applySuggestion(suggestion)">
-          {{ suggestion.displayName }}
-        </button>
+    @if (currentResponse) {
+      <div class="ai-suggestions">
+        <div class="suggestion-buttons">
+          @for (suggestion of currentResponse.suggestions; track suggestion) {
+            <button
+              class="suggestion-btn"
+              (click)="applySuggestion(suggestion)">
+              {{ suggestion.displayName }}
+            </button>
+          }
+        </div>
       </div>
-    </div>
-  `,
+    }
+    `,
     styles: [`
     .ai-suggestions {
       margin-top: 16px;

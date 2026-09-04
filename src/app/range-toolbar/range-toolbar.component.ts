@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { neckConfig } from 'guitar-neck-shared';
 
@@ -12,7 +12,7 @@ interface Preset {
 
 @Component({
     selector: 'app-range-toolbar',
-    imports: [CommonModule, FormsModule],
+    imports: [FormsModule],
     templateUrl: './range-toolbar.component.html',
     styleUrls: ['./range-toolbar.component.scss']
 })

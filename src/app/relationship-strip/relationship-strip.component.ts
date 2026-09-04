@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NgIf, NgFor } from '@angular/common';
+
 import { FretboardStateService } from '../services/fretboard-state.service';
 import { MarkerRoleService, MarkerRole } from '../services/marker-role.service';
 import { TonalFacadeService } from '../services/tonal-facade.service';
@@ -32,7 +32,7 @@ function resolveScaleChromas(scaleName: string, rootNote: string, tonal: TonalFa
 
 @Component({
   selector: 'app-relationship-strip',
-  imports: [NgIf, NgFor],
+  imports: [],
   templateUrl: './relationship-strip.component.html',
   styleUrl: './relationship-strip.component.scss'
 })

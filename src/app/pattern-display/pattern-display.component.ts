@@ -1,4 +1,4 @@
-import { NgFor, NgIf } from '@angular/common';
+
 import { Component } from '@angular/core';
 import { DomainService } from '../domain/domain.service';
 import { PatternBuilderService } from '../services/pattern-builder.service';
@@ -6,7 +6,7 @@ import { PRACTICE_PROMPTS, PromptType } from '../shared/practice-prompts.data';
 
 @Component({
     selector: 'app-pattern-display',
-    imports: [NgIf, NgFor],
+    imports: [],
     templateUrl: './pattern-display.component.html',
     styleUrl: './pattern-display.component.scss'
 })

@@ -1,4 +1,4 @@
-import { AsyncPipe, NgIf } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { Component, ViewChild } from '@angular/core';
 import { neckConfig } from 'guitar-neck-shared';
 import { FreatboardComponent } from '../freatboard/freatboard.component';
@@ -8,7 +8,7 @@ import { FretboardStateService } from '../services/fretboard-state.service';
 
 @Component({
     selector: 'app-guitar-neck',
-    imports: [AsyncPipe, NgIf, FreatboardComponent],
+    imports: [AsyncPipe, FreatboardComponent],
     templateUrl: './guitar-neck.component.html',
     styleUrl: './guitar-neck.component.scss'
 })

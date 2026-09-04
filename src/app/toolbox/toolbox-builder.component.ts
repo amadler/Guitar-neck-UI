@@ -1,5 +1,5 @@
 import { Component, Output, EventEmitter, ChangeDetectionStrategy, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { neckConfig, SCALE_PATTERNS, CHORD_PATTERNS } from 'guitar-neck-shared';
 import { DomainCommand, ShowPatternCommand, ComparePatternsCommand } from '../domain/commands';
 import { DropdownComponent } from './dropdown.component';
@@ -25,7 +25,7 @@ export type MusicKey = string;
 
 @Component({
     selector: 'app-toolbox-builder',
-    imports: [CommonModule, DropdownComponent],
+    imports: [DropdownComponent],
     templateUrl: './toolbox-builder.component.html',
     styleUrl: './toolbox-builder.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush

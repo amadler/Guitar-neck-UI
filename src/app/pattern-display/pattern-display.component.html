@@ -1,72 +1,89 @@
 <!-- Outer wrapper: hide when idle -->
-<ng-container *ngIf="currentPattern as p">
+@if (currentPattern; as p) {
   <!-- Single-pattern layout (scale-only or chord-only mode) -->
-  <div class="pattern-card" *ngIf="!isScaleChordMode">
-    <div class="pattern-card__header">
-      <h3 class="pattern-card__title">{{ p.rootNote }} {{ p.name }}</h3>
-      <span class="pattern-card__badge">{{ p.type }}</span>
-    </div>
-
-    <div class="pattern-card__body">
-      <!-- Notes row -->
-      <div class="pattern-card__notes">
-        <span *ngFor="let note of p.notes" class="pattern-card__note">{{ note }}</span>
+  @if (!isScaleChordMode) {
+    <div class="pattern-card">
+      <div class="pattern-card__header">
+        <h3 class="pattern-card__title">{{ p.rootNote }} {{ p.name }}</h3>
+        <span class="pattern-card__badge">{{ p.type }}</span>
       </div>
-      <!-- Intervals row -->
-      <div class="pattern-card__intervals">
-        <span class="pattern-card__interval-paren">(</span>
-        <span *ngFor="let interval of p.intervals; let last = last" class="pattern-card__interval">
-          {{ interval }}<span *ngIf="!last"> </span>
-        </span>
+      <div class="pattern-card__body">
+        <!-- Notes row -->
+        <div class="pattern-card__notes">
+          @for (note of p.notes; track note) {
+            <span class="pattern-card__note">{{ note }}</span>
+          }
+        </div>
+        <!-- Intervals row -->
+        <div class="pattern-card__intervals">
+          <span class="pattern-card__interval-paren">(</span>
+          @for (interval of p.intervals; track interval; let last = $last) {
+            <span class="pattern-card__interval">
+              {{ interval }}@if (!last) {
+              <span> </span>
+            }
+          </span>
+        }
         <span class="pattern-card__interval-paren">)</span>
       </div>
     </div>
-
     <!-- Related chord section (visible when scale+chord relation is active) -->
-    <div class="pattern-card__related" *ngIf="relatedChord as rc">
-      <div class="pattern-card__divider"></div>
-      <div class="pattern-card__header">
-        <h3 class="pattern-card__title">{{ rc.rootNote }} {{ rc.name }}</h3>
-        <span class="pattern-card__badge pattern-card__badge--chord">chord</span>
-      </div>
-      <div class="pattern-card__body">
-        <div class="pattern-card__notes">
-          <span *ngFor="let note of rc.notes" class="pattern-card__note">{{ note }}</span>
+    @if (relatedChord; as rc) {
+      <div class="pattern-card__related">
+        <div class="pattern-card__divider"></div>
+        <div class="pattern-card__header">
+          <h3 class="pattern-card__title">{{ rc.rootNote }} {{ rc.name }}</h3>
+          <span class="pattern-card__badge pattern-card__badge--chord">chord</span>
         </div>
-        <div class="pattern-card__intervals">
-          <span class="pattern-card__interval-paren">(</span>
-          <span *ngFor="let interval of rc.intervals; let last = last" class="pattern-card__interval">
-            {{ interval }}<span *ngIf="!last"> </span>
-          </span>
+        <div class="pattern-card__body">
+          <div class="pattern-card__notes">
+            @for (note of rc.notes; track note) {
+              <span class="pattern-card__note">{{ note }}</span>
+            }
+          </div>
+          <div class="pattern-card__intervals">
+            <span class="pattern-card__interval-paren">(</span>
+            @for (interval of rc.intervals; track interval; let last = $last) {
+              <span class="pattern-card__interval">
+                {{ interval }}@if (!last) {
+                <span> </span>
+              }
+            </span>
+          }
           <span class="pattern-card__interval-paren">)</span>
         </div>
       </div>
     </div>
-
-    <!-- Full data grid (semitones, steps, prompts) -->
-    <div class="pattern-card__grid">
-      <span class="pattern-card__grid-label">Semitones</span>
-      <span class="pattern-card__grid-value">
-        <span *ngFor="let semi of p.semitones" class="pattern-card__grid-item">{{ semi }}</span>
-      </span>
-
-      <span class="pattern-card__grid-label">Steps</span>
-      <span class="pattern-card__grid-value">
-        <span *ngFor="let step of p.steps" class="pattern-card__grid-item">{{ step }}</span>
-      </span>
-    </div>
-
-    <div class="pattern-card__prompts">
-      <div class="pattern-card__prompts-title">Practice ideas</div>
-      <ul class="pattern-card__prompts-list">
-        <li *ngFor="let prompt of getPromptsForType(p.type)" class="pattern-card__prompt-item">{{ prompt }}</li>
-      </ul>
-    </div>
+  }
+  <!-- Full data grid (semitones, steps, prompts) -->
+  <div class="pattern-card__grid">
+    <span class="pattern-card__grid-label">Semitones</span>
+    <span class="pattern-card__grid-value">
+      @for (semi of p.semitones; track semi) {
+        <span class="pattern-card__grid-item">{{ semi }}</span>
+      }
+    </span>
+    <span class="pattern-card__grid-label">Steps</span>
+    <span class="pattern-card__grid-value">
+      @for (step of p.steps; track step) {
+        <span class="pattern-card__grid-item">{{ step }}</span>
+      }
+    </span>
   </div>
-
-  <!-- Two-card layout (scale-chord mode) — side by side -->
-  <!-- Note: isScaleChordMode is true when DomainState.mode === 'scale-chord' -->
-  <div class="pattern-split" *ngIf="isScaleChordMode">
+  <div class="pattern-card__prompts">
+    <div class="pattern-card__prompts-title">Practice ideas</div>
+    <ul class="pattern-card__prompts-list">
+      @for (prompt of getPromptsForType(p.type); track prompt) {
+        <li class="pattern-card__prompt-item">{{ prompt }}</li>
+      }
+    </ul>
+  </div>
+</div>
+}
+<!-- Two-card layout (scale-chord mode) — side by side -->
+<!-- Note: isScaleChordMode is true when DomainState.mode === 'scale-chord' -->
+@if (isScaleChordMode) {
+  <div class="pattern-split">
     <!-- Scale card -->
     <div class="pattern-card">
       <div class="pattern-card__header">
@@ -75,47 +92,65 @@
       </div>
       <div class="pattern-card__body">
         <div class="pattern-card__notes">
-          <span *ngFor="let note of p.notes" class="pattern-card__note">{{ note }}</span>
+          @for (note of p.notes; track note) {
+            <span class="pattern-card__note">{{ note }}</span>
+          }
         </div>
         <div class="pattern-card__intervals">
           <span class="pattern-card__interval-paren">(</span>
-          <span *ngFor="let interval of p.intervals; let last = last" class="pattern-card__interval">
-            {{ interval }}<span *ngIf="!last"> </span>
+          @for (interval of p.intervals; track interval; let last = $last) {
+            <span class="pattern-card__interval">
+              {{ interval }}@if (!last) {
+              <span> </span>
+            }
           </span>
-          <span class="pattern-card__interval-paren">)</span>
-        </div>
-      </div>
-      <!-- Semitones + Steps only for scale -->
-      <div class="pattern-card__grid">
-        <span class="pattern-card__grid-label">Semitones</span>
-        <span class="pattern-card__grid-value">
-          <span *ngFor="let semi of p.semitones" class="pattern-card__grid-item">{{ semi }}</span>
-        </span>
-        <span class="pattern-card__grid-label">Steps</span>
-        <span class="pattern-card__grid-value">
-          <span *ngFor="let step of p.steps" class="pattern-card__grid-item">{{ step }}</span>
-        </span>
+        }
+        <span class="pattern-card__interval-paren">)</span>
       </div>
     </div>
-
-    <!-- Chord card -->
-    <div class="pattern-card" *ngIf="relatedChord as rc">
+    <!-- Semitones + Steps only for scale -->
+    <div class="pattern-card__grid">
+      <span class="pattern-card__grid-label">Semitones</span>
+      <span class="pattern-card__grid-value">
+        @for (semi of p.semitones; track semi) {
+          <span class="pattern-card__grid-item">{{ semi }}</span>
+        }
+      </span>
+      <span class="pattern-card__grid-label">Steps</span>
+      <span class="pattern-card__grid-value">
+        @for (step of p.steps; track step) {
+          <span class="pattern-card__grid-item">{{ step }}</span>
+        }
+      </span>
+    </div>
+  </div>
+  <!-- Chord card -->
+  @if (relatedChord; as rc) {
+    <div class="pattern-card">
       <div class="pattern-card__header">
         <h3 class="pattern-card__title">{{ rc.rootNote }} {{ rc.name }}</h3>
         <span class="pattern-card__badge pattern-card__badge--chord">chord</span>
       </div>
       <div class="pattern-card__body">
         <div class="pattern-card__notes">
-          <span *ngFor="let note of rc.notes" class="pattern-card__note">{{ note }}</span>
+          @for (note of rc.notes; track note) {
+            <span class="pattern-card__note">{{ note }}</span>
+          }
         </div>
         <div class="pattern-card__intervals">
           <span class="pattern-card__interval-paren">(</span>
-          <span *ngFor="let interval of rc.intervals; let last = last" class="pattern-card__interval">
-            {{ interval }}<span *ngIf="!last"> </span>
+          @for (interval of rc.intervals; track interval; let last = $last) {
+            <span class="pattern-card__interval">
+              {{ interval }}@if (!last) {
+              <span> </span>
+            }
           </span>
-          <span class="pattern-card__interval-paren">)</span>
-        </div>
+        }
+        <span class="pattern-card__interval-paren">)</span>
       </div>
     </div>
   </div>
-</ng-container>
+}
+</div>
+}
+}

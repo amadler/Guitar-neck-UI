@@ -1,5 +1,5 @@
 import { Component, signal } from '@angular/core';
-import { NgIf } from '@angular/common';
+
 import { DomainService } from '../domain/domain.service';
 import { DomainCommand } from '../domain/commands';
 import { GuitarNeckComponent } from '../guitar-neck/guitar-neck.component';
@@ -20,18 +20,17 @@ export type DisplayMode = 'legend' | 'relationship' | null;
 @Component({
     selector: 'app-home-page',
     imports: [
-        NgIf,
-        GuitarNeckComponent,
-        RangeToolbarComponent,
-        HeaderComponent,
-        FooterComponent,
-        LegendComponent,
-        PatternDisplayComponent,
-        MetronomeComponent,
-        RelationshipStripComponent,
-        ToolboxBuilderComponent,
-        ChatComponent
-    ],
+    GuitarNeckComponent,
+    RangeToolbarComponent,
+    HeaderComponent,
+    FooterComponent,
+    LegendComponent,
+    PatternDisplayComponent,
+    MetronomeComponent,
+    RelationshipStripComponent,
+    ToolboxBuilderComponent,
+    ChatComponent
+],
     templateUrl: './home-page.component.html',
     styleUrl: './home-page.component.scss'
 })

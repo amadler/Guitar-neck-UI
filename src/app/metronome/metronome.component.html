@@ -21,60 +21,63 @@
 
     <!-- Start/Stop button -->
     <button class="metronome__start-btn"
-            [class.metronome__start-btn--running]="isRunning"
-            (click)="isRunning ? stop() : start()">
+      [class.metronome__start-btn--running]="isRunning"
+      (click)="isRunning ? stop() : start()">
       {{ isRunning ? 'Stop' : 'Start' }}
     </button>
   </div>
 
   <!-- Extended controls (collapsible) -->
   @if (extendedOpen()) {
-  <div class="metronome__extended">
-    <!-- Beat indicator -->
-    <div class="metronome__beat">
-      <div class="metronome__beat-circle"
-           [class.metronome__beat-circle--accent]="currentBeat === 0"
-           [class.metronome__beat-circle--pulse]="isRunning && currentBeat >= 0">
-        <span class="metronome__beat-number">{{ currentBeat >= 0 ? currentBeat + 1 : '—' }}</span>
-      </div>
-      <div class="metronome__beat-dots">
-        <div class="metronome__beat-dot"
-             *ngFor="let beat of [].constructor(timeSignature); let i = index"
-             [class.metronome__beat-dot--active]="i === currentBeat"
-             [class.metronome__beat-dot--accent]="i === 0">
+    <div class="metronome__extended">
+      <!-- Beat indicator -->
+      <div class="metronome__beat">
+        <div class="metronome__beat-circle"
+          [class.metronome__beat-circle--accent]="currentBeat === 0"
+          [class.metronome__beat-circle--pulse]="isRunning && currentBeat >= 0">
+          <span class="metronome__beat-number">{{ currentBeat >= 0 ? currentBeat + 1 : '—' }}</span>
+        </div>
+        <div class="metronome__beat-dots">
+          @for (beat of [].constructor(timeSignature); track beat; let i = $index) {
+            <div class="metronome__beat-dot"
+              [class.metronome__beat-dot--active]="i === currentBeat"
+              [class.metronome__beat-dot--accent]="i === 0">
+            </div>
+          }
         </div>
       </div>
-    </div>
 
-    <!-- Tempo slider -->
-    <div class="metronome__slider-group">
-      <input type="range"
-             class="metronome__slider"
-             [min]="tempoRange.min"
-             [max]="tempoRange.max"
-             [(ngModel)]="bpm"
-             (input)="setTempo(bpm)" />
-    </div>
+      <!-- Tempo slider -->
+      <div class="metronome__slider-group">
+        <input type="range"
+          class="metronome__slider"
+          [min]="tempoRange.min"
+          [max]="tempoRange.max"
+          [(ngModel)]="bpm"
+          (input)="setTempo(bpm)" />
+        </div>
 
-    <!-- Time signature -->
-    <div class="metronome__time-sig">
-      <span class="metronome__time-sig-label">Time</span>
-      <div class="metronome__time-sig-btns">
-        <button *ngFor="let ts of timeSignatures"
+        <!-- Time signature -->
+        <div class="metronome__time-sig">
+          <span class="metronome__time-sig-label">Time</span>
+          <div class="metronome__time-sig-btns">
+            @for (ts of timeSignatures; track ts) {
+              <button
                 class="metronome__time-sig-btn"
                 [class.metronome__time-sig-btn--active]="ts.value === timeSignature"
                 (click)="selectTimeSignature(ts.value)">
-          {{ ts.label }}
+                {{ ts.label }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Tap tempo -->
+        <button class="metronome__tap-btn"
+          (click)="tapTempo()"
+          [disabled]="isRunning">
+          Tap
         </button>
       </div>
-    </div>
-
-    <!-- Tap tempo -->
-    <button class="metronome__tap-btn"
-            (click)="tapTempo()"
-            [disabled]="isRunning">
-      Tap
-    </button>
+    }
   </div>
-  }
-</div>

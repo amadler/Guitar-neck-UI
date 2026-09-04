@@ -2,31 +2,33 @@
   <div class="legend-title">Intervals Legend</div>
 
   <div class="interval-list">
-    <span *ngFor="let interval of allIntervals"
-          class="interval"
-          [class.interval--root]="interval.cssClass === 'root'"
-          [class.interval--b2]="interval.cssClass === 'minor-2nd'"
-          [class.interval--2]="interval.cssClass === 'major-2nd'"
-          [class.interval--b3]="interval.cssClass === 'minor-3rd'"
-          [class.interval--3]="interval.cssClass === 'major-3rd'"
-          [class.interval--4]="interval.cssClass === 'perfect-4th'"
-          [class.interval--b5]="interval.cssClass === 'diminished-5th'"
-          [class.interval--5]="interval.cssClass === 'perfect-5th'"
-          [class.interval--b6]="interval.cssClass === 'minor-6th'"
-          [class.interval--6]="interval.cssClass === 'major-6th'"
-          [class.interval--b7]="interval.cssClass === 'minor-7th'"
-          [class.interval--7]="interval.cssClass === 'major-7th'"
-          [class.interval--muted]="!isActive(interval.cssClass)">
-      {{ interval.label }}
-    </span>
+    @for (interval of allIntervals; track interval) {
+      <span
+        class="interval"
+        [class.interval--root]="interval.cssClass === 'root'"
+        [class.interval--b2]="interval.cssClass === 'minor-2nd'"
+        [class.interval--2]="interval.cssClass === 'major-2nd'"
+        [class.interval--b3]="interval.cssClass === 'minor-3rd'"
+        [class.interval--3]="interval.cssClass === 'major-3rd'"
+        [class.interval--4]="interval.cssClass === 'perfect-4th'"
+        [class.interval--b5]="interval.cssClass === 'diminished-5th'"
+        [class.interval--5]="interval.cssClass === 'perfect-5th'"
+        [class.interval--b6]="interval.cssClass === 'minor-6th'"
+        [class.interval--6]="interval.cssClass === 'major-6th'"
+        [class.interval--b7]="interval.cssClass === 'minor-7th'"
+        [class.interval--7]="interval.cssClass === 'major-7th'"
+        [class.interval--muted]="!isActive(interval.cssClass)">
+        {{ interval.label }}
+      </span>
+    }
   </div>
 
   <div class="legend-switches">
     <label class="switch-line">
       <span>Markers</span>
       <select [value]="markerDisplayMode"
-              [disabled]="!hasActiveResult"
-              (change)="markerDisplayMode = $any($event.target).value">
+        [disabled]="!hasActiveResult"
+        (change)="markerDisplayMode = $any($event.target).value">
         <option value="interval-colors">Interval colors</option>
         <option value="note-names">Note names</option>
         <option value="neutral-dots">Neutral dots</option>

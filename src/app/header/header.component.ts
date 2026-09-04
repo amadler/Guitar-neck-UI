@@ -1,11 +1,11 @@
 import { Component, OnInit, PLATFORM_ID, inject } from '@angular/core';
-import { NgIf, isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 
 const STORAGE_KEY = 'guitar-neck-ui-visited';
 
 @Component({
     selector: 'app-header',
-    imports: [NgIf],
+    imports: [],
     templateUrl: './header.component.html',
     styleUrl: './header.component.scss'
 })

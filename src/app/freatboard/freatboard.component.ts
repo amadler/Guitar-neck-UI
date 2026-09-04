@@ -4,14 +4,14 @@ import { DomainService } from '../domain/domain.service';
 import { FretboardStateService } from '../services/fretboard-state.service';
 import { FretboardNoteQueryService } from '../services/fretboard-note-query.service';
 import { FretboardDisplayService } from '../services/fretboard-display.service';
-import { NgIf, NgFor, NgClass } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { neckConfig } from 'guitar-neck-shared';
 import { StringToggleComponent } from '../string-toggle/string-toggle.component';
 
 @Component({
     selector: 'app-freatboard',
     templateUrl: './freatboard.component.html',
-    imports: [NgIf, NgFor, NgClass, StringToggleComponent],
+    imports: [NgClass, StringToggleComponent],
     styleUrls: ['./freatboard.component.scss']
 })
 export class FreatboardComponent implements OnInit {

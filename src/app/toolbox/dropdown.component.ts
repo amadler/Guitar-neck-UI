@@ -1,9 +1,9 @@
 import { Component, Input, Output, EventEmitter, signal, ElementRef, HostListener } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 
 @Component({
     selector: 'app-dropdown',
-    imports: [CommonModule],
+    imports: [],
     template: `
     <div class="dropdown-wrapper">
       <button

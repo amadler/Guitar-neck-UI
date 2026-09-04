@@ -1,4 +1,4 @@
-import { NgFor, NgIf } from '@angular/common';
+
 import { Component } from '@angular/core';
 import { DomainService } from '../domain/domain.service';
 import { FretboardStateService } from '../services/fretboard-state.service';
@@ -11,7 +11,7 @@ export interface IntervalDef {
 
 @Component({
     selector: 'app-legend',
-    imports: [NgFor, NgIf],
+    imports: [],
     templateUrl: './legend.component.html',
     styleUrl: './legend.component.scss'
 })
