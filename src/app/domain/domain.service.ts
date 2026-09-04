@@ -32,10 +32,10 @@ export class DomainService {
   private stateSignal = signal<DomainState>(DEFAULT_DOMAIN_STATE);
 
   /** Current state snapshot. */
-  get currentState(): DomainState {
-    return this.stateSignal();
-  }
-
+  // get currentState(): DomainState {
+  //   return this.stateSignal();
+  // }
+  readonly currentState = this.stateSignal.asReadonly();
   /** Saved marker display mode to restore after Compare mode. */
   private previousMarkerDisplayMode: DomainState['markerDisplayMode'] = 'interval-colors';
 
@@ -115,16 +115,16 @@ export class DomainService {
     }
 
     this.patternBuilder.setCurrentPattern(patternName, rootNote, patternType);
-    this.patternBuilder.relatedChord = null; // clear stale relatedChord from compare mode
+    this.patternBuilder.relatedChord.set(null); // clear stale relatedChord from compare mode
 
     return this.emitState({
-      ...this.currentState,
+      ...this.currentState(),
       mode: patternType === 'scale' ? 'scale' : 'chord',
       rootNote,
       patternName,
       compareTarget: undefined,
-      emphasis: command.emphasis ?? this.currentState.emphasis,
-      fretRange: command.fretRange ?? this.currentState.fretRange,
+      emphasis: command.emphasis ?? this.currentState().emphasis,
+      fretRange: command.fretRange ?? this.currentState().fretRange,
       markerDisplayMode: this.previousMarkerDisplayMode, // restore saved mode from compare
     });
   }
@@ -142,7 +142,7 @@ export class DomainService {
     this.orchestration.displayCustomPattern([rootNote, note], rootNote);
 
     return this.emitState({
-      ...this.currentState,
+      ...this.currentState(),
       mode: 'custom',
       rootNote,
       patternName: `interval-${interval}`,
@@ -168,10 +168,10 @@ export class DomainService {
     this.patternBuilder.setRelatedChord(secondary.patternName, secondary.rootNote);
 
     // Save current marker display mode and force note-names for compare mode
-    this.previousMarkerDisplayMode = this.currentState.markerDisplayMode;
+    this.previousMarkerDisplayMode = this.currentState().markerDisplayMode;
 
     return this.emitState({
-      ...this.currentState,
+      ...this.currentState(),
       mode: 'scale-chord',
       rootNote: primary.rootNote,
       patternName: primary.patternName,
@@ -186,16 +186,16 @@ export class DomainService {
 
   private handleSetView(command: DomainCommand & { type: 'set-view' }): DomainResult<DomainState> {
     return this.emitState({
-      ...this.currentState,
-      fretRange: command.fretRange ?? this.currentState.fretRange,
-      enabledStrings: command.enabledStrings ?? this.currentState.enabledStrings,
-      markerDisplayMode: command.markerDisplayMode ?? this.currentState.markerDisplayMode,
+      ...this.currentState(),
+      fretRange: command.fretRange ?? this.currentState().fretRange,
+      enabledStrings: command.enabledStrings ?? this.currentState().enabledStrings,
+      markerDisplayMode: command.markerDisplayMode ?? this.currentState().markerDisplayMode,
     });
   }
 
   private handleSetEmphasis(command: DomainCommand & { type: 'set-emphasis' }): DomainResult<DomainState> {
     return this.emitState({
-      ...this.currentState,
+      ...this.currentState(),
       emphasis: command.emphasis,
     });
   }
@@ -206,7 +206,7 @@ export class DomainService {
 
     return this.emitState({
       ...DEFAULT_DOMAIN_STATE,
-      enabledStrings: this.currentState.enabledStrings,
+      enabledStrings: this.currentState().enabledStrings,
     });
   }
 

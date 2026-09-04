@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { neckConfig, CHORD_PATTERNS, SCALE_PATTERNS } from 'guitar-neck-shared';
 import { PatternInfo } from '../shared/model/patternInfo';
 import { MusicSelection } from '../shared/model/music-selection';
@@ -14,23 +14,22 @@ const SEMITONE_TO_INTERVAL: Record<number, string> =
 export class PatternBuilderService {
   private fretboardState = inject(FretboardStateService);
 
-  currentPattern: PatternInfo | null = null;
+  readonly currentPattern = signal<PatternInfo | null>(null);
   /** Chord pattern info when a scale+chord relation is active. */
-  relatedChord: PatternInfo | null = null;
-
+  readonly relatedChord = signal<PatternInfo | null>(null);
   setCurrentPattern(patternName: string, rootNote: string, type: 'scale' | 'chord'): void {
     const patterns = type === 'scale' ? SCALE_PATTERNS : CHORD_PATTERNS;
     const pattern = patterns.find(p => p.name === patternName);
     if (!pattern) {
-      this.currentPattern = null;
-      this.fretboardState.currentSelection = null;
+      this.currentPattern.set(null);
+      this.fretboardState.currentSelection.set(null);
       return;
     }
 
     const rootIndex = neckConfig.chromaticNotes.indexOf(rootNote);
     if (rootIndex === -1) {
-      this.currentPattern = null;
-      this.fretboardState.currentSelection = null;
+      this.currentPattern.set(null);
+      this.fretboardState.currentSelection.set(null);
       return;
     }
 
@@ -47,27 +46,29 @@ export class PatternBuilderService {
       intervals.push(SEMITONE_TO_INTERVAL[cumulative % 12] || '');
     });
 
-    this.currentPattern = { name: patternName, rootNote, type, notes, intervals, semitones, steps };
-    this.fretboardState.currentSelection = {
-      type,
-      name: patternName,
-      rootNote,
-      notes,
-      intervals: semitones,
-    };
+    this.currentPattern.set({ name: patternName, rootNote, type, notes, intervals, semitones, steps });
+    this.fretboardState.currentSelection.set(
+      {
+        type,
+        name: patternName,
+        rootNote,
+        notes,
+        intervals: semitones,
+      }
+    );
   }
 
   /** Build a PatternInfo for a chord in the context of an active scale relation. */
   setRelatedChord(chordName: string, rootNote: string): void {
     const pattern = CHORD_PATTERNS.find(p => p.name === chordName);
     if (!pattern) {
-      this.relatedChord = null;
+      this.relatedChord.set(null);
       return;
     }
 
     const rootIndex = neckConfig.chromaticNotes.indexOf(rootNote);
     if (rootIndex === -1) {
-      this.relatedChord = null;
+      this.relatedChord.set(null);
       return;
     }
 
@@ -84,7 +85,7 @@ export class PatternBuilderService {
       intervals.push(SEMITONE_TO_INTERVAL[cumulative % 12] || '');
     });
 
-    this.relatedChord = {
+    this.relatedChord.set({
       name: chordName,
       rootNote,
       type: 'chord',
@@ -92,12 +93,12 @@ export class PatternBuilderService {
       intervals,
       semitones,
       steps,
-    };
+    });
   }
 
   clearCurrentPattern(): void {
-    this.currentPattern = null;
-    this.relatedChord = null;
-    this.fretboardState.currentSelection = null;
+    this.currentPattern.set(null);
+    this.relatedChord.set(null);
+    this.fretboardState.currentSelection.set(null);
   }
 }

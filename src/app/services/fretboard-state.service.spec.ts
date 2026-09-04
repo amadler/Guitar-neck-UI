@@ -1,4 +1,4 @@
-import { vi, type MockedObject } from "vitest";
+import { beforeEach, describe, expect, it, vi, type MockedObject } from "vitest";
 import { TestBed } from '@angular/core/testing';
 import { FretboardStateService } from './fretboard-state.service';
 import { FretboardNotePositionService } from './note.service';
@@ -115,29 +115,29 @@ describe('GuitarNeckService', () => {
 
   describe('hasActiveResult', () => {
     it('should be false by default', () => {
-      expect(service.hasActiveResult).toBe(false);
+      expect(service.hasActiveResult()).toBe(false);
     });
 
     it('should be true after applyHighlightedNotes with notes', () => {
       service.applyHighlightedNotes([mockNotes[0]]);
-      expect(service.hasActiveResult).toBe(true);
+      expect(service.hasActiveResult()).toBe(true);
     });
 
     it('should be false after applyHighlightedNotes with empty array', () => {
       service.applyHighlightedNotes([]);
-      expect(service.hasActiveResult).toBe(false);
+      expect(service.hasActiveResult()).toBe(false);
     });
 
     it('should be true after showAll', () => {
       service.showAll();
-      expect(service.hasActiveResult).toBe(true);
+      expect(service.hasActiveResult()).toBe(true);
     });
 
     it('should be false after clearFretboard', () => {
       service.applyHighlightedNotes([mockNotes[0]]);
-      expect(service.hasActiveResult).toBe(true);
+      expect(service.hasActiveResult()).toBe(true);
       service.clearFretboard();
-      expect(service.hasActiveResult).toBe(false);
+      expect(service.hasActiveResult()).toBe(false);
     });
   });
 });

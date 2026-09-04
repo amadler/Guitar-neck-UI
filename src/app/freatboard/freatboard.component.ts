@@ -9,11 +9,11 @@ import { neckConfig } from 'guitar-neck-shared';
 import { StringToggleComponent } from '../string-toggle/string-toggle.component';
 
 @Component({
-    selector: 'app-freatboard',
-    templateUrl: './freatboard.component.html',
-    imports: [NgClass, StringToggleComponent],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    styleUrls: ['./freatboard.component.scss']
+  selector: 'app-freatboard',
+  templateUrl: './freatboard.component.html',
+  imports: [NgClass, StringToggleComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  styleUrls: ['./freatboard.component.scss']
 })
 export class FreatboardComponent implements OnInit {
   private domainService = inject(DomainService);
@@ -22,7 +22,7 @@ export class FreatboardComponent implements OnInit {
   private displayService = inject(FretboardDisplayService);
 
   @Output() onNoteClicked$: EventEmitter<GuitarNote> = new EventEmitter<GuitarNote>();
-  @Input({required: true}) notes: GuitarNote[] = []; // Initialize with empty array
+  @Input({ required: true }) notes: GuitarNote[] = []; // Initialize with empty array
   strings: string[] = [];
   frets: number[] = [];
 
@@ -38,13 +38,13 @@ export class FreatboardComponent implements OnInit {
   }
 
   get fretRange() {
-    return this.domainService.currentState.fretRange;
+    return this.domainService.currentState().fretRange;
   }
 
   // -- Delegating properties: shield template from direct service access --
 
   get activeStrings(): boolean[] {
-    return this.domainService.currentState.enabledStrings;
+    return this.domainService.currentState().enabledStrings;
   }
 
   get showNoteLabels(): boolean {
@@ -106,7 +106,7 @@ export class FreatboardComponent implements OnInit {
 
   /** Handle string toggle checkbox events from StringToggleComponent. */
   protected onStringToggled(event: { stringIndex: number; active: boolean }): void {
-    const enabled = [...this.domainService.currentState.enabledStrings];
+    const enabled = [...this.domainService.currentState().enabledStrings];
     if (event.stringIndex >= 0 && event.stringIndex < enabled.length) {
       enabled[event.stringIndex] = event.active;
     }

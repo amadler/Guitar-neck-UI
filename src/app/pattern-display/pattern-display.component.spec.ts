@@ -5,6 +5,8 @@ import { PatternBuilderService } from '../services/pattern-builder.service';
 import { PatternInfo } from '../shared/model/patternInfo';
 
 import { PatternDisplayComponent } from './pattern-display.component';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { signal } from '@angular/core';
 
 describe('PatternDisplayComponent', () => {
   let component: PatternDisplayComponent;
@@ -33,7 +35,8 @@ describe('PatternDisplayComponent', () => {
 
   beforeEach(async () => {
     mockState = {
-      currentPattern: null,
+      currentPattern: signal<PatternInfo | null>(null),
+      relatedChord: signal<PatternInfo | null>(null),
     };
 
     await TestBed.configureTestingModule({
@@ -68,7 +71,7 @@ describe('PatternDisplayComponent', () => {
 
   describe('rendering', () => {
     it('should show prompts section when currentPattern is a scale', () => {
-      mockState.currentPattern = scalePattern;
+      mockState.currentPattern?.set(scalePattern);
       fixture.detectChanges();
 
       const promptsTitle = fixture.debugElement.query(By.css('.pattern-card__prompts-title'));
@@ -81,7 +84,7 @@ describe('PatternDisplayComponent', () => {
     });
 
     it('should show prompts section when currentPattern is a chord', () => {
-      mockState.currentPattern = chordPattern;
+      mockState.currentPattern?.set(chordPattern);
       fixture.detectChanges();
 
       const promptsTitle = fixture.debugElement.query(By.css('.pattern-card__prompts-title'));
@@ -94,7 +97,7 @@ describe('PatternDisplayComponent', () => {
     });
 
     it('should hide entire panel when currentPattern is null', () => {
-      mockState.currentPattern = null;
+      mockState.currentPattern?.set(null);
       fixture.detectChanges();
 
       const panel = fixture.debugElement.query(By.css('.pattern-card'));

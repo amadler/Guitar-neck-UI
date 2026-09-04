@@ -14,14 +14,14 @@ export class FretboardNoteQueryService {
   }
 
   isNoteOnFret(stringIndex: number, fret: number): boolean {
-    if (stringIndex >= 0 && !this.domainService.currentState.enabledStrings[stringIndex]) {
+    if (stringIndex >= 0 && !this.domainService.currentState().enabledStrings[stringIndex]) {
       return false;
     }
     return this.guitarNeckService.notes.some(note => this.isMatchingNoteOnFret(note, stringIndex, fret));
   }
 
   getNote(stringIndex: number, fret: number): GuitarNote | undefined {
-    if (stringIndex >= 0 && !this.domainService.currentState.enabledStrings[stringIndex]) {
+    if (stringIndex >= 0 && !this.domainService.currentState().enabledStrings[stringIndex]) {
       return undefined;
     }
     return this.guitarNeckService.notes.find(note => this.isMatchingNoteOnFret(note, stringIndex, fret));

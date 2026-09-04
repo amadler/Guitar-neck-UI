@@ -1,9 +1,9 @@
 import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
-    selector: 'app-string-toggle',
-    imports: [],
-    template: `
+  selector: 'app-string-toggle',
+  imports: [],
+  template: `
     <label class="string-toggle" [attr.title]="stringName + ' string'">
       <input type="checkbox"
              [checked]="active"
@@ -12,8 +12,8 @@ import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from 
              [attr.aria-label]="'Show notes on ' + stringName + ' string'">
     </label>
   `,
-    changeDetection: ChangeDetectionStrategy.Eager,
-    styles: [`
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  styles: [`
     .string-toggle {
       display: flex;
       align-items: center;

@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { MusicSelection } from '../shared/model/music-selection';
 import { TonalFacadeService } from './tonal-facade.service';
@@ -45,7 +45,7 @@ export class MarkerRoleService {
 
 
   /** Cached result of the last computeRoles() call, for read access by display layer. */
-  lastRoles: Map<string, MarkerRole> = new Map();
+  readonly lastRoles = signal<Map<string, MarkerRole>>(new Map());
 
   /**
    * Compute marker roles for every note on the fretboard given a scale
@@ -117,7 +117,7 @@ export class MarkerRoleService {
       }
     }
 
-    this.lastRoles = roles;
+    this.lastRoles.set(roles);
     return roles;
   }
 }

@@ -3,6 +3,7 @@ import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { FretboardStateService } from '../services/fretboard-state.service';
 import { MarkerRoleService, MarkerRole } from '../services/marker-role.service';
 import { TonalFacadeService } from '../services/tonal-facade.service';
+import { neckConfig } from 'guitar-neck-shared';
 
 interface RoleLegendItem {
   role: MarkerRole;
@@ -34,7 +35,7 @@ function resolveScaleChromas(scaleName: string, rootNote: string, tonal: TonalFa
   selector: 'app-relationship-strip',
   imports: [],
   templateUrl: './relationship-strip.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './relationship-strip.component.scss'
 })
 export class RelationshipStripComponent {
@@ -45,31 +46,30 @@ export class RelationshipStripComponent {
   legendItems = ROLE_LEGEND;
 
   get hasRelation(): boolean {
-    return this.fretboardState.scaleChordState?.chord != null;
+    return this.fretboardState.scaleChordState()?.chord != null;
   }
 
   get scaleName(): string {
-    return this.fretboardState.scaleChordState?.scale.name ?? '';
+    return this.fretboardState.scaleChordState()?.scale.name ?? '';
   }
 
   get scaleRoot(): string {
-    return this.fretboardState.scaleChordState?.scale.rootNote ?? '';
+    return this.fretboardState.scaleChordState()?.scale.rootNote ?? '';
   }
 
   get chordName(): string {
-    return this.fretboardState.scaleChordState?.chord?.name ?? '';
+    return this.fretboardState.scaleChordState()?.chord?.name ?? '';
   }
 
   get chordRoot(): string {
-    return this.fretboardState.scaleChordState?.chord?.rootNote ?? '';
+    return this.fretboardState.scaleChordState()?.chord?.rootNote ?? '';
   }
 
   get chordTonesInScale(): string[] {
     if (!this.hasRelation) return [];
     const chordChromas = resolveChordChromas(this.chordName, this.chordRoot, this.tonal);
     const scaleChromas = resolveScaleChromas(this.scaleName, this.scaleRoot, this.tonal);
-    // TODO: hardcoded - add neckConfig
-    const sharpNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    const sharpNames = neckConfig.chromaticNotes;
     return [...chordChromas]
       .filter(c => scaleChromas.has(c))
       .map(c => sharpNames[c])
@@ -80,8 +80,7 @@ export class RelationshipStripComponent {
     if (!this.hasRelation) return [];
     const chordChromas = resolveChordChromas(this.chordName, this.chordRoot, this.tonal);
     const scaleChromas = resolveScaleChromas(this.scaleName, this.scaleRoot, this.tonal);
-    // TODO: hardcoded - add neckConfig
-    const sharpNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    const sharpNames = neckConfig.chromaticNotes;
     return [...chordChromas]
       .filter(c => !scaleChromas.has(c))
       .map(c => sharpNames[c])
