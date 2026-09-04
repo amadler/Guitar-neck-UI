@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, signal, ElementRef, HostListener, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, Output, EventEmitter, signal, ElementRef, HostListener, ChangeDetectionStrategy, inject, input, output } from '@angular/core';
 
 
 @Component({
@@ -10,13 +10,13 @@ import { Component, Input, Output, EventEmitter, signal, ElementRef, HostListene
         class="dropdown-chip"
         (click)="toggle()"
       >
-        {{ displayFn(selectedValue) }}
+        {{ displayFn()(selectedValue()) }}
         <span class="dropdown-arrow">▼</span>
       </button>
 
       @if (isOpen()) {
         <div class="dropdown-panel">
-          @if (showFilter) {
+          @if (showFilter()) {
             <input
               #filterInput
               class="dropdown-filter"
@@ -27,13 +27,13 @@ import { Component, Input, Output, EventEmitter, signal, ElementRef, HostListene
               (keydown)="$event.stopPropagation()"
             />
           }
-          @for (item of filteredOptions(); track trackByFn($index, item)) {
+          @for (item of filteredOptions(); track trackByFn()($index, item)) {
             <button
               class="dropdown-option"
-              [class.dropdown-option--selected]="item === selectedValue"
+              [class.dropdown-option--selected]="item === selectedValue()"
               (click)="select(item)"
             >
-              {{ displayFn(item) }}
+              {{ displayFn()(item) }}
             </button>
           }
         </div>
@@ -94,14 +94,13 @@ import { Component, Input, Output, EventEmitter, signal, ElementRef, HostListene
 export class DropdownComponent<T> {
   private elementRef = inject(ElementRef);
 
-  @Input() options: T[] = [];
-  @Input() displayFn: (item: T) => string = (item: T) => String(item);
-  @Input() selectedValue!: T;
-  @Input() showFilter = false;
-  @Input() trackByFn: (index: number, item: T) => unknown = (_i, item) => item;
+  readonly options = input<T[]>([]);
+  readonly displayFn = input<(item: T) => string>((item: T) => String(item));
+  readonly selectedValue = input.required<T>();
+  readonly showFilter = input(false);
+  readonly trackByFn = input<(index: number, item: T) => unknown>((_i, item) => item);
 
-  @Output() valueChange = new EventEmitter<T>();
-
+  readonly valueChange = output<T>();
   isOpen = signal(false);
   filterText = signal('');
 
@@ -124,12 +123,12 @@ export class DropdownComponent<T> {
   }
 
   filteredOptions(): T[] {
-    if (!this.showFilter || !this.filterText()) {
-      return this.options;
+    if (!this.showFilter() || !this.filterText()) {
+      return this.options();
     }
     const query = this.filterText().toLowerCase();
-    return this.options.filter(item =>
-      this.displayFn(item).toLowerCase().includes(query)
+    return this.options().filter(item =>
+      this.displayFn()(item).toLowerCase().includes(query)
     );
   }
 

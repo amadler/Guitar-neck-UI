@@ -1,9 +1,10 @@
-import { Component, Output, EventEmitter, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, Output, EventEmitter, ChangeDetectionStrategy, signal, output } from '@angular/core';
 
 import { neckConfig, SCALE_PATTERNS, CHORD_PATTERNS } from 'guitar-neck-shared';
 import { DomainCommand, ShowPatternCommand, ComparePatternsCommand } from '../domain/commands';
 import { DropdownComponent } from './dropdown.component';
 import { INTERVAL_CONFIG } from '../shared/tonal-adapter';
+import { ShowKind, ToolboxIntent } from './model';
 
 export interface IntervalOption {
   symbol: string;
@@ -18,23 +19,20 @@ const INTERVAL_OPTIONS: IntervalOption[] = INTERVAL_CONFIG.map(i => ({
 
 const DEFAULT_SCALE_TYPE = 'major';
 const DEFAULT_CHORD_TYPE = 'major';
-
-export type ToolboxIntent = 'show' | 'compare';
-export type ShowKind = 'chord' | 'scale' | 'interval';
+// TODO MusicKey - zbierzność nazw z model.ts
 export type MusicKey = string;
 
 @Component({
-    selector: 'app-toolbox-builder',
-    imports: [DropdownComponent],
-    templateUrl: './toolbox-builder.component.html',
-    styleUrl: './toolbox-builder.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'app-toolbox-builder',
+  imports: [DropdownComponent],
+  templateUrl: './toolbox-builder.component.html',
+  styleUrl: './toolbox-builder.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ToolboxBuilderComponent {
-  @Output() toolboxEvent: EventEmitter<DomainCommand> = new EventEmitter<DomainCommand>();
-
+  toolboxEvent = output<DomainCommand>();
   // --- Data sources ---
-  musicKeys: MusicKey[] = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+  musicKeys: MusicKey[] = neckConfig.chromaticNotes;
   scalePatternNames = SCALE_PATTERNS.map(s => s.name);
   chordPatternNames = CHORD_PATTERNS.map(c => c.name);
   intervalOptions = INTERVAL_OPTIONS;

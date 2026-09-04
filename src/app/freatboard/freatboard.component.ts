@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectionStrategy, inject, input, output } from '@angular/core';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { DomainService } from '../domain/domain.service';
 import { FretboardStateService } from '../services/fretboard-state.service';
@@ -21,8 +21,8 @@ export class FreatboardComponent implements OnInit {
   private noteQueryService = inject(FretboardNoteQueryService);
   private displayService = inject(FretboardDisplayService);
 
-  @Output() onNoteClicked$: EventEmitter<GuitarNote> = new EventEmitter<GuitarNote>();
-  @Input({ required: true }) notes: GuitarNote[] = []; // Initialize with empty array
+  notes = input.required<GuitarNote[]>();
+  onNoteClicked$ = output<GuitarNote>();
   strings: string[] = [];
   frets: number[] = [];
 
@@ -33,7 +33,7 @@ export class FreatboardComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.notes) {
-      this.guitarNeckService.notes = this.notes;
+      this.guitarNeckService.notes = this.notes();
     }
   }
 
@@ -97,7 +97,9 @@ export class FreatboardComponent implements OnInit {
 
   protected fretNoteClicked(stringIndex: number, fret: number) {
     const note = this.noteQueryService.fretNoteClicked(stringIndex, fret);
-    this.onNoteClicked$.emit(note || undefined);
+    if (note) {
+      this.onNoteClicked$.emit(note);
+    }
   }
 
   protected getNote(stringIndex: number, fret: number): GuitarNote | undefined {

@@ -47,10 +47,10 @@ describe('FreatboardComponent', () => {
     component = fixture.componentInstance;
     guitarNeckService = TestBed.inject(FretboardStateService);
     noteService = TestBed.inject(FretboardNotePositionService);
-    component.notes = [
+    fixture.componentRef.setInput('notes', [
       { string: 1, fret: 0, note: 'E', selected: false, interval: '', visible: true },
       { string: 2, fret: 1, note: 'F', selected: true, interval: 'root', visible: true },
-    ];
+    ]);
     fixture.detectChanges();
   });
 

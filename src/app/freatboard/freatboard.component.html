@@ -1,4 +1,4 @@
-@if (notes) {
+@if (notes()) {
   <div class="fretboard">
     <div class="fretboard__body">
       <div class="fretboard__fret-indices">
@@ -13,20 +13,24 @@
       </div>
       @for (string of strings; track string; let i = $index) {
         <div
-          [class]="'fretboard__string '+ string"
-          [class.fretboard__string--disabled]="!activeStrings[i]">
+          [class]="'fretboard__string ' + string"
+          [class.fretboard__string--disabled]="!activeStrings[i]"
+        >
           <app-string-toggle
             [stringName]="string"
             [stringIndex]="i"
             [active]="activeStrings[i]"
-            (stringToggled)="onStringToggled($event)">
+            (stringToggled)="onStringToggled($event)"
+          >
           </app-string-toggle>
           <div class="fretboard__nut-label">
             <span class="fretboard__nut-label__string-name">{{ string }}</span>
             @if (isNoteOnFret(i, 0) && isNoteInRange(0)) {
               @if (!isNoteSelected(i, 0)) {
-                <button class="fretboard__dot fretboard__open-note-btn"
-                  (click)="fretNoteClicked(i, 0)">
+                <button
+                  class="fretboard__dot fretboard__open-note-btn"
+                  (click)="fretNoteClicked(i, 0)"
+                >
                   @if (showNoteLabels) {
                     <span>{{ getNoteName(i, 0) }}</span>
                   }
@@ -35,7 +39,8 @@
               @if (isNoteSelected(i, 0) && !getNoteInterval(i, 0)) {
                 <div
                   [ngClass]="['fretboard__dot', getRoleCssClass(i, 0)]"
-                  (click)="fretNoteClicked(i, 0)">
+                  (click)="fretNoteClicked(i, 0)"
+                >
                   @if (showNoteLabels) {
                     <span>{{ getNoteName(i, 0) }}</span>
                   }
@@ -43,8 +48,13 @@
               }
               @if (getNoteInterval(i, 0)) {
                 <div
-                  [ngClass]="['fretboard__dot', getMarkerCssClass(getNoteInterval(i, 0)), getRoleCssClass(i, 0)]"
-                  (click)="fretNoteClicked(i, 0)">
+                  [ngClass]="[
+                    'fretboard__dot',
+                    getMarkerCssClass(getNoteInterval(i, 0)),
+                    getRoleCssClass(i, 0),
+                  ]"
+                  (click)="fretNoteClicked(i, 0)"
+                >
                   @if (showNoteLabels) {
                     <span>{{ getNoteName(i, 0) }}</span>
                   }
@@ -62,16 +72,17 @@
               }
               @if (isNoteOnFret(i, fret) && isNoteInRange(fret)) {
                 @if (!isNoteSelected(i, fret)) {
-                  <button class="fretboard__dot"
-                    (click)="fretNoteClicked(i, fret)">
+                  <button
+                    class="fretboard__dot"
+                    (click)="fretNoteClicked(i, fret)"
+                  >
                     @if (showNoteLabels) {
                       <span>{{ getNoteName(i, fret) }}</span>
                     }
                   </button>
                 }
                 @if (isNoteSelected(i, fret) && !getNoteInterval(i, fret)) {
-                  <div
-                    [ngClass]="['fretboard__dot', getRoleCssClass(i, fret)]">
+                  <div [ngClass]="['fretboard__dot', getRoleCssClass(i, fret)]">
                     @if (showNoteLabels) {
                       <span>{{ getNoteName(i, fret) }}</span>
                     }
@@ -79,7 +90,12 @@
                 }
                 @if (getNoteInterval(i, fret)) {
                   <div
-                    [ngClass]="['fretboard__dot', getMarkerCssClass(getNoteInterval(i, fret)), getRoleCssClass(i, fret)]">
+                    [ngClass]="[
+                      'fretboard__dot',
+                      getMarkerCssClass(getNoteInterval(i, fret)),
+                      getRoleCssClass(i, fret),
+                    ]"
+                  >
                     @if (showNoteLabels) {
                       <span>{{ getNoteName(i, fret) }}</span>
                     }

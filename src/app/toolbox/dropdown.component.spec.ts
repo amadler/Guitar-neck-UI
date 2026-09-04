@@ -13,8 +13,8 @@ describe('DropdownComponent', () => {
 
         fixture = TestBed.createComponent(DropdownComponent<string>);
         component = fixture.componentInstance;
-        component.options = ['C', 'C#', 'D'];
-        component.selectedValue = 'C';
+        fixture.componentRef.setInput('options', ['C', 'C#', 'D']);
+        fixture.componentRef.setInput('selectedValue', 'C');
         fixture.detectChanges();
     });
 
@@ -31,7 +31,7 @@ describe('DropdownComponent', () => {
     });
 
     it('should filter options when showFilter is true', () => {
-        component.showFilter = true;
+        fixture.componentRef.setInput('showFilter', true);
         component.isOpen.set(true);
         component.filterText.set('c#');
 

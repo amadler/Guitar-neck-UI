@@ -1,15 +1,14 @@
-import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, Output, ChangeDetectionStrategy, input, output } from '@angular/core';
 
 @Component({
   selector: 'app-string-toggle',
-  imports: [],
   template: `
-    <label class="string-toggle" [attr.title]="stringName + ' string'">
+    <label class="string-toggle" [attr.title]="stringName() + ' string'">
       <input type="checkbox"
-             [checked]="active"
-             [disabled]="disabled"
+             [checked]="active()"
+             [disabled]="disabled()"
              (change)="onToggle($event)"
-             [attr.aria-label]="'Show notes on ' + stringName + ' string'">
+             [attr.aria-label]="'Show notes on ' + stringName() + ' string'">
     </label>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -34,15 +33,14 @@ import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from 
   `]
 })
 export class StringToggleComponent {
-  @Input({ required: true }) stringName = '';
-  @Input({ required: true }) stringIndex = 0;
-  @Input() active = true;
-  @Input() disabled = false;
+  readonly stringName = input.required<string>();
+  readonly stringIndex = input.required<number>();
+  readonly active = input(true);
+  readonly disabled = input(false);
 
-  @Output() stringToggled = new EventEmitter<{ stringIndex: number; active: boolean }>();
-
+  readonly stringToggled = output<{ stringIndex: number; active: boolean }>();
   onToggle(event: Event): void {
     const checked = (event.target as HTMLInputElement).checked;
-    this.stringToggled.emit({ stringIndex: this.stringIndex, active: checked });
+    this.stringToggled.emit({ stringIndex: this.stringIndex(), active: checked });
   }
 }

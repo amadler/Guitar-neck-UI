@@ -14,9 +14,9 @@ describe('StringToggleComponent', () => {
     fixture = TestBed.createComponent(StringToggleComponent);
     component = fixture.componentInstance;
 
-    component.stringName = 'E';
-    component.stringIndex = 0;
-    component.active = true;
+    fixture.componentRef.setInput('stringName', 'E');
+    fixture.componentRef.setInput('stringIndex', 0);
+    fixture.componentRef.setInput('active', true);
     fixture.detectChanges();
   });
 

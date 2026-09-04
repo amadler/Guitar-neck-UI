@@ -1,13 +1,13 @@
-import { Component, EventEmitter, Output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, Output, ChangeDetectionStrategy, output } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { neckConfig } from 'guitar-neck-shared';
 
+// TODO: separate file maybe
 interface Preset {
   label: string;
   min: number;
   max: number;
-  icon: string;
 }
 
 @Component({
@@ -18,15 +18,15 @@ interface Preset {
   styleUrls: ['./range-toolbar.component.scss']
 })
 export class RangeToolbarComponent {
-  @Output() rangeChange = new EventEmitter<{ minFret: number, maxFret: number }>();
+  rangeChange = output<{ minFret: number, maxFret: number }>();
   neckConfig = neckConfig;
   readonly presets: Preset[] = [
-    { label: 'Open', min: 0, max: 4, icon: '🎸' },
-    { label: '5th Pos.', min: 5, max: 9, icon: '🎸' },
-    { label: '9th Pos.', min: 9, max: 13, icon: '🎸' },
-    { label: '12th Pos.', min: 12, max: 16, icon: '🎸' },
-    { label: 'Full Neck', min: 0, max: neckConfig.numberOfFrets, icon: '🎸' },
-    { label: 'Custom', min: 0, max: neckConfig.numberOfFrets, icon: '⚙️' }
+    { label: 'Open', min: 0, max: 4 },
+    { label: '5th Pos.', min: 5, max: 9 },
+    { label: '9th Pos.', min: 9, max: 13 },
+    { label: '12th Pos.', min: 12, max: 16 },
+    { label: 'Full Neck', min: 0, max: neckConfig.numberOfFrets },
+    { label: 'Custom', min: 0, max: neckConfig.numberOfFrets }
   ];
 
   activePreset: Preset | null = this.presets[4];
