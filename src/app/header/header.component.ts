@@ -4,11 +4,10 @@ import { isPlatformBrowser } from '@angular/common';
 const STORAGE_KEY = 'guitar-neck-ui-visited';
 
 @Component({
-    selector: 'app-header',
-    imports: [],
-    templateUrl: './header.component.html',
-    changeDetection: ChangeDetectionStrategy.Eager,
-    styleUrl: './header.component.scss'
+  selector: 'app-header',
+  templateUrl: './header.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  styleUrl: './header.component.scss'
 })
 export class HeaderComponent implements OnInit {
   private readonly platformId = inject(PLATFORM_ID);

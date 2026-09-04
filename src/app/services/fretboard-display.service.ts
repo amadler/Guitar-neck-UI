@@ -7,6 +7,7 @@ import { MarkerRoleService, MarkerRole } from './marker-role.service';
  * CSS class suffix for each marker role.
  * Used as `fretboard__dot--role-${suffix}`.
  */
+// TODO: tylko jedna różnica. Po co e ROLE_CSS
 const ROLE_CSS: Record<MarkerRole, string> = {
   'scale-tone': 'scale-tone',
   'chord-tone': 'chord-tone',
@@ -24,11 +25,11 @@ export class FretboardDisplayService {
 
   getMarkerCssClass(interval: string | undefined): string {
     // When a chord relation is active, use role-based coloring instead of interval colors
-    if (this.guitarNeckService.scaleChordState?.chord) {
+    if (this.guitarNeckService.scaleChordState()?.chord) {
       return '';
     }
 
-    const mode = this.domainService.currentState.markerDisplayMode;
+    const mode = this.domainService.currentState().markerDisplayMode;
     if (mode === 'interval-colors' && interval) {
       return 'fretboard__dot--' + interval;
     }
@@ -39,7 +40,7 @@ export class FretboardDisplayService {
   }
 
   get showNoteLabels(): boolean {
-    return this.domainService.currentState.markerDisplayMode !== 'neutral-dots';
+    return this.domainService.currentState().markerDisplayMode !== 'neutral-dots';
   }
 
   getActiveIntervals(): string[] {
@@ -59,11 +60,11 @@ export class FretboardDisplayService {
 
   /** Returns the role CSS class for a note at a given position, or empty string. */
   getRoleCssClass(stringIndex: number, fret: number): string {
-    if (!this.guitarNeckService.scaleChordState) {
+    if (!this.guitarNeckService.scaleChordState()) {
       return '';
     }
     const key = `${stringIndex}-${fret}`;
-    const role: MarkerRole | undefined = this.markerRoleService.lastRoles?.get(key);
+    const role: MarkerRole | undefined = this.markerRoleService.lastRoles()?.get(key);
     if (!role) {
       return '';
     }
@@ -73,6 +74,6 @@ export class FretboardDisplayService {
 
   /** Returns true if there is an active scale+chord relation. */
   get hasRelation(): boolean {
-    return this.guitarNeckService.scaleChordState !== null;
+    return this.guitarNeckService.scaleChordState() !== null;
   }
 }

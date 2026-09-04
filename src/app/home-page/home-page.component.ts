@@ -32,7 +32,7 @@ export type DisplayMode = 'legend' | 'relationship' | null;
     ChatComponent
   ],
   templateUrl: './home-page.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './home-page.component.scss'
 })
 export class HomePageComponent {

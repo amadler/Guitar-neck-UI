@@ -17,11 +17,11 @@ const TAP_RESET_MS = 2000;
 const MIN_TAP_INTERVAL_MS = 200;
 
 @Component({
-    selector: 'app-metronome',
-    imports: [FormsModule],
-    templateUrl: './metronome.component.html',
-    changeDetection: ChangeDetectionStrategy.Eager,
-    styleUrl: './metronome.component.scss'
+  selector: 'app-metronome',
+  imports: [FormsModule],
+  templateUrl: './metronome.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  styleUrl: './metronome.component.scss'
 })
 export class MetronomeComponent implements OnDestroy {
   private engine = inject(MetronomeEngineService);

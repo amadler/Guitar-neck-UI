@@ -2,9 +2,9 @@ import { Component, Input, Output, EventEmitter, signal, ElementRef, HostListene
 
 
 @Component({
-    selector: 'app-dropdown',
-    imports: [],
-    template: `
+  selector: 'app-dropdown',
+  imports: [],
+  template: `
     <div class="dropdown-wrapper">
       <button
         class="dropdown-chip"
@@ -40,9 +40,9 @@ import { Component, Input, Output, EventEmitter, signal, ElementRef, HostListene
       }
     </div>
   `,
-    // TODO: przenieść style
-    changeDetection: ChangeDetectionStrategy.Eager,
-    styles: [`
+  // TODO: przenieść style
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  styles: [`
     .dropdown-wrapper { position: relative; display: inline-flex; }
     .dropdown-chip {
       display: inline-flex; align-items: center; gap: 4px;

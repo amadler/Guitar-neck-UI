@@ -5,11 +5,11 @@ import { PatternBuilderService } from '../services/pattern-builder.service';
 import { PRACTICE_PROMPTS, PromptType } from '../shared/practice-prompts.data';
 
 @Component({
-    selector: 'app-pattern-display',
-    imports: [],
-    templateUrl: './pattern-display.component.html',
-    changeDetection: ChangeDetectionStrategy.Eager,
-    styleUrl: './pattern-display.component.scss'
+  selector: 'app-pattern-display',
+  imports: [],
+  templateUrl: './pattern-display.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  styleUrl: './pattern-display.component.scss'
 })
 export class PatternDisplayComponent {
   private domainService = inject(DomainService);
@@ -19,15 +19,15 @@ export class PatternDisplayComponent {
   // -- Delegating properties: shield template from direct service access --
 
   get currentPattern() {
-    return this.patternBuilder.currentPattern;
+    return this.patternBuilder.currentPattern();
   }
 
   get relatedChord() {
-    return this.patternBuilder.relatedChord;
+    return this.patternBuilder.relatedChord();
   }
 
   get isScaleChordMode(): boolean {
-    return this.domainService.currentState.mode === 'scale-chord';
+    return this.domainService.currentState().mode === 'scale-chord';
   }
 
   getPromptsForType(type: PromptType): string[] {

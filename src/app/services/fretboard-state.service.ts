@@ -1,5 +1,5 @@
 /* GuitarNeckService zarządza stanem gryfu.*/
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { MusicSelection } from '../shared/model/music-selection';
 
@@ -13,14 +13,16 @@ import { FretboardNotePositionService } from './note.service';
 @Injectable({ providedIn: 'root' })
 export class FretboardStateService {
   private noteService = inject(FretboardNotePositionService);
-
   notes: GuitarNote[];
   /** Whether there is an active result (notes highlighted/show all) on the fretboard. */
-  hasActiveResult = false;
+  readonly hasActiveResult = signal(false);
+
   /** Unified domain model describing what is currently selected. */
-  currentSelection: MusicSelection | null = null;
+  readonly currentSelection = signal<MusicSelection | null>(null);
+
   /** Dual selection state for scale + chord relation. null when no relation is active. */
-  scaleChordState: ScaleChordState | null = null;
+  readonly scaleChordState = signal<ScaleChordState | null>(null);
+
   /** O(1) lookup map keyed by "${string}-${fret}". Rebuilt when notes are initialized. */
   private notesMap: Map<string, GuitarNote> = new Map();
 
@@ -53,7 +55,7 @@ export class FretboardStateService {
       }
     });
 
-    this.hasActiveResult = notes.length > 0;
+    this.hasActiveResult.set(notes.length > 0);
 
     return this.notes.filter(note => note.selected);
   }
@@ -64,7 +66,7 @@ export class FretboardStateService {
 
   showAll() {
     this.notes.forEach(note => note.visible = true);
-    this.hasActiveResult = true;
+    this.hasActiveResult.set(true);
   }
 
   clearSelection() {
@@ -74,9 +76,9 @@ export class FretboardStateService {
   clearFretboard() {
     this.hideAllNotes();
     this.clearSelection();
-    this.hasActiveResult = false;
-    this.currentSelection = null;
-    this.scaleChordState = null;
+    this.hasActiveResult.set(false);
+    this.currentSelection.set(null);
+    this.scaleChordState.set(null);
     // Note: enabledStrings are NOT reset here — they persist in DomainState until the user manually toggles them.
   }
 }

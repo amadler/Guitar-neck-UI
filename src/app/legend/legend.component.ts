@@ -10,11 +10,11 @@ export interface IntervalDef {
 }
 
 @Component({
-    selector: 'app-legend',
-    imports: [],
-    templateUrl: './legend.component.html',
-    changeDetection: ChangeDetectionStrategy.Eager,
-    styleUrl: './legend.component.scss'
+  selector: 'app-legend',
+  imports: [],
+  templateUrl: './legend.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  styleUrl: './legend.component.scss'
 })
 export class LegendComponent {
   private domainService = inject(DomainService);
@@ -40,7 +40,7 @@ export class LegendComponent {
   // -- Delegating properties: shield template from direct service access --
 
   get markerDisplayMode(): string {
-    return this.domainService.currentState.markerDisplayMode;
+    return this.domainService.currentState().markerDisplayMode;
   }
 
   set markerDisplayMode(value: string) {
@@ -48,7 +48,7 @@ export class LegendComponent {
   }
 
   get hasActiveResult(): boolean {
-    return this.guitarNeckService.hasActiveResult;
+    return this.guitarNeckService.hasActiveResult();
   }
 
   get hasRelation(): boolean {
