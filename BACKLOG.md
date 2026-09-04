@@ -368,7 +368,7 @@ Then:
 
 ## Status
 
-OPEN
+FIXED
 
 # P9: Eliminate state duplication — DomainState vs FretboardStateService
 
