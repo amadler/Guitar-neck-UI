@@ -1,5 +1,5 @@
 
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { DomainService } from '../domain/domain.service';
 import { FretboardStateService } from '../services/fretboard-state.service';
 import { FretboardDisplayService } from '../services/fretboard-display.service';
@@ -17,6 +17,10 @@ export interface IntervalDef {
     styleUrl: './legend.component.scss'
 })
 export class LegendComponent {
+  private domainService = inject(DomainService);
+  private guitarNeckService = inject(FretboardStateService);
+  private displayService = inject(FretboardDisplayService);
+
 
   readonly allIntervals: IntervalDef[] = [
     { cssClass: 'root', label: 'Root' },
@@ -32,12 +36,6 @@ export class LegendComponent {
     { cssClass: 'minor-7th', label: '♭7' },
     { cssClass: 'major-7th', label: '7' },
   ];
-
-  constructor(
-    private domainService: DomainService,
-    private guitarNeckService: FretboardStateService,
-    private displayService: FretboardDisplayService
-  ) {}
 
   // -- Delegating properties: shield template from direct service access --
 

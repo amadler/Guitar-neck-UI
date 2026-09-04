@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { AIService } from '../../services/ai.service';
@@ -114,6 +114,9 @@ import { AISuggestionService } from '../../services/ai-suggestion.service';
   `]
 })
 export class ChatComponent {
+  private aiSuggestionService = inject(AISuggestionService);
+  private aiService = inject(AIService);
+
   messages: Array<{
     text: string;
     isUser: boolean;
@@ -121,11 +124,6 @@ export class ChatComponent {
   }> = [];
   currentMessage = '';
   isLoading = false;
-
-  constructor(
-    private aiSuggestionService: AISuggestionService,
-    private aiService: AIService
-  ) { }
 
   sendMessage() {
     if (!this.currentMessage.trim() || this.isLoading) return;

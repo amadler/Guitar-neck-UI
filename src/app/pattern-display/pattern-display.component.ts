@@ -1,5 +1,5 @@
 
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { DomainService } from '../domain/domain.service';
 import { PatternBuilderService } from '../services/pattern-builder.service';
 import { PRACTICE_PROMPTS, PromptType } from '../shared/practice-prompts.data';
@@ -12,10 +12,9 @@ import { PRACTICE_PROMPTS, PromptType } from '../shared/practice-prompts.data';
     styleUrl: './pattern-display.component.scss'
 })
 export class PatternDisplayComponent {
-  constructor(
-    private domainService: DomainService,
-    private patternBuilder: PatternBuilderService,
-  ) {}
+  private domainService = inject(DomainService);
+  private patternBuilder = inject(PatternBuilderService);
+
 
   // -- Delegating properties: shield template from direct service access --
 

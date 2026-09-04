@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 
 import { FretboardStateService } from '../services/fretboard-state.service';
 import { MarkerRoleService, MarkerRole } from '../services/marker-role.service';
@@ -38,13 +38,11 @@ function resolveScaleChromas(scaleName: string, rootNote: string, tonal: TonalFa
   styleUrl: './relationship-strip.component.scss'
 })
 export class RelationshipStripComponent {
-  legendItems = ROLE_LEGEND;
+  private fretboardState = inject(FretboardStateService);
+  markerRole = inject(MarkerRoleService);
+  private tonal = inject(TonalFacadeService);
 
-  constructor(
-    private fretboardState: FretboardStateService,
-    public markerRole: MarkerRoleService,
-    private tonal: TonalFacadeService,
-  ) { }
+  legendItems = ROLE_LEGEND;
 
   get hasRelation(): boolean {
     return this.fretboardState.scaleChordState?.chord != null;

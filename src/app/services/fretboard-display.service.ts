@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { DomainService } from '../domain/domain.service';
 import { FretboardStateService } from './fretboard-state.service';
 import { MarkerRoleService, MarkerRole } from './marker-role.service';
@@ -17,11 +17,10 @@ const ROLE_CSS: Record<MarkerRole, string> = {
 
 @Injectable({ providedIn: 'root' })
 export class FretboardDisplayService {
-  constructor(
-    private domainService: DomainService,
-    private guitarNeckService: FretboardStateService,
-    private markerRoleService: MarkerRoleService,
-  ) { }
+  private domainService = inject(DomainService);
+  private guitarNeckService = inject(FretboardStateService);
+  private markerRoleService = inject(MarkerRoleService);
+
 
   getMarkerCssClass(interval: string | undefined): string {
     // When a chord relation is active, use role-based coloring instead of interval colors

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AIResponse } from '../models/ai-response.model';
@@ -8,7 +8,8 @@ import { aiConfig } from '../../ai-config';
   providedIn: 'root'
 })
 export class AIService {
-  constructor(private http: HttpClient) {}
+  private http = inject(HttpClient);
+
 
   generateResponse(input: string): Observable<AIResponse> {
     const endpoint = `${aiConfig.endpoint}/${aiConfig.model}:generateContent`;

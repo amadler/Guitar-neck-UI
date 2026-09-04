@@ -1,4 +1,4 @@
-import { Component, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnDestroy, ChangeDetectionStrategy, inject } from '@angular/core';
 
 import { Subscription } from 'rxjs';
 import { AISuggestionService } from '../../services/ai-suggestion.service';
@@ -47,10 +47,12 @@ import { AIResponse, MusicalSuggestion } from '../../models/ai-response.model';
   `]
 })
 export class AISuggestionsComponent implements OnDestroy {
+  private aiSuggestionService = inject(AISuggestionService);
+
   currentResponse: AIResponse | null = null;
   private subscription: Subscription;
 
-  constructor(private aiSuggestionService: AISuggestionService) {
+  constructor() {
     this.subscription = this.aiSuggestionService.currentResponse$
       .subscribe((response: AIResponse | null) => {
         this.currentResponse = response;

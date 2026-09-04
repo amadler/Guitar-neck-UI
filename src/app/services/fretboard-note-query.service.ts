@@ -1,14 +1,13 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { DomainService } from '../domain/domain.service';
 import { FretboardStateService } from './fretboard-state.service';
 
 @Injectable({ providedIn: 'root' })
 export class FretboardNoteQueryService {
-  constructor(
-    private domainService: DomainService,
-    private guitarNeckService: FretboardStateService,
-  ) {}
+  private domainService = inject(DomainService);
+  private guitarNeckService = inject(FretboardStateService);
+
 
   private isMatchingNoteOnFret(note: GuitarNote, stringIndex: number, fret: number): boolean {
     return note.string === stringIndex + 1 && note.fret === fret && note.visible;

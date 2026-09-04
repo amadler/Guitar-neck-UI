@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { neckConfig, CHORD_PATTERNS, SCALE_PATTERNS } from 'guitar-neck-shared';
 import { PatternInfo } from '../shared/model/patternInfo';
 import { MusicSelection } from '../shared/model/music-selection';
@@ -12,11 +12,11 @@ const SEMITONE_TO_INTERVAL: Record<number, string> =
 
 @Injectable({ providedIn: 'root' })
 export class PatternBuilderService {
+  private fretboardState = inject(FretboardStateService);
+
   currentPattern: PatternInfo | null = null;
   /** Chord pattern info when a scale+chord relation is active. */
   relatedChord: PatternInfo | null = null;
-
-  constructor(private fretboardState: FretboardStateService) {}
 
   setCurrentPattern(patternName: string, rootNote: string, type: 'scale' | 'chord'): void {
     const patterns = type === 'scale' ? SCALE_PATTERNS : CHORD_PATTERNS;

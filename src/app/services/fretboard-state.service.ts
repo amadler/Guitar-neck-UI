@@ -1,5 +1,5 @@
 /* GuitarNeckService zarządza stanem gryfu.*/
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { MusicSelection } from '../shared/model/music-selection';
 
@@ -12,6 +12,8 @@ import { FretboardNotePositionService } from './note.service';
 
 @Injectable({ providedIn: 'root' })
 export class FretboardStateService {
+  private noteService = inject(FretboardNotePositionService);
+
   notes: GuitarNote[];
   /** Whether there is an active result (notes highlighted/show all) on the fretboard. */
   hasActiveResult = false;
@@ -22,9 +24,7 @@ export class FretboardStateService {
   /** O(1) lookup map keyed by "${string}-${fret}". Rebuilt when notes are initialized. */
   private notesMap: Map<string, GuitarNote> = new Map();
 
-  constructor(
-    private noteService: FretboardNotePositionService,
-  ) {
+  constructor() {
     this.notes = this.noteService.getAllPositions();
     this.buildNotesMap();
   }

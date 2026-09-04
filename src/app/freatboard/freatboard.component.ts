@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectionStrategy, inject } from '@angular/core';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { DomainService } from '../domain/domain.service';
 import { FretboardStateService } from '../services/fretboard-state.service';
@@ -16,17 +16,17 @@ import { StringToggleComponent } from '../string-toggle/string-toggle.component'
     styleUrls: ['./freatboard.component.scss']
 })
 export class FreatboardComponent implements OnInit {
+  private domainService = inject(DomainService);
+  private guitarNeckService = inject(FretboardStateService);
+  private noteQueryService = inject(FretboardNoteQueryService);
+  private displayService = inject(FretboardDisplayService);
+
   @Output() onNoteClicked$: EventEmitter<GuitarNote> = new EventEmitter<GuitarNote>();
   @Input({required: true}) notes: GuitarNote[] = []; // Initialize with empty array
   strings: string[] = [];
   frets: number[] = [];
 
-  constructor(
-    private domainService: DomainService,
-    private guitarNeckService: FretboardStateService,
-    private noteQueryService: FretboardNoteQueryService,
-    private displayService: FretboardDisplayService
-  ) {
+  constructor() {
     this.strings = neckConfig.stringNotes;
     this.frets = Array.from({ length: neckConfig.numberOfFrets }, (_, i) => i + 1);
   }

@@ -1,4 +1,4 @@
-import { Component, OnDestroy, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnDestroy, signal, ChangeDetectionStrategy, inject } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { MetronomeEngineService } from './metronome-engine.service';
@@ -24,6 +24,8 @@ const MIN_TAP_INTERVAL_MS = 200;
     styleUrl: './metronome.component.scss'
 })
 export class MetronomeComponent implements OnDestroy {
+  private engine = inject(MetronomeEngineService);
+
   bpm = DEFAULT_BPM;
   timeSignature = DEFAULT_TIME_SIGNATURE;
   isRunning = false;
@@ -42,8 +44,6 @@ export class MetronomeComponent implements OnDestroy {
   private schedulingInterval: ReturnType<typeof setInterval> | null = null;
   private scheduledBeatTimes: number[] = [];
   private tapTimestamps: number[] = [];
-
-  constructor(private engine: MetronomeEngineService) {}
 
   start(): void {
     this.engine.initAudioContext();

@@ -1,4 +1,4 @@
-import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy, inject } from '@angular/core';
 
 import { DomainService } from '../domain/domain.service';
 import { DomainCommand } from '../domain/commands';
@@ -18,8 +18,8 @@ import { ChatComponent } from '../../../projects/guitar-chat/src/lib/components/
 export type DisplayMode = 'legend' | 'relationship' | null;
 
 @Component({
-    selector: 'app-home-page',
-    imports: [
+  selector: 'app-home-page',
+  imports: [
     GuitarNeckComponent,
     RangeToolbarComponent,
     HeaderComponent,
@@ -30,20 +30,22 @@ export type DisplayMode = 'legend' | 'relationship' | null;
     RelationshipStripComponent,
     ToolboxBuilderComponent,
     ChatComponent
-],
-    templateUrl: './home-page.component.html',
-    changeDetection: ChangeDetectionStrategy.Eager,
-    styleUrl: './home-page.component.scss'
+  ],
+  templateUrl: './home-page.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrl: './home-page.component.scss'
 })
 export class HomePageComponent {
+  private domainService = inject(DomainService);
+
   chatEnabled = environment.features.chatEnabled;
 
   /** Controls which overlay is shown: legend (for Show) or relationship strip (for Compare). */
   displayMode = signal<DisplayMode>(null);
 
-  constructor(
-    private domainService: DomainService,
-  ) {
+  constructor() {
+    const domainService = this.domainService;
+
     // Expose DomainService for console testing in dev mode
     (window as any).__ds = domainService;
   }

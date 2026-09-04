@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
 import { SCALE_PATTERNS, CHORD_PATTERNS } from 'guitar-neck-shared';
 import { DomainCommand } from './commands';
 import { DomainQuery, GetPatternDetailsResult } from './queries';
@@ -25,6 +25,10 @@ type QueryHandler = (query: any) => DomainResult<any>;
  */
 @Injectable({ providedIn: 'root' })
 export class DomainService {
+  private orchestration = inject(FretboardOrchestrationService);
+  private patternBuilder = inject(PatternBuilderService);
+  private tonalFacade = inject(TonalFacadeService);
+
   private stateSignal = signal<DomainState>(DEFAULT_DOMAIN_STATE);
 
   /** Current state snapshot. */
@@ -38,11 +42,7 @@ export class DomainService {
   private commandHandlers = new Map<string, CommandHandler>();
   private queryHandlers = new Map<string, QueryHandler>();
 
-  constructor(
-    private orchestration: FretboardOrchestrationService,
-    private patternBuilder: PatternBuilderService,
-    private tonalFacade: TonalFacadeService,
-  ) {
+  constructor() {
     this.registerCommandHandlers();
     this.registerQueryHandlers();
   }

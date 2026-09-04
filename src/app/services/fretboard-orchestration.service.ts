@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { MusicSelection } from '../shared/model/music-selection';
 import { FretboardNotePositionService } from './note.service';
@@ -15,12 +15,11 @@ import { TonalFacadeService } from './tonal-facade.service';
  */
 @Injectable({ providedIn: 'root' })
 export class FretboardOrchestrationService {
-  constructor(
-    private noteService: FretboardNotePositionService,
-    private guitarNeckService: FretboardStateService,
-    private markerRoleService: MarkerRoleService,
-    private tonalFacade: TonalFacadeService,
-  ) { }
+  private noteService = inject(FretboardNotePositionService);
+  private guitarNeckService = inject(FretboardStateService);
+  private markerRoleService = inject(MarkerRoleService);
+  private tonalFacade = inject(TonalFacadeService);
+
 
   /** Wyświetla skalę na gryfie z oznaczeniem interwałów. */
   displayScale(scaleName: string, rootNote: string): GuitarNote[] {

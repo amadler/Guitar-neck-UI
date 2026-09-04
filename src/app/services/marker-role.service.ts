@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { MusicSelection } from '../shared/model/music-selection';
 import { TonalFacadeService } from './tonal-facade.service';
@@ -41,11 +41,11 @@ function resolveScaleChromas(scaleName: string, rootNote: string, tonal: TonalFa
 
 @Injectable({ providedIn: 'root' })
 export class MarkerRoleService {
+  private tonal = inject(TonalFacadeService);
+
 
   /** Cached result of the last computeRoles() call, for read access by display layer. */
   lastRoles: Map<string, MarkerRole> = new Map();
-
-  constructor(private tonal: TonalFacadeService) {}
 
   /**
    * Compute marker roles for every note on the fretboard given a scale

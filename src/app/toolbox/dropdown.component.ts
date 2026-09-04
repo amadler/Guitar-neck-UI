@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, signal, ElementRef, HostListener, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal, ElementRef, HostListener, ChangeDetectionStrategy, inject } from '@angular/core';
 
 
 @Component({
@@ -92,6 +92,8 @@ import { Component, Input, Output, EventEmitter, signal, ElementRef, HostListene
   `]
 })
 export class DropdownComponent<T> {
+  private elementRef = inject(ElementRef);
+
   @Input() options: T[] = [];
   @Input() displayFn: (item: T) => string = (item: T) => String(item);
   @Input() selectedValue!: T;
@@ -102,8 +104,6 @@ export class DropdownComponent<T> {
 
   isOpen = signal(false);
   filterText = signal('');
-
-  constructor(private elementRef: ElementRef) { }
 
   toggle(): void {
     this.isOpen.update(v => !v);
