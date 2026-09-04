@@ -18,23 +18,22 @@ import { ChatComponent } from '../../../projects/guitar-chat/src/lib/components/
 export type DisplayMode = 'legend' | 'relationship' | null;
 
 @Component({
-  selector: 'app-home-page',
-  standalone: true,
-  imports: [
-    NgIf,
-    GuitarNeckComponent,
-    RangeToolbarComponent,
-    HeaderComponent,
-    FooterComponent,
-    LegendComponent,
-    PatternDisplayComponent,
-    MetronomeComponent,
-    RelationshipStripComponent,
-    ToolboxBuilderComponent,
-    ChatComponent
-  ],
-  templateUrl: './home-page.component.html',
-  styleUrl: './home-page.component.scss'
+    selector: 'app-home-page',
+    imports: [
+        NgIf,
+        GuitarNeckComponent,
+        RangeToolbarComponent,
+        HeaderComponent,
+        FooterComponent,
+        LegendComponent,
+        PatternDisplayComponent,
+        MetronomeComponent,
+        RelationshipStripComponent,
+        ToolboxBuilderComponent,
+        ChatComponent
+    ],
+    templateUrl: './home-page.component.html',
+    styleUrl: './home-page.component.scss'
 })
 export class HomePageComponent {
   chatEnabled = environment.features.chatEnabled;

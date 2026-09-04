@@ -7,11 +7,10 @@ import { FretboardNotePositionService } from '../services/note.service';
 import { FretboardStateService } from '../services/fretboard-state.service';
 
 @Component({
-  selector: 'app-guitar-neck',
-  standalone: true,
-  imports: [AsyncPipe, NgIf, FreatboardComponent],
-  templateUrl: './guitar-neck.component.html',
-  styleUrl: './guitar-neck.component.scss'
+    selector: 'app-guitar-neck',
+    imports: [AsyncPipe, NgIf, FreatboardComponent],
+    templateUrl: './guitar-neck.component.html',
+    styleUrl: './guitar-neck.component.scss'
 })
 export class GuitarNeckComponent {
   neckConfig = neckConfig;

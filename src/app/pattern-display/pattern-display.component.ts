@@ -5,11 +5,10 @@ import { PatternBuilderService } from '../services/pattern-builder.service';
 import { PRACTICE_PROMPTS, PromptType } from '../shared/practice-prompts.data';
 
 @Component({
-  selector: 'app-pattern-display',
-  standalone: true,
-  imports: [NgIf, NgFor],
-  templateUrl: './pattern-display.component.html',
-  styleUrl: './pattern-display.component.scss'
+    selector: 'app-pattern-display',
+    imports: [NgIf, NgFor],
+    templateUrl: './pattern-display.component.html',
+    styleUrl: './pattern-display.component.scss'
 })
 export class PatternDisplayComponent {
   constructor(

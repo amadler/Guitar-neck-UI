@@ -10,11 +10,10 @@ export interface IntervalDef {
 }
 
 @Component({
-  selector: 'app-legend',
-  standalone: true,
-  imports: [NgFor, NgIf],
-  templateUrl: './legend.component.html',
-  styleUrl: './legend.component.scss'
+    selector: 'app-legend',
+    imports: [NgFor, NgIf],
+    templateUrl: './legend.component.html',
+    styleUrl: './legend.component.scss'
 })
 export class LegendComponent {
 

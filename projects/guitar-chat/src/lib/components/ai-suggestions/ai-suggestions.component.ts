@@ -5,10 +5,9 @@ import { AISuggestionService } from '../../services/ai-suggestion.service';
 import { AIResponse, MusicalSuggestion } from '../../models/ai-response.model';
 
 @Component({
-  selector: 'app-ai-suggestions',
-  standalone: true,
-  imports: [CommonModule],
-  template: `
+    selector: 'app-ai-suggestions',
+    imports: [CommonModule],
+    template: `
     <div class="ai-suggestions" *ngIf="currentResponse">
       <div class="suggestion-buttons">
         <button *ngFor="let suggestion of currentResponse.suggestions"
@@ -19,7 +18,7 @@ import { AIResponse, MusicalSuggestion } from '../../models/ai-response.model';
       </div>
     </div>
   `,
-  styles: [`
+    styles: [`
     .ai-suggestions {
       margin-top: 16px;
     }

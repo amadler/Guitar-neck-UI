@@ -17,11 +17,10 @@ const TAP_RESET_MS = 2000;
 const MIN_TAP_INTERVAL_MS = 200;
 
 @Component({
-  selector: 'app-metronome',
-  standalone: true,
-  imports: [NgIf, NgFor, FormsModule],
-  templateUrl: './metronome.component.html',
-  styleUrl: './metronome.component.scss'
+    selector: 'app-metronome',
+    imports: [NgIf, NgFor, FormsModule],
+    templateUrl: './metronome.component.html',
+    styleUrl: './metronome.component.scss'
 })
 export class MetronomeComponent implements OnDestroy {
   bpm = DEFAULT_BPM;

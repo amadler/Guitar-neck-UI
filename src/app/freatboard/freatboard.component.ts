@@ -9,11 +9,10 @@ import { neckConfig } from 'guitar-neck-shared';
 import { StringToggleComponent } from '../string-toggle/string-toggle.component';
 
 @Component({
-  selector: 'app-freatboard',
-  templateUrl: './freatboard.component.html',
-  standalone: true,
-  imports: [NgIf, NgFor, NgClass, StringToggleComponent],
-  styleUrls: ['./freatboard.component.scss']
+    selector: 'app-freatboard',
+    templateUrl: './freatboard.component.html',
+    imports: [NgIf, NgFor, NgClass, StringToggleComponent],
+    styleUrls: ['./freatboard.component.scss']
 })
 export class FreatboardComponent implements OnInit {
   @Output() onNoteClicked$: EventEmitter<GuitarNote> = new EventEmitter<GuitarNote>();

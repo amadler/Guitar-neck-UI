@@ -24,12 +24,11 @@ export type ShowKind = 'chord' | 'scale' | 'interval';
 export type MusicKey = string;
 
 @Component({
-  selector: 'app-toolbox-builder',
-  standalone: true,
-  imports: [CommonModule, DropdownComponent],
-  templateUrl: './toolbox-builder.component.html',
-  styleUrl: './toolbox-builder.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-toolbox-builder',
+    imports: [CommonModule, DropdownComponent],
+    templateUrl: './toolbox-builder.component.html',
+    styleUrl: './toolbox-builder.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ToolboxBuilderComponent {
   @Output() toolboxEvent: EventEmitter<DomainCommand> = new EventEmitter<DomainCommand>();

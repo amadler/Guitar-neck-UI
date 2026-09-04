@@ -2,10 +2,9 @@ import { Component, Input, Output, EventEmitter, signal, ElementRef, HostListene
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-dropdown',
-  standalone: true,
-  imports: [CommonModule],
-  template: `
+    selector: 'app-dropdown',
+    imports: [CommonModule],
+    template: `
     <div class="dropdown-wrapper">
       <button
         class="dropdown-chip"
@@ -41,8 +40,8 @@ import { CommonModule } from '@angular/common';
       }
     </div>
   `,
-  // TODO: przenieść style
-  styles: [`
+    // TODO: przenieść style
+    styles: [`
     .dropdown-wrapper { position: relative; display: inline-flex; }
     .dropdown-chip {
       display: inline-flex; align-items: center; gap: 4px;

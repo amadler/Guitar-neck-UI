@@ -8,7 +8,6 @@ import { AISuggestionService } from '../../services/ai-suggestion.service';
 
 @Component({
   selector: 'app-chat',
-  standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
     <div class="chat-container">
@@ -119,7 +118,7 @@ export class ChatComponent {
   constructor(
     private aiSuggestionService: AISuggestionService,
     private aiService: AIService
-  ) {}
+  ) { }
 
   sendMessage() {
     if (!this.currentMessage.trim() || this.isLoading) return;

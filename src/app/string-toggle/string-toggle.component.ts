@@ -1,10 +1,9 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
-  selector: 'app-string-toggle',
-  standalone: true,
-  imports: [],
-  template: `
+    selector: 'app-string-toggle',
+    imports: [],
+    template: `
     <label class="string-toggle" [attr.title]="stringName + ' string'">
       <input type="checkbox"
              [checked]="active"
@@ -13,7 +12,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
              [attr.aria-label]="'Show notes on ' + stringName + ' string'">
     </label>
   `,
-  styles: [`
+    styles: [`
     .string-toggle {
       display: flex;
       align-items: center;

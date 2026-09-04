@@ -11,11 +11,10 @@ interface Preset {
 }
 
 @Component({
-  selector: 'app-range-toolbar',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './range-toolbar.component.html',
-  styleUrls: ['./range-toolbar.component.scss']
+    selector: 'app-range-toolbar',
+    imports: [CommonModule, FormsModule],
+    templateUrl: './range-toolbar.component.html',
+    styleUrls: ['./range-toolbar.component.scss']
 })
 export class RangeToolbarComponent {
   @Output() rangeChange = new EventEmitter<{ minFret: number, maxFret: number }>();
