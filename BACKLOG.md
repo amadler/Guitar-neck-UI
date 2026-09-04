@@ -302,7 +302,7 @@ Changes needed:
 
 ## Status
 
-OPEN
+FIXED
 
 # P8: Extract exotic patterns from tonal-adapter.ts into dedicated file
 
@@ -363,6 +363,37 @@ Then:
 - `grep -n 'SCALES_NOT_IN_TONAL\|CHORDS_NOT_IN_TONAL' src/app/shared/tonal-adapter.ts` returns zero results
 - `grep -n 'SCALES_NOT_IN_TONAL\|CHORDS_NOT_IN_TONAL' src/app/services/tonal-facade.service.ts` imports from `exotic-patterns.ts`
 - New exotic pattern can be added by editing one file (`exotic-patterns.ts`)
+- `npm test` passes
+- `npm run build` succeeds
+
+## Status
+
+OPEN
+
+# P9: Eliminate state duplication — DomainState vs FretboardStateService
+
+## Motivation
+
+Three fields are duplicated between `DomainState` (canonical state) and `FretboardStateService` (legacy):
+- `fretRange` / `fretRange`
+- `enabledStrings` / `activeStrings`
+- `markerDisplayMode` / `markerDisplayMode`
+
+Consumers already read from `DomainService.currentState`, but `FretboardStateService` still holds these fields. This creates two sources of truth.
+
+## Solution
+
+Remove `fretRange`, `activeStrings`, `markerDisplayMode`, `toggleString()`, `resetActiveStrings()` from `FretboardStateService`. All consumers already use `DomainService.currentState` for reads and `execute({ type: 'set-view', ... })` for writes.
+
+## MVP
+
+- `FretboardStateService` no longer has `fretRange`, `activeStrings`, `markerDisplayMode`
+- All consumers read/write through `DomainService`
+- All existing tests pass
+
+## Done when
+
+- `grep -n 'fretRange\|activeStrings\|markerDisplayMode\|toggleString\|resetActiveStrings' src/app/services/fretboard-state.service.ts` returns zero results
 - `npm test` passes
 - `npm run build` succeeds
 

@@ -1,6 +1,6 @@
 # ADR 0005: Domain Contract — wspólna warstwa komend/kwerend dla Toolbox i AI
 
-**Status**: proposed
+**Status**: accepted
 
 ## Context
 
