@@ -1,5 +1,5 @@
 
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { DomainService } from '../domain/domain.service';
 import { FretboardStateService } from '../services/fretboard-state.service';
 import { FretboardDisplayService } from '../services/fretboard-display.service';
@@ -13,6 +13,7 @@ export interface IntervalDef {
     selector: 'app-legend',
     imports: [],
     templateUrl: './legend.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './legend.component.scss'
 })
 export class LegendComponent {

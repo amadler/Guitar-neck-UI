@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 
 import { DomainService } from '../domain/domain.service';
 import { DomainCommand } from '../domain/commands';
@@ -32,6 +32,7 @@ export type DisplayMode = 'legend' | 'relationship' | null;
     ChatComponent
 ],
     templateUrl: './home-page.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './home-page.component.scss'
 })
 export class HomePageComponent {

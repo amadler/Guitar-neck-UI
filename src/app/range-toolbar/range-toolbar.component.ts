@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { neckConfig } from 'guitar-neck-shared';
@@ -14,6 +14,7 @@ interface Preset {
     selector: 'app-range-toolbar',
     imports: [FormsModule],
     templateUrl: './range-toolbar.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrls: ['./range-toolbar.component.scss']
 })
 export class RangeToolbarComponent {

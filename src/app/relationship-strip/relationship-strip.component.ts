@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 import { FretboardStateService } from '../services/fretboard-state.service';
 import { MarkerRoleService, MarkerRole } from '../services/marker-role.service';
@@ -34,6 +34,7 @@ function resolveScaleChromas(scaleName: string, rootNote: string, tonal: TonalFa
   selector: 'app-relationship-strip',
   imports: [],
   templateUrl: './relationship-strip.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './relationship-strip.component.scss'
 })
 export class RelationshipStripComponent {

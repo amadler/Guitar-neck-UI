@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
     selector: 'app-string-toggle',
@@ -12,6 +12,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
              [attr.aria-label]="'Show notes on ' + stringName + ' string'">
     </label>
   `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     styles: [`
     .string-toggle {
       display: flex;

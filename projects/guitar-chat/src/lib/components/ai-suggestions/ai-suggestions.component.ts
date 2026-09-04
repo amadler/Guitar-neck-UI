@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 
 import { Subscription } from 'rxjs';
 import { AISuggestionService } from '../../services/ai-suggestion.service';
@@ -22,6 +22,7 @@ import { AIResponse, MusicalSuggestion } from '../../models/ai-response.model';
       </div>
     }
     `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     styles: [`
     .ai-suggestions {
       margin-top: 16px;

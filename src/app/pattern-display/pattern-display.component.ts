@@ -1,5 +1,5 @@
 
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { DomainService } from '../domain/domain.service';
 import { PatternBuilderService } from '../services/pattern-builder.service';
 import { PRACTICE_PROMPTS, PromptType } from '../shared/practice-prompts.data';
@@ -8,6 +8,7 @@ import { PRACTICE_PROMPTS, PromptType } from '../shared/practice-prompts.data';
     selector: 'app-pattern-display',
     imports: [],
     templateUrl: './pattern-display.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './pattern-display.component.scss'
 })
 export class PatternDisplayComponent {

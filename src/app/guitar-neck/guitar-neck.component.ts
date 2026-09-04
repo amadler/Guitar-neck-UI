@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { neckConfig } from 'guitar-neck-shared';
 import { FreatboardComponent } from '../freatboard/freatboard.component';
 import { GuitarNote } from '../shared/model/guitarNote';
@@ -10,6 +10,7 @@ import { FretboardStateService } from '../services/fretboard-state.service';
     selector: 'app-guitar-neck',
     imports: [AsyncPipe, FreatboardComponent],
     templateUrl: './guitar-neck.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './guitar-neck.component.scss'
 })
 export class GuitarNeckComponent {

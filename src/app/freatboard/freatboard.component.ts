@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { DomainService } from '../domain/domain.service';
 import { FretboardStateService } from '../services/fretboard-state.service';
@@ -12,6 +12,7 @@ import { StringToggleComponent } from '../string-toggle/string-toggle.component'
     selector: 'app-freatboard',
     templateUrl: './freatboard.component.html',
     imports: [NgClass, StringToggleComponent],
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrls: ['./freatboard.component.scss']
 })
 export class FreatboardComponent implements OnInit {

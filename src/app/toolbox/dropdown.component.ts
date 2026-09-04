@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, signal, ElementRef, HostListener } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal, ElementRef, HostListener, ChangeDetectionStrategy } from '@angular/core';
 
 
 @Component({
@@ -41,6 +41,7 @@ import { Component, Input, Output, EventEmitter, signal, ElementRef, HostListene
     </div>
   `,
     // TODO: przenieść style
+    changeDetection: ChangeDetectionStrategy.Eager,
     styles: [`
     .dropdown-wrapper { position: relative; display: inline-flex; }
     .dropdown-chip {

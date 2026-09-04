@@ -1,4 +1,4 @@
-import { Component, OnInit, PLATFORM_ID, inject } from '@angular/core';
+import { Component, OnInit, PLATFORM_ID, inject, ChangeDetectionStrategy } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 
 const STORAGE_KEY = 'guitar-neck-ui-visited';
@@ -7,6 +7,7 @@ const STORAGE_KEY = 'guitar-neck-ui-visited';
     selector: 'app-header',
     imports: [],
     templateUrl: './header.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './header.component.scss'
 })
 export class HeaderComponent implements OnInit {

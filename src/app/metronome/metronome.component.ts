@@ -1,4 +1,4 @@
-import { Component, OnDestroy, signal } from '@angular/core';
+import { Component, OnDestroy, signal, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { MetronomeEngineService } from './metronome-engine.service';
@@ -20,6 +20,7 @@ const MIN_TAP_INTERVAL_MS = 200;
     selector: 'app-metronome',
     imports: [FormsModule],
     templateUrl: './metronome.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: './metronome.component.scss'
 })
 export class MetronomeComponent implements OnDestroy {

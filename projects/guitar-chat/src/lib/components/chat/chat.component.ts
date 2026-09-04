@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { AIService } from '../../services/ai.service';
@@ -39,6 +39,7 @@ import { AISuggestionService } from '../../services/ai-suggestion.service';
         </div>
       </div>
     `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`
     .chat-container {
       height: 400px;
