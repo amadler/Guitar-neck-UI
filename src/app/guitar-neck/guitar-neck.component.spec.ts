@@ -5,7 +5,7 @@ import { GuitarNeckComponent } from './guitar-neck.component';
 import { FreatboardComponent } from '../freatboard/freatboard.component';
 import { By } from '@angular/platform-browser';
 import { GuitarNote } from '../shared/model/guitarNote';
-
+import { vi } from 'vitest';
 describe('GuitarNeckComponent', () => {
   let component: GuitarNeckComponent;
   let fixture: ComponentFixture<GuitarNeckComponent>;
@@ -16,9 +16,9 @@ describe('GuitarNeckComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [GuitarNeckComponent],
-      providers:[FretboardStateService, FretboardNotePositionService]
+      providers: [FretboardStateService, FretboardNotePositionService]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(GuitarNeckComponent);
     component = fixture.componentInstance;
@@ -36,23 +36,24 @@ describe('GuitarNeckComponent', () => {
   });
 
   it('should initialize guitarNotes correctly', () => {
-    expect(component.guitarNotes.length).toBeGreaterThan(1)
+    expect(component.guitarNotes.length).toBeGreaterThan(1);
   });
 
   it('should render FreatboardComponent', () => {
     const freatboardElement = fixture.debugElement.query(By.directive(FreatboardComponent));
-    expect(freatboardElement).toBeTruthy()
+    expect(freatboardElement).toBeTruthy();
   });
 
   it('should call onNoteClicked when a note is clicked in FreatboardComponent', () => {
-    spyOn(component, 'onNoteClicked');
+    vi.spyOn(component, 'onNoteClicked').mockReturnValue(undefined);
     const note: GuitarNote = { string: 1, fret: 0, note: 'E', selected: false, interval: '', visible: true };
     const freatboardElement = fixture.debugElement.query(By.directive(FreatboardComponent));
     const freatboardComponent = freatboardElement.componentInstance;
 
     freatboardComponent.onNoteClicked$.emit(note);
     fixture.detectChanges();
-    expect(component.onNoteClicked).toHaveBeenCalledOnceWith(note);
+    expect(component.onNoteClicked).toHaveBeenCalledTimes(1);
+    expect(component.onNoteClicked).toHaveBeenCalledWith(note);
 
   });
 });

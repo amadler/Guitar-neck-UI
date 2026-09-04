@@ -1,3 +1,4 @@
+import { vi, type MockedObject } from "vitest";
 import { TestBed } from '@angular/core/testing';
 import { FretboardStateService } from './fretboard-state.service';
 import { FretboardNotePositionService } from './note.service';
@@ -5,7 +6,7 @@ import { GuitarNote } from '../shared/model/guitarNote';
 
 describe('GuitarNeckService', () => {
   let service: FretboardStateService;
-  let noteServiceSpy: jasmine.SpyObj<FretboardNotePositionService>;
+  let noteServiceSpy: MockedObject<FretboardNotePositionService>;
   let mockNotes: GuitarNote[];
 
   beforeEach(() => {
@@ -15,9 +16,11 @@ describe('GuitarNeckService', () => {
       { string: 1, fret: 5, note: 'A', selected: false, interval: '', visible: true }
     ];
 
-    noteServiceSpy = jasmine.createSpyObj('FretboardNotePositionService', ['getAllPositions']);
+    noteServiceSpy = {
+      getAllPositions: vi.fn().mockName("FretboardNotePositionService.getAllPositions")
+    };
 
-    noteServiceSpy.getAllPositions.and.returnValue(mockNotes);
+    noteServiceSpy.getAllPositions.mockReturnValue(mockNotes);
 
     TestBed.configureTestingModule({
       providers: [
@@ -64,8 +67,8 @@ describe('GuitarNeckService', () => {
       const selectedNotes = service.applyHighlightedNotes(notesToSelect);
 
       expect(selectedNotes.length).toBe(1);
-      expect(selectedNotes[0].selected).toBeTrue();
-      expect(selectedNotes[0].visible).toBeTrue();
+      expect(selectedNotes[0].selected).toBe(true);
+      expect(selectedNotes[0].visible).toBe(true);
     });
 
     it('should deselect and hide unspecified notes', () => {
@@ -74,8 +77,8 @@ describe('GuitarNeckService', () => {
 
       const unselectedNotes = service.notes.filter(note => note !== mockNotes[0]);
       unselectedNotes.forEach(note => {
-        expect(note.selected).toBeFalse();
-        expect(note.visible).toBeFalse();
+        expect(note.selected).toBe(false);
+        expect(note.visible).toBe(false);
       });
     });
   });
@@ -83,13 +86,13 @@ describe('GuitarNeckService', () => {
   describe('hideAllNotes and showAllNotes', () => {
     it('should hide all notes', () => {
       service.hideAllNotes();
-      expect(service.notes.every(note => !note.visible)).toBeTrue();
+      expect(service.notes.every(note => !note.visible)).toBe(true);
     });
 
     it('should show all notes', () => {
       service.hideAllNotes();
       service.showAll();
-      expect(service.notes.every(note => note.visible)).toBeTrue();
+      expect(service.notes.every(note => note.visible)).toBe(true);
     });
   });
 
@@ -97,7 +100,7 @@ describe('GuitarNeckService', () => {
     it('should remove all selections', () => {
       service.notes[0].selected = true;
       service.clearSelection();
-      expect(service.notes.every(note => !note.selected)).toBeTrue();
+      expect(service.notes.every(note => !note.selected)).toBe(true);
     });
   });
 
@@ -105,36 +108,36 @@ describe('GuitarNeckService', () => {
     it('should clear notes, selections, and intervals', () => {
       service.clearFretboard();
 
-      expect(service.notes.every(note => !note.visible)).toBeTrue();
-      expect(service.notes.every(note => !note.selected)).toBeTrue();
+      expect(service.notes.every(note => !note.visible)).toBe(true);
+      expect(service.notes.every(note => !note.selected)).toBe(true);
     });
   });
 
   describe('hasActiveResult', () => {
     it('should be false by default', () => {
-      expect(service.hasActiveResult).toBeFalse();
+      expect(service.hasActiveResult).toBe(false);
     });
 
     it('should be true after applyHighlightedNotes with notes', () => {
       service.applyHighlightedNotes([mockNotes[0]]);
-      expect(service.hasActiveResult).toBeTrue();
+      expect(service.hasActiveResult).toBe(true);
     });
 
     it('should be false after applyHighlightedNotes with empty array', () => {
       service.applyHighlightedNotes([]);
-      expect(service.hasActiveResult).toBeFalse();
+      expect(service.hasActiveResult).toBe(false);
     });
 
     it('should be true after showAll', () => {
       service.showAll();
-      expect(service.hasActiveResult).toBeTrue();
+      expect(service.hasActiveResult).toBe(true);
     });
 
     it('should be false after clearFretboard', () => {
       service.applyHighlightedNotes([mockNotes[0]]);
-      expect(service.hasActiveResult).toBeTrue();
+      expect(service.hasActiveResult).toBe(true);
       service.clearFretboard();
-      expect(service.hasActiveResult).toBeFalse();
+      expect(service.hasActiveResult).toBe(false);
     });
   });
 });
