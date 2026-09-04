@@ -41,6 +41,11 @@
     <div class="bottom-panel__metronome">
       <app-metronome></app-metronome>
     </div>
+    @if (chatEnabled) {
+      <div class="bottom-panel__chat">
+        <app-chat></app-chat>
+      </div>
+    }
   </section>
   <!-- END: Bottom Panel -->
 
