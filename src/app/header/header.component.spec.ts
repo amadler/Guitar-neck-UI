@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { PLATFORM_ID } from '@angular/core';
 import { By } from '@angular/platform-browser';
 
 import { HeaderComponent } from './header.component';
@@ -9,7 +10,10 @@ describe('HeaderComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [HeaderComponent]
+      imports: [HeaderComponent],
+      providers: [
+        { provide: PLATFORM_ID, useValue: 'server' }
+      ]
     })
     .compileComponents();
 

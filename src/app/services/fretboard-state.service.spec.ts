@@ -6,7 +6,7 @@ import { GuitarNote } from '../shared/model/guitarNote';
 
 describe('GuitarNeckService', () => {
   let service: FretboardStateService;
-  let noteServiceSpy: MockedObject<FretboardNotePositionService>;
+  let noteServiceSpy: Partial<MockedObject<FretboardNotePositionService>>;
   let mockNotes: GuitarNote[];
 
   beforeEach(() => {
@@ -20,7 +20,7 @@ describe('GuitarNeckService', () => {
       getAllPositions: vi.fn().mockName("FretboardNotePositionService.getAllPositions")
     };
 
-    noteServiceSpy.getAllPositions.mockReturnValue(mockNotes);
+    noteServiceSpy.getAllPositions!.mockReturnValue(mockNotes);
 
     TestBed.configureTestingModule({
       providers: [
@@ -37,7 +37,7 @@ describe('GuitarNeckService', () => {
   });
 
   it('should initialize notes from NoteService', () => {
-    expect(noteServiceSpy.getAllPositions).toHaveBeenCalled();
+    expect(noteServiceSpy.getAllPositions!).toHaveBeenCalled();
     expect(service.notes).toEqual(mockNotes);
   });
 

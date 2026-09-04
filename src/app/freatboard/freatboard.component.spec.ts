@@ -15,7 +15,7 @@ describe('FreatboardComponent', () => {
     let fixture: ComponentFixture<FreatboardComponent>;
     let guitarNeckService: FretboardStateService;
     let noteService: FretboardNotePositionService;
-    let domainService: MockedObject<DomainService>;
+    let domainService: Partial<MockedObject<DomainService>>;
     let mockState: any;
 
     beforeEach(async () => {

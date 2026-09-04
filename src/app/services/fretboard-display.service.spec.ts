@@ -10,7 +10,7 @@ describe('FretboardDisplayService', () => {
     let service: FretboardDisplayService;
     let guitarNeckService: FretboardStateService;
     let markerRoleService: MarkerRoleService;
-    let domainService: MockedObject<DomainService>;
+    let domainService: Partial<MockedObject<DomainService>>;
     let mockState: any;
 
     beforeEach(() => {

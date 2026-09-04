@@ -9,7 +9,7 @@ import { DomainService } from '../domain/domain.service';
 describe('FretboardNoteQueryService', () => {
     let service: FretboardNoteQueryService;
     let guitarNeckService: FretboardStateService;
-    let domainService: MockedObject<DomainService>;
+    let domainService: Partial<MockedObject<DomainService>>;
     let mockState: any;
 
     beforeEach(() => {

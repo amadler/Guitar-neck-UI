@@ -11,7 +11,7 @@ describe('LegendComponent', () => {
     let component: LegendComponent;
     let fixture: ComponentFixture<LegendComponent>;
     let guitarNeckService: FretboardStateService;
-    let domainService: MockedObject<DomainService>;
+    let domainService: Partial<MockedObject<DomainService>>;
     let mockState: any;
 
     beforeEach(async () => {
