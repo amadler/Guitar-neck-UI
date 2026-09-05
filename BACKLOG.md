@@ -399,4 +399,76 @@ Remove `fretRange`, `activeStrings`, `markerDisplayMode`, `toggleString()`, `res
 
 ## Status
 
-OPEN
+FIXED
+
+# P10: Angular 18→22 upgrade + OnPush + signals migration
+
+## Motivation
+
+After merge [`e775f2c`](https://github.com/amadler/Guitar-neck-app/commit/e775f2c64b67d83d51fa0f2204cf2e9585a87881), Angular was upgraded from 18 to 22 across the entire project. This major version jump required migrating from `BehaviorSubject` to `signal()`, adopting `ChangeDetectionStrategy.OnPush` everywhere, and removing legacy patterns like `appRef.tick()`.
+
+## Solution
+
+1. **Angular 22** — all `@angular/*` packages updated to `^22.1.5`, TypeScript to `^6.0.3`, `@angular/build` to `^22.1.7`
+2. **OnPush** — all 12 components use `ChangeDetectionStrategy.OnPush`
+3. **Signals** — `DomainService` replaced `BehaviorSubject<DomainState>` with `signal<DomainState>` + `asReadonly()`, `FretboardStateService` uses signals for `hasActiveResult`, `currentSelection`, `scaleChordState`, `PatternBuilderService` uses signals for `currentPattern`, `relatedChord`, `MarkerRoleService` uses signal for `lastRoles`, `ToolboxBuilderComponent` uses 8 signals for form state, `HomePageComponent` uses signal for `displayMode`
+4. **`appRef.tick()` removed** — no `ApplicationRef` injection or `state$.subscribe()` in `HomePageComponent`
+5. **Test runner** — migrated from Karma to Vitest (`@angular/build:unit-test` with `"runner": "vitest"`)
+
+## MVP
+
+- All packages updated to Angular 22
+- All components use OnPush
+- No `BehaviorSubject` in the codebase
+- No `appRef.tick()` or `ApplicationRef` in components
+- `npm run build` succeeds
+- `npm test` passes (174 tests)
+
+## Done when
+
+- `grep -n 'BehaviorSubject' src/` returns zero results
+- `grep -n 'appRef.tick' src/` returns zero results
+- `grep -n 'ApplicationRef' src/app/home-page/home-page.component.ts` returns zero results
+- `grep -n 'ChangeDetectionStrategy.Default' src/` returns zero results
+- `npm test` passes
+- `npm run build` succeeds
+
+## Status
+
+FIXED
+
+# P11: Migrate @Input/@Output decorators → input()/output() functions
+
+## Motivation
+
+Angular 18+ introduced `input()` and `output()` functions as the modern replacement for `@Input`/`@Output` decorators. These are required for future zoneless change detection and provide better type safety (readonly signals, no accidental reassignment). Five components still used decorators after the Angular 22 upgrade.
+
+## Solution
+
+Migrate all `@Input()`/`@Output()` decorators to `input()`/`output()` functions:
+
+| Component | Before | After |
+|-----------|--------|-------|
+| [`FreatboardComponent`](src/app/freatboard/freatboard.component.ts:24-25) | `@Input() notes`, `@Output() onNoteClicked$` | `input.required<GuitarNote[]>()`, `output<GuitarNote>()` |
+| [`ToolboxBuilderComponent`](src/app/toolbox/toolbox-builder.component.ts:33) | `@Output() toolboxEvent` | `output<DomainCommand>()` |
+| [`DropdownComponent`](src/app/toolbox/dropdown.component.ts:97-103) | `@Input() options`, `@Output() valueChange` | `input<T[]>([])`, `output<T>()` |
+| [`RangeToolbarComponent`](src/app/range-toolbar/range-toolbar.component.ts:21) | `@Output() rangeChange` | `output<{ minFret, maxFret }>()` |
+| [`StringToggleComponent`](src/app/string-toggle/string-toggle.component.ts:36-41) | `@Input() stringName`, `@Output() stringToggled` | `input.required<string>()`, `output<{ stringIndex, active }>()` |
+
+## MVP
+
+- All 5 components use `input()`/`output()` instead of decorators
+- Tests updated to use `fixture.componentRef.setInput()` instead of direct property assignment
+- All existing tests pass
+- `npm run build` succeeds
+
+## Done when
+
+- `grep -n '@Input(' src/app/` returns zero results
+- `grep -n '@Output(' src/app/` returns zero results
+- `npm test` passes
+- `npm run build` succeeds
+
+## Status
+
+FIXED

@@ -7,6 +7,23 @@ a projekt stosuje [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.9.0] — 2026-09-04
+
+### Changed
+- **Angular 18 → 22** — all `@angular/*` packages updated to `^22.1.5`, TypeScript to `^6.0.3`, `@angular/build` to `^22.1.7` ([`package.json`](package.json:16-23))
+- **`ChangeDetectionStrategy.OnPush`** — all 12 components now use OnPush (previously mixed)
+- **`BehaviorSubject` → `signal()`** — `DomainService`, `FretboardStateService`, `PatternBuilderService`, `MarkerRoleService`, `ToolboxBuilderComponent`, `HomePageComponent` migrated to signals ([`src/app/domain/domain.service.ts`](src/app/domain/domain.service.ts:32), [`src/app/services/fretboard-state.service.ts`](src/app/services/fretboard-state.service.ts:18-24))
+- **`@Input`/`@Output` → `input()`/`output()`** — `FreatboardComponent`, `ToolboxBuilderComponent`, `DropdownComponent`, `RangeToolbarComponent`, `StringToggleComponent` migrated to signal-based inputs/outputs ([`src/app/freatboard/freatboard.component.ts`](src/app/freatboard/freatboard.component.ts:24-25))
+- **Test runner** — migrated from Karma to Vitest (`@angular/build:unit-test` with `"runner": "vitest"`)
+- **`appRef.tick()` removed** — no longer needed with signals-based change detection ([`src/app/home-page/home-page.component.ts`](src/app/home-page/home-page.component.ts))
+
+### Removed
+- `ApplicationRef` dependency from `HomePageComponent`
+- `BehaviorSubject` from all services
+- Karma configuration (replaced by Vitest)
+
+---
+
 ## [0.8.0] — 2026-08-29
 
 ### Added

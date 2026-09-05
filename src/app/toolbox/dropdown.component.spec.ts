@@ -40,7 +40,7 @@ describe('DropdownComponent', () => {
     });
 
     it('should return all options when filter is empty', () => {
-        component.showFilter = true;
+        fixture.componentRef.setInput('showFilter', true);
         component.filterText.set('');
 
         const filtered = component.filteredOptions();
