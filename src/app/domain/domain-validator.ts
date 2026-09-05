@@ -59,4 +59,98 @@ export class DomainValidator {
     }
     return { semitone };
   }
+
+  /** Validate string index (1-6). */
+  static validateStringIndex(string: number): DomainResult<never> | null {
+    if (!Number.isInteger(string) || string < 1 || string > 6) {
+      return {
+        success: false,
+        error: DomainError.INVALID_POSITION,
+        message: `Invalid string: ${string}. Valid strings: 1-6.`,
+      };
+    }
+    return null;
+  }
+
+  /** Validate fret number (0-24). */
+  static validateFret(fret: number): DomainResult<never> | null {
+    if (!Number.isInteger(fret) || fret < 0 || fret > 24) {
+      return {
+        success: false,
+        error: DomainError.INVALID_POSITION,
+        message: `Invalid fret: ${fret}. Valid frets: 0-24.`,
+      };
+    }
+    return null;
+  }
+
+  /** Validate a single position (string + fret). */
+  static validatePosition(string: number, fret: number): DomainResult<never> | null {
+    const stringErr = this.validateStringIndex(string);
+    if (stringErr) return stringErr;
+    const fretErr = this.validateFret(fret);
+    if (fretErr) return fretErr;
+    return null;
+  }
+
+  /** Validate that a note actually sounds at the given (string, fret) position. */
+  static validateNoteAtPosition(
+    string: number,
+    fret: number,
+    expectedNote: string,
+    getNoteAtPosition: (string: number, fret: number) => string | null,
+  ): DomainResult<never> | null {
+    const posErr = this.validatePosition(string, fret);
+    if (posErr) return posErr;
+
+    const actualNote = getNoteAtPosition(string, fret);
+    if (actualNote === null) {
+      return {
+        success: false,
+        error: DomainError.INVALID_POSITION,
+        message: `Position (string ${string}, fret ${fret}) is out of range.`,
+      };
+    }
+
+    // Compare by chroma (pitch class) for enharmonic safety
+    const chromaMap: Record<string, number> = {
+      'C': 0, 'C#': 1, 'Db': 1, 'D': 2, 'D#': 3, 'Eb': 3,
+      'E': 4, 'Fb': 4, 'F': 5, 'F#': 6, 'Gb': 6,
+      'G': 7, 'G#': 8, 'Ab': 8, 'A': 9, 'A#': 10, 'Bb': 10,
+      'B': 11, 'Cb': 11,
+    };
+    const expectedChroma = chromaMap[expectedNote];
+    const actualChroma = chromaMap[actualNote];
+    if (expectedChroma === undefined || actualChroma === undefined || expectedChroma !== actualChroma) {
+      return {
+        success: false,
+        error: DomainError.POSITION_NOTE_MISMATCH,
+        message: `Note "${expectedNote}" does not sound at string ${string}, fret ${fret}. Found: "${actualNote}".`,
+      };
+    }
+    return null;
+  }
+
+  /** Validate a voicing specification. */
+  static validateVoicing(voicing: { stringSet: number[]; inversion?: number; omit?: string[] }): DomainResult<never> | null {
+    if (!voicing.stringSet || voicing.stringSet.length === 0) {
+      return {
+        success: false,
+        error: DomainError.INVALID_VOICING,
+        message: 'Voicing must have at least one string in stringSet.',
+      };
+    }
+    for (const s of voicing.stringSet) {
+      const err = this.validateStringIndex(s);
+      if (err) return err;
+    }
+    if (voicing.inversion !== undefined && (voicing.inversion < 0 || voicing.inversion > 2)) {
+      return {
+        success: false,
+        error: DomainError.INVALID_VOICING,
+        message: `Invalid inversion: ${voicing.inversion}. Valid: 0 (root), 1 (1st), 2 (2nd).`,
+      };
+    }
+    return null;
+  }
 }

@@ -21,7 +21,7 @@ export interface SelectedNotePosition {
  */
 export interface DomainState {
   /** Application mode — the user's current intent. */
-  mode: 'scale' | 'chord' | 'scale-chord' | 'custom';
+  mode: 'scale' | 'chord' | 'scale-chord' | 'custom' | 'positions';
 
   /** Root/tonic note of the current pattern. */
   rootNote: string;
@@ -50,6 +50,12 @@ export interface DomainState {
 
   /** Notes manually selected by clicking specific positions on the fretboard. */
   selectedNotes?: SelectedNotePosition[];
+
+  /** For position-based display (show-voicing, show-arpeggio, show-lick, resolve-shape). */
+  shapeInfo?: {
+    shapeId?: string;
+    positions: Array<{ string: number; fret: number; label?: string }>;
+  };
 }
 
 /** Default initial state. */
@@ -72,6 +78,10 @@ export enum DomainError {
   INVALID_INTERVAL = 'INVALID_INTERVAL',
   UNKNOWN_COMMAND = 'UNKNOWN_COMMAND',
   EMPTY_RESULT = 'EMPTY_RESULT',
+  INVALID_POSITION = 'INVALID_POSITION',
+  POSITION_NOTE_MISMATCH = 'POSITION_NOTE_MISMATCH',
+  INVALID_VOICING = 'INVALID_VOICING',
+  SHAPE_NOT_FOUND = 'SHAPE_NOT_FOUND',
 }
 
 /**

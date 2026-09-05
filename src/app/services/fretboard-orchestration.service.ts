@@ -57,6 +57,20 @@ export class FretboardOrchestrationService {
     return highlighted;
   }
 
+  /**
+   * Wyświetla konkretne pozycje na gryfie (RAW API — wewnętrzne, nie dla AI).
+   * Przyjmuje tablicę GuitarNote[] z konkretnych (string, fret) pozycji.
+   * Opcjonalnie: rootNote dla oznaczeń interwałowych.
+   */
+  displayPositions(positions: GuitarNote[], rootNote?: string): GuitarNote[] {
+    this.clearFretboard();
+    const highlighted = this.guitarNeckService.applyHighlightedNotes(positions);
+    if (rootNote) {
+      this.markIntervals(rootNote, highlighted);
+    }
+    return highlighted;
+  }
+
   // ---- Scale + Chord relation ----
 
   /** Wyświetla skalę z nałożonym akordem w trybie scale-chord. */

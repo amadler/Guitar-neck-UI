@@ -3,6 +3,10 @@ import { get as scaleGet } from '@tonaljs/scale';
 import { get as chordGet } from '@tonaljs/chord';
 import { simplify } from '@tonaljs/note';
 import { fromSemitones } from '@tonaljs/interval';
+import { detect as chordDetect } from '@tonaljs/chord-detect';
+import { detect as scaleDetect } from '@tonaljs/scale';
+import { majorKey, minorKey } from '@tonaljs/key';
+import { isSubsetOf, isSupersetOf, filter as pcsetFilter } from '@tonaljs/pcset';
 import { CHORD_PATTERNS, SCALE_PATTERNS, neckConfig } from 'guitar-neck-shared';
 import {
   CHORD_NAME_TO_TONAL,
@@ -29,6 +33,9 @@ export interface ResolvedPattern {
  * 2. Mapowanie nazw patternów (UI → Tonal) przez tonal-adapter.ts
  * 3. Chroma (pitch class) — enharmonicznie bezpieczne porównywanie nut
  * 4. Interwały między nutami
+ * 5. Detekcja akordów i skal z listy nut (chord-detect, scale-detect)
+ * 6. Analiza tonalna (key)
+ * 7. Operacje na pitch class set (pcset)
  *
  * Żaden inny serwis ani komponent nie importuje @tonaljs/* bezpośrednio.
  */
@@ -79,6 +86,72 @@ export class TonalFacadeService {
    */
   simplifyNote(noteName: string): string {
     return simplify(noteName);
+  }
+
+  // ─── Detekcja ─────────────────────────────────────────────────────────
+
+  /**
+   * Detekcja akordu z listy nut.
+   * Woła @tonaljs/chord-detect.detect().
+   * Zwraca tablicę nazw akordów (np. ['C major', 'Cdim']).
+   */
+  detectChord(notes: string[]): string[] {
+    return chordDetect(notes);
+  }
+
+  /**
+   * Detekcja skali z listy nut.
+   * Woła @tonaljs/scale.detect().
+   * Opcjonalnie: tonic (sugerowany root), match ('exact' | 'fit').
+   */
+  detectScale(notes: string[], tonic?: string, match?: 'exact' | 'fit'): string[] {
+    return scaleDetect(notes, { tonic, match });
+  }
+
+  // ─── Analiza tonalna ─────────────────────────────────────────────────
+
+  /**
+   * Analiza tonacji major.
+   * Woła @tonaljs/key.majorKey().
+   * Zwraca obiekt z skalą, triadami, akordami, dominantami itd.
+   */
+  getMajorKey(tonic: string) {
+    return majorKey(tonic);
+  }
+
+  /**
+   * Analiza tonacji minor.
+   * Woła @tonaljs/key.minorKey().
+   * Zwraca obiekt z natural/harmonic/melodic scales.
+   */
+  getMinorKey(tonic: string) {
+    return minorKey(tonic);
+  }
+
+  // ─── Pitch class set operations ──────────────────────────────────────
+
+  /**
+   * Filtruje nuty — zostawia tylko te należące do podanego setu.
+   * Woła @tonaljs/pcset.filter().
+   */
+  filterNotesBySet(notes: string[], set: string[]): string[] {
+    return pcsetFilter(set)(notes);
+  }
+
+  /**
+   * Sprawdza czy pierwszy set jest podzbiorem drugiego.
+   * Woła @tonaljs/pcset.isSubsetOf().
+   */
+  isSubsetOf(set: string[]): (notes: string[]) => boolean {
+    return (notes: string[]) => Boolean(isSubsetOf(set)(notes));
+  }
+
+  /**
+   * Sprawdza czy pierwszy set jest nadzbiorem drugiego.
+   * Woła @tonaljs/pcset.isSupersetOf().
+   */
+  isSupersetOf(set: string[]): (notes: string[]) => boolean {
+    return (notes: string[]) => Boolean(isSupersetOf(set)(notes));
   }
 
   // ---- Private helpers ----

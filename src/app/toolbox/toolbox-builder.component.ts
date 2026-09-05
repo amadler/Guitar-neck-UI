@@ -1,10 +1,11 @@
 import { Component, Output, EventEmitter, ChangeDetectionStrategy, signal, output } from '@angular/core';
 
 import { neckConfig, SCALE_PATTERNS, CHORD_PATTERNS } from 'guitar-neck-shared';
-import { DomainCommand, ShowPatternCommand, ComparePatternsCommand } from '../domain/commands';
+import { DomainCommand, ShowPatternCommand, ComparePatternsCommand, ResolveShapeCommand } from '../domain/commands';
 import { DropdownComponent } from './dropdown.component';
 import { INTERVAL_CONFIG } from '../shared/tonal-adapter';
-import { ShowKind, ToolboxIntent } from './model';
+import { ShowKind, ToolboxIntent, ShapeCategory } from './model';
+import { getShapesByCategory } from '../shared/model/guitar-shapes';
 
 export interface IntervalOption {
   symbol: string;
@@ -37,15 +38,23 @@ export class ToolboxBuilderComponent {
   chordPatternNames = CHORD_PATTERNS.map(c => c.name);
   intervalOptions = INTERVAL_OPTIONS;
 
+  // Shape data
+  cowboyShapes = getShapesByCategory('cowboy');
+  barreShapes = getShapesByCategory('barre');
+  triadShapes = getShapesByCategory('triad-inversion');
+
   // --- Display functions for dropdowns ---
   keyDisplayFn = (key: MusicKey) => key;
   stringDisplayFn = (value: string) => value;
   intervalDisplayFn = (opt: IntervalOption) => opt.label;
   intervalTrackByFn = (_index: number, opt: IntervalOption) => opt.symbol;
+  shapeDisplayFn = (shape: { id: string; name: string }) => shape.name;
+  shapeTrackByFn = (_index: number, shape: { id: string }) => shape.id;
 
   // --- State signals ---
   intent = signal<ToolboxIntent>('show');
   showKind = signal<ShowKind>('scale');
+  shapeCategory = signal<ShapeCategory>('cowboy');
 
   selectedKey = signal<MusicKey>('C');
   selectedScaleType = signal<string>(DEFAULT_SCALE_TYPE);
@@ -57,6 +66,10 @@ export class ToolboxBuilderComponent {
   compareChordKey = signal<MusicKey>('C');
   compareChordType = signal<string>(DEFAULT_CHORD_TYPE);
 
+  // Shape state
+  selectedShape = signal<{ id: string; name: string } | null>(null);
+  shapeRootKey = signal<MusicKey>('C');
+
   // --- Template helpers ---
   setShowKind(kind: ShowKind): void {
     this.showKind.set(kind);
@@ -64,6 +77,21 @@ export class ToolboxBuilderComponent {
 
   setIntent(intent: ToolboxIntent): void {
     this.intent.set(intent);
+  }
+
+  setShapeCategory(category: ShapeCategory): void {
+    this.shapeCategory.set(category);
+    // Reset selected shape when category changes
+    this.selectedShape.set(null);
+  }
+
+  get currentShapes(): Array<{ id: string; name: string; category: string }> {
+    switch (this.shapeCategory()) {
+      case 'cowboy': return this.cowboyShapes;
+      case 'barre': return this.barreShapes;
+      case 'triad-inversion': return this.triadShapes;
+      default: return [];
+    }
   }
 
   // --- Submit ---
@@ -85,11 +113,23 @@ export class ToolboxBuilderComponent {
           break;
       }
       this.toolboxEvent.emit(command);
-    } else {
+    } else if (this.intent() === 'compare') {
       const command: ComparePatternsCommand = {
         type: 'compare-patterns',
         primary: { patternType: 'scale', patternName: this.compareScaleType(), rootNote: this.compareScaleKey() },
         secondary: { patternType: 'chord', patternName: this.compareChordType(), rootNote: this.compareChordKey() },
+      };
+      this.toolboxEvent.emit(command);
+    } else if (this.intent() === 'shape') {
+      const shape = this.selectedShape();
+      if (!shape) return;
+
+      const isMovable = this.shapeCategory() === 'barre' || this.shapeCategory() === 'triad-inversion';
+      const command: ResolveShapeCommand = {
+        type: 'resolve-shape',
+        shapeId: shape.id,
+        rootNote: isMovable ? this.shapeRootKey() : undefined,
+        position: isMovable ? 0 : undefined,
       };
       this.toolboxEvent.emit(command);
     }

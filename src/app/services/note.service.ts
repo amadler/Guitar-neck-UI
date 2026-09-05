@@ -53,4 +53,33 @@ export class FretboardNotePositionService {
     const chromas = new Set(scaleNotes.map(noteToChroma));
     return this.guitarNotes.filter(note => chromas.has(noteToChroma(note.note)));
   }
+
+  /**
+   * Zwraca nutę na danej pozycji (string, fret) lub null jeśli poza zakresem.
+   * String index: 1-6, Fret: 0-24.
+   */
+  getNoteAtPosition(string: number, fret: number): string | null {
+    if (string < 1 || string > 6) return null;
+    if (fret < 0 || fret > this.fretsCount) return null;
+    const openNote = this.guitarStrings[string - 1];
+    return this.calculateNoteOnFret(openNote, fret);
+  }
+
+  /**
+   * Znajduje konkretne pozycje po współrzędnych (string, fret).
+   * Zwraca tablicę GuitarNote dla dokładnie tych pozycji.
+   * Pozycje poza zakresem są pomijane.
+   */
+  findPositionsByExactCoordinates(positions: Array<{ string: number; fret: number }>): GuitarNote[] {
+    const result: GuitarNote[] = [];
+    for (const pos of positions) {
+      const note = this.guitarNotes.find(
+        n => n.string === pos.string && n.fret === pos.fret
+      );
+      if (note) {
+        result.push(note);
+      }
+    }
+    return result;
+  }
 }

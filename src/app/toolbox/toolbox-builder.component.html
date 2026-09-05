@@ -1,13 +1,13 @@
 <div class="sentence-toolbox">
   <span class="sentence-toolbox__label">I want to:</span>
 
-  <!-- Intent chip: Show / Compare -->
+  <!-- Intent chip: Show / Compare / Shape -->
   <div class="sentence-toolbox__chip-wrapper">
     <button
       class="sentence-toolbox__chip sentence-toolbox__chip--select"
-      (click)="setIntent(intent() === 'show' ? 'compare' : 'show')"
+      (click)="setIntent(intent() === 'show' ? 'compare' : intent() === 'compare' ? 'shape' : 'show')"
     >
-      {{ intent() === "show" ? "Show" : "Compare" }}
+      {{ intent() === "show" ? "Show" : intent() === "compare" ? "Compare" : "Shape" }}
       <span class="sentence-toolbox__arrow">▼</span>
     </button>
   </div>
@@ -121,6 +121,45 @@
       [showFilter]="true"
       (valueChange)="compareChordType.set($event)"
     ></app-dropdown>
+  }
+
+  <!-- Shape sentence -->
+  @if (intent() === "shape") {
+    <!-- Shape category chip -->
+    <div class="sentence-toolbox__chip-wrapper">
+      <button
+        class="sentence-toolbox__chip sentence-toolbox__chip--select"
+        (click)="setShapeCategory(shapeCategory() === 'cowboy' ? 'barre' : shapeCategory() === 'barre' ? 'triad-inversion' : 'cowboy')"
+      >
+        {{ shapeCategory() === 'cowboy' ? 'Cowboy' : shapeCategory() === 'barre' ? 'Barre' : 'Triad' }}
+        <span class="sentence-toolbox__arrow">▼</span>
+      </button>
+    </div>
+
+    <!-- Shape selector -->
+    @if (currentShapes.length > 0) {
+      <app-dropdown
+        [options]="currentShapes"
+        [displayFn]="shapeDisplayFn"
+        [trackByFn]="shapeTrackByFn"
+        [selectedValue]="selectedShape() ?? currentShapes[0]"
+        [showFilter]="true"
+        (valueChange)="selectedShape.set($event)"
+      ></app-dropdown>
+    }
+
+    <!-- Root key for movable shapes (barre, triad) -->
+    @if (shapeCategory() === 'barre' || shapeCategory() === 'triad-inversion') {
+      <span class="sentence-toolbox__text">in</span>
+      <app-dropdown
+        [options]="musicKeys"
+        [displayFn]="keyDisplayFn"
+        [selectedValue]="shapeRootKey()"
+        (valueChange)="shapeRootKey.set($event)"
+      ></app-dropdown>
+    }
+
+    <span class="sentence-toolbox__text">on fretboard</span>
   }
 
   <!-- Submit button -->
