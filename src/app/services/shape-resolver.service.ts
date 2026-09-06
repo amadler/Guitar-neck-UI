@@ -94,12 +94,18 @@ export class ShapeResolverService {
       }
 
       // Calculate fret: semitone distance from open string to root note
-      const rootFret = (rootChroma - openChroma + 12) % 12;
+      let rootFret = (rootChroma - openChroma + 12) % 12;
 
       // For shapes with baseFret (e.g. CAGED C-form, G-form), the root is not
       // at the lowest fret. Positions are normalised so fretOffset 0 = lowest fret.
       // actualFret = rootFret - baseFret + fretOffset
       const baseFret = shape.baseFret ?? 0;
+
+      // If rootFret < baseFret, the lowest fret of the shape would be negative.
+      // Shift up one octave so the whole shape fits on the fretboard.
+      if (rootFret < baseFret) {
+        rootFret += 12;
+      }
 
       return {
         success: true,

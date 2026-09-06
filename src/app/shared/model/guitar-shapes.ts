@@ -272,6 +272,7 @@ export const GUITAR_SHAPES: GuitarShape[] = [
     stringSet: [6, 5, 4, 3, 2, 1],
     baseFret: 3,
     // Open Gm: 3-1-0-0-3-3 → G-Bb-D-G-D-G
+    // (not 3-1-0-0-0-3 — string 2 at fret 3 = D, not open B)
     // Lowest fret = 0 (strings 4, 3). Root on string 6 at fret 3.
     // String 2 at fret 3 = D (5th), not open B (major 3rd).
     positions: [

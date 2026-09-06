@@ -105,6 +105,28 @@ describe('ShapeResolverService', () => {
       expect(result.positions[0]).toEqual({ string: 6, fret: 5, label: 'root' });
       expect(result.positions[1]).toEqual({ string: 5, fret: 3, label: 'b3' });
     });
+
+    it('should resolve caged-Cm-form with rootNote B (octave wrap, rootFret < baseFret)', () => {
+      const result = service.resolveShape('caged-Cm-form', 'B');
+      expect(result.success).toBe(true);
+      // Cm-form root on string 5: A→B = 2 semitones → rootFret=2
+      // baseFret=3, so rootFret < baseFret → shift up octave: rootFret=14
+      // Position 0: string 5, fretOffset 3 → fret 14
+      expect(result.positions[0]).toEqual({ string: 5, fret: 14, label: 'root' });
+      // All positions must be non-negative
+      expect(result.positions.every(p => p.fret >= 0)).toBe(true);
+    });
+
+    it('should resolve caged-Gm-form with rootNote F (octave wrap, rootFret < baseFret)', () => {
+      const result = service.resolveShape('caged-Gm-form', 'F');
+      expect(result.success).toBe(true);
+      // Gm-form root on string 6: E→F = 1 semitone → rootFret=1
+      // baseFret=3, so rootFret < baseFret → shift up octave: rootFret=13
+      // Position 0: string 6, fretOffset 3 → fret 13
+      expect(result.positions[0]).toEqual({ string: 6, fret: 13, label: 'root' });
+      // All positions must be non-negative
+      expect(result.positions.every(p => p.fret >= 0)).toBe(true);
+    });
   });
 
   describe('getAvailableShapes', () => {
