@@ -1,16 +1,13 @@
 <div class="sentence-toolbox">
   <span class="sentence-toolbox__label">I want to:</span>
 
-  <!-- Intent chip: Show / Compare / Shape -->
-  <div class="sentence-toolbox__chip-wrapper">
-    <button
-      class="sentence-toolbox__chip sentence-toolbox__chip--select"
-      (click)="setIntent(intent() === 'show' ? 'compare' : intent() === 'compare' ? 'shape' : 'show')"
-    >
-      {{ intent() === "show" ? "Show" : intent() === "compare" ? "Compare" : "Shape" }}
-      <span class="sentence-toolbox__arrow">▼</span>
-    </button>
-  </div>
+  <!-- Intent dropdown: Show / Compare / Shape -->
+  <app-dropdown
+    [options]="intentOptions"
+    [displayFn]="intentDisplayFn"
+    [selectedValue]="intent()"
+    (valueChange)="setIntent($event)"
+  ></app-dropdown>
 
   <!-- Show sentence -->
   @if (intent() === "show") {

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, ChangeDetectionStrategy, output } from '@angular/core';
+import { Component, input, ChangeDetectionStrategy, output } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { neckConfig } from 'guitar-neck-shared';
@@ -19,6 +19,7 @@ interface Preset {
 })
 export class RangeToolbarComponent {
   rangeChange = output<{ minFret: number, maxFret: number }>();
+  readonly disabled = input(false);
   neckConfig = neckConfig;
   readonly presets: Preset[] = [
     { label: 'Open', min: 0, max: 4 },

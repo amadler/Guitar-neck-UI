@@ -5,8 +5,10 @@
       class="range-btn"
       [class.range-btn--active]="activePreset === preset"
       [class.range-btn--custom-trigger]="preset.label === 'Custom' && isCustom"
+      [class.range-btn--disabled]="disabled()"
       type="button"
       (click)="selectPreset(preset)"
+      [disabled]="disabled()"
     >
       {{
         preset.label === "Custom"
@@ -24,6 +26,7 @@
         [(ngModel)]="customMin"
         min="0"
         [max]="customMax"
+        [disabled]="disabled()"
       />
       <span class="range-custom__separator">–</span>
       <input
@@ -32,8 +35,9 @@
         [(ngModel)]="customMax"
         [min]="customMin"
         [max]="neckConfig.numberOfFrets"
+        [disabled]="disabled()"
       />
-      <button class="range-custom__apply" type="button" (click)="applyCustom()">
+      <button class="range-custom__apply" type="button" (click)="applyCustom()" [disabled]="disabled()">
         Show
       </button>
     </div>

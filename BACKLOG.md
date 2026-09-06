@@ -169,3 +169,49 @@ Implementacja `ShowLickCommand`:
 ## Status
 
 POSTPONED
+
+---
+
+# P10: CAGED minor shapes — definicje i obsługa w UI
+
+## Motivation
+
+Obecny shape registry ma tylko cowboy (open chords) i barre shapes. Brakuje kształtów CAGED (C-form, A-form, G-form, E-form, D-form) w wersji minor. Są one kluczowe dla systematyki gryfu — pozwalają pokazać mollowy akord w dowolnej pozycji na gryfie.
+
+## Solution
+
+Rozszerzenie shape registry o 5 minor CAGED form (Cm, Am, Gm, Em, Dm) oraz dodanie kategorii `'caged'` do `ShapeCategory` w toolbox UI.
+
+### Nowe dane w guitar-shapes.ts
+
+| ID | Name | Root string | String set |
+|----|------|-------------|------------|
+| `caged-Cm-form` | CAGED Cm-form (minor) | 5 (A) | [5,4,3,2,1] |
+| `caged-Am-form` | CAGED Am-form (minor) | 5 (A) | [5,4,3,2,1] |
+| `caged-Gm-form` | CAGED Gm-form (minor) | 6 (E) | [6,5,4,3,2,1] |
+| `caged-Em-form` | CAGED Em-form (minor) | 6 (E) | [6,5,4,3,2,1] |
+| `caged-Dm-form` | CAGED Dm-form (minor) | 4 (D) | [4,3,2,1] |
+
+### Zmiany w UI
+
+- `ShapeCategory` w model.ts: `'cowboy' | 'barre' | 'caged'`
+- Toolbox: trzeci przycisk/wybor dla CAGED
+- `currentShapes` getter: case dla `'caged'`
+
+## MVP
+
+- 5 minor CAGED form zdefiniowane w GUITAR_SHAPES
+- `ShapeCategory` rozszerzone o `'caged'`
+- Toolbox UI pozwala wybrać CAGED shapes
+- Build przechodzi
+
+## Done when
+
+- `npm run build` succeeds
+- Wszystkie 5 CAGED minor form dostępne przez `resolve-shape`
+- Toolbox ma opcję wyboru CAGED shapes
+- Każda pozycja CAGED shape zweryfikowana — zgodna z interwałem
+
+## Status
+
+OPEN

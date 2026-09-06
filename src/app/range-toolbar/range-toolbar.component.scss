@@ -46,6 +46,12 @@
   font-weight: 600;
 }
 
+.range-btn--disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 /* Custom range inputs */
 
 .range-custom {

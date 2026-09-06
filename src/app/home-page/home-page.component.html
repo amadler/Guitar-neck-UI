@@ -9,7 +9,10 @@
       ></app-toolbox-builder>
     </div>
     <div class="command-bar__range">
-      <app-range-toolbar (rangeChange)="onRangeChange($event)"></app-range-toolbar>
+      <app-range-toolbar
+        [disabled]="rangeDisabled()"
+        (rangeChange)="onRangeChange($event)"
+      ></app-range-toolbar>
     </div>
   </section>
   <!-- END: Command Bar -->

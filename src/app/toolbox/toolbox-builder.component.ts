@@ -55,6 +55,10 @@ export class ToolboxBuilderComponent {
   showKind = signal<ShowKind>('scale');
   shapeCategory = signal<ShapeCategory>('cowboy');
 
+  // Intent dropdown
+  intentOptions: ToolboxIntent[] = ['show', 'compare', 'shape'];
+  intentDisplayFn = (value: ToolboxIntent) => value.charAt(0).toUpperCase() + value.slice(1);
+
   selectedKey = signal<MusicKey>('C');
   selectedScaleType = signal<string>(DEFAULT_SCALE_TYPE);
   selectedChordType = signal<string>(DEFAULT_CHORD_TYPE);

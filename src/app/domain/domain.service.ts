@@ -1,5 +1,5 @@
 import { Injectable, signal, inject } from '@angular/core';
-import { SCALE_PATTERNS, CHORD_PATTERNS } from 'guitar-neck-shared';
+import { neckConfig, SCALE_PATTERNS, CHORD_PATTERNS } from 'guitar-neck-shared';
 import { DomainCommand } from './commands';
 import { DomainQuery, GetPatternDetailsResult, KeyAnalysis } from './queries';
 import { DomainState, DomainResult, DomainError, DEFAULT_DOMAIN_STATE } from './state';
@@ -239,12 +239,16 @@ export class DomainService {
     const guitarNotes = this.noteService.findPositionsByExactCoordinates(result.positions);
     this.orchestration.displayPositions(guitarNotes, result.rootNote);
 
+    // Auto-fit fretRange to the resolved positions so the shape is always visible
+    const fretRange = this.computeFretRangeFromPositions(result.positions);
+
     return this.emitState({
       ...this.currentState(),
       mode: 'positions',
       rootNote: result.rootNote ?? this.currentState().rootNote,
       patternName: shapeId,
       compareTarget: undefined,
+      fretRange,
       shapeInfo: {
         shapeId,
         positions: result.positions.map(p => ({
@@ -354,5 +358,16 @@ export class DomainService {
   private emitState(newState: DomainState): DomainResult<DomainState> {
     this.stateSignal.set(newState);
     return { success: true, data: newState };
+  }
+
+  /** Compute a fretRange that fits all given positions with ±1 fret padding. */
+  private computeFretRangeFromPositions(
+    positions: Array<{ string: number; fret: number }>,
+  ): { min: number; max: number } {
+    if (positions.length === 0) return this.currentState().fretRange;
+    const frets = positions.map(p => p.fret);
+    const min = Math.max(0, Math.min(...frets) - 1);
+    const max = Math.min(neckConfig.numberOfFrets, Math.max(...frets) + 1);
+    return { min, max };
   }
 }

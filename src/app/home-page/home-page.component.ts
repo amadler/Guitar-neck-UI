@@ -43,6 +43,9 @@ export class HomePageComponent {
   /** Controls which overlay is shown: legend (for Show) or relationship strip (for Compare). */
   displayMode = signal<DisplayMode>(null);
 
+  /** Whether the Range toolbar should be disabled (e.g. in Shape mode). */
+  rangeDisabled = signal(false);
+
   constructor() {
     const domainService = this.domainService;
 
@@ -65,16 +68,19 @@ export class HomePageComponent {
       case 'show-interval':
         this.domainService.execute(command);
         this.displayMode.set('legend');
+        this.rangeDisabled.set(false);
         break;
 
       case 'compare-patterns':
         this.domainService.execute(command);
         this.displayMode.set('relationship');
+        this.rangeDisabled.set(false);
         break;
 
       case 'resolve-shape':
         this.domainService.execute(command);
         this.displayMode.set('legend');
+        this.rangeDisabled.set(true);
         break;
 
       case 'set-view':
@@ -88,6 +94,7 @@ export class HomePageComponent {
       case 'clear-view':
         this.domainService.execute(command);
         this.displayMode.set(null);
+        this.rangeDisabled.set(false);
         break;
     }
   }
