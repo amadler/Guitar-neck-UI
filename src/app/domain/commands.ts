@@ -84,8 +84,7 @@ export interface ClearViewCommand {
 export interface ResolveShapeCommand {
   type: 'resolve-shape';
   shapeId: string;              // np. 'cowboy-C', 'barre-E-form'
-  rootNote?: string;            // dla movable shapes
-  position?: number;            // fret position (0 = open)
+  rootNote?: string;            // wymagane dla barre shapes; opcjonalne dla cowboy (mają własny rootNote)
 }
 
 /**

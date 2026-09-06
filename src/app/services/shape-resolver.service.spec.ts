@@ -27,6 +27,12 @@ describe('ShapeResolverService', () => {
       expect(result.positions[0]).toEqual({ string: 6, fret: 1, label: 'root' });
     });
 
+    it('should reject barre shape without rootNote', () => {
+      const result = service.resolveShape('barre-E-form');
+      expect(result.success).toBe(false);
+      expect(result.message).toContain('requires rootNote');
+    });
+
     it('should reject cowboy shape with wrong rootNote', () => {
       const result = service.resolveShape('cowboy-C', 'F');
       expect(result.success).toBe(false);
@@ -39,7 +45,7 @@ describe('ShapeResolverService', () => {
       expect(result.message).toContain('not found');
     });
 
-    it('should resolve barre-A-form with rootNote Bb', () => {
+    it('should resolve barre-A-form with rootNote Bb (enharmonic)', () => {
       const result = service.resolveShape('barre-A-form', 'Bb');
       expect(result.success).toBe(true);
       // A-form root on string 5: A + 1 semitone = Bb at fret 1

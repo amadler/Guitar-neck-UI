@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { neckConfig } from 'guitar-neck-shared';
 import { GuitarShape, findShapeById, getShapesByCategory } from '../shared/model/guitar-shapes';
+import { noteToChroma } from '../shared/note-utils';
 
 export interface ShapeResolutionResult {
   success: boolean;
@@ -63,37 +64,39 @@ export class ShapeResolverService {
       };
     }
 
-    // Movable shapes (barre, triad-inversion): need rootNote or position
-    const fretPosition = position ?? 0;
-
+    // Movable shapes (barre): require rootNote
     if (shape.category === 'barre') {
-      // If rootNote is given, calculate the fret position from the root string
-      let baseFret = fretPosition;
-
-      if (rootNote) {
-        const rootIndex = this.chromaticNotes.indexOf(rootNote);
-        if (rootIndex === -1) {
-          return {
-            success: false,
-            positions: [],
-            message: `Invalid root note: "${rootNote}".`,
-          };
-        }
-
-        // Find the open string note for the root string
-        const openStringNote = neckConfig.stringNotes[shape.rootString - 1];
-        const openIndex = this.chromaticNotes.indexOf(openStringNote);
-        if (openIndex === -1) {
-          return {
-            success: false,
-            positions: [],
-            message: `Cannot determine open note for string ${shape.rootString}.`,
-          };
-        }
-
-        // Calculate fret: semitone distance from open string to root note
-        baseFret = (rootIndex - openIndex + 12) % 12;
+      if (!rootNote) {
+        return {
+          success: false,
+          positions: [],
+          message: `Barre shape "${shape.id}" requires rootNote.`,
+        };
       }
+
+      // Use chroma (pitch class) for enharmonic-safe note lookup
+      const rootChroma = noteToChroma(rootNote);
+      if (rootChroma === -1) {
+        return {
+          success: false,
+          positions: [],
+          message: `Invalid root note: "${rootNote}".`,
+        };
+      }
+
+      // Find the open string note for the root string
+      const openStringNote = neckConfig.stringNotes[shape.rootString - 1];
+      const openChroma = noteToChroma(openStringNote);
+      if (openChroma === -1) {
+        return {
+          success: false,
+          positions: [],
+          message: `Cannot determine open note for string ${shape.rootString}.`,
+        };
+      }
+
+      // Calculate fret: semitone distance from open string to root note
+      const baseFret = (rootChroma - openChroma + 12) % 12;
 
       return {
         success: true,

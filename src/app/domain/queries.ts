@@ -83,7 +83,6 @@ export interface ResolveShapeQuery {
   type: 'resolve-shape-query';
   shapeId: string;
   rootNote?: string;
-  position?: number;
 }
 
 /**

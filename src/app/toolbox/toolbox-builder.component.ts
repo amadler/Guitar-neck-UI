@@ -129,7 +129,6 @@ export class ToolboxBuilderComponent {
         type: 'resolve-shape',
         shapeId: shape.id,
         rootNote: isMovable ? this.shapeRootKey() : undefined,
-        position: isMovable ? 0 : undefined,
       };
       this.toolboxEvent.emit(command);
     }

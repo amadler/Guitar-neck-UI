@@ -186,7 +186,7 @@ export const GUITAR_SHAPES: GuitarShape[] = [
     positions: [
       { string: 5, fretOffset: 3, label: 'root' },     // A+3=C
       { string: 4, fretOffset: 2, label: '3' },        // D+2=E
-      { string: 3, fretOffset: 0, label: '5' },        // G+0=G
+      { string: 3, fretOffset: 3, label: 'b7' },       // G+3=Bb
       { string: 2, fretOffset: 1, label: 'root' },     // B+1=C
       { string: 1, fretOffset: 0, label: '3' },        // E+0=E
     ],
@@ -221,10 +221,10 @@ export const GUITAR_SHAPES: GuitarShape[] = [
     positions: [
       { string: 6, fretOffset: 0, label: 'root' },     // root on string 6
       { string: 5, fretOffset: 2, label: '5' },        // 5th
-      { string: 4, fretOffset: 2, label: '3' },        // 3rd
-      { string: 3, fretOffset: 1, label: '5' },        // 5th
-      { string: 2, fretOffset: 0, label: 'root' },     // root
-      { string: 1, fretOffset: 0, label: '3' },        // 3rd
+      { string: 4, fretOffset: 2, label: 'root' },     // root
+      { string: 3, fretOffset: 1, label: '3' },        // 3rd
+      { string: 2, fretOffset: 0, label: '5' },        // 5th
+      { string: 1, fretOffset: 0, label: 'root' },     // root
     ],
   },
   {
@@ -236,10 +236,10 @@ export const GUITAR_SHAPES: GuitarShape[] = [
     positions: [
       { string: 6, fretOffset: 0, label: 'root' },     // root on string 6
       { string: 5, fretOffset: 2, label: '5' },        // 5th
-      { string: 4, fretOffset: 2, label: 'b3' },       // b3rd
-      { string: 3, fretOffset: 1, label: '5' },        // 5th
-      { string: 2, fretOffset: 0, label: 'root' },     // root
-      { string: 1, fretOffset: 0, label: 'b3' },       // b3rd
+      { string: 4, fretOffset: 2, label: 'root' },     // root
+      { string: 3, fretOffset: 0, label: 'b3' },       // G+0=G (b3 from E)
+      { string: 2, fretOffset: 0, label: '5' },        // 5th
+      { string: 1, fretOffset: 0, label: 'root' },     // root
     ],
   },
   {
@@ -251,8 +251,8 @@ export const GUITAR_SHAPES: GuitarShape[] = [
     positions: [
       { string: 5, fretOffset: 0, label: 'root' },     // root on string 5
       { string: 4, fretOffset: 2, label: '5' },        // 5th
-      { string: 3, fretOffset: 2, label: '3' },        // 3rd
-      { string: 2, fretOffset: 2, label: 'root' },     // root
+      { string: 3, fretOffset: 2, label: 'root' },     // root
+      { string: 2, fretOffset: 2, label: '3' },        // 3rd
       { string: 1, fretOffset: 0, label: '5' },        // 5th
     ],
   },
@@ -265,8 +265,8 @@ export const GUITAR_SHAPES: GuitarShape[] = [
     positions: [
       { string: 5, fretOffset: 0, label: 'root' },     // root on string 5
       { string: 4, fretOffset: 2, label: '5' },        // 5th
-      { string: 3, fretOffset: 2, label: 'b3' },       // b3rd
-      { string: 2, fretOffset: 2, label: 'root' },     // root
+      { string: 3, fretOffset: 2, label: 'root' },     // root
+      { string: 2, fretOffset: 1, label: 'b3' },       // b3rd
       { string: 1, fretOffset: 0, label: '5' },        // 5th
     ],
   },

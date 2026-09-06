@@ -224,9 +224,9 @@ export class DomainService {
   }
 
   private handleResolveShape(command: DomainCommand & { type: 'resolve-shape' }): DomainResult<DomainState> {
-    const { shapeId, rootNote, position } = command;
+    const { shapeId, rootNote } = command;
 
-    const result = this.shapeResolver.resolveShape(shapeId, rootNote, position);
+    const result = this.shapeResolver.resolveShape(shapeId, rootNote);
     if (!result.success) {
       return {
         success: false,
@@ -341,8 +341,8 @@ export class DomainService {
     return { success: true, data: { shapes } };
   }
 
-  private handleResolveShapeQuery(query: { type: 'resolve-shape-query'; shapeId: string; rootNote?: string; position?: number }): DomainResult<{ positions: Array<{ string: number; fret: number; label?: string }> }> {
-    const result = this.shapeResolver.resolveShape(query.shapeId, query.rootNote, query.position);
+  private handleResolveShapeQuery(query: { type: 'resolve-shape-query'; shapeId: string; rootNote?: string }): DomainResult<{ positions: Array<{ string: number; fret: number; label?: string }> }> {
+    const result = this.shapeResolver.resolveShape(query.shapeId, query.rootNote);
     if (!result.success) {
       return { success: false, error: DomainError.SHAPE_NOT_FOUND, message: result.message ?? `Shape not found: "${query.shapeId}".` };
     }

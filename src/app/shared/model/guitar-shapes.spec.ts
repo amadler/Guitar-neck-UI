@@ -92,6 +92,18 @@ describe('GUITAR_SHAPES', () => {
         expect(shape.rootNote).toBeUndefined();
       }
     });
+
+    it('should have correct interval labels for every position (relative to root string open note)', () => {
+      for (const shape of barreShapes) {
+        // The conceptual root is the open string note at rootString
+        const conceptualRoot = OPEN_STRINGS[shape.rootString];
+        for (const pos of shape.positions) {
+          const actualNote = getNoteAt(pos.string, pos.fretOffset);
+          const expectedLabel = getIntervalLabel(conceptualRoot, actualNote);
+          expect(pos.label).toBe(expectedLabel);
+        }
+      }
+    });
   });
 
   describe('all shapes', () => {
