@@ -72,6 +72,11 @@ export class HomePageComponent {
         this.displayMode.set('relationship');
         break;
 
+      case 'resolve-shape':
+        this.domainService.execute(command);
+        this.displayMode.set('legend');
+        break;
+
       case 'set-view':
         this.domainService.execute(command);
         break;
