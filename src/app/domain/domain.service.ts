@@ -64,7 +64,7 @@ export class DomainService {
   }
 
   private registerQueryHandlers(): void {
-    this.queryHandlers.set('get-current-view', (_q) => ({ success: true as const, data: this.currentState }));
+    this.queryHandlers.set('get-current-view', (_q) => ({ success: true as const, data: this.currentState() }));
     this.queryHandlers.set('get-available-patterns', (_q) => ({
       success: true as const,
       data: {

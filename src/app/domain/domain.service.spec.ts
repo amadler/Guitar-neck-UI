@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { DomainService } from './domain.service';
 import { DomainCommand } from './commands';
 import { DomainQuery, KeyAnalysis } from './queries';
+import { DomainState } from './state';
 
 describe('DomainService', () => {
   let service: DomainService;
@@ -73,6 +74,19 @@ describe('DomainService', () => {
       const query: DomainQuery = { type: 'detect-chord', notes: [] };
       const result = service.query(query);
       expect(result.success).toBe(false);
+    });
+
+    it('should return current DomainState snapshot (not a Signal)', () => {
+      const result = service.query<DomainState>({ type: 'get-current-view' });
+      expect(result.success).toBe(true);
+      if (result.success) {
+        // Verify it's a plain object snapshot, not a Signal
+        expect(result.data.mode).toBeDefined();
+        expect(result.data.rootNote).toBeDefined();
+        expect(typeof result.data).toBe('object');
+        // Verify it's not a function (which would indicate a Signal leaked)
+        expect(typeof (result.data as any).subscribe).toBe('undefined');
+      }
     });
   });
 });

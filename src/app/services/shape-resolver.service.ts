@@ -18,8 +18,6 @@ export interface ShapeResolutionResult {
  */
 @Injectable({ providedIn: 'root' })
 export class ShapeResolverService {
-  private readonly chromaticNotes = neckConfig.chromaticNotes;
-
   /**
    * Rozwijanie kształtu na konkretne pozycje.
    *
