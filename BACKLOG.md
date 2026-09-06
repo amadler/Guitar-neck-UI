@@ -1,28 +1,24 @@
-# P6: API Extension — semantyczne komendy, shape registry, detekcja Tonal
+# P6: API Extension — shape registry, detekcja Tonal, semantyczne kwerendy
 
 ## Motivation
 
 Obecne API (`show-pattern`, `show-interval`, `compare-patterns`) pokazuje tylko skale/akordy na całym gryfie. Brakuje możliwości:
-- Pokazania konkretnego voicingu (przewrót, string set, spread)
-- Pokazania arpeggio (sekwencja interwałowa)
-- Pokazania zagrywki (konkretne pozycje z walidacją)
 - Detekcji akordu/skali z listy nut (przez Tonal.js)
-- Wyświetlenia akordów kowbojskich, barre i triad w przewrotach
+- Analizy tonacji (key analysis)
+- Wyświetlenia akordów kowbojskich i barre z shape registry
+- Rozwiązywania nazwanych kształtów na konkretne pozycje
 
 AI potrzebuje semantycznego API — opisuje intencję muzyczną, aplikacja oblicza pozycje.
 
 ## Solution
 
-Rozszerzenie DomainContract o 3 nowe komendy semantyczne i 3 nowe kwerendy detekcyjne, plus shape registry (dane, nie kod).
+Rozszerzenie DomainContract o 1 nową komendę (`resolve-shape`) i 3 nowe kwerendy detekcyjne, plus shape registry (dane, nie kod).
 
 ### Nowe komendy
 
 | Komenda | Opis |
 |---------|------|
-| `show-voicing` | Akord w konkretnym przewrocie na zadanych strunach |
-| `show-arpeggio` | Sekwencja interwałowa na zadanych strunach |
-| `show-lick` | Konkretne pozycje (string, fret) z walidacją nuty |
-| `resolve-shape` | Nazwany kształt (cowboy, barre, triada) → pozycje |
+| `resolve-shape` | Nazwany kształt (cowboy, barre) → pozycje |
 
 ### Nowe kwerendy
 
@@ -30,39 +26,146 @@ Rozszerzenie DomainContract o 3 nowe komendy semantyczne i 3 nowe kwerendy detek
 |----------|------|
 | `detect-chord` | Z listy nut → nazwa akordu (przez chord-detect) |
 | `detect-scale` | Z listy nut → nazwa skali (przez scale-detect) |
-| `get-key-analysis` | Pełna analiza tonacji (przez key) |
+| `get-key-analysis` | Pełna analiza tonacji (przez key) — własny DTO KeyAnalysis |
+| `get-available-shapes` | Lista dostępnych kształtów z rejestru |
 
 ### Nowe serwisy/pliki
 
-- [`src/app/shared/model/guitar-shapes.ts`](src/app/shared/model/guitar-shapes.ts) — typy + rejestr kształtów (cowboy, barre, triad inversions)
+- [`src/app/shared/model/guitar-shapes.ts`](src/app/shared/model/guitar-shapes.ts) — typy + rejestr kształtów (cowboy, barre)
 - [`src/app/services/shape-resolver.service.ts`](src/app/services/shape-resolver.service.ts) — rozwijanie kształtów na pozycje
 
 ### Rozszerzone serwisy
 
-- [`src/app/services/tonal-facade.service.ts`](src/app/services/tonal-facade.service.ts) — `detectChord()`, `detectScale()`, `getMajorKey()`, `getMinorKey()`, `filterNotesBySet()`, `isSubsetOf()`, `isSupersetOf()`
+- [`src/app/services/tonal-facade.service.ts`](src/app/services/tonal-facade.service.ts) — `detectChord()`, `detectScale()`, `getMajorKey()`, `getMinorKey()`
 - [`src/app/services/note.service.ts`](src/app/services/note.service.ts) — `getNoteAtPosition()`, `findPositionsByExactCoordinates()`
 - [`src/app/services/fretboard-orchestration.service.ts`](src/app/services/fretboard-orchestration.service.ts) — `displayPositions()` (wewnętrzne RAW API)
-- [`src/app/domain/domain-validator.ts`](src/app/domain/domain-validator.ts) — `validateStringIndex()`, `validateFret()`, `validatePosition()`, `validateNoteAtPosition()`, `validateVoicing()`
+- [`src/app/domain/domain-validator.ts`](src/app/domain/domain-validator.ts) — `validateStringIndex()`, `validateFret()`, `validatePosition()`, `validateNoteAtPosition()`
 
 ### Toolbox UI
 
-Nowy intent "Shape" z kategoriami: Cowboy, Barre, Triad. Dla movable shapes (barre, triad) — wybór root note.
+Nowy intent "Shape" z kategoriami: Cowboy, Barre.
 
 ## MVP
 
-- Wszystkie nowe komendy i kwerendy zdefiniowane w DomainContract
-- Shape registry z danymi: 10 cowboy chords, 4 barre shapes, 24 triad inversions
-- Toolbox UI z nową sekcją Shape
+- `resolve-shape` command zdefiniowana w DomainContract
+- `detect-chord`, `detect-scale`, `get-key-analysis`, `get-available-shapes` kwerendy
+- Shape registry z danymi: 10 cowboy chords (z własnym rootNote/chordType), 4 barre shapes
+- Walidacja pozycji (string, fret, zgodność nuty)
+- `displayPositions()` jako wewnętrzne RAW API
 - Build przechodzi (`npm run build`)
+- Testy dla foundation: shape resolver, walidacja pozycji, dane kształtów, semantic queries
 
 ## Done when
 
 - `npm run build` succeeds
-- Nowe komendy są dostępne przez `DomainService.execute()`
-- Nowe kwerendy są dostępne przez `DomainService.query()`
-- Toolbox ma działającą sekcję Shape
+- `resolve-shape` dostępne przez `DomainService.execute()`
+- Nowe kwerendy dostępne przez `DomainService.query()`
+- Cowboy shapes mają własne `rootNote`/`chordType` — niespójny stan zablokowany
+- Dane w guitar-shapes.ts zweryfikowane — każda pozycja zgodna z interwałem
+- Testy dla foundation przechodzą
 - Dokumentacja API zaktualizowana
 
 ## Status
 
 OPEN
+
+---
+
+# P7: show-voicing — akord w konkretnym przewrocie na zadanych strunach
+
+## Motivation
+
+Po zaimplementowaniu foundation (P6), potrzebujemy możliwości pokazania konkretnego voicingu akordu — z wyborem strun, przewrotu, spreadu i pominięć. To kluczowa funkcjonalność dla AI, która chce opisać brzmienie, nie tylko zbiór nut.
+
+## Solution
+
+Implementacja `ShowVoicingCommand`:
+- `chordType`, `rootNote` — jaki akord
+- `voicing.stringSet` — które struny
+- `voicing.inversion` — przewrót (0=root, 1=1st, 2=2nd)
+- `voicing.spread` — rozproszony bas
+- `voicing.omit` — które interwały pominąć
+
+Wymaga poprawnego resolvera całego układu pozycji (nie tylko najniższy próg per struna).
+
+## MVP
+
+- `ShowVoicingCommand` zdefiniowany w DomainContract
+- Handler w DomainService obliczający pozycje
+- Wyświetlanie przez `displayPositions()`
+- Build przechodzi
+
+## Done when
+
+- `show-voicing` dostępne przez `DomainService.execute()`
+- Voicing z inversion/spread/omit działa poprawnie
+- Testy dla różnych konfiguracji voicingu
+
+## Status
+
+POSTPONED
+
+---
+
+# P8: show-arpeggio — sekwencja interwałowa na zadanych strunach
+
+## Motivation
+
+Arpeggio to sekwencja nut (nie zbiór). Obecny fretboard pokazuje tylko zbiór pozycji bez kolejności. Potrzebujemy komendy, która pozwoli AI zdefiniować sekwencję interwałową i wyświetlić ją na gryfie.
+
+## Solution
+
+Implementacja `ShowArpeggioCommand`:
+- `chordType`, `rootNote` — jaki akord
+- `pattern` — sekwencja interwałowa: `['root', '3', '5', '3', 'root']`
+- `strings` — na których strunach grać
+
+## MVP
+
+- `ShowArpeggioCommand` zdefiniowany w DomainContract
+- Handler mapujący pattern interwałowy na nuty i pozycje
+- Wyświetlanie przez `displayPositions()`
+- Build przechodzi
+
+## Done when
+
+- `show-arpeggio` dostępne przez `DomainService.execute()`
+- Arpeggio z dowolnym patternem działa
+- Testy dla różnych patternów
+
+## Status
+
+POSTPONED
+
+---
+
+# P9: show-lick — konkretne pozycje z walidacją
+
+## Motivation
+
+Czasem AI lub użytkownik chce pokazać konkretną zagrywkę — dokładne pozycje (string, fret) z walidacją, czy dana nuta faktycznie brzmi na wskazanej pozycji.
+
+## Solution
+
+Implementacja `ShowLickCommand`:
+- `notes` — tablica pozycji: `{ note, string, fret? }`
+- Walidacja każdej pozycji: string (1-6), fret (0-24), zgodność nuty
+- Jeśli fret nie podany — znajdź najbliższy próg dla nuty na danej strunie
+
+## MVP
+
+- `ShowLickCommand` zdefiniowany w DomainContract
+- Handler walidujący i wyświetlający pozycje
+- Wyświetlanie przez `displayPositions()`
+- Build przechodzi
+
+## Done when
+
+- `show-lick` dostępne przez `DomainService.execute()`
+- Walidacja pozycji działa (błąd dla niezgodnej nuty)
+- Auto-resolve fret działa gdy fret nie podany
+- Testy dla walidacji i auto-resolve
+
+## Status
+
+POSTPONED

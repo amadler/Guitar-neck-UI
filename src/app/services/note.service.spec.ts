@@ -75,4 +75,57 @@ describe('NoteService', () => {
             expect(openNote.note).toBe(twelfthFretNotes[index].note);
         });
     });
+
+    // ─── getNoteAtPosition ─────────────────────────────────────────────
+
+    it('getNoteAtPosition should return C at string 5, fret 3', () => {
+        expect(service.getNoteAtPosition(5, 3)).toBe('C');
+    });
+
+    it('getNoteAtPosition should return null for string 0', () => {
+        expect(service.getNoteAtPosition(0, 3)).toBeNull();
+    });
+
+    it('getNoteAtPosition should return null for string 7', () => {
+        expect(service.getNoteAtPosition(7, 3)).toBeNull();
+    });
+
+    it('getNoteAtPosition should return null for fret 25', () => {
+        expect(service.getNoteAtPosition(1, 25)).toBeNull();
+    });
+
+    it('getNoteAtPosition should return open string note at fret 0', () => {
+        expect(service.getNoteAtPosition(6, 0)).toBe('E');
+        expect(service.getNoteAtPosition(5, 0)).toBe('A');
+        expect(service.getNoteAtPosition(4, 0)).toBe('D');
+        expect(service.getNoteAtPosition(3, 0)).toBe('G');
+        expect(service.getNoteAtPosition(2, 0)).toBe('B');
+        expect(service.getNoteAtPosition(1, 0)).toBe('E');
+    });
+
+    // ─── findPositionsByExactCoordinates ────────────────────────────────
+
+    it('findPositionsByExactCoordinates should find a single position', () => {
+        const positions = service.findPositionsByExactCoordinates([{ string: 5, fret: 3 }]);
+        expect(positions.length).toBe(1);
+        expect(positions[0].string).toBe(5);
+        expect(positions[0].fret).toBe(3);
+        expect(positions[0].note).toBe('C');
+    });
+
+    it('findPositionsByExactCoordinates should skip out-of-range positions', () => {
+        const positions = service.findPositionsByExactCoordinates([
+            { string: 5, fret: 3 },
+            { string: 0, fret: 3 },
+            { string: 5, fret: 25 },
+        ]);
+        expect(positions.length).toBe(1);
+        expect(positions[0].string).toBe(5);
+        expect(positions[0].fret).toBe(3);
+    });
+
+    it('findPositionsByExactCoordinates should return empty array for no matches', () => {
+        const positions = service.findPositionsByExactCoordinates([{ string: 0, fret: 0 }]);
+        expect(positions.length).toBe(0);
+    });
 });

@@ -1,7 +1,7 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { SCALE_PATTERNS, CHORD_PATTERNS } from 'guitar-neck-shared';
 import { DomainCommand } from './commands';
-import { DomainQuery, GetPatternDetailsResult } from './queries';
+import { DomainQuery, GetPatternDetailsResult, KeyAnalysis } from './queries';
 import { DomainState, DomainResult, DomainError, DEFAULT_DOMAIN_STATE } from './state';
 import { DomainValidator } from './domain-validator';
 import { FretboardOrchestrationService } from '../services/fretboard-orchestration.service';
@@ -12,6 +12,9 @@ import { PatternInfo } from '../shared/model/patternInfo';
 import { spellNote } from '../shared/note-utils';
 import { ShapeResolverService } from '../services/shape-resolver.service';
 
+// Handler types use `any` for the registry parameter because the narrowing
+// happens inside each handler via the `& { type: ... }` intersection.
+// The execute/query methods provide the type-safe entry point.
 type CommandHandler = (command: any) => DomainResult<DomainState>;
 type QueryHandler = (query: any) => DomainResult<any>;
 
@@ -57,9 +60,6 @@ export class DomainService {
     this.commandHandlers.set('set-view', (c) => this.handleSetView(c));
     this.commandHandlers.set('set-emphasis', (c) => this.handleSetEmphasis(c));
     this.commandHandlers.set('clear-view', (_c) => this.handleClearView());
-    this.commandHandlers.set('show-voicing', (c) => this.handleShowVoicing(c));
-    this.commandHandlers.set('show-arpeggio', (c) => this.handleShowArpeggio(c));
-    this.commandHandlers.set('show-lick', (c) => this.handleShowLick(c));
     this.commandHandlers.set('resolve-shape', (c) => this.handleResolveShape(c));
   }
 
@@ -223,237 +223,6 @@ export class DomainService {
     });
   }
 
-  // ─── Nowe command handlers ──────────────────────────────────────────
-
-  private handleShowVoicing(command: DomainCommand & { type: 'show-voicing' }): DomainResult<DomainState> {
-    const { chordType, rootNote, voicing } = command;
-
-    const err = DomainValidator.validatePattern(chordType, 'chord')
-      ?? DomainValidator.validateRootNote(rootNote)
-      ?? DomainValidator.validateVoicing(voicing)
-      ?? DomainValidator.validateFretRange(command.fretRange);
-    if (err) return err;
-
-    // Resolve chord notes
-    const { simplified } = this.tonalFacade.resolvePattern(chordType, rootNote, 'chord');
-    if (simplified.length === 0) {
-      return { success: false, error: DomainError.EMPTY_RESULT, message: `Chord "${chordType}" resolved to no notes.` };
-    }
-
-    // Apply inversion: rotate notes
-    const inversion = voicing.inversion ?? 0;
-    let chordNotes = [...simplified];
-    for (let i = 0; i < inversion; i++) {
-      chordNotes.push(chordNotes.shift()!);
-    }
-
-    // Apply omit
-    if (voicing.omit && voicing.omit.length > 0) {
-      const omitSet = new Set(voicing.omit);
-      chordNotes = chordNotes.filter((_, idx) => {
-        const interval = idx === 0 ? 'root' : this.tonalFacade.intervalBetween(rootNote, chordNotes[idx]);
-        return !omitSet.has(interval);
-      });
-    }
-
-    // Find positions on the specified strings within fretRange
-    const range = command.fretRange ?? this.currentState().fretRange;
-    const positions: Array<{ string: number; fret: number }> = [];
-
-    for (let i = 0; i < voicing.stringSet.length && i < chordNotes.length; i++) {
-      const string = voicing.stringSet[i];
-      const targetNote = chordNotes[i];
-
-      // Find the best fret for this note on this string within range
-      const allPositions = this.noteService.findPositionsByNoteName(targetNote)
-        .filter(n => n.string === string && n.fret >= range.min && n.fret <= range.max);
-
-      if (allPositions.length === 0) {
-        return {
-          success: false,
-          error: DomainError.EMPTY_RESULT,
-          message: `Cannot find note "${targetNote}" on string ${string} in fret range ${range.min}-${range.max}.`,
-        };
-      }
-
-      // Pick the lowest fret position (closest to nut)
-      allPositions.sort((a, b) => a.fret - b.fret);
-      positions.push({ string, fret: allPositions[0].fret });
-    }
-
-    // Apply spread: move some notes up an octave (12 frets)
-    if (voicing.spread && positions.length > 1) {
-      for (let i = 1; i < positions.length; i++) {
-        if (positions[i].fret <= positions[i - 1].fret) {
-          positions[i] = { ...positions[i], fret: positions[i].fret + 12 };
-        }
-      }
-    }
-
-    // Display
-    const guitarNotes = this.noteService.findPositionsByExactCoordinates(positions);
-    this.orchestration.displayPositions(guitarNotes, rootNote);
-
-    return this.emitState({
-      ...this.currentState(),
-      mode: 'positions',
-      rootNote,
-      patternName: chordType,
-      compareTarget: undefined,
-      fretRange: command.fretRange ?? this.currentState().fretRange,
-      shapeInfo: {
-        positions: positions.map((p, i) => ({
-          ...p,
-          label: i < chordNotes.length ? this.tonalFacade.intervalBetween(rootNote, chordNotes[i]) : undefined,
-        })),
-      },
-    });
-  }
-
-  private handleShowArpeggio(command: DomainCommand & { type: 'show-arpeggio' }): DomainResult<DomainState> {
-    const { chordType, rootNote, pattern, strings } = command;
-
-    const err = DomainValidator.validatePattern(chordType, 'chord')
-      ?? DomainValidator.validateRootNote(rootNote)
-      ?? DomainValidator.validateFretRange(command.fretRange);
-    if (err) return err;
-
-    // Validate strings
-    for (const s of strings) {
-      const strErr = DomainValidator.validateStringIndex(s);
-      if (strErr) return strErr;
-    }
-
-    // Resolve chord notes
-    const { simplified } = this.tonalFacade.resolvePattern(chordType, rootNote, 'chord');
-    if (simplified.length === 0) {
-      return { success: false, error: DomainError.EMPTY_RESULT, message: `Chord "${chordType}" resolved to no notes.` };
-    }
-
-    // Map interval names to chord notes
-    const intervalMap: Record<string, string> = { root: simplified[0] };
-    for (let i = 1; i < simplified.length; i++) {
-      const interval = this.tonalFacade.intervalBetween(rootNote, simplified[i]);
-      intervalMap[interval] = simplified[i];
-    }
-
-    // Build the arpeggio note sequence
-    const arpeggioNotes: string[] = [];
-    for (const step of pattern) {
-      const note = intervalMap[step];
-      if (!note) {
-        return {
-          success: false,
-          error: DomainError.INVALID_INTERVAL,
-          message: `Unknown interval in pattern: "${step}". Valid: ${Object.keys(intervalMap).join(', ')}`,
-        };
-      }
-      arpeggioNotes.push(note);
-    }
-
-    // Find positions
-    const range = command.fretRange ?? this.currentState().fretRange;
-    const positions: Array<{ string: number; fret: number }> = [];
-
-    for (let i = 0; i < arpeggioNotes.length && i < strings.length; i++) {
-      const string = strings[i];
-      const targetNote = arpeggioNotes[i];
-
-      const allPositions = this.noteService.findPositionsByNoteName(targetNote)
-        .filter(n => n.string === string && n.fret >= range.min && n.fret <= range.max);
-
-      if (allPositions.length === 0) {
-        return {
-          success: false,
-          error: DomainError.EMPTY_RESULT,
-          message: `Cannot find note "${targetNote}" on string ${string} in fret range ${range.min}-${range.max}.`,
-        };
-      }
-
-      allPositions.sort((a, b) => a.fret - b.fret);
-      positions.push({ string, fret: allPositions[0].fret });
-    }
-
-    // Display
-    const guitarNotes = this.noteService.findPositionsByExactCoordinates(positions);
-    this.orchestration.displayPositions(guitarNotes, rootNote);
-
-    return this.emitState({
-      ...this.currentState(),
-      mode: 'positions',
-      rootNote,
-      patternName: chordType,
-      compareTarget: undefined,
-      fretRange: command.fretRange ?? this.currentState().fretRange,
-      shapeInfo: {
-        positions: positions.map((p, i) => ({
-          ...p,
-          label: i < arpeggioNotes.length ? this.tonalFacade.intervalBetween(rootNote, arpeggioNotes[i]) : undefined,
-        })),
-      },
-    });
-  }
-
-  private handleShowLick(command: DomainCommand & { type: 'show-lick' }): DomainResult<DomainState> {
-    const { notes, rootNote } = command;
-
-    // Validate each position
-    for (const pos of notes) {
-      const err = DomainValidator.validateStringIndex(pos.string);
-      if (err) return err;
-
-      if (pos.fret !== undefined) {
-        const fretErr = DomainValidator.validateFret(pos.fret);
-        if (fretErr) return fretErr;
-
-        const noteErr = DomainValidator.validateNoteAtPosition(
-          pos.string, pos.fret, pos.note,
-          (s, f) => this.noteService.getNoteAtPosition(s, f),
-        );
-        if (noteErr) return noteErr;
-      }
-    }
-
-    // Resolve positions: if fret not specified, find the best one
-    const resolvedPositions: Array<{ string: number; fret: number }> = [];
-    const range = this.currentState().fretRange;
-
-    for (const pos of notes) {
-      if (pos.fret !== undefined) {
-        resolvedPositions.push({ string: pos.string, fret: pos.fret });
-      } else {
-        const allPositions = this.noteService.findPositionsByNoteName(pos.note)
-          .filter(n => n.string === pos.string && n.fret >= range.min && n.fret <= range.max);
-
-        if (allPositions.length === 0) {
-          return {
-            success: false,
-            error: DomainError.EMPTY_RESULT,
-            message: `Cannot find note "${pos.note}" on string ${pos.string} in fret range ${range.min}-${range.max}.`,
-          };
-        }
-
-        allPositions.sort((a, b) => a.fret - b.fret);
-        resolvedPositions.push({ string: pos.string, fret: allPositions[0].fret });
-      }
-    }
-
-    // Display
-    const guitarNotes = this.noteService.findPositionsByExactCoordinates(resolvedPositions);
-    this.orchestration.displayPositions(guitarNotes, rootNote);
-
-    return this.emitState({
-      ...this.currentState(),
-      mode: 'positions',
-      rootNote: rootNote ?? this.currentState().rootNote,
-      patternName: command.label ?? 'custom-lick',
-      compareTarget: undefined,
-      shapeInfo: {
-        positions: resolvedPositions,
-      },
-    });
-  }
-
   private handleResolveShape(command: DomainCommand & { type: 'resolve-shape' }): DomainResult<DomainState> {
     const { shapeId, rootNote, position } = command;
 
@@ -539,14 +308,32 @@ export class DomainService {
     return { success: true, data: { scales } };
   }
 
-  private handleGetKeyAnalysis(query: { type: 'get-key-analysis'; tonic: string; mode: 'major' | 'minor' }): DomainResult<Record<string, unknown>> {
+  private handleGetKeyAnalysis(query: { type: 'get-key-analysis'; tonic: string; mode: 'major' | 'minor' }): DomainResult<KeyAnalysis> {
     const err = DomainValidator.validateRootNote(query.tonic);
     if (err) return err;
 
-    const analysis = query.mode === 'major'
-      ? this.tonalFacade.getMajorKey(query.tonic)
-      : this.tonalFacade.getMinorKey(query.tonic);
-    return { success: true, data: analysis as unknown as Record<string, unknown> };
+    if (query.mode === 'major') {
+      const analysis = this.tonalFacade.getMajorKey(query.tonic);
+      const keyAnalysis: KeyAnalysis = {
+        tonic: query.tonic,
+        mode: 'major',
+        scale: [...analysis.scale],
+        triads: [...analysis.triads],
+        chords: [...analysis.chords],
+        secondaryDominants: analysis.secondaryDominants ? [...analysis.secondaryDominants] : undefined,
+      };
+      return { success: true, data: keyAnalysis };
+    }
+
+    const analysis = this.tonalFacade.getMinorKey(query.tonic);
+    const keyAnalysis: KeyAnalysis = {
+      tonic: query.tonic,
+      mode: 'minor',
+      scale: analysis.natural ? [...analysis.natural.scale] : [],
+      triads: analysis.natural ? [...analysis.natural.chords] : [],
+      chords: analysis.harmonic ? [...analysis.harmonic.chords] : [],
+    };
+    return { success: true, data: keyAnalysis };
   }
 
   private handleGetAvailableShapes(query: { type: 'get-available-shapes'; category?: string }): DomainResult<{ shapes: Array<{ id: string; name: string; category: string }> }> {

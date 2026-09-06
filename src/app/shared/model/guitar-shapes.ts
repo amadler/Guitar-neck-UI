@@ -5,13 +5,11 @@
  * przesunięte (transposed) do konkretnego progu.
  *
  * Kategorie:
- * - cowboy: akordy otwarte (fixed position)
+ * - cowboy: akordy otwarte (fixed position) — mają własne rootNote/chordType
  * - barre: movable shapes (E-form, A-form)
- * - triad-inversion: triady na 3 strunach we wszystkich przewrotach
  * - caged: CAGED system forms
  * - custom: dowolne kształty
  */
-
 export interface GuitarShapePosition {
   string: number;       // 1-6
   fretOffset: number;   // 0 = root fret position
@@ -21,12 +19,14 @@ export interface GuitarShapePosition {
 export interface GuitarShape {
   id: string;
   name: string;
-  category: 'cowboy' | 'barre' | 'triad-inversion' | 'caged' | 'custom';
+  category: 'cowboy' | 'barre' | 'caged' | 'custom';
   positions: GuitarShapePosition[];
   rootString: number;       // która struna ma root
   fixedFret?: number;       // dla cowboy chords — stała pozycja (0 = open)
   mutedStrings?: number[];  // które struny wyciszone
   stringSet?: number[];     // dla movable shapes — zestaw strun
+  rootNote?: string;        // fixed root dla cowboy chords (np. 'C')
+  chordType?: string;       // fixed chord type (np. 'major', 'minor')
 }
 
 /**
@@ -43,13 +43,15 @@ export const GUITAR_SHAPES: GuitarShape[] = [
     category: 'cowboy',
     rootString: 5,
     fixedFret: 0,
+    rootNote: 'C',
+    chordType: 'major',
     mutedStrings: [6],
     positions: [
-      { string: 5, fretOffset: 3, label: 'root' },    // C
-      { string: 4, fretOffset: 2, label: '3' },        // E
-      { string: 3, fretOffset: 0, label: '5' },        // G (open)
-      { string: 2, fretOffset: 1, label: 'root' },     // C
-      { string: 1, fretOffset: 0, label: '3' },        // E (open)
+      { string: 5, fretOffset: 3, label: 'root' },    // A+3=C
+      { string: 4, fretOffset: 2, label: '3' },        // D+2=E
+      { string: 3, fretOffset: 0, label: '5' },        // G+0=G
+      { string: 2, fretOffset: 1, label: 'root' },     // B+1=C
+      { string: 1, fretOffset: 0, label: '3' },        // E+0=E
     ],
   },
   {
@@ -58,13 +60,15 @@ export const GUITAR_SHAPES: GuitarShape[] = [
     category: 'cowboy',
     rootString: 5,
     fixedFret: 0,
+    rootNote: 'A',
+    chordType: 'major',
     mutedStrings: [6],
     positions: [
-      { string: 5, fretOffset: 0, label: 'root' },     // A (open)
-      { string: 4, fretOffset: 2, label: '5' },        // E
-      { string: 3, fretOffset: 2, label: '3' },        // C#
-      { string: 2, fretOffset: 2, label: 'root' },     // A
-      { string: 1, fretOffset: 0, label: '5' },        // E (open)
+      { string: 5, fretOffset: 0, label: 'root' },     // A+0=A
+      { string: 4, fretOffset: 2, label: '5' },        // D+2=E
+      { string: 3, fretOffset: 2, label: 'root' },     // G+2=A
+      { string: 2, fretOffset: 2, label: '3' },        // B+2=C#
+      { string: 1, fretOffset: 0, label: '5' },        // E+0=E
     ],
   },
   {
@@ -73,14 +77,16 @@ export const GUITAR_SHAPES: GuitarShape[] = [
     category: 'cowboy',
     rootString: 6,
     fixedFret: 0,
+    rootNote: 'G',
+    chordType: 'major',
     mutedStrings: [],
     positions: [
-      { string: 6, fretOffset: 3, label: 'root' },     // G
-      { string: 5, fretOffset: 2, label: '5' },        // D
-      { string: 4, fretOffset: 0, label: 'root' },     // G (open)
-      { string: 3, fretOffset: 0, label: '5' },        // D (open)
-      { string: 2, fretOffset: 0, label: '3' },        // B (open)
-      { string: 1, fretOffset: 3, label: 'root' },     // G
+      { string: 6, fretOffset: 3, label: 'root' },     // E+3=G
+      { string: 5, fretOffset: 2, label: '3' },        // A+2=B
+      { string: 4, fretOffset: 0, label: '5' },        // D+0=D
+      { string: 3, fretOffset: 0, label: 'root' },     // G+0=G
+      { string: 2, fretOffset: 0, label: '3' },        // B+0=B
+      { string: 1, fretOffset: 3, label: 'root' },     // E+3=G
     ],
   },
   {
@@ -89,14 +95,16 @@ export const GUITAR_SHAPES: GuitarShape[] = [
     category: 'cowboy',
     rootString: 6,
     fixedFret: 0,
+    rootNote: 'E',
+    chordType: 'major',
     mutedStrings: [],
     positions: [
-      { string: 6, fretOffset: 0, label: 'root' },     // E (open)
-      { string: 5, fretOffset: 2, label: '5' },        // B
-      { string: 4, fretOffset: 2, label: '3' },        // G#
-      { string: 3, fretOffset: 1, label: '5' },        // B
-      { string: 2, fretOffset: 0, label: 'root' },     // E (open)
-      { string: 1, fretOffset: 0, label: '3' },        // G# (open)
+      { string: 6, fretOffset: 0, label: 'root' },     // E+0=E
+      { string: 5, fretOffset: 2, label: '5' },        // A+2=B
+      { string: 4, fretOffset: 2, label: 'root' },     // D+2=E
+      { string: 3, fretOffset: 1, label: '3' },        // G+1=G#
+      { string: 2, fretOffset: 0, label: '5' },        // B+0=B
+      { string: 1, fretOffset: 0, label: 'root' },     // E+0=E
     ],
   },
   {
@@ -105,12 +113,14 @@ export const GUITAR_SHAPES: GuitarShape[] = [
     category: 'cowboy',
     rootString: 4,
     fixedFret: 0,
+    rootNote: 'D',
+    chordType: 'major',
     mutedStrings: [6, 5],
     positions: [
-      { string: 4, fretOffset: 0, label: 'root' },     // D (open)
-      { string: 3, fretOffset: 2, label: '3' },        // F#
-      { string: 2, fretOffset: 3, label: '5' },        // A
-      { string: 1, fretOffset: 2, label: 'root' },     // D
+      { string: 4, fretOffset: 0, label: 'root' },     // D+0=D
+      { string: 3, fretOffset: 2, label: '5' },        // G+2=A
+      { string: 2, fretOffset: 3, label: 'root' },     // B+3=D
+      { string: 1, fretOffset: 2, label: '3' },        // E+2=F#
     ],
   },
   {
@@ -119,13 +129,15 @@ export const GUITAR_SHAPES: GuitarShape[] = [
     category: 'cowboy',
     rootString: 5,
     fixedFret: 0,
+    rootNote: 'A',
+    chordType: 'minor',
     mutedStrings: [6],
     positions: [
-      { string: 5, fretOffset: 0, label: 'root' },     // A (open)
-      { string: 4, fretOffset: 2, label: '5' },        // E
-      { string: 3, fretOffset: 2, label: 'b3' },       // C
-      { string: 2, fretOffset: 2, label: 'root' },     // A
-      { string: 1, fretOffset: 0, label: '5' },        // E (open)
+      { string: 5, fretOffset: 0, label: 'root' },     // A+0=A
+      { string: 4, fretOffset: 2, label: '5' },        // D+2=E
+      { string: 3, fretOffset: 2, label: 'root' },     // G+2=A
+      { string: 2, fretOffset: 1, label: 'b3' },       // B+1=C
+      { string: 1, fretOffset: 0, label: '5' },        // E+0=E
     ],
   },
   {
@@ -134,14 +146,16 @@ export const GUITAR_SHAPES: GuitarShape[] = [
     category: 'cowboy',
     rootString: 6,
     fixedFret: 0,
+    rootNote: 'E',
+    chordType: 'minor',
     mutedStrings: [],
     positions: [
-      { string: 6, fretOffset: 0, label: 'root' },     // E (open)
-      { string: 5, fretOffset: 2, label: '5' },        // B
-      { string: 4, fretOffset: 2, label: 'b3' },       // G
-      { string: 3, fretOffset: 0, label: '5' },        // B (open)
-      { string: 2, fretOffset: 0, label: 'root' },     // E (open)
-      { string: 1, fretOffset: 0, label: 'b3' },       // G (open)
+      { string: 6, fretOffset: 0, label: 'root' },     // E+0=E
+      { string: 5, fretOffset: 2, label: '5' },        // A+2=B
+      { string: 4, fretOffset: 2, label: 'root' },     // D+2=E
+      { string: 3, fretOffset: 0, label: 'b3' },       // G+0=G
+      { string: 2, fretOffset: 0, label: '5' },        // B+0=B
+      { string: 1, fretOffset: 0, label: 'root' },     // E+0=E
     ],
   },
   {
@@ -150,12 +164,14 @@ export const GUITAR_SHAPES: GuitarShape[] = [
     category: 'cowboy',
     rootString: 4,
     fixedFret: 0,
+    rootNote: 'D',
+    chordType: 'minor',
     mutedStrings: [6, 5],
     positions: [
-      { string: 4, fretOffset: 0, label: 'root' },     // D (open)
-      { string: 3, fretOffset: 2, label: 'b3' },       // F
-      { string: 2, fretOffset: 3, label: '5' },        // A
-      { string: 1, fretOffset: 1, label: 'root' },     // D
+      { string: 4, fretOffset: 0, label: 'root' },     // D+0=D
+      { string: 3, fretOffset: 2, label: '5' },        // G+2=A
+      { string: 2, fretOffset: 3, label: 'root' },     // B+3=D
+      { string: 1, fretOffset: 1, label: 'b3' },       // E+1=F
     ],
   },
   {
@@ -164,13 +180,15 @@ export const GUITAR_SHAPES: GuitarShape[] = [
     category: 'cowboy',
     rootString: 5,
     fixedFret: 0,
+    rootNote: 'C',
+    chordType: 'dominant',
     mutedStrings: [6],
     positions: [
-      { string: 5, fretOffset: 3, label: 'root' },     // C
-      { string: 4, fretOffset: 2, label: '3' },        // E
-      { string: 3, fretOffset: 0, label: '5' },        // G (open)
-      { string: 2, fretOffset: 1, label: 'root' },     // C
-      { string: 1, fretOffset: 0, label: 'b7' },       // Bb (open)
+      { string: 5, fretOffset: 3, label: 'root' },     // A+3=C
+      { string: 4, fretOffset: 2, label: '3' },        // D+2=E
+      { string: 3, fretOffset: 0, label: '5' },        // G+0=G
+      { string: 2, fretOffset: 1, label: 'root' },     // B+1=C
+      { string: 1, fretOffset: 0, label: '3' },        // E+0=E
     ],
   },
   {
@@ -179,14 +197,16 @@ export const GUITAR_SHAPES: GuitarShape[] = [
     category: 'cowboy',
     rootString: 6,
     fixedFret: 0,
+    rootNote: 'G',
+    chordType: 'dominant',
     mutedStrings: [],
     positions: [
-      { string: 6, fretOffset: 3, label: 'root' },     // G
-      { string: 5, fretOffset: 2, label: '5' },        // D
-      { string: 4, fretOffset: 0, label: 'root' },     // G (open)
-      { string: 3, fretOffset: 0, label: '5' },        // D (open)
-      { string: 2, fretOffset: 0, label: '3' },        // B (open)
-      { string: 1, fretOffset: 1, label: 'b7' },       // F
+      { string: 6, fretOffset: 3, label: 'root' },     // E+3=G
+      { string: 5, fretOffset: 2, label: '3' },        // A+2=B
+      { string: 4, fretOffset: 0, label: '5' },        // D+0=D
+      { string: 3, fretOffset: 0, label: 'root' },     // G+0=G
+      { string: 2, fretOffset: 0, label: '3' },        // B+0=B
+      { string: 1, fretOffset: 1, label: 'b7' },       // E+1=F
     ],
   },
 
@@ -248,308 +268,6 @@ export const GUITAR_SHAPES: GuitarShape[] = [
       { string: 3, fretOffset: 2, label: 'b3' },       // b3rd
       { string: 2, fretOffset: 2, label: 'root' },     // root
       { string: 1, fretOffset: 0, label: '5' },        // 5th
-    ],
-  },
-
-  // ─── Triad inversions (3-string sets) ──────────────────────────────
-
-  // Major triads — root position (R-3-5)
-  {
-    id: 'triad-maj-root-654',
-    name: 'Major triad root pos. (6-5-4)',
-    category: 'triad-inversion',
-    rootString: 6,
-    stringSet: [6, 5, 4],
-    positions: [
-      { string: 6, fretOffset: 0, label: 'root' },
-      { string: 5, fretOffset: 0, label: '3' },
-      { string: 4, fretOffset: 0, label: '5' },
-    ],
-  },
-  {
-    id: 'triad-maj-root-543',
-    name: 'Major triad root pos. (5-4-3)',
-    category: 'triad-inversion',
-    rootString: 5,
-    stringSet: [5, 4, 3],
-    positions: [
-      { string: 5, fretOffset: 0, label: 'root' },
-      { string: 4, fretOffset: 0, label: '3' },
-      { string: 3, fretOffset: 0, label: '5' },
-    ],
-  },
-  {
-    id: 'triad-maj-root-432',
-    name: 'Major triad root pos. (4-3-2)',
-    category: 'triad-inversion',
-    rootString: 4,
-    stringSet: [4, 3, 2],
-    positions: [
-      { string: 4, fretOffset: 0, label: 'root' },
-      { string: 3, fretOffset: 0, label: '3' },
-      { string: 2, fretOffset: 0, label: '5' },
-    ],
-  },
-  {
-    id: 'triad-maj-root-321',
-    name: 'Major triad root pos. (3-2-1)',
-    category: 'triad-inversion',
-    rootString: 3,
-    stringSet: [3, 2, 1],
-    positions: [
-      { string: 3, fretOffset: 0, label: 'root' },
-      { string: 2, fretOffset: 0, label: '3' },
-      { string: 1, fretOffset: 0, label: '5' },
-    ],
-  },
-
-  // Major triads — 1st inversion (3-5-R)
-  {
-    id: 'triad-maj-1st-654',
-    name: 'Major triad 1st inv. (6-5-4)',
-    category: 'triad-inversion',
-    rootString: 4,
-    stringSet: [6, 5, 4],
-    positions: [
-      { string: 6, fretOffset: 0, label: '3' },
-      { string: 5, fretOffset: 0, label: '5' },
-      { string: 4, fretOffset: 0, label: 'root' },
-    ],
-  },
-  {
-    id: 'triad-maj-1st-543',
-    name: 'Major triad 1st inv. (5-4-3)',
-    category: 'triad-inversion',
-    rootString: 3,
-    stringSet: [5, 4, 3],
-    positions: [
-      { string: 5, fretOffset: 0, label: '3' },
-      { string: 4, fretOffset: 0, label: '5' },
-      { string: 3, fretOffset: 0, label: 'root' },
-    ],
-  },
-  {
-    id: 'triad-maj-1st-432',
-    name: 'Major triad 1st inv. (4-3-2)',
-    category: 'triad-inversion',
-    rootString: 2,
-    stringSet: [4, 3, 2],
-    positions: [
-      { string: 4, fretOffset: 0, label: '3' },
-      { string: 3, fretOffset: 0, label: '5' },
-      { string: 2, fretOffset: 0, label: 'root' },
-    ],
-  },
-  {
-    id: 'triad-maj-1st-321',
-    name: 'Major triad 1st inv. (3-2-1)',
-    category: 'triad-inversion',
-    rootString: 1,
-    stringSet: [3, 2, 1],
-    positions: [
-      { string: 3, fretOffset: 0, label: '3' },
-      { string: 2, fretOffset: 0, label: '5' },
-      { string: 1, fretOffset: 0, label: 'root' },
-    ],
-  },
-
-  // Major triads — 2nd inversion (5-R-3)
-  {
-    id: 'triad-maj-2nd-654',
-    name: 'Major triad 2nd inv. (6-5-4)',
-    category: 'triad-inversion',
-    rootString: 5,
-    stringSet: [6, 5, 4],
-    positions: [
-      { string: 6, fretOffset: 0, label: '5' },
-      { string: 5, fretOffset: 0, label: 'root' },
-      { string: 4, fretOffset: 0, label: '3' },
-    ],
-  },
-  {
-    id: 'triad-maj-2nd-543',
-    name: 'Major triad 2nd inv. (5-4-3)',
-    category: 'triad-inversion',
-    rootString: 4,
-    stringSet: [5, 4, 3],
-    positions: [
-      { string: 5, fretOffset: 0, label: '5' },
-      { string: 4, fretOffset: 0, label: 'root' },
-      { string: 3, fretOffset: 0, label: '3' },
-    ],
-  },
-  {
-    id: 'triad-maj-2nd-432',
-    name: 'Major triad 2nd inv. (4-3-2)',
-    category: 'triad-inversion',
-    rootString: 3,
-    stringSet: [4, 3, 2],
-    positions: [
-      { string: 4, fretOffset: 0, label: '5' },
-      { string: 3, fretOffset: 0, label: 'root' },
-      { string: 2, fretOffset: 0, label: '3' },
-    ],
-  },
-  {
-    id: 'triad-maj-2nd-321',
-    name: 'Major triad 2nd inv. (3-2-1)',
-    category: 'triad-inversion',
-    rootString: 2,
-    stringSet: [3, 2, 1],
-    positions: [
-      { string: 3, fretOffset: 0, label: '5' },
-      { string: 2, fretOffset: 0, label: 'root' },
-      { string: 1, fretOffset: 0, label: '3' },
-    ],
-  },
-
-  // Minor triads — root position (R-b3-5)
-  {
-    id: 'triad-min-root-654',
-    name: 'Minor triad root pos. (6-5-4)',
-    category: 'triad-inversion',
-    rootString: 6,
-    stringSet: [6, 5, 4],
-    positions: [
-      { string: 6, fretOffset: 0, label: 'root' },
-      { string: 5, fretOffset: 0, label: 'b3' },
-      { string: 4, fretOffset: 0, label: '5' },
-    ],
-  },
-  {
-    id: 'triad-min-root-543',
-    name: 'Minor triad root pos. (5-4-3)',
-    category: 'triad-inversion',
-    rootString: 5,
-    stringSet: [5, 4, 3],
-    positions: [
-      { string: 5, fretOffset: 0, label: 'root' },
-      { string: 4, fretOffset: 0, label: 'b3' },
-      { string: 3, fretOffset: 0, label: '5' },
-    ],
-  },
-  {
-    id: 'triad-min-root-432',
-    name: 'Minor triad root pos. (4-3-2)',
-    category: 'triad-inversion',
-    rootString: 4,
-    stringSet: [4, 3, 2],
-    positions: [
-      { string: 4, fretOffset: 0, label: 'root' },
-      { string: 3, fretOffset: 0, label: 'b3' },
-      { string: 2, fretOffset: 0, label: '5' },
-    ],
-  },
-  {
-    id: 'triad-min-root-321',
-    name: 'Minor triad root pos. (3-2-1)',
-    category: 'triad-inversion',
-    rootString: 3,
-    stringSet: [3, 2, 1],
-    positions: [
-      { string: 3, fretOffset: 0, label: 'root' },
-      { string: 2, fretOffset: 0, label: 'b3' },
-      { string: 1, fretOffset: 0, label: '5' },
-    ],
-  },
-
-  // Minor triads — 1st inversion (b3-5-R)
-  {
-    id: 'triad-min-1st-654',
-    name: 'Minor triad 1st inv. (6-5-4)',
-    category: 'triad-inversion',
-    rootString: 4,
-    stringSet: [6, 5, 4],
-    positions: [
-      { string: 6, fretOffset: 0, label: 'b3' },
-      { string: 5, fretOffset: 0, label: '5' },
-      { string: 4, fretOffset: 0, label: 'root' },
-    ],
-  },
-  {
-    id: 'triad-min-1st-543',
-    name: 'Minor triad 1st inv. (5-4-3)',
-    category: 'triad-inversion',
-    rootString: 3,
-    stringSet: [5, 4, 3],
-    positions: [
-      { string: 5, fretOffset: 0, label: 'b3' },
-      { string: 4, fretOffset: 0, label: '5' },
-      { string: 3, fretOffset: 0, label: 'root' },
-    ],
-  },
-  {
-    id: 'triad-min-1st-432',
-    name: 'Minor triad 1st inv. (4-3-2)',
-    category: 'triad-inversion',
-    rootString: 2,
-    stringSet: [4, 3, 2],
-    positions: [
-      { string: 4, fretOffset: 0, label: 'b3' },
-      { string: 3, fretOffset: 0, label: '5' },
-      { string: 2, fretOffset: 0, label: 'root' },
-    ],
-  },
-  {
-    id: 'triad-min-1st-321',
-    name: 'Minor triad 1st inv. (3-2-1)',
-    category: 'triad-inversion',
-    rootString: 1,
-    stringSet: [3, 2, 1],
-    positions: [
-      { string: 3, fretOffset: 0, label: 'b3' },
-      { string: 2, fretOffset: 0, label: '5' },
-      { string: 1, fretOffset: 0, label: 'root' },
-    ],
-  },
-
-  // Minor triads — 2nd inversion (5-R-b3)
-  {
-    id: 'triad-min-2nd-654',
-    name: 'Minor triad 2nd inv. (6-5-4)',
-    category: 'triad-inversion',
-    rootString: 5,
-    stringSet: [6, 5, 4],
-    positions: [
-      { string: 6, fretOffset: 0, label: '5' },
-      { string: 5, fretOffset: 0, label: 'root' },
-      { string: 4, fretOffset: 0, label: 'b3' },
-    ],
-  },
-  {
-    id: 'triad-min-2nd-543',
-    name: 'Minor triad 2nd inv. (5-4-3)',
-    category: 'triad-inversion',
-    rootString: 4,
-    stringSet: [5, 4, 3],
-    positions: [
-      { string: 5, fretOffset: 0, label: '5' },
-      { string: 4, fretOffset: 0, label: 'root' },
-      { string: 3, fretOffset: 0, label: 'b3' },
-    ],
-  },
-  {
-    id: 'triad-min-2nd-432',
-    name: 'Minor triad 2nd inv. (4-3-2)',
-    category: 'triad-inversion',
-    rootString: 3,
-    stringSet: [4, 3, 2],
-    positions: [
-      { string: 4, fretOffset: 0, label: '5' },
-      { string: 3, fretOffset: 0, label: 'root' },
-      { string: 2, fretOffset: 0, label: 'b3' },
-    ],
-  },
-  {
-    id: 'triad-min-2nd-321',
-    name: 'Minor triad 2nd inv. (3-2-1)',
-    category: 'triad-inversion',
-    rootString: 2,
-    stringSet: [3, 2, 1],
-    positions: [
-      { string: 3, fretOffset: 0, label: '5' },
-      { string: 2, fretOffset: 0, label: 'root' },
-      { string: 1, fretOffset: 0, label: 'b3' },
     ],
   },
 ];

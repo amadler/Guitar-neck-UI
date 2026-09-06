@@ -41,8 +41,16 @@ export class ShapeResolverService {
       };
     }
 
-    // Cowboy chords: fixed position
+    // Cowboy chords: fixed position with own rootNote/chordType
     if (shape.category === 'cowboy') {
+      // Prevent inconsistent state: cowboy shape has its own rootNote
+      if (shape.rootNote && rootNote && shape.rootNote !== rootNote) {
+        return {
+          success: false,
+          positions: [],
+          message: `Shape "${shape.id}" has fixed rootNote "${shape.rootNote}". Cannot override with rootNote "${rootNote}".`,
+        };
+      }
       const fixedFret = shape.fixedFret ?? 0;
       return {
         success: true,
@@ -51,14 +59,14 @@ export class ShapeResolverService {
           fret: p.fretOffset + fixedFret,
           label: p.label,
         })),
-        rootNote: rootNote,
+        rootNote: shape.rootNote ?? rootNote,
       };
     }
 
     // Movable shapes (barre, triad-inversion): need rootNote or position
     const fretPosition = position ?? 0;
 
-    if (shape.category === 'barre' || shape.category === 'triad-inversion') {
+    if (shape.category === 'barre') {
       // If rootNote is given, calculate the fret position from the root string
       let baseFret = fretPosition;
 

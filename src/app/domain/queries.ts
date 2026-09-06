@@ -2,6 +2,19 @@ import { PatternInfo } from '../shared/model/patternInfo';
 import { DomainState } from './state';
 
 /**
+ * KeyAnalysis — własny DTO dla analizy tonalnej.
+ * Nie przecieka typem Tonal.js.
+ */
+export interface KeyAnalysis {
+  tonic: string;
+  mode: 'major' | 'minor';
+  scale: string[];
+  triads: string[];
+  chords: string[];
+  secondaryDominants?: string[];
+}
+
+/**
  * Get the current view state.
  */
 export interface GetCurrentViewQuery {
@@ -24,8 +37,6 @@ export interface GetPatternDetailsQuery {
   patternName: string;
   rootNote: string;
 }
-
-// ─── Nowe kwerendy ────────────────────────────────────────────────────
 
 /**
  * Detect chord name(s) from a list of notes.
@@ -62,7 +73,7 @@ export interface GetKeyAnalysisQuery {
  */
 export interface GetAvailableShapesQuery {
   type: 'get-available-shapes';
-  category?: 'cowboy' | 'barre' | 'triad-inversion' | 'caged' | 'custom';
+  category?: 'cowboy' | 'barre' | 'caged' | 'custom';
 }
 
 /**
@@ -96,6 +107,6 @@ export type GetAvailablePatternsResult = { scales: string[]; chords: string[] };
 export type GetPatternDetailsResult = PatternInfo;
 export type DetectChordResult = { chords: string[] };
 export type DetectScaleResult = { scales: string[] };
-export type GetKeyAnalysisResult = Record<string, unknown>;
+export type GetKeyAnalysisResult = KeyAnalysis;
 export type GetAvailableShapesResult = { shapes: Array<{ id: string; name: string; category: string }> };
 export type ResolveShapeQueryResult = { positions: Array<{ string: number; fret: number; label?: string }> };

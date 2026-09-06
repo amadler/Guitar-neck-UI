@@ -75,54 +75,10 @@ export interface ClearViewCommand {
   type: 'clear-view';
 }
 
-// ─── Nowe komendy semantyczne ─────────────────────────────────────────
+// ─── Resolve shape command ────────────────────────────────────────────
 
 /**
- * Show a chord voicing on specific strings with optional inversion/spread.
- * AI opisuje intencję muzyczną, aplikacja oblicza pozycje.
- */
-export interface ShowVoicingCommand {
-  type: 'show-voicing';
-  chordType: string;           // 'maj7', 'min', 'dim' — istniejące nazwy
-  rootNote: string;            // 'C', 'F#'
-  voicing: {
-    stringSet: number[];       // które struny (np. [5,4,3])
-    inversion?: number;        // 0=root, 1=1st, 2=2nd
-    spread?: boolean;          // rozproszony bas?
-    omit?: string[];           // które nuty pominąć (np. ['5'])
-  };
-  fretRange?: { min: number; max: number };
-}
-
-/**
- * Show an arpeggio pattern — sequence of intervals on specific strings.
- */
-export interface ShowArpeggioCommand {
-  type: 'show-arpeggio';
-  chordType: string;           // 'Am', 'Cmajor7'
-  rootNote: string;
-  pattern: string[];           // sekwencja interwałowa: ['root', '3', '5', '3', 'root']
-  strings: number[];           // na których strunach grać
-  fretRange?: { min: number; max: number };
-}
-
-/**
- * Show a lick — specific notes at specific positions.
- * Każda pozycja jest walidowana: string (1-6), fret (0-24), zgodność nuty.
- */
-export interface ShowLickCommand {
-  type: 'show-lick';
-  notes: Array<{
-    note: string;              // nazwa nuty: 'C', 'E', 'G'
-    string: number;            // struna 1-6
-    fret?: number;             // opcjonalnie: konkretny próg
-  }>;
-  rootNote?: string;           // dla oznaczeń interwałowych
-  label?: string;              // 'Am spread arpeggio'
-}
-
-/**
- * Resolve a named shape (cowboy chord, barre, triad inversion) to positions.
+ * Resolve a named shape (cowboy chord, barre) to positions.
  * Uses the shape registry.
  */
 export interface ResolveShapeCommand {
@@ -143,7 +99,4 @@ export type DomainCommand =
   | SetViewCommand
   | SetEmphasisCommand
   | ClearViewCommand
-  | ShowVoicingCommand
-  | ShowArpeggioCommand
-  | ShowLickCommand
   | ResolveShapeCommand;

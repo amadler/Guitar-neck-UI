@@ -6,7 +6,6 @@ import { fromSemitones } from '@tonaljs/interval';
 import { detect as chordDetect } from '@tonaljs/chord-detect';
 import { detect as scaleDetect } from '@tonaljs/scale';
 import { majorKey, minorKey } from '@tonaljs/key';
-import { isSubsetOf, isSupersetOf, filter as pcsetFilter } from '@tonaljs/pcset';
 import { CHORD_PATTERNS, SCALE_PATTERNS, neckConfig } from 'guitar-neck-shared';
 import {
   CHORD_NAME_TO_TONAL,
@@ -126,32 +125,6 @@ export class TonalFacadeService {
    */
   getMinorKey(tonic: string) {
     return minorKey(tonic);
-  }
-
-  // ─── Pitch class set operations ──────────────────────────────────────
-
-  /**
-   * Filtruje nuty — zostawia tylko te należące do podanego setu.
-   * Woła @tonaljs/pcset.filter().
-   */
-  filterNotesBySet(notes: string[], set: string[]): string[] {
-    return pcsetFilter(set)(notes);
-  }
-
-  /**
-   * Sprawdza czy pierwszy set jest podzbiorem drugiego.
-   * Woła @tonaljs/pcset.isSubsetOf().
-   */
-  isSubsetOf(set: string[]): (notes: string[]) => boolean {
-    return (notes: string[]) => Boolean(isSubsetOf(set)(notes));
-  }
-
-  /**
-   * Sprawdza czy pierwszy set jest nadzbiorem drugiego.
-   * Woła @tonaljs/pcset.isSupersetOf().
-   */
-  isSupersetOf(set: string[]): (notes: string[]) => boolean {
-    return (notes: string[]) => Boolean(isSupersetOf(set)(notes));
   }
 
   // ---- Private helpers ----

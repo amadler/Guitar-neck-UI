@@ -9,8 +9,8 @@ Jednolite API dla wszystkich klientów (Toolbox, AI, konsola). Zdefiniowane w [`
  * @file src/app/domain/domain.service.ts
  */
 class DomainService {
-  /** Bieżący snapshot stanu (getter synchroniczny) */
-  currentState: DomainState;
+  /** Bieżący snapshot stanu (signal) */
+  readonly currentState: Signal<DomainState>;
 
   /**
    * Wykonuje komendę domenową.
@@ -89,6 +89,19 @@ interface ClearViewCommand {
 ```
 Czyści gryf, resetuje stan do domyślnego. Zachowuje `enabledStrings`.
 
+### ResolveShapeCommand
+```typescript
+interface ResolveShapeCommand {
+  type: 'resolve-shape';
+  shapeId: string;              // np. 'cowboy-C', 'barre-E-form'
+  rootNote?: string;            // dla movable shapes (barre)
+  position?: number;            // fret position (0 = open)
+}
+```
+Rozwija nazwany kształt z shape registry na konkretne pozycje i wyświetla je.
+- Cowboy shapes mają własny `rootNote`/`chordType` — nie można nadpisać
+- Barre shapes wymagają `rootNote` (np. `barre-E-form` + `rootNote: 'F'` = F-dur barre)
+
 ## Kwerendy (Queries)
 
 ### GetCurrentViewQuery
@@ -118,11 +131,75 @@ interface GetPatternDetailsQuery {
 // Zwraca: PatternInfo { name, rootNote, type, notes, intervals, semitones, steps }
 ```
 
+### DetectChordQuery
+```typescript
+interface DetectChordQuery {
+  type: 'detect-chord';
+  notes: string[];
+}
+// Zwraca: { chords: string[] } — np. ['C major', 'Cdim']
+```
+Używa `@tonaljs/chord-detect`.
+
+### DetectScaleQuery
+```typescript
+interface DetectScaleQuery {
+  type: 'detect-scale';
+  notes: string[];
+  tonic?: string;
+  match?: 'exact' | 'fit';
+}
+// Zwraca: { scales: string[] } — np. ['major', 'ionian']
+```
+Używa `@tonaljs/scale.detect()`.
+
+### GetKeyAnalysisQuery
+```typescript
+interface GetKeyAnalysisQuery {
+  type: 'get-key-analysis';
+  tonic: string;
+  mode: 'major' | 'minor';
+}
+// Zwraca: KeyAnalysis
+```
+Zwraca własny DTO [`KeyAnalysis`](src/app/domain/queries.ts):
+```typescript
+interface KeyAnalysis {
+  tonic: string;
+  mode: 'major' | 'minor';
+  scale: string[];           // nuty skali
+  triads: string[];          // nazwy triad
+  chords: string[];          // nazwy akordów 7
+  secondaryDominants?: string[];
+}
+```
+
+### GetAvailableShapesQuery
+```typescript
+interface GetAvailableShapesQuery {
+  type: 'get-available-shapes';
+  category?: 'cowboy' | 'barre' | 'caged' | 'custom';
+}
+// Zwraca: { shapes: Array<{ id: string; name: string; category: string }> }
+```
+
+### ResolveShapeQuery
+```typescript
+interface ResolveShapeQuery {
+  type: 'resolve-shape-query';
+  shapeId: string;
+  rootNote?: string;
+  position?: number;
+}
+// Zwraca: { positions: Array<{ string: number; fret: number; label?: string }> }
+```
+Rozwija kształt bez wyświetlania — tylko zwraca pozycje.
+
 ## Canonical State (DomainState)
 
 ```typescript
 interface DomainState {
-  mode: 'scale' | 'chord' | 'scale-chord' | 'custom';
+  mode: 'scale' | 'chord' | 'scale-chord' | 'custom' | 'positions';
   rootNote: string;
   patternName: string;
   compareTarget?: {
@@ -135,6 +212,10 @@ interface DomainState {
   emphasis?: { intervals?: string[]; roles?: string[] };
   markerDisplayMode: 'interval-colors' | 'note-names' | 'neutral-dots';
   selectedNotes?: Array<{ note: string; string: number; fret: number }>;
+  shapeInfo?: {
+    shapeId?: string;
+    positions: Array<{ string: number; fret: number; label?: string }>;
+  };
 }
 ```
 
@@ -154,6 +235,9 @@ enum DomainError {
   INVALID_INTERVAL,
   UNKNOWN_COMMAND,
   EMPTY_RESULT,
+  INVALID_POSITION,
+  POSITION_NOTE_MISMATCH,
+  SHAPE_NOT_FOUND,
 }
 ```
 
@@ -168,6 +252,9 @@ enum DomainError {
 | Zakres progów 0-30 | `DomainError.INVALID_FRET_RANGE` (dozwolone 0-24) |
 | Nieznany interwał | `DomainError.INVALID_INTERVAL` + lista dozwolonych |
 | Nieznany typ komendy | `DomainError.UNKNOWN_COMMAND` |
+| Pozycja (string, fret) poza zakresem | `DomainError.INVALID_POSITION` |
+| Nuta nie brzmi na danej pozycji | `DomainError.POSITION_NOTE_MISMATCH` |
+| Nieznany kształt | `DomainError.SHAPE_NOT_FOUND` |
 
 ## Testowanie z konsoli
 
@@ -204,6 +291,25 @@ window.__ds.execute({
   secondary: { patternType: 'chord', patternName: 'major', rootNote: 'E' }
 });
 
+// Rozwiąż kształt
+window.__ds.execute({
+  type: 'resolve-shape',
+  shapeId: 'cowboy-C'
+});
+
+// Detekcja akordu
+window.__ds.query({
+  type: 'detect-chord',
+  notes: ['C', 'E', 'G']
+});
+
+// Analiza tonacji
+window.__ds.query({
+  type: 'get-key-analysis',
+  tonic: 'C',
+  mode: 'major'
+});
+
 // Odczytaj stan
 window.__ds.query({ type: 'get-current-view' });
 
@@ -235,6 +341,9 @@ const state = domainService.query({ type: 'get-current-view' });
 | Plik | Opis |
 |------|------|
 | [`src/app/domain/commands.ts`](src/app/domain/commands.ts) | Typy komend (intencje użytkownika) |
-| [`src/app/domain/queries.ts`](src/app/domain/queries.ts) | Typy kwerend |
+| [`src/app/domain/queries.ts`](src/app/domain/queries.ts) | Typy kwerend + KeyAnalysis DTO |
 | [`src/app/domain/state.ts`](src/app/domain/state.ts) | DomainState, DomainError, DomainResult |
 | [`src/app/domain/domain.service.ts`](src/app/domain/domain.service.ts) | Centralny serwis domenowy |
+| [`src/app/domain/domain-validator.ts`](src/app/domain/domain-validator.ts) | Walidacja wejść |
+| [`src/app/shared/model/guitar-shapes.ts`](src/app/shared/model/guitar-shapes.ts) | Shape registry (dane) |
+| [`src/app/services/shape-resolver.service.ts`](src/app/services/shape-resolver.service.ts) | Resolver kształtów |
