@@ -11,7 +11,7 @@
           }
         </div>
       </div>
-      @for (string of strings; track string; let i = $index) {
+      @for (string of strings; track $index; let i = $index) {
         <div
           [class]="'fretboard__string ' + string"
           [class.fretboard__string--disabled]="!activeStrings[i]"
