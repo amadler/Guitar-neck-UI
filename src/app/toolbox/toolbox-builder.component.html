@@ -129,9 +129,9 @@
     <div class="sentence-toolbox__chip-wrapper">
       <button
         class="sentence-toolbox__chip sentence-toolbox__chip--select"
-        (click)="setShapeCategory(shapeCategory() === 'cowboy' ? 'barre' : shapeCategory() === 'barre' ? 'triad-inversion' : 'cowboy')"
+        (click)="setShapeCategory(shapeCategory() === 'cowboy' ? 'barre' : 'cowboy')"
       >
-        {{ shapeCategory() === 'cowboy' ? 'Cowboy' : shapeCategory() === 'barre' ? 'Barre' : 'Triad' }}
+        {{ shapeCategory() === 'cowboy' ? 'Cowboy' : 'Barre' }}
         <span class="sentence-toolbox__arrow">▼</span>
       </button>
     </div>
@@ -149,7 +149,7 @@
     }
 
     <!-- Root key for movable shapes (barre, triad) -->
-    @if (shapeCategory() === 'barre' || shapeCategory() === 'triad-inversion') {
+    @if (shapeCategory() === 'barre') {
       <span class="sentence-toolbox__text">in</span>
       <app-dropdown
         [options]="musicKeys"

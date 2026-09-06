@@ -41,7 +41,6 @@ export class ToolboxBuilderComponent {
   // Shape data
   cowboyShapes = getShapesByCategory('cowboy');
   barreShapes = getShapesByCategory('barre');
-  triadShapes = getShapesByCategory('triad-inversion');
 
   // --- Display functions for dropdowns ---
   keyDisplayFn = (key: MusicKey) => key;
@@ -67,7 +66,7 @@ export class ToolboxBuilderComponent {
   compareChordType = signal<string>(DEFAULT_CHORD_TYPE);
 
   // Shape state
-  selectedShape = signal<{ id: string; name: string } | null>(null);
+  selectedShape = signal<{ id: string; name: string } | null>(this.cowboyShapes[0] ?? null);
   shapeRootKey = signal<MusicKey>('C');
 
   // --- Template helpers ---
@@ -81,15 +80,14 @@ export class ToolboxBuilderComponent {
 
   setShapeCategory(category: ShapeCategory): void {
     this.shapeCategory.set(category);
-    // Reset selected shape when category changes
-    this.selectedShape.set(null);
+    const shapes = this.currentShapes;
+    this.selectedShape.set(shapes.length > 0 ? shapes[0] : null);
   }
 
   get currentShapes(): Array<{ id: string; name: string; category: string }> {
     switch (this.shapeCategory()) {
       case 'cowboy': return this.cowboyShapes;
       case 'barre': return this.barreShapes;
-      case 'triad-inversion': return this.triadShapes;
       default: return [];
     }
   }
@@ -124,7 +122,7 @@ export class ToolboxBuilderComponent {
       const shape = this.selectedShape();
       if (!shape) return;
 
-      const isMovable = this.shapeCategory() === 'barre' || this.shapeCategory() === 'triad-inversion';
+      const isMovable = this.shapeCategory() === 'barre';
       const command: ResolveShapeCommand = {
         type: 'resolve-shape',
         shapeId: shape.id,
