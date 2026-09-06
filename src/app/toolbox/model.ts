@@ -1,7 +1,7 @@
 export type ToolboxIntent = 'show' | 'compare' | 'shape';
 
 export type ShowKind = 'chord' | 'scale' | 'interval';
-export type ShapeCategory = 'cowboy' | 'barre';
+export type ShapeCategory = 'cowboy' | 'barre' | 'caged';
 export type MusicKey =
   | 'C' | 'C#' | 'D' | 'D#' | 'E' | 'F'
   | 'F#' | 'G' | 'G#' | 'A' | 'A#' | 'B';

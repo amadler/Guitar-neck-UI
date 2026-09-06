@@ -12,7 +12,7 @@
  */
 export interface GuitarShapePosition {
   string: number;       // 1-6
-  fretOffset: number;   // 0 = root fret position
+  fretOffset: number;   // 0 = lowest fret in the shape (after baseFret normalisation)
   label?: string;       // interval label: 'root', '3', '5', etc.
 }
 
@@ -27,6 +27,13 @@ export interface GuitarShape {
   stringSet?: number[];     // dla movable shapes — zestaw strun
   rootNote?: string;        // fixed root dla cowboy chords (np. 'C')
   chordType?: string;       // fixed chord type (np. 'major', 'minor')
+  /**
+   * For movable shapes where the root fret is not the lowest fret in the shape
+   * (e.g. CAGED C-form, G-form). All positions are normalised so fretOffset 0
+   * is the lowest fret. baseFret is the fret of the root note above the lowest fret.
+   * The resolver calculates: actualFret = rootFret - baseFret + fretOffset.
+   */
+  baseFret?: number;
 }
 
 /**
@@ -207,6 +214,105 @@ export const GUITAR_SHAPES: GuitarShape[] = [
       { string: 3, fretOffset: 0, label: 'root' },     // G+0=G
       { string: 2, fretOffset: 0, label: '3' },        // B+0=B
       { string: 1, fretOffset: 1, label: 'b7' },       // E+1=F
+    ],
+  },
+
+  // ─── CAGED minor shapes ────────────────────────────────────────────
+  //
+  // Each CAGED form is a movable shape based on the open chord voicing.
+  // Positions are normalised so fretOffset 0 = lowest fret in the shape.
+  // baseFret indicates the root note's fret above the lowest fret.
+  // The resolver calculates: actualFret = rootFret - baseFret + fretOffset.
+  //
+  // Open chord references (fret numbers from nut, x = muted):
+  //   Cm:  x-3-1-0-1-3  →  C-Eb-G-C-G
+  //   Am:  x-0-2-2-1-0  →  A-E-A-C-E
+  //   Gm:  3-1-0-0-0-3  →  G-Bb-D-G-Bb-G
+  //   Em:  0-2-2-0-0-0  →  E-B-E-G-B-E
+  //   Dm:  x-x-0-2-3-1  →  D-A-D-F
+
+  {
+    id: 'caged-Cm-form',
+    name: 'CAGED Cm-form (minor)',
+    category: 'caged',
+    rootString: 5,
+    stringSet: [5, 4, 3, 2, 1],
+    baseFret: 3,
+    // Open Cm: x-3-1-0-1-3 → C-Eb-G-C-G
+    // Lowest fret = 0 (strings 3, 1). Root on string 5 at fret 3.
+    positions: [
+      { string: 5, fretOffset: 3, label: 'root' },     // C  (3 above lowest)
+      { string: 4, fretOffset: 1, label: 'b3' },       // Eb (1 above lowest)
+      { string: 3, fretOffset: 0, label: '5' },        // G  (lowest)
+      { string: 2, fretOffset: 1, label: 'root' },     // C  (1 above lowest)
+      { string: 1, fretOffset: 3, label: '5' },        // G  (3 above lowest)
+    ],
+  },
+  {
+    id: 'caged-Am-form',
+    name: 'CAGED Am-form (minor)',
+    category: 'caged',
+    rootString: 5,
+    stringSet: [5, 4, 3, 2, 1],
+    // Open Am: x-0-2-2-1-0 → A-E-A-C-E
+    // Lowest fret = 0 (strings 5, 1). Root on string 5 at fret 0.
+    positions: [
+      { string: 5, fretOffset: 0, label: 'root' },     // A  (lowest)
+      { string: 4, fretOffset: 2, label: '5' },        // E  (2 above lowest)
+      { string: 3, fretOffset: 2, label: 'root' },     // A  (2 above lowest)
+      { string: 2, fretOffset: 1, label: 'b3' },       // C  (1 above lowest)
+      { string: 1, fretOffset: 0, label: '5' },        // E  (lowest)
+    ],
+  },
+  {
+    id: 'caged-Gm-form',
+    name: 'CAGED Gm-form (minor)',
+    category: 'caged',
+    rootString: 6,
+    stringSet: [6, 5, 4, 3, 2, 1],
+    baseFret: 3,
+    // Open Gm: 3-1-0-0-3-3 → G-Bb-D-G-D-G
+    // Lowest fret = 0 (strings 4, 3). Root on string 6 at fret 3.
+    // String 2 at fret 3 = D (5th), not open B (major 3rd).
+    positions: [
+      { string: 6, fretOffset: 3, label: 'root' },     // G  (3 above lowest)
+      { string: 5, fretOffset: 1, label: 'b3' },       // Bb (1 above lowest)
+      { string: 4, fretOffset: 0, label: '5' },        // D  (lowest)
+      { string: 3, fretOffset: 0, label: 'root' },     // G  (lowest)
+      { string: 2, fretOffset: 3, label: '5' },        // D  (3 above lowest)
+      { string: 1, fretOffset: 3, label: 'root' },     // G  (3 above lowest)
+    ],
+  },
+  {
+    id: 'caged-Em-form',
+    name: 'CAGED Em-form (minor)',
+    category: 'caged',
+    rootString: 6,
+    stringSet: [6, 5, 4, 3, 2, 1],
+    // Open Em: 0-2-2-0-0-0 → E-B-E-G-B-E
+    // Lowest fret = 0 (strings 6, 3, 2, 1). Root on string 6 at fret 0.
+    positions: [
+      { string: 6, fretOffset: 0, label: 'root' },     // E  (lowest)
+      { string: 5, fretOffset: 2, label: '5' },        // B  (2 above lowest)
+      { string: 4, fretOffset: 2, label: 'root' },     // E  (2 above lowest)
+      { string: 3, fretOffset: 0, label: 'b3' },       // G  (lowest)
+      { string: 2, fretOffset: 0, label: '5' },        // B  (lowest)
+      { string: 1, fretOffset: 0, label: 'root' },     // E  (lowest)
+    ],
+  },
+  {
+    id: 'caged-Dm-form',
+    name: 'CAGED Dm-form (minor)',
+    category: 'caged',
+    rootString: 4,
+    stringSet: [4, 3, 2, 1],
+    // Open Dm: x-x-0-2-3-1 → D-A-D-F
+    // Lowest fret = 0 (string 4). Root on string 4 at fret 0.
+    positions: [
+      { string: 4, fretOffset: 0, label: 'root' },     // D  (lowest)
+      { string: 3, fretOffset: 2, label: '5' },        // A  (2 above lowest)
+      { string: 2, fretOffset: 3, label: 'root' },     // D  (3 above lowest)
+      { string: 1, fretOffset: 1, label: 'b3' },       // F  (1 above lowest)
     ],
   },
 

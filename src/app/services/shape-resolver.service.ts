@@ -62,8 +62,8 @@ export class ShapeResolverService {
       };
     }
 
-    // Movable shapes (barre): require rootNote
-    if (shape.category === 'barre') {
+    // Movable shapes (barre, caged): require rootNote
+    if (shape.category === 'barre' || shape.category === 'caged') {
       if (!rootNote) {
         return {
           success: false,
@@ -94,13 +94,18 @@ export class ShapeResolverService {
       }
 
       // Calculate fret: semitone distance from open string to root note
-      const baseFret = (rootChroma - openChroma + 12) % 12;
+      const rootFret = (rootChroma - openChroma + 12) % 12;
+
+      // For shapes with baseFret (e.g. CAGED C-form, G-form), the root is not
+      // at the lowest fret. Positions are normalised so fretOffset 0 = lowest fret.
+      // actualFret = rootFret - baseFret + fretOffset
+      const baseFret = shape.baseFret ?? 0;
 
       return {
         success: true,
         positions: shape.positions.map(p => ({
           string: p.string,
-          fret: p.fretOffset + baseFret,
+          fret: rootFret - baseFret + p.fretOffset,
           label: p.label,
         })),
         rootNote: rootNote,

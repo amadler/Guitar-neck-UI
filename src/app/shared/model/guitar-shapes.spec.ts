@@ -106,6 +106,58 @@ describe('GUITAR_SHAPES', () => {
     });
   });
 
+  describe('caged shapes', () => {
+    const cagedShapes = GUITAR_SHAPES.filter(s => s.category === 'caged');
+
+    it('should have stringSet defined', () => {
+      for (const shape of cagedShapes) {
+        expect(shape.stringSet).toBeDefined();
+        expect(shape.stringSet!.length).toBeGreaterThan(0);
+      }
+    });
+
+    it('should have valid rootString in stringSet', () => {
+      for (const shape of cagedShapes) {
+        expect(shape.stringSet!.includes(shape.rootString)).toBe(true);
+      }
+    });
+
+    it('should not have rootNote (they are movable)', () => {
+      for (const shape of cagedShapes) {
+        expect(shape.rootNote).toBeUndefined();
+      }
+    });
+
+    it('should have correct interval labels for every position (relative to root string open note)', () => {
+      for (const shape of cagedShapes) {
+        // For shapes with baseFret, the root note is at (rootString, baseFret)
+        // not at (rootString, 0). The conceptual root is the note at that position.
+        const rootFret = shape.baseFret ?? 0;
+        const conceptualRoot = getNoteAt(shape.rootString, rootFret);
+        for (const pos of shape.positions) {
+          const actualNote = getNoteAt(pos.string, pos.fretOffset);
+          const expectedLabel = getIntervalLabel(conceptualRoot, actualNote);
+          expect(pos.label).toBe(expectedLabel);
+        }
+      }
+    });
+
+    it('should have exactly 5 CAGED minor forms', () => {
+      expect(cagedShapes.length).toBe(5);
+    });
+
+    it('should have all expected CAGED form IDs', () => {
+      const ids = cagedShapes.map(s => s.id).sort();
+      expect(ids).toEqual([
+        'caged-Am-form',
+        'caged-Cm-form',
+        'caged-Dm-form',
+        'caged-Em-form',
+        'caged-Gm-form',
+      ]);
+    });
+  });
+
   describe('all shapes', () => {
     it('should have unique IDs', () => {
       const ids = GUITAR_SHAPES.map(s => s.id);
