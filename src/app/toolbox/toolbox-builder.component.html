@@ -126,9 +126,9 @@
     <div class="sentence-toolbox__chip-wrapper">
       <button
         class="sentence-toolbox__chip sentence-toolbox__chip--select"
-        (click)="setShapeCategory(shapeCategory() === 'cowboy' ? 'barre' : shapeCategory() === 'barre' ? 'caged' : 'cowboy')"
+        (click)="setShapeCategory(shapeCategory() === 'cowboy' ? 'barre' : 'cowboy')"
       >
-        {{ shapeCategory() === 'cowboy' ? 'Cowboy' : shapeCategory() === 'barre' ? 'Barre' : 'CAGED' }}
+        {{ shapeCategory() === 'cowboy' ? 'Cowboy' : 'Barre' }}
         <span class="sentence-toolbox__arrow">▼</span>
       </button>
     </div>

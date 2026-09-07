@@ -41,7 +41,6 @@ export class ToolboxBuilderComponent {
   // Shape data
   cowboyShapes = getShapesByCategory('cowboy');
   barreShapes = getShapesByCategory('barre');
-  cagedShapes = getShapesByCategory('caged');
 
   // --- Display functions for dropdowns ---
   keyDisplayFn = (key: MusicKey) => key;
@@ -93,7 +92,6 @@ export class ToolboxBuilderComponent {
     switch (this.shapeCategory()) {
       case 'cowboy': return this.cowboyShapes;
       case 'barre': return this.barreShapes;
-      case 'caged': return this.cagedShapes;
       default: return [];
     }
   }
@@ -128,7 +126,7 @@ export class ToolboxBuilderComponent {
       const shape = this.selectedShape();
       if (!shape) return;
 
-      const isMovable = this.shapeCategory() === 'barre' || this.shapeCategory() === 'caged';
+      const isMovable = this.shapeCategory() === 'barre';
       const command: ResolveShapeCommand = {
         type: 'resolve-shape',
         shapeId: shape.id,
