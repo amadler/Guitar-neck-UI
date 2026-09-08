@@ -215,3 +215,36 @@ Rozszerzenie shape registry o 5 minor CAGED form (Cm, Am, Gm, Em, Dm) oraz dodan
 ## Status
 
 OPEN
+
+---
+
+# P11: fretRange nie resetuje się po przejściu z shape na scale/chord
+
+## Motivation
+
+Gdy użytkownik ogląda shape (np. cowboy-C, zakres auto-fit `0-4`), a następnie wybiera skalę lub akord z toolboxa, `fretRange` pozostaje zwężony z auto-fitu. Skala/akord może być częściowo lub całkowicie poza widokiem, a użytkownik musi ręcznie zmienić zakres w range toolbar.
+
+Problem występuje w [`handleShowPattern`](src/app/domain/domain.service.ts:130):
+```
+fretRange: command.fretRange ?? this.currentState().fretRange,
+```
+gdy `command.fretRange` jest `undefined`, bierze `this.currentState().fretRange` — czyli poprzedni, auto-fitted zakres z shape'a.
+
+## Solution
+
+W `handleShowPattern`, gdy `command.fretRange` nie jest podany, zamiast brać `this.currentState().fretRange`, użyć `DEFAULT_DOMAIN_STATE.fretRange` (lub obliczyć optymalny zakres dla wybranego patternu).
+
+## MVP
+
+- Zmiana w [`domain.service.ts`](src/app/domain/domain.service.ts:137): `fretRange: command.fretRange ?? DEFAULT_DOMAIN_STATE.fretRange`
+- Test: `resolve-shape` → `show-pattern` → sprawdź, że `fretRange` wrócił do `{ min: 0, max: 24 }`
+
+## Done when
+
+- `npm run build` succeeds
+- Po `resolve-shape` → `show-pattern` (bez jawnego `fretRange` w command), zakres wraca do pełnego `0-24`
+- Test w `domain.service.spec.ts` potwierdza zachowanie
+
+## Status
+
+OPEN
