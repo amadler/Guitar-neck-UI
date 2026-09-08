@@ -46,13 +46,6 @@ export class HomePageComponent {
   /** Whether the Range toolbar should be disabled (e.g. in Shape mode). */
   rangeDisabled = signal(false);
 
-  constructor() {
-    const domainService = this.domainService;
-
-    // Expose DomainService for console testing in dev mode
-    (window as any).__ds = domainService;
-  }
-
   onRangeChange(range: { minFret: number; maxFret: number }): void {
     this.domainService.execute({ type: 'set-view', fretRange: { min: range.minFret, max: range.maxFret } });
   }

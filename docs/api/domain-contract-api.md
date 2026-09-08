@@ -2,7 +2,7 @@
 
 ## DomainService — centralna warstwa domenowa
 
-Jednolite API dla wszystkich klientów (Toolbox, AI, konsola). Zdefiniowane w [`src/app/domain/`](src/app/domain/).
+Jednolite API dla wszystkich klientów (Toolbox, AI, konsola). Zdefiniowane w [`src/app/domain/`](../../src/app/domain/).
 
 ```typescript
 /**
@@ -162,7 +162,7 @@ interface GetKeyAnalysisQuery {
 }
 // Zwraca: KeyAnalysis
 ```
-Zwraca własny DTO [`KeyAnalysis`](src/app/domain/queries.ts):
+Zwraca własny DTO [`KeyAnalysis`](../../src/app/domain/queries.ts):
 ```typescript
 interface KeyAnalysis {
   tonic: string;
@@ -340,10 +340,10 @@ const state = domainService.query({ type: 'get-current-view' });
 
 | Plik | Opis |
 |------|------|
-| [`src/app/domain/commands.ts`](src/app/domain/commands.ts) | Typy komend (intencje użytkownika) |
-| [`src/app/domain/queries.ts`](src/app/domain/queries.ts) | Typy kwerend + KeyAnalysis DTO |
-| [`src/app/domain/state.ts`](src/app/domain/state.ts) | DomainState, DomainError, DomainResult |
-| [`src/app/domain/domain.service.ts`](src/app/domain/domain.service.ts) | Centralny serwis domenowy |
-| [`src/app/domain/domain-validator.ts`](src/app/domain/domain-validator.ts) | Walidacja wejść |
-| [`src/app/shared/model/guitar-shapes.ts`](src/app/shared/model/guitar-shapes.ts) | Shape registry (dane) |
-| [`src/app/services/shape-resolver.service.ts`](src/app/services/shape-resolver.service.ts) | Resolver kształtów |
+| [`src/app/domain/commands.ts`](../../src/app/domain/commands.ts) | Typy komend (intencje użytkownika) |
+| [`src/app/domain/queries.ts`](../../src/app/domain/queries.ts) | Typy kwerend + KeyAnalysis DTO |
+| [`src/app/domain/state.ts`](../../src/app/domain/state.ts) | DomainState, DomainError, DomainResult |
+| [`src/app/domain/domain.service.ts`](../../src/app/domain/domain.service.ts) | Centralny serwis domenowy |
+| [`src/app/domain/domain-validator.ts`](../../src/app/domain/domain-validator.ts) | Walidacja wejść |
+| [`src/app/shared/model/guitar-shapes.ts`](../../src/app/shared/model/guitar-shapes.ts) | Shape registry (dane) |
+| [`src/app/services/shape-resolver.service.ts`](../../src/app/services/shape-resolver.service.ts) | Resolver kształtów |
