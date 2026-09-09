@@ -2,7 +2,7 @@ import { Injectable, inject, signal } from "@angular/core";
 import { ChatOllama } from "@langchain/ollama";
 import { createAgent } from "langchain";
 import { MemorySaver } from "@langchain/langgraph-checkpoint";
-import { AIMessage, HumanMessage } from "@langchain/core/messages";
+import { HumanMessage } from "@langchain/core/messages";
 import { createDomainTools } from "../tools/domain-tools";
 import { DomainService } from "../../domain/domain.service";
 import { ChatMessage } from "../models";
@@ -37,27 +37,53 @@ export class ChatService {
 
     this.messages.update((m) => [...m, { role: "user", text: userMessage }]);
 
+    // Placeholder for the streaming assistant response
+    this.messages.update((m) => [...m, { role: "assistant", text: "", streaming: true }]);
+
     try {
-      const result = await this.agent.invoke(
+      const stream = await this.agent.stream(
         { messages: [new HumanMessage(userMessage)] },
         { configurable: { thread_id: this.threadId } }
       );
 
-      const content = [...result.messages]
-        .reverse()
-        .find((m) => m instanceof AIMessage && typeof m.content === "string")
-        ?.content;
-      if (typeof content === "string") {
-        this.messages.update((m) => [
-          ...m,
-          { role: "assistant", text: content },
-        ]);
+      for await (const event of stream) {
+        // LangGraph stream events: on_chat_model_stream yields token chunks
+        // Use bracket access for index-signature typed events
+        const ev = event as Record<string, unknown>;
+        if (ev['event'] === 'on_chat_model_stream') {
+          const data = ev['data'] as Record<string, unknown> | undefined;
+          const chunk = data?.['chunk'] as { content?: string } | undefined;
+          if (chunk?.content) {
+            const token = chunk.content;
+            if (token) {
+              this.messages.update((m) => {
+                const msgs = [...m];
+                const last = msgs[msgs.length - 1];
+                if (last?.streaming) {
+                  msgs[msgs.length - 1] = { ...last, text: last.text + token };
+                }
+                return msgs;
+              });
+            }
+          }
+        }
       }
+
+      // Mark streaming as complete
+      this.messages.update((m) => {
+        const msgs = [...m];
+        const last = msgs[msgs.length - 1];
+        if (last?.streaming) {
+          msgs[msgs.length - 1] = { ...last, streaming: false };
+        }
+        return msgs;
+      });
     } catch (err) {
-      this.messages.update((m) => [
-        ...m,
-        { role: "assistant", text: "Przepraszam, wystąpił błąd. Spróbuj ponownie." },
-      ]);
+      // Remove streaming placeholder, add error message
+      this.messages.update((m) => {
+        const withoutStreaming = m.filter(msg => !msg.streaming);
+        return [...withoutStreaming, { role: "assistant", text: "Przepraszam, wystąpił błąd. Spróbuj ponownie." }];
+      });
       console.error("ChatService error:", err);
     } finally {
       this.loading.set(false);

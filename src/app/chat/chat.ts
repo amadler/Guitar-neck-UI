@@ -10,12 +10,9 @@ import { ChatService } from "./services/chat.service";
     <div class="chat">
       <div class="messages">
         @for (msg of chatService.messages(); track msg) {
-          <div class="msg" [class.user]="msg.role === 'user'" [class.assistant]="msg.role === 'assistant'">
-            <p>{{ msg.text }}</p>
+          <div class="msg" [class.user]="msg.role === 'user'" [class.assistant]="msg.role === 'assistant'" [class.streaming]="msg.streaming">
+            <p>{{ msg.text }}@if (msg.streaming) {<span class="cursor">|</span>}</p>
           </div>
-        }
-        @if (chatService.loading()) {
-          <div class="msg typing">...</div>
         }
       </div>
       <form #f="ngForm" (ngSubmit)="send()">
@@ -30,7 +27,8 @@ import { ChatService } from "./services/chat.service";
     .msg { margin: 8px 0; padding: 8px 12px; border-radius: 8px; max-width: 80%; }
     .user { background: #1976d2; color: #fff; margin-left: auto; }
     .assistant { background: #e0e0e0; color: #333; margin-right: auto; }
-    .typing { color: #999; font-style: italic; }
+    .cursor { animation: blink 0.8s step-end infinite; font-weight: bold; margin-left: 2px; }
+    @keyframes blink { 50% { opacity: 0; } }
     form { display: flex; gap: 8px; padding: 10px; border-top: 1px solid #ddd; }
     input { flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
     button { padding: 8px 16px; background: #1976d2; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
