@@ -42,6 +42,8 @@ export class DomainService {
   readonly currentState = this.stateSignal.asReadonly();
   /** Saved marker display mode to restore after Compare mode. */
   private previousMarkerDisplayMode: DomainState['markerDisplayMode'] = 'interval-colors';
+  /** Saved mode to restore after AI mode is toggled off. */
+  private previousMode: DomainState['mode'] = 'scale';
 
   private commandHandlers = new Map<string, CommandHandler>();
   private queryHandlers = new Map<string, QueryHandler>();
@@ -61,6 +63,7 @@ export class DomainService {
     this.commandHandlers.set('set-emphasis', (c) => this.handleSetEmphasis(c));
     this.commandHandlers.set('clear-view', (_c) => this.handleClearView());
     this.commandHandlers.set('resolve-shape', (c) => this.handleResolveShape(c));
+    this.commandHandlers.set('set-ai-mode', (c) => this.handleSetAiMode(c));
   }
 
   private registerQueryHandlers(): void {
@@ -258,6 +261,23 @@ export class DomainService {
         })),
       },
     });
+  }
+
+  private handleSetAiMode(command: DomainCommand & { type: 'set-ai-mode' }): DomainResult<DomainState> {
+    if (command.enabled) {
+      // Save current mode before switching to AI mode
+      this.previousMode = this.currentState().mode;
+      return this.emitState({
+        ...this.currentState(),
+        mode: 'ai',
+      });
+    } else {
+      // Restore previous mode
+      return this.emitState({
+        ...this.currentState(),
+        mode: this.previousMode,
+      });
+    }
   }
 
   // ─── Query handlers ──────────────────────────────────────────────────

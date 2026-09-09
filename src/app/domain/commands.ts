@@ -88,6 +88,15 @@ export interface ResolveShapeCommand {
 }
 
 /**
+ * Toggle AI chat mode.
+ * When enabled, the metronome hides and the chat gets a fixed width.
+ */
+export interface SetAiModeCommand {
+  type: 'set-ai-mode';
+  enabled: boolean;
+}
+
+/**
  * A domain command expresses a user intent to change the fretboard view.
  * It does NOT describe how to mutate state — that mapping is the responsibility of DomainService.
  */
@@ -98,4 +107,5 @@ export type DomainCommand =
   | SetViewCommand
   | SetEmphasisCommand
   | ClearViewCommand
-  | ResolveShapeCommand;
+  | ResolveShapeCommand
+  | SetAiModeCommand;

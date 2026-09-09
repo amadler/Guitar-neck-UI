@@ -21,7 +21,7 @@ export interface SelectedNotePosition {
  */
 export interface DomainState {
   /** Application mode — the user's current intent. */
-  mode: 'scale' | 'chord' | 'scale-chord' | 'custom' | 'positions';
+  mode: 'scale' | 'chord' | 'scale-chord' | 'custom' | 'positions' | 'ai';
 
   /** Root/tonic note of the current pattern. */
   rootNote: string;

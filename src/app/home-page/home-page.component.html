@@ -36,16 +36,18 @@
   <!-- END: Fretboard Section -->
 
   <!-- BEGIN: Bottom Panel -->
-  <section class="bottom-panel">
+  <section class="bottom-panel" [class.bottom-panel--ai-mode]="aiMode()">
     <div class="bottom-panel__scale-info">
       <app-pattern-display></app-pattern-display>
     </div>
     <div class="bottom-panel__divider"></div>
-    <div class="bottom-panel__metronome">
-      <app-metronome></app-metronome>
-    </div>
+    @if (!aiMode()) {
+      <div class="bottom-panel__metronome">
+        <app-metronome></app-metronome>
+      </div>
+    }
     @if (chatEnabled) {
-      <div class="bottom-panel__chat">
+      <div class="bottom-panel__chat" [class.bottom-panel__chat--active]="aiMode()">
         <app-chat></app-chat>
       </div>
     }

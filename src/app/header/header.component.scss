@@ -65,6 +65,11 @@
   height: 22px;
 }
 
+.ai-toggle.active {
+  color: var(--md-primary);
+  background: var(--md-primary-container);
+}
+
 /* ── Help modal ── */
 
 .help-modal-overlay {

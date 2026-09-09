@@ -1,4 +1,4 @@
-import { Component, signal, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, signal, computed, ChangeDetectionStrategy, inject } from '@angular/core';
 
 import { DomainService } from '../domain/domain.service';
 import { DomainCommand } from '../domain/commands';
@@ -39,6 +39,9 @@ export class HomePageComponent {
   private domainService = inject(DomainService);
 
   chatEnabled = environment.features.chatEnabled;
+
+  /** Whether AI chat mode is active — metronome hides, chat gets fixed width. */
+  aiMode = computed(() => this.domainService.currentState().mode === 'ai');
 
   /** Controls which overlay is shown: legend (for Show) or relationship strip (for Compare). */
   displayMode = signal<DisplayMode>(null);

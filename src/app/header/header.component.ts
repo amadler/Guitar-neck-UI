@@ -1,6 +1,8 @@
 import { Component, OnInit, PLATFORM_ID, inject, ChangeDetectionStrategy } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 
+import { DomainService } from '../domain/domain.service';
+
 const STORAGE_KEY = 'guitar-neck-ui-visited';
 
 @Component({
@@ -10,7 +12,8 @@ const STORAGE_KEY = 'guitar-neck-ui-visited';
   styleUrl: './header.component.scss'
 })
 export class HeaderComponent implements OnInit {
-  private readonly platformId = inject(PLATFORM_ID);
+  readonly platformId = inject(PLATFORM_ID);
+  readonly domainService = inject(DomainService);
 
   helpModalOpen = false;
 
@@ -23,5 +26,10 @@ export class HeaderComponent implements OnInit {
 
   toggleHelpModal(): void {
     this.helpModalOpen = !this.helpModalOpen;
+  }
+
+  toggleAiMode(): void {
+    const current = this.domainService.currentState().mode;
+    this.domainService.execute({ type: 'set-ai-mode', enabled: current !== 'ai' });
   }
 }
