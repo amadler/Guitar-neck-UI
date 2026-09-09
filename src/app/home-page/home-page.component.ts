@@ -12,7 +12,7 @@ import { PatternDisplayComponent } from '../pattern-display/pattern-display.comp
 import { MetronomeComponent } from '../metronome/metronome.component';
 import { RelationshipStripComponent } from '../relationship-strip/relationship-strip.component';
 import { ToolboxBuilderComponent } from '../toolbox/toolbox-builder.component';
-import { ChatComponent } from '../../../projects/guitar-chat/src/lib/components/chat/chat.component';
+import { ChatComponent } from '../chat/chat';
 
 // TODO: Czy displayMode nie powinno być z DomainState.mode zsynchronizowane?
 export type DisplayMode = 'legend' | 'relationship' | null;
