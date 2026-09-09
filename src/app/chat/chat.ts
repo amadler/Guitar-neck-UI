@@ -19,7 +19,7 @@ import { ChatService } from "./services/chat.service";
         }
       </div>
       <form #f="ngForm" (ngSubmit)="send()">
-        <input name="q" ngModel [(ngModel)]="query" placeholder="Np. pokaż C-dur" />
+        <input name="q" [(ngModel)]="query" placeholder="Np. pokaż C-dur" />
         <button type="submit" [disabled]="chatService.loading()">Wyślij</button>
       </form>
     </div>

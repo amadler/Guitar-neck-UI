@@ -19,7 +19,7 @@ export class ChatService {
   private agent = createAgent({
     model: new ChatOllama({
       model: "qwen3:8b",
-      temperature: 0.7,
+      temperature: 0.1,
     }),
     tools: createDomainTools(this.domainService),
     checkpointer: new MemorySaver(),
@@ -43,13 +43,14 @@ export class ChatService {
         { configurable: { thread_id: this.threadId } }
       );
 
-      const lastAssistantMessage = [...result.messages]
+      const content = [...result.messages]
         .reverse()
-        .find((m) => m instanceof AIMessage && m.content);
-      if (lastAssistantMessage) {
+        .find((m) => m instanceof AIMessage && typeof m.content === "string")
+        ?.content;
+      if (typeof content === "string") {
         this.messages.update((m) => [
           ...m,
-          { role: "assistant", text: lastAssistantMessage.content as string },
+          { role: "assistant", text: content },
         ]);
       }
     } catch (err) {

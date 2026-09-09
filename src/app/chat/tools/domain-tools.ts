@@ -3,17 +3,22 @@ import { z } from "zod";
 import { DomainService } from "../../domain/domain.service";
 import { DomainCommand } from "../../domain/commands";
 
-type ShowPatternInput = {
-  patternType: "scale" | "chord";
-  patternName: string;
-  rootNote: string;
-  fretRange?: { min: number; max: number };
-};
+const showPatternSchema = z.object({
+  patternType: z.enum(["scale", "chord"]).describe("Typ patternu: 'scale' dla skali, 'chord' dla akordu"),
+  patternName: z.string().describe("Nazwa patternu, np. 'major', 'minor', 'pentatonic major'"),
+  rootNote: z.string().describe("Nuta podstawowa, np. 'C', 'A', 'G', 'D'"),
+  fretRange: z.object({
+    min: z.number().min(0).max(24),
+    max: z.number().min(0).max(24),
+  }).optional().describe("Opcjonalny zakres progów"),
+});
+type ShowPatternInput = z.infer<typeof showPatternSchema>;
 
-type ShowIntervalInput = {
-  rootNote: string;
-  interval: string;
-};
+const showIntervalSchema = z.object({
+  rootNote: z.string().describe("Nuta podstawowa"),
+  interval: z.string().describe("Nazwa interwału, np. b3, 3, 5, b7"),
+});
+type ShowIntervalInput = z.infer<typeof showIntervalSchema>;
 
 export function createDomainTools(domainService: DomainService) {
   return [
@@ -41,15 +46,7 @@ export function createDomainTools(domainService: DomainService) {
       {
         name: "show_pattern",
         description: "Wyświetla skalę lub akord na gryfie gitary. Użyj gdy użytkownik poprosi o pokazanie skali (np. C-dur, A-moll) lub akordu (np. C-dur, Am).",
-        schema: z.object({
-          patternType: z.enum(["scale", "chord"]).describe("Typ patternu: 'scale' dla skali, 'chord' dla akordu"),
-          patternName: z.string().describe("Nazwa patternu, np. 'major', 'minor', 'pentatonic major'"),
-          rootNote: z.string().describe("Nuta podstawowa, np. 'C', 'A', 'G', 'D'"),
-          fretRange: z.object({
-            min: z.number().min(0).max(24),
-            max: z.number().min(0).max(24),
-          }).optional().describe("Opcjonalny zakres progów"),
-        }),
+        schema: showPatternSchema,
       }
     ),
     tool(
@@ -69,10 +66,7 @@ export function createDomainTools(domainService: DomainService) {
       {
         name: "show_interval",
         description: "Wyświetla pojedynczy interwał od root note na gryfie",
-        schema: z.object({
-          rootNote: z.string().describe("Nuta podstawowa"),
-          interval: z.string().describe("Nazwa interwału, np. b3, 3, 5, b7"),
-        }),
+        schema: showIntervalSchema,
       }
     ),
     tool(
