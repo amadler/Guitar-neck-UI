@@ -46,21 +46,39 @@ export class ChatService {
         { configurable: { thread_id: this.threadId } }
       );
 
+      let hasTokens = false;
+
       for await (const event of stream) {
-        // LangGraph stream events: on_chat_model_stream yields token chunks
-        // Use bracket access for index-signature typed events
         const ev = event as Record<string, unknown>;
-        if (ev['event'] === 'on_chat_model_stream') {
-          const data = ev['data'] as Record<string, unknown> | undefined;
-          const chunk = data?.['chunk'] as { content?: string } | undefined;
-          if (chunk?.content) {
-            const token = chunk.content;
-            if (token) {
+        const keys = Object.keys(ev);
+        console.log('[ChatService] stream event keys:', keys);
+
+        for (const key of keys) {
+          const nodeOutput = ev[key] as Record<string, unknown> | undefined;
+          if (!nodeOutput) continue;
+
+          const messages = nodeOutput['messages'] as Array<Record<string, unknown>> | undefined;
+          if (!messages || messages.length === 0) continue;
+
+          for (const msg of messages) {
+            // Message structure (from logs): { content, additional_kwargs, type: 'ai', ... }
+            // content and additional_kwargs are directly on the object, NOT inside kwargs
+            const content = msg['content'] as string | undefined;
+            const additionalKwargs = msg['additional_kwargs'] as Record<string, unknown> | undefined;
+            const reasoningContent = additionalKwargs?.['reasoning_content'] as string | undefined;
+
+            if (typeof content === 'string' && content) {
+              hasTokens = true;
               this.messages.update((m) => {
                 const msgs = [...m];
                 const last = msgs[msgs.length - 1];
                 if (last?.streaming) {
-                  msgs[msgs.length - 1] = { ...last, text: last.text + token };
+                  msgs[msgs.length - 1] = {
+                    ...last,
+                    text: content,
+                    reasoning: reasoningContent || last.reasoning,
+                    streaming: false,
+                  };
                 }
                 return msgs;
               });
@@ -69,7 +87,39 @@ export class ChatService {
         }
       }
 
-      // Mark streaming as complete
+      // If no tokens were streamed, try to extract final message from agent state
+      if (!hasTokens) {
+        console.log('[ChatService] no tokens streamed, trying fallback extraction');
+        const state = await (this.agent as any).getState({ configurable: { thread_id: this.threadId } });
+        console.log('[ChatService] agent state:', state);
+        const messages = (state as any)?.values?.messages as Array<Record<string, unknown>> | undefined;
+        if (messages) {
+          // Find last AI message — messages are LangChain objects with type: 'ai'
+          const lastAi = [...messages].reverse().find((m: any) => m.type === 'ai' || m._type === 'ai');
+          if (lastAi) {
+            const content = (lastAi as any)['content'] as string | undefined;
+            const additionalKwargs = (lastAi as any)['additional_kwargs'] as Record<string, unknown> | undefined;
+            const reasoningContent = additionalKwargs?.['reasoning_content'] as string | undefined;
+            if (typeof content === 'string' && content) {
+              this.messages.update((m) => {
+                const msgs = [...m];
+                const last = msgs[msgs.length - 1];
+                if (last?.streaming) {
+                  msgs[msgs.length - 1] = {
+                    ...last,
+                    text: content,
+                    reasoning: reasoningContent || last.reasoning,
+                    streaming: false,
+                  };
+                }
+                return msgs;
+              });
+            }
+          }
+        }
+      }
+
+      // Mark streaming as complete (if still streaming)
       this.messages.update((m) => {
         const msgs = [...m];
         const last = msgs[msgs.length - 1];
@@ -79,12 +129,12 @@ export class ChatService {
         return msgs;
       });
     } catch (err) {
+      console.error('[ChatService] error:', err);
       // Remove streaming placeholder, add error message
       this.messages.update((m) => {
         const withoutStreaming = m.filter(msg => !msg.streaming);
         return [...withoutStreaming, { role: "assistant", text: "Przepraszam, wystąpił błąd. Spróbuj ponownie." }];
       });
-      console.error("ChatService error:", err);
     } finally {
       this.loading.set(false);
     }
