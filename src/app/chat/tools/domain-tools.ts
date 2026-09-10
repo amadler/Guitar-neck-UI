@@ -13,6 +13,10 @@ const showPatternSchema = z.object({
     min: z.number().min(0).max(24),
     max: z.number().min(0).max(24),
   }).optional().describe("Opcjonalny zakres progów"),
+  emphasis: z.object({
+    intervals: z.array(z.string()).optional().describe("Interwały do podświetlenia, np. ['1', '3', '5']"),
+    roles: z.array(z.string()).optional().describe("Role do podświetlenia, np. ['root', 'third']"),
+  }).optional().describe("Opcjonalne podświetlenie konkretnych interwałów"),
 });
 type ShowPatternInput = z.infer<typeof showPatternSchema>;
 
@@ -75,6 +79,7 @@ export function createDomainTools(domainService: DomainService) {
           patternName: input.patternName,
           rootNote: input.rootNote,
           fretRange: input.fretRange,
+          emphasis: input.emphasis,
         };
         const result = domainService.execute(command);
         return {
