@@ -124,4 +124,105 @@ describe("createDomainTools", () => {
       expect(result).toMatchObject({ success: false, action: 'get-current-view' });
     });
   });
+
+  describe("compare_patterns tool", () => {
+    it("should call DomainService.execute() with compare-patterns command", async () => {
+      const tool = tools[4];
+      const result = await tool.invoke({
+        primary: { patternType: "scale", patternName: "major", rootNote: "C" },
+        secondary: { patternType: "chord", patternName: "major", rootNote: "Am" },
+      });
+      expect(mockDomainService.execute).toHaveBeenCalledWith({
+        type: "compare-patterns",
+        primary: { patternType: "scale", patternName: "major", rootNote: "C" },
+        secondary: { patternType: "chord", patternName: "major", rootNote: "Am" },
+      });
+      expect(result).toMatchObject({
+        success: true,
+        action: "compare-patterns",
+        primary: { patternType: "scale", patternName: "major", rootNote: "C" },
+      });
+    });
+  });
+
+  describe("set_view tool", () => {
+    it("should call DomainService.execute() with set-view command", async () => {
+      const tool = tools[5];
+      const result = await tool.invoke({
+        fretRange: { min: 0, max: 5 },
+        markerDisplayMode: "note-names",
+      });
+      expect(mockDomainService.execute).toHaveBeenCalledWith({
+        type: "set-view",
+        fretRange: { min: 0, max: 5 },
+        enabledStrings: undefined,
+        markerDisplayMode: "note-names",
+      });
+      expect(result).toMatchObject({ success: true, action: "set-view" });
+    });
+  });
+
+  describe("set_emphasis tool", () => {
+    it("should call DomainService.execute() with set-emphasis command", async () => {
+      const tool = tools[6];
+      const result = await tool.invoke({
+        emphasis: { intervals: ["1", "3", "5"] },
+      });
+      expect(mockDomainService.execute).toHaveBeenCalledWith({
+        type: "set-emphasis",
+        emphasis: { intervals: ["1", "3", "5"] },
+      });
+      expect(result).toMatchObject({ success: true, action: "set-emphasis" });
+    });
+  });
+
+  describe("resolve_shape tool", () => {
+    it("should call DomainService.execute() with resolve-shape command", async () => {
+      const tool = tools[7];
+      const result = await tool.invoke({
+        shapeId: "cowboy-C",
+      });
+      expect(mockDomainService.execute).toHaveBeenCalledWith({
+        type: "resolve-shape",
+        shapeId: "cowboy-C",
+        rootNote: undefined,
+      });
+      expect(result).toMatchObject({ success: true, action: "resolve-shape", shapeId: "cowboy-C" });
+    });
+
+    it("should include rootNote when provided", async () => {
+      const tool = tools[7];
+      await tool.invoke({
+        shapeId: "barre-E-form",
+        rootNote: "F",
+      });
+      expect(mockDomainService.execute).toHaveBeenCalledWith({
+        type: "resolve-shape",
+        shapeId: "barre-E-form",
+        rootNote: "F",
+      });
+    });
+  });
+
+  describe("set_ai_mode tool", () => {
+    it("should call DomainService.execute() with set-ai-mode command (enabled)", async () => {
+      const tool = tools[8];
+      const result = await tool.invoke({ enabled: true });
+      expect(mockDomainService.execute).toHaveBeenCalledWith({
+        type: "set-ai-mode",
+        enabled: true,
+      });
+      expect(result).toMatchObject({ success: true, action: "set-ai-mode", enabled: true });
+    });
+
+    it("should call DomainService.execute() with set-ai-mode command (disabled)", async () => {
+      const tool = tools[8];
+      const result = await tool.invoke({ enabled: false });
+      expect(mockDomainService.execute).toHaveBeenCalledWith({
+        type: "set-ai-mode",
+        enabled: false,
+      });
+      expect(result).toMatchObject({ success: true, action: "set-ai-mode", enabled: false });
+    });
+  });
 });

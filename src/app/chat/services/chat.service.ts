@@ -36,6 +36,11 @@ export class ChatService {
           "Gdy użytkownik poprosi o pokazanie skali lub akordu na gryfie, użyj narzędzia show_pattern. " +
           "Gdy zapyta o interwał, użyj show_interval. " +
           "Gdy poprosi o wyczyszczenie widoku, użyj clear_view. " +
+          "Gdy poprosi o porównanie skali z akordem (np. 'pokaż C-dur z Am'), użyj compare_patterns. " +
+          "Gdy poprosi o zmianę widoku (zakres progów, tryb wyświetlania), użyj set_view. " +
+          "Gdy poprosi o podświetlenie konkretnych interwałów, użyj set_emphasis. " +
+          "Gdy zapyta o chwyty gitarowe (cowboy chords, barre), użyj resolve_shape. " +
+          "Gdy poprosi o włączenie/wyłączenie trybu AI, użyj set_ai_mode. " +
           "Po wykonaniu narzędzia powiedz użytkownikowi co zostało pokazane.",
       });
     }
