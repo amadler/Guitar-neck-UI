@@ -248,3 +248,73 @@ W `handleShowPattern`, gdy `command.fretRange` nie jest podany, zamiast brać `t
 ## Status
 
 OPEN
+
+---
+
+# P12: FretboardStateService.notes[] — migracja na immutable + signal
+
+## Motivation
+
+Obecnie [`FretboardStateService.notes`](src/app/services/fretboard-state.service.ts:16) to mutowalne pole `GuitarNote[]`, które jest:
+
+1. **Mutowane in-place** przez [`applyHighlightedNotes()`](src/app/services/fretboard-state.service.ts:43-61), [`hideAllNotes()`](src/app/services/fretboard-state.service.ts:63-65), [`showAll()`](src/app/services/fretboard-state.service.ts:67-70), [`clearSelection()`](src/app/services/fretboard-state.service.ts:72-74) — oraz z zewnątrz przez [`markIntervals()`](src/app/services/fretboard-orchestration.service.ts:130-142) i [`removeIntervals()`](src/app/services/fretboard-orchestration.service.ts:145-147)
+2. **Przypisywane z zewnątrz** przez [`FreatboardComponent.ngOnInit()`](src/app/freatboard/freatboard.component.ts:36) i [`GuitarNeckComponent`](src/app/guitar-neck/guitar-neck.component.ts:26)
+3. **Brak reaktywności** — zmiany `visible`/`selected`/`interval` nie są sygnalizowane, co jest niespójne z `OnPush` change detection i z resztą stanu (`hasActiveResult`, `currentSelection`, `scaleChordState` które są `signal`)
+4. **Niespójność architektoniczna** — [`DomainState`](src/app/domain/state.ts:25) jest jawnie zadeklarowany jako *"immutable source of truth"*, podczas gdy `FretboardStateService.notes` jest w pełni mutowalny
+
+## Solution
+
+Zamienić `notes: GuitarNote[]` na `readonly notes = signal<GuitarNote[]>([])` z immutable aktualizacjami. Wszystkie mutacje `visible`, `selected`, `interval` przechodzą przez `this.notes.update()` tworząc nową tablicę z nowymi obiektami.
+
+### Zmiany w GuitarNote
+
+`GuitarNote` (klasa) zostaje zastąpiona przez interfejs `GuitarNote` (lub klasa z readonly properties + clone()), aby wymusić immutability — nowe instancje przy każdej zmianie.
+
+### Zmiany w FretboardStateService
+
+- `notes` → `readonly notes = signal<GuitarNote[]>([])`
+- `applyHighlightedNotes()` → immutable update przez `this.notes.update()`
+- `hideAllNotes()`, `showAll()`, `clearSelection()` → immutable update
+- `buildNotesMap()` → działa na `this.notes()` (odczyt)
+- Usunięcie zewnętrznych przypisań `guitarNeckService.notes = ...` z komponentów
+
+### Zmiany w konsumentach
+
+| Plik | Zmiana |
+|------|--------|
+| [`FreatboardComponent.ngOnInit()`](src/app/freatboard/freatboard.component.ts:34-38) | Zamiast `this.guitarNeckService.notes = this.notes()` — inicjalizacja przez metodę serwisu |
+| [`GuitarNeckComponent`](src/app/guitar-neck/guitar-neck.component.ts:26) | Analogicznie |
+| [`FretboardOrchestrationService`](src/app/services/fretboard-orchestration.service.ts) | `markIntervals()` i `removeIntervals()` → immutable update przez serwis |
+| [`FretboardDisplayService`](src/app/services/fretboard-display.service.ts:83) | `this.guitarNeckService.notes.forEach()` → `this.guitarNeckService.notes().forEach()` |
+| [`FretboardNoteQueryService`](src/app/services/fretboard-note-query.service.ts) | `this.guitarNeckService.notes` → `this.guitarNeckService.notes()` |
+| [`MarkerRoleService.computeRoles()`](src/app/services/marker-role.service.ts:61) | `notes: GuitarNote[]` → odczyt z signal |
+| Wszystkie `*.spec.ts` | `guitarNeckService.notes = ...` → `guitarNeckService.notes.set(...)` |
+
+### Opcjonalnie: metoda `setNotes()` w FretboardStateService
+
+Dla inicjalizacji z `GuitarNeckComponent`/`FreatboardComponent` — jedna metoda która ustawia notes i przebudowuje notesMap.
+
+## MVP
+
+- `GuitarNote` zmieniony na interfejs (lub readonly)
+- `FretboardStateService.notes` → `signal<GuitarNote[]>()`
+- Wszystkie mutacje przechodzą przez `this.notes.update()`
+- `buildNotesMap()` przebudowywana przy każdej zmianie notes
+- `FretboardOrchestrationService.markIntervals()`/`removeIntervals()` delegują do `FretboardStateService`
+- Wszystkie konsumenty używają `notes()` (wywołanie signal)
+- Build przechodzi (`npm run build`)
+- Testy przechodzą (`npm test`)
+
+## Done when
+
+- `npm run build` succeeds
+- `npm test` succeeds
+- `FretboardStateService.notes` jest `signal<GuitarNote[]>()` — tylko immutable update
+- Żaden kod poza `FretboardStateService` nie mutuje `GuitarNote` properties bezpośrednio
+- `GuitarNote` jest interfejsem (lub readonly klasą)
+- `notesMap` jest przebudowywana przy każdej zmianie notes (przez `computed` lub `effect`)
+- Testy w `fretboard-state.service.spec.ts` zaktualizowane dla signal API
+
+## Status
+
+OPEN
