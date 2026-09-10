@@ -17,7 +17,9 @@
 
 | Term | Type | Description |
 |------|------|-------------|
-| **mode** | `'scale' \| 'chord' \| 'scale-chord' \| 'custom'` | Current application mode. Determines `patternType` (derived). |
+| **mode** | `'scale' \| 'chord' \| 'scale-chord' \| 'custom' \| 'positions'` | Current application mode. Determines `patternType` (derived). |
+| **aiModeEnabled** | `boolean` | Whether AI chat mode is active. Orthogonal to `mode` — controls chat visibility, not what is displayed on the fretboard. |
+| **displayMode** | `'legend' \| 'relationship' \| null` | Which overlay to show: legend (Show commands), relationship strip (Compare), or none. Set by DomainService handlers. |
 | **rootNote** | `string` | The tonic/root note of the current pattern (e.g., `'C'`, `'A'`, `'F#'`). |
 | **patternName** | `string` | Name of the selected pattern (e.g., `'major'`, `'minor-pentatonic'`, `'maj7'`). |
 | **compareTarget** | `{ rootNote: string; patternName: string; patternType: 'scale' \| 'chord' }?` | Second pattern for comparison in scale-chord mode. |

@@ -61,6 +61,7 @@ export class DomainService {
     this.commandHandlers.set('set-emphasis', (c) => this.handleSetEmphasis(c));
     this.commandHandlers.set('clear-view', (_c) => this.handleClearView());
     this.commandHandlers.set('resolve-shape', (c) => this.handleResolveShape(c));
+    this.commandHandlers.set('set-ai-mode', (c) => this.handleSetAiMode(c));
   }
 
   private registerQueryHandlers(): void {
@@ -130,6 +131,7 @@ export class DomainService {
     return this.emitState({
       ...this.currentState(),
       mode: patternType === 'scale' ? 'scale' : 'chord',
+      displayMode: 'legend',
       rootNote,
       patternName,
       compareTarget: undefined,
@@ -155,6 +157,7 @@ export class DomainService {
     return this.emitState({
       ...this.currentState(),
       mode: 'custom',
+      displayMode: 'legend',
       rootNote,
       patternName: `interval-${interval}`,
       compareTarget: undefined,
@@ -185,6 +188,7 @@ export class DomainService {
     return this.emitState({
       ...this.currentState(),
       mode: 'scale-chord',
+      displayMode: 'relationship',
       rootNote: primary.rootNote,
       patternName: primary.patternName,
       compareTarget: {
@@ -220,6 +224,7 @@ export class DomainService {
     return this.emitState({
       ...DEFAULT_DOMAIN_STATE,
       enabledStrings: this.currentState().enabledStrings,
+      aiModeEnabled: this.currentState().aiModeEnabled,
     });
   }
 
@@ -245,6 +250,7 @@ export class DomainService {
     return this.emitState({
       ...this.currentState(),
       mode: 'positions',
+      displayMode: 'legend',
       rootNote: result.rootNote ?? this.currentState().rootNote,
       patternName: shapeId,
       compareTarget: undefined,
@@ -257,6 +263,13 @@ export class DomainService {
           label: p.label,
         })),
       },
+    });
+  }
+
+  private handleSetAiMode(command: DomainCommand & { type: 'set-ai-mode' }): DomainResult<DomainState> {
+    return this.emitState({
+      ...this.currentState(),
+      aiModeEnabled: command.enabled,
     });
   }
 

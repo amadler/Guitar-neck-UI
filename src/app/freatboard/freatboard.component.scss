@@ -173,18 +173,42 @@
 
 /* ---- Interval color classes ---- */
 
-.fretboard__dot--root { background-color: var(--marker-root); }
-.fretboard__dot--minor-2nd { background-color: var(--marker-minor-2nd); }
-.fretboard__dot--major-2nd { background-color: var(--marker-major-2nd); }
-.fretboard__dot--minor-3rd { background-color: var(--marker-minor-3rd); }
-.fretboard__dot--major-3rd { background-color: var(--marker-major-3rd); }
-.fretboard__dot--perfect-4th { background-color: var(--marker-perfect-4th); }
-.fretboard__dot--diminished-5th { background-color: var(--marker-diminished-5th); }
-.fretboard__dot--perfect-5th { background-color: var(--marker-perfect-5th); }
-.fretboard__dot--minor-6th { background-color: var(--marker-minor-6th); }
-.fretboard__dot--major-6th { background-color: var(--marker-major-6th); }
-.fretboard__dot--minor-7th { background-color: var(--marker-minor-7th); }
-.fretboard__dot--major-7th { background-color: var(--marker-major-7th); }
+.fretboard__dot--root {
+  background-color: var(--marker-root);
+}
+.fretboard__dot--minor-2nd {
+  background-color: var(--marker-minor-2nd);
+}
+.fretboard__dot--major-2nd {
+  background-color: var(--marker-major-2nd);
+}
+.fretboard__dot--minor-3rd {
+  background-color: var(--marker-minor-3rd);
+}
+.fretboard__dot--major-3rd {
+  background-color: var(--marker-major-3rd);
+}
+.fretboard__dot--perfect-4th {
+  background-color: var(--marker-perfect-4th);
+}
+.fretboard__dot--diminished-5th {
+  background-color: var(--marker-diminished-5th);
+}
+.fretboard__dot--perfect-5th {
+  background-color: var(--marker-perfect-5th);
+}
+.fretboard__dot--minor-6th {
+  background-color: var(--marker-minor-6th);
+}
+.fretboard__dot--major-6th {
+  background-color: var(--marker-major-6th);
+}
+.fretboard__dot--minor-7th {
+  background-color: var(--marker-minor-7th);
+}
+.fretboard__dot--major-7th {
+  background-color: var(--marker-major-7th);
+}
 
 /* ---- Marker role classes (scale + chord relation) ---- */
 /* In scale-only mode: these add box-shadow overlay on top of interval colors.
@@ -224,4 +248,12 @@
   background: transparent;
   border: 2px dashed var(--marker-outside-border);
   box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.3);
+}
+
+/* ---- Emphasis dimming ---- */
+/* When emphasis is active, non-emphasized notes get this class to appear faded. */
+.fretboard__dot--dimmed {
+  opacity: 0.9;
+  background-color: var(--guitar-neck-marker-bg-color);
+  color: var(--guitar-neck-marker--color);
 }

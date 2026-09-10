@@ -84,6 +84,24 @@
   flex-shrink: 0;
 }
 
+.bottom-panel__chat {
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+.bottom-panel__chat--active {
+  width: 50%;
+  flex-shrink: 0;
+}
+
+/* When AI mode is active, pattern-display takes the remaining space */
+.bottom-panel--ai-mode {
+  .bottom-panel__scale-info {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
 /* ==========================================================================
    Responsive
    ========================================================================== */
@@ -107,5 +125,9 @@
 
   .bottom-panel__metronome {
     max-width: none;
+  }
+
+  .bottom-panel__chat--active {
+    width: 100%;
   }
 }

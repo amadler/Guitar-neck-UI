@@ -1,4 +1,4 @@
-import { Component, signal, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, computed, ChangeDetectionStrategy, inject } from '@angular/core';
 
 import { DomainService } from '../domain/domain.service';
 import { DomainCommand } from '../domain/commands';
@@ -12,9 +12,8 @@ import { PatternDisplayComponent } from '../pattern-display/pattern-display.comp
 import { MetronomeComponent } from '../metronome/metronome.component';
 import { RelationshipStripComponent } from '../relationship-strip/relationship-strip.component';
 import { ToolboxBuilderComponent } from '../toolbox/toolbox-builder.component';
-import { ChatComponent } from '../../../projects/guitar-chat/src/lib/components/chat/chat.component';
+import { ChatComponent } from '../chat/chat.component';
 
-// TODO: Czy displayMode nie powinno być z DomainState.mode zsynchronizowane?
 export type DisplayMode = 'legend' | 'relationship' | null;
 
 @Component({
@@ -29,7 +28,7 @@ export type DisplayMode = 'legend' | 'relationship' | null;
     MetronomeComponent,
     RelationshipStripComponent,
     ToolboxBuilderComponent,
-    ChatComponent
+    ChatComponent,
   ],
   templateUrl: './home-page.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -38,13 +37,17 @@ export type DisplayMode = 'legend' | 'relationship' | null;
 export class HomePageComponent {
   private domainService = inject(DomainService);
 
-  chatEnabled = environment.features.chatEnabled;
+  /** Whether AI chat mode is active — metronome hides, chat gets fixed width. */
+  aiMode = computed(() => this.domainService.currentState().aiModeEnabled);
 
-  /** Controls which overlay is shown: legend (for Show) or relationship strip (for Compare). */
-  displayMode = signal<DisplayMode>(null);
+  /**
+   * Controls which overlay is shown: legend (for Show) or relationship strip (for Compare).
+   * Read from DomainState.displayMode — set by DomainService handlers for both Toolbox and AI paths.
+   */
+  displayMode = computed<DisplayMode>(() => this.domainService.currentState().displayMode);
 
-  /** Whether the Range toolbar should be disabled (e.g. in Shape mode). */
-  rangeDisabled = signal(false);
+  /** Whether the Range toolbar should be disabled (e.g. in Shape/positions mode). */
+  rangeDisabled = computed(() => this.domainService.currentState().mode === 'positions');
 
   onRangeChange(range: { minFret: number; maxFret: number }): void {
     this.domainService.execute({ type: 'set-view', fretRange: { min: range.minFret, max: range.maxFret } });
@@ -52,43 +55,9 @@ export class HomePageComponent {
 
   /**
    * Handle DomainCommand from Toolbox (or any client).
-   * Delegates to DomainService for standard commands,
-   * handles interval show as a special case.
+   * Delegates to DomainService — displayMode and rangeDisabled are now computed from state.
    */
   onToolboxEvent(command: DomainCommand): void {
-    switch (command.type) {
-      case 'show-pattern':
-      case 'show-interval':
-        this.domainService.execute(command);
-        this.displayMode.set('legend');
-        this.rangeDisabled.set(false);
-        break;
-
-      case 'compare-patterns':
-        this.domainService.execute(command);
-        this.displayMode.set('relationship');
-        this.rangeDisabled.set(false);
-        break;
-
-      case 'resolve-shape':
-        this.domainService.execute(command);
-        this.displayMode.set('legend');
-        this.rangeDisabled.set(true);
-        break;
-
-      case 'set-view':
-        this.domainService.execute(command);
-        break;
-
-      case 'set-emphasis':
-        this.domainService.execute(command);
-        break;
-
-      case 'clear-view':
-        this.domainService.execute(command);
-        this.displayMode.set(null);
-        this.rangeDisabled.set(false);
-        break;
-    }
+    this.domainService.execute(command);
   }
 }

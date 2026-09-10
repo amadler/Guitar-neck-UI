@@ -18,10 +18,19 @@ export interface SelectedNotePosition {
  * - 'chord' → patternType = 'chord'
  * - 'scale-chord' → two patterns (primary + compareTarget)
  * - 'custom' → no patternType
+ *
+ * aiModeEnabled is orthogonal to mode — it controls chat visibility,
+ * not what is displayed on the fretboard.
  */
 export interface DomainState {
   /** Application mode — the user's current intent. */
   mode: 'scale' | 'chord' | 'scale-chord' | 'custom' | 'positions';
+
+  /** Whether AI chat mode is active — orthogonal to mode. */
+  aiModeEnabled: boolean;
+
+  /** Which overlay to show: legend (Show), relationship strip (Compare), or none. */
+  displayMode: 'legend' | 'relationship' | null;
 
   /** Root/tonic note of the current pattern. */
   rootNote: string;
@@ -61,6 +70,8 @@ export interface DomainState {
 /** Default initial state. */
 export const DEFAULT_DOMAIN_STATE: DomainState = {
   mode: 'scale',
+  aiModeEnabled: false,
+  displayMode: null,
   rootNote: 'C',
   patternName: 'major',
   fretRange: { min: 0, max: 24 },
