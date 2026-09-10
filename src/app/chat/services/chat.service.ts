@@ -1,5 +1,4 @@
 import { Injectable, inject, signal } from "@angular/core";
-import { ChatOllama } from "@langchain/ollama";
 import { createAgent } from "langchain";
 import { MemorySaver } from "@langchain/langgraph-checkpoint";
 import { HumanMessage } from "@langchain/core/messages";
@@ -17,17 +16,31 @@ export class ChatService {
 
   private threadId = crypto.randomUUID();
 
-  private agent = createAgent({
-    model: new ChatOpenRouter({ model: "deepseek/deepseek-v4-flash", apiKey: "" }),
-    tools: createDomainTools(this.domainService),
-    checkpointer: new MemorySaver(),
-    systemPrompt:
-      "Jesteś pomocnym asystentem gitarzysty. Mów po polsku, krótko i rzeczowo. " +
-      "Gdy użytkownik poprosi o pokazanie skali lub akordu na gryfie, użyj narzędzia show_pattern. " +
-      "Gdy zapyta o interwał, użyj show_interval. " +
-      "Gdy poprosi o wyczyszczenie widoku, użyj clear_view. " +
-      "Po wykonaniu narzędzia powiedz użytkownikowi co zostało pokazane.",
-  });
+  private _agent: ReturnType<typeof createAgent> | null = null;
+
+  private getOrCreateAgent(): ReturnType<typeof createAgent> {
+    if (!this._agent) {
+
+      const apiKey = sessionStorage.getItem('modelApiKey') || window.prompt('Podaj klucz API do modelu AI deepseek-v4-flash');
+      if (!apiKey) {
+        throw new Error(
+          "Brak klucza API. Ustaw go w konsoli devtools: window.modelApiKey = 'twój-klucz'"
+        );
+      }
+      this._agent = createAgent({
+        model: new ChatOpenRouter({ model: "deepseek/deepseek-v4-flash", apiKey }),
+        tools: createDomainTools(this.domainService),
+        checkpointer: new MemorySaver(),
+        systemPrompt:
+          "Jesteś pomocnym asystentem gitarzysty. Mów po polsku, krótko i rzeczowo. " +
+          "Gdy użytkownik poprosi o pokazanie skali lub akordu na gryfie, użyj narzędzia show_pattern. " +
+          "Gdy zapyta o interwał, użyj show_interval. " +
+          "Gdy poprosi o wyczyszczenie widoku, użyj clear_view. " +
+          "Po wykonaniu narzędzia powiedz użytkownikowi co zostało pokazane.",
+      });
+    }
+    return this._agent;
+  }
 
 
   async send(userMessage: string): Promise<void> {
@@ -40,7 +53,7 @@ export class ChatService {
     this.messages.update((m) => [...m, { role: "assistant", text: "", streaming: true }]);
 
     try {
-      const stream = await this.agent.stream(
+      const stream = await this.getOrCreateAgent().stream(
         { messages: [new HumanMessage(userMessage)] },
         { configurable: { thread_id: this.threadId } }
       );
@@ -89,7 +102,7 @@ export class ChatService {
       // If no tokens were streamed, try to extract final message from agent state
       if (!hasTokens) {
         console.log('[ChatService] no tokens streamed, trying fallback extraction');
-        const state = await (this.agent as any).getState({ configurable: { thread_id: this.threadId } });
+        const state = await (this.getOrCreateAgent() as any).getState({ configurable: { thread_id: this.threadId } });
         console.log('[ChatService] agent state:', state);
         const messages = (state as any)?.values?.messages as Array<Record<string, unknown>> | undefined;
         if (messages) {

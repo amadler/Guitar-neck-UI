@@ -26,7 +26,7 @@ describe("ChatService", () => {
 
     service = TestBed.inject(ChatService);
     // Override the private agent field with a mock to avoid real LLM calls
-    (service as any).agent = mockAgent;
+    (service as any)._agent = mockAgent;
   });
 
   describe("reset", () => {
@@ -97,6 +97,28 @@ describe("ChatService", () => {
       expect(service.messages()[2]).toMatchObject({
         role: "assistant",
         text: "Przepraszam, wystąpił błąd. Spróbuj ponownie.",
+      });
+    });
+  
+    describe("missing API key", () => {
+      it("should show error when window.modelApiKey is not set", async () => {
+        // Clear any pre-set _agent so getOrCreateAgent() runs from scratch
+        (service as any)._agent = null;
+        // Ensure no key is on the window
+        const originalKey = window.modelApiKey;
+        (window as any).modelApiKey = undefined;
+  
+        await service.send("hello");
+  
+        expect(service.messages()).toHaveLength(2);
+        expect(service.messages()[0]).toMatchObject({ role: "user", text: "hello" });
+        expect(service.messages()[1]).toMatchObject({
+          role: "assistant",
+          text: "Przepraszam, wystąpił błąd. Spróbuj ponownie.",
+        });
+  
+        // Restore
+        (window as any).modelApiKey = originalKey;
       });
     });
   });

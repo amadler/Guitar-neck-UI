@@ -2,6 +2,8 @@ import { tool } from "langchain/tools";
 import { z } from "zod";
 import { DomainService } from "../../domain/domain.service";
 import { DomainCommand } from "../../domain/commands";
+import { DomainQuery } from "../../domain/queries";
+import { DomainState } from '../../domain/state';
 
 const showPatternSchema = z.object({
   patternType: z.enum(["scale", "chord"]).describe("Typ patternu: 'scale' dla skali, 'chord' dla akordu"),
@@ -81,6 +83,29 @@ export function createDomainTools(domainService: DomainService) {
       {
         name: "clear_view",
         description: "Czyści gryf i resetuje widok do domyślnego stanu",
+        schema: z.object({}),
+      }
+    ),
+
+    tool(
+      async () => {
+        const query: DomainQuery = { type: "get-current-view" };
+        const result = domainService.query<DomainState>(query);
+        if (!result.success) {
+          return { success: false, action: "get-current-view", message: result.message };
+        }
+        return {
+          success: true,
+          action: "get-current-view",
+          mode: result.data.mode,
+          rootNote: result.data.rootNote,
+          patternName: result.data.patternName,
+          message: `Aktualny widok: ${result.data.mode} ${result.data.patternName} (${result.data.rootNote})`,
+        };
+      },
+      {
+        name: "get_current_view",
+        description: "Pobiera aktualny stan widoku gryfu",
         schema: z.object({}),
       }
     ),

@@ -67,6 +67,7 @@ export class DomainService {
   }
 
   private registerQueryHandlers(): void {
+    debugger
     this.queryHandlers.set('get-current-view', (_q) => ({ success: true as const, data: this.currentState() }));
     this.queryHandlers.set('get-available-patterns', (_q) => ({
       success: true as const,
@@ -100,6 +101,7 @@ export class DomainService {
   // ─── Queries ─────────────────────────────────────────────────────────
 
   query<T = unknown>(query: DomainQuery): DomainResult<T> {
+    debugger
     const handler = this.queryHandlers.get(query.type);
     if (!handler) {
       return {
