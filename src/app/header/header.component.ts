@@ -29,7 +29,7 @@ export class HeaderComponent implements OnInit {
   }
 
   toggleAiMode(): void {
-    const current = this.domainService.currentState().mode;
-    this.domainService.execute({ type: 'set-ai-mode', enabled: current !== 'ai' });
+    const enabled = this.domainService.currentState().aiModeEnabled;
+    this.domainService.execute({ type: 'set-ai-mode', enabled: !enabled });
   }
 }

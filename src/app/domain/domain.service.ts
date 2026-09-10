@@ -42,8 +42,6 @@ export class DomainService {
   readonly currentState = this.stateSignal.asReadonly();
   /** Saved marker display mode to restore after Compare mode. */
   private previousMarkerDisplayMode: DomainState['markerDisplayMode'] = 'interval-colors';
-  /** Saved mode to restore after AI mode is toggled off. */
-  private previousMode: DomainState['mode'] = 'scale';
 
   private commandHandlers = new Map<string, CommandHandler>();
   private queryHandlers = new Map<string, QueryHandler>();
@@ -133,6 +131,7 @@ export class DomainService {
     return this.emitState({
       ...this.currentState(),
       mode: patternType === 'scale' ? 'scale' : 'chord',
+      displayMode: 'legend',
       rootNote,
       patternName,
       compareTarget: undefined,
@@ -158,6 +157,7 @@ export class DomainService {
     return this.emitState({
       ...this.currentState(),
       mode: 'custom',
+      displayMode: 'legend',
       rootNote,
       patternName: `interval-${interval}`,
       compareTarget: undefined,
@@ -188,6 +188,7 @@ export class DomainService {
     return this.emitState({
       ...this.currentState(),
       mode: 'scale-chord',
+      displayMode: 'relationship',
       rootNote: primary.rootNote,
       patternName: primary.patternName,
       compareTarget: {
@@ -223,6 +224,7 @@ export class DomainService {
     return this.emitState({
       ...DEFAULT_DOMAIN_STATE,
       enabledStrings: this.currentState().enabledStrings,
+      aiModeEnabled: this.currentState().aiModeEnabled,
     });
   }
 
@@ -248,6 +250,7 @@ export class DomainService {
     return this.emitState({
       ...this.currentState(),
       mode: 'positions',
+      displayMode: 'legend',
       rootNote: result.rootNote ?? this.currentState().rootNote,
       patternName: shapeId,
       compareTarget: undefined,
@@ -264,20 +267,10 @@ export class DomainService {
   }
 
   private handleSetAiMode(command: DomainCommand & { type: 'set-ai-mode' }): DomainResult<DomainState> {
-    if (command.enabled) {
-      // Save current mode before switching to AI mode
-      this.previousMode = this.currentState().mode;
-      return this.emitState({
-        ...this.currentState(),
-        mode: 'ai',
-      });
-    } else {
-      // Restore previous mode
-      return this.emitState({
-        ...this.currentState(),
-        mode: this.previousMode,
-      });
-    }
+    return this.emitState({
+      ...this.currentState(),
+      aiModeEnabled: command.enabled,
+    });
   }
 
   // ─── Query handlers ──────────────────────────────────────────────────

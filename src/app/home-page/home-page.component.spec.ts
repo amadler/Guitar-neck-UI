@@ -52,38 +52,46 @@ describe('HomePageComponent', () => {
         expect(component.displayMode()).toBeNull();
     });
 
+    it('should have aiMode false by default', () => {
+        expect(component.aiMode()).toBe(false);
+    });
+
+    it('should have rangeDisabled false by default', () => {
+        expect(component.rangeDisabled()).toBe(false);
+    });
+
     describe('onToolboxEvent', () => {
-        it('should handle show-pattern command and set legend mode', () => {
+        it('should delegate show-pattern to DomainService and displayMode becomes legend', () => {
             const command: DomainCommand = { type: 'show-pattern', patternType: 'scale', patternName: 'major', rootNote: 'C' };
-            vi.spyOn(domainService, 'execute');
+            vi.spyOn(domainService, 'execute').mockReturnValue({ success: true, data: { ...domainService.currentState(), mode: 'scale', displayMode: 'legend' } });
             component.onToolboxEvent(command);
             expect(domainService.execute).toHaveBeenCalledWith(command);
             expect(component.displayMode()).toBe('legend');
         });
 
-        it('should handle show-interval command and set legend mode', () => {
+        it('should delegate show-interval to DomainService and displayMode becomes legend', () => {
             const command: DomainCommand = { type: 'show-interval', rootNote: 'C', interval: 'b3' };
-            vi.spyOn(domainService, 'execute');
+            vi.spyOn(domainService, 'execute').mockReturnValue({ success: true, data: { ...domainService.currentState(), mode: 'custom', displayMode: 'legend' } });
             component.onToolboxEvent(command);
             expect(domainService.execute).toHaveBeenCalledWith(command);
             expect(component.displayMode()).toBe('legend');
         });
 
-        it('should handle compare-patterns command and set relationship mode', () => {
+        it('should delegate compare-patterns to DomainService and displayMode becomes relationship', () => {
             const command: DomainCommand = {
                 type: 'compare-patterns',
                 primary: { patternType: 'scale', patternName: 'major', rootNote: 'C' },
                 secondary: { patternType: 'chord', patternName: 'major', rootNote: 'C' },
             };
-            vi.spyOn(domainService, 'execute');
+            vi.spyOn(domainService, 'execute').mockReturnValue({ success: true, data: { ...domainService.currentState(), mode: 'scale-chord', displayMode: 'relationship' } });
             component.onToolboxEvent(command);
             expect(domainService.execute).toHaveBeenCalledWith(command);
             expect(component.displayMode()).toBe('relationship');
         });
 
-        it('should handle clear-view command and set null mode', () => {
+        it('should delegate clear-view to DomainService and displayMode becomes null', () => {
             const command: DomainCommand = { type: 'clear-view' };
-            vi.spyOn(domainService, 'execute');
+            vi.spyOn(domainService, 'execute').mockReturnValue({ success: true, data: { ...domainService.currentState(), mode: 'scale', displayMode: null } });
             component.onToolboxEvent(command);
             expect(domainService.execute).toHaveBeenCalledWith(command);
             expect(component.displayMode()).toBeNull();
