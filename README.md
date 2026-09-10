@@ -1,48 +1,46 @@
-# GuitarNeckUI
+# Guitar Neck UI
 
-Angular application for visualizing notes, intervals, scales and chords on a guitar fretboard.
+Educational web application for exploring scales, chords, intervals and their
+relationships directly on a guitar fretboard.
 
-The project uses:
-- **Tonal.js** — local music theory engine (no backend needed)
-- **guitar-neck-shared** — shared models for scales, chords and fretboard configuration
+The fretboard is the central element of the application. The goal is to make
+music theory easier to understand visually and interactively.
 
-Current product focus:
-visualizing relationships between scales and chords on the fretboard.
+## Current product focus
 
+The application currently focuses on:
+
+- displaying scales and chords on the fretboard,
+- visualizing intervals,
+- comparing scales and chords,
+- displaying guitar shapes and fretboard positions,
+- exposing application capabilities through a shared domain API,
+- controlling the fretboard through an AI assistant.
+
+The project is under active development. Some parts of the architecture are
+currently being simplified and should not be treated as final.
 
 ## Stack
 
-- **Angular 18** (standalone components)
-- **TypeScript**, RxJS
-- **Vitest** (tests)
-- **Cloudflare Pages** (deployment)
+- Angular 22
+- TypeScript
+- Angular Signals
+- Vitest for the main application tests
+- Tonal.js for music theory
+- LangChain for the AI agent
+- OpenRouter as the current LLM provider
+- `guitar-neck-shared` for shared fretboard and music pattern data
 
-## External Dependencies
+## Development
 
-| Package                     | Source                          | Description                                           |
-| --------------------------- | ------------------------------- | ----------------------------------------------------- |
-| `guitar-neck-shared` ^1.0.2 | [public npm](https://npmjs.com) | Fretboard config + interval patterns                  |
-| `@tonaljs/tonal` ^4.10.0    | [npm](https://npmjs.com)        | Local music theory engine (scales, chords, intervals) |
-| **Gemini AI** (optional)    | external API                    | AI chat (disabled by feature flag)                    |
+Install dependencies:
+
 
 ## Development
 
 ```bash
 npm install
 npm start                   # frontend on http://localhost:4200
-```
-
-### Environment config
-
-Configuration in [`src/environments/`](src/environments/):
-
-```ts
-// environment.ts (dev)
-export const environment = {
-  production: false,
-  geminiApiKey: '',
-  features: { chatEnabled: false }
-};
 ```
 
 All music theory is computed locally by Tonal.js — no backend required.
@@ -88,39 +86,12 @@ The app is deployed as a **Cloudflare Worker with static assets**. The [`wrangle
 
 Default: `https://guitar-neck-ui.pages.dev`
 
-## Feature flags
 
-| Flag                   | File             | Default | Description                       |
-| ---------------------- | ---------------- | ------- | --------------------------------- |
-| `features.chatEnabled` | `environment.ts` | `false` | Enables/disables AI chat (Gemini) |
-
-## Project structure
-
-```
-src/
-├── app/
-│   ├── home-page/           # Main page (aggregator)
-│   ├── domain/              # Domain contract (commands, queries, state)
-│   ├── guitar-neck/         # Fretboard container
-│   ├── freatboard/          # Fretboard grid (strings x frets)
-│   ├── services/            # Services (state, intervals, notes)
-│   └── shared/              # Models, helpers
-├── environments/            # Environment config
-└── assets/                  # Images, scss
-projects/
-└── guitar-chat/             # AI chat library (feature flagged)
-```
 
 ## Documentation
-
-- [Product overview](PRODUCT_OVERVIEW.md)
-- [Architecture](ARCHITECTURE.md)
-- [API docs](API_DOCUMENTATION.md)
-- [Domain Contract API](docs/api/domain-contract-api.md) — **nowość**: wspólny kontrakt dla Toolbox i AI
-- [ADR 0005 — decyzje architektoniczne](docs/adr/0005-domain-contract-toolbox-ai.md)
 - [Glossary — Ubiquitous Language](docs/glossary.md)
-- [Dev setup](DEVELOPMENT.md)
 - [Backlog](BACKLOG.md)
+- [Changelog](CHANGELOG.md)
 
 ## Live preview
 
