@@ -14,16 +14,16 @@ visualizing relationships between scales and chords on the fretboard.
 
 - **Angular 18** (standalone components)
 - **TypeScript**, RxJS
-- **Karma/Jasmine** (tests)
+- **Vitest** (tests)
 - **Cloudflare Pages** (deployment)
 
 ## External Dependencies
 
-| Package | Source | Description |
-|---|---|---|
-| `guitar-neck-shared` ^1.0.2 | [public npm](https://npmjs.com) | Fretboard config + interval patterns |
-| `@tonaljs/tonal` ^4.10.0 | [npm](https://npmjs.com) | Local music theory engine (scales, chords, intervals) |
-| **Gemini AI** (optional) | external API | AI chat (disabled by feature flag) |
+| Package                     | Source                          | Description                                           |
+| --------------------------- | ------------------------------- | ----------------------------------------------------- |
+| `guitar-neck-shared` ^1.0.2 | [public npm](https://npmjs.com) | Fretboard config + interval patterns                  |
+| `@tonaljs/tonal` ^4.10.0    | [npm](https://npmjs.com)        | Local music theory engine (scales, chords, intervals) |
+| **Gemini AI** (optional)    | external API                    | AI chat (disabled by feature flag)                    |
 
 ## Development
 
@@ -79,10 +79,10 @@ The app is deployed as a **Cloudflare Worker with static assets**. The [`wrangle
 
 ### Environment variables (Cloudflare Pages Secrets)
 
-| Variable | Value |
-|---|---|
+| Variable       | Value   |
+| -------------- | ------- |
 | `geminiApiKey` | (empty) |
-| `chatEnabled` | `false` |
+| `chatEnabled`  | `false` |
 
 ### Domain
 
@@ -90,8 +90,8 @@ Default: `https://guitar-neck-ui.pages.dev`
 
 ## Feature flags
 
-| Flag | File | Default | Description |
-|---|---|---|---|
+| Flag                   | File             | Default | Description                       |
+| ---------------------- | ---------------- | ------- | --------------------------------- |
 | `features.chatEnabled` | `environment.ts` | `false` | Enables/disables AI chat (Gemini) |
 
 ## Project structure

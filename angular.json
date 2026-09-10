@@ -102,39 +102,6 @@
           }
         }
       }
-    },
-    "guitar-chat": {
-      "projectType": "library",
-      "root": "projects/guitar-chat",
-      "sourceRoot": "projects/guitar-chat/src",
-      "prefix": "lib",
-      "architect": {
-        "build": {
-          "builder": "@angular/build:ng-packagr",
-          "options": {
-            "project": "projects/guitar-chat/ng-package.json"
-          },
-          "configurations": {
-            "production": {
-              "tsConfig": "projects/guitar-chat/tsconfig.lib.prod.json"
-            },
-            "development": {
-              "tsConfig": "projects/guitar-chat/tsconfig.lib.json"
-            }
-          },
-          "defaultConfiguration": "production"
-        },
-        "test": {
-          "builder": "@angular/build:karma",
-          "options": {
-            "tsConfig": "projects/guitar-chat/tsconfig.spec.json",
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ]
-          }
-        }
-      }
     }
   },
   "schematics": {
