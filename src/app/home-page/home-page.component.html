@@ -24,13 +24,15 @@
     </div>
 
     <!-- Legend — shown only for Show commands (scale, chord, interval pattern) -->
-    @if (displayMode() === 'legend') {
+    @if (displayMode() === "legend") {
       <app-legend class="fretboard-section__legend"></app-legend>
     }
 
     <!-- Relationship strip — shown only for Compare (scale + chord relation) -->
-    @if (displayMode() === 'relationship') {
-      <app-relationship-strip class="fretboard-section__relationship"></app-relationship-strip>
+    @if (displayMode() === "relationship") {
+      <app-relationship-strip
+        class="fretboard-section__relationship"
+      ></app-relationship-strip>
     }
   </section>
   <!-- END: Fretboard Section -->
@@ -46,8 +48,11 @@
         <app-metronome></app-metronome>
       </div>
     }
-    @if (chatEnabled) {
-      <div class="bottom-panel__chat" [class.bottom-panel__chat--active]="aiMode()">
+    @if (aiMode()) {
+      <div
+        class="bottom-panel__chat"
+        [class.bottom-panel__chat--active]="aiMode()"
+      >
         <app-chat></app-chat>
       </div>
     }

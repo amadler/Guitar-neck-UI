@@ -12,7 +12,7 @@ import { PatternDisplayComponent } from '../pattern-display/pattern-display.comp
 import { MetronomeComponent } from '../metronome/metronome.component';
 import { RelationshipStripComponent } from '../relationship-strip/relationship-strip.component';
 import { ToolboxBuilderComponent } from '../toolbox/toolbox-builder.component';
-import { ChatComponent } from '../chat/chat';
+import { ChatComponent } from '../chat/chat.component';
 
 // TODO: Czy displayMode nie powinno być z DomainState.mode zsynchronizowane?
 export type DisplayMode = 'legend' | 'relationship' | null;
@@ -29,7 +29,7 @@ export type DisplayMode = 'legend' | 'relationship' | null;
     MetronomeComponent,
     RelationshipStripComponent,
     ToolboxBuilderComponent,
-    ChatComponent
+    ChatComponent,
   ],
   templateUrl: './home-page.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -37,8 +37,6 @@ export type DisplayMode = 'legend' | 'relationship' | null;
 })
 export class HomePageComponent {
   private domainService = inject(DomainService);
-
-  chatEnabled = environment.features.chatEnabled;
 
   /** Whether AI chat mode is active — metronome hides, chat gets fixed width. */
   aiMode = computed(() => this.domainService.currentState().mode === 'ai');

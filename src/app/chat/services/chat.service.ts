@@ -6,6 +6,7 @@ import { HumanMessage } from "@langchain/core/messages";
 import { createDomainTools } from "../tools/domain-tools";
 import { DomainService } from "../../domain/domain.service";
 import { ChatMessage } from "../models";
+import { ChatOpenRouter } from '@langchain/openrouter';
 
 @Injectable({ providedIn: "root" })
 export class ChatService {
@@ -17,10 +18,7 @@ export class ChatService {
   private threadId = crypto.randomUUID();
 
   private agent = createAgent({
-    model: new ChatOllama({
-      model: "qwen3:8b",
-      temperature: 0.1,
-    }),
+    model: new ChatOpenRouter({ model: "deepseek/deepseek-v4-flash", apiKey: "" }),
     tools: createDomainTools(this.domainService),
     checkpointer: new MemorySaver(),
     systemPrompt:
@@ -30,6 +28,7 @@ export class ChatService {
       "Gdy poprosi o wyczyszczenie widoku, użyj clear_view. " +
       "Po wykonaniu narzędzia powiedz użytkownikowi co zostało pokazane.",
   });
+
 
   async send(userMessage: string): Promise<void> {
     if (this.loading()) return;

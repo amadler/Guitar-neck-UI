@@ -4,7 +4,6 @@ import { ChatService } from "./services/chat.service";
 
 @Component({
   selector: "app-chat",
-  standalone: true,
   imports: [FormsModule],
   template: `
     <div class="chat">
