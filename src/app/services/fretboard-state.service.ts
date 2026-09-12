@@ -1,84 +1,108 @@
-/* GuitarNeckService zarządza stanem gryfu.*/
+/* FretboardStateService — immutable snapshot store for fretboard rendering state. */
 import { Injectable, inject, signal } from '@angular/core';
 import { GuitarNote } from '../shared/model/guitarNote';
+import { FretboardSnapshot } from '../shared/model/fretboard-snapshot';
 import { MusicSelection } from '../shared/model/music-selection';
+import { FretboardNotePositionService } from './note.service';
 
 /** Dual selection state when both a scale and a chord are displayed. */
 export interface ScaleChordState {
   scale: MusicSelection;
   chord: MusicSelection | null;
 }
-import { FretboardNotePositionService } from './note.service';
 
 @Injectable({ providedIn: 'root' })
 export class FretboardStateService {
   private noteService = inject(FretboardNotePositionService);
-  notes: GuitarNote[];
-  /** Whether there is an active result (notes highlighted/show all) on the fretboard. */
-  readonly hasActiveResult = signal(false);
 
-  /** Unified domain model describing what is currently selected. */
-  readonly currentSelection = signal<MusicSelection | null>(null);
+  /** All possible positions on the fretboard — initialized once via initialize(). */
+  private allPositions: readonly GuitarNote[] = [];
 
-  /** Dual selection state for scale + chord relation. null when no relation is active. */
-  readonly scaleChordState = signal<ScaleChordState | null>(null);
+  /** The single source of truth: current immutable snapshot of rendering state. */
+  readonly currentSnapshot = signal<FretboardSnapshot | null>(null);
 
-  /** O(1) lookup map keyed by "${string}-${fret}". Rebuilt when notes are initialized. */
-  private notesMap: Map<string, GuitarNote> = new Map();
-
-  constructor() {
-    this.notes = this.noteService.getAllPositions();
-    this.buildNotesMap();
+  /**
+   * Initialize the service with all possible fretboard positions.
+   * Called once by GuitarNeckComponent on startup.
+   */
+  initialize(allNotes: readonly GuitarNote[]): void {
+    this.allPositions = allNotes;
   }
 
-  /** Populate the O(1) lookup map from the current notes array. */
-  private buildNotesMap(): void {
-    this.notesMap.clear();
-    this.notes.forEach(note => {
-      const key = `${note.string}-${note.fret}`;
-      this.notesMap.set(key, note);
+  /**
+   * Create a snapshot with the given notes highlighted (visible + selected).
+   * Optionally applies an interval map for interval annotations.
+   * Does NOT set currentSnapshot — the caller (orchestration) does that.
+   */
+  applyHighlightedNotes(
+    notesToShow: readonly GuitarNote[],
+    intervalMap?: Map<string, string>,
+    currentSelection?: MusicSelection | null,
+    scaleChordState?: ScaleChordState | null,
+  ): FretboardSnapshot {
+    return this.buildSnapshot(notesToShow, intervalMap, currentSelection, scaleChordState);
+  }
+
+  /** Create a snapshot with all notes hidden. */
+  hideAllNotes(): FretboardSnapshot {
+    return this.buildSnapshot([], undefined, null, null);
+  }
+
+  /** Create a snapshot with all notes visible (but not selected). */
+  showAll(): FretboardSnapshot {
+    const allNotes = this.allPositions.map(pos => ({
+      string: pos.string,
+      fret: pos.fret,
+      note: pos.note,
+      visible: true,
+      selected: false,
+      interval: '',
+    }));
+    return {
+      notes: allNotes,
+      hasActiveResult: true,
+      currentSelection: null,
+      scaleChordState: null,
+    };
+  }
+
+  /** Clear the fretboard — sets currentSnapshot to null. */
+  clearFretboard(): void {
+    this.currentSnapshot.set(null);
+  }
+
+  /**
+   * Build an immutable FretboardSnapshot from the given parameters.
+   * Private — called by the public API methods above.
+   */
+  private buildSnapshot(
+    highlightedNotes: readonly GuitarNote[],
+    intervalMap?: Map<string, string>,
+    currentSelection?: MusicSelection | null,
+    scaleChordState?: ScaleChordState | null,
+  ): FretboardSnapshot {
+    const highlightedSet = new Set(
+      highlightedNotes.map(n => `${n.string}-${n.fret}`)
+    );
+
+    const notes: GuitarNote[] = this.allPositions.map(pos => {
+      const key = `${pos.string}-${pos.fret}`;
+      const isHighlighted = highlightedSet.has(key);
+      return {
+        string: pos.string,
+        fret: pos.fret,
+        note: pos.note,
+        visible: isHighlighted,
+        selected: isHighlighted,
+        interval: intervalMap?.get(key) ?? '',
+      };
     });
-  }
 
-  applyHighlightedNotes(notes: GuitarNote[]): GuitarNote[] {
-    this.notes.forEach(note => {
-      note.visible = false;
-      note.selected = false;
-    });
-
-    notes.forEach(noteToShow => {
-      const key = `${noteToShow.string}-${noteToShow.fret}`;
-      const note = this.notesMap.get(key);
-      if (note) {
-        note.visible = true;
-        note.selected = true;
-      }
-    });
-
-    this.hasActiveResult.set(notes.length > 0);
-
-    return this.notes.filter(note => note.selected);
-  }
-
-  hideAllNotes() {
-    this.notes.forEach(note => note.visible = false);
-  }
-
-  showAll() {
-    this.notes.forEach(note => note.visible = true);
-    this.hasActiveResult.set(true);
-  }
-
-  clearSelection() {
-    this.notes.forEach(note => note.selected = false);
-  }
-
-  clearFretboard() {
-    this.hideAllNotes();
-    this.clearSelection();
-    this.hasActiveResult.set(false);
-    this.currentSelection.set(null);
-    this.scaleChordState.set(null);
-    // Note: enabledStrings are NOT reset here — they persist in DomainState until the user manually toggles them.
+    return {
+      notes,
+      hasActiveResult: highlightedNotes.length > 0,
+      currentSelection: currentSelection ?? null,
+      scaleChordState: scaleChordState ?? null,
+    };
   }
 }

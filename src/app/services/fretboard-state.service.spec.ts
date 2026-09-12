@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi, type MockedObject } from "vitest"
 import { TestBed } from '@angular/core/testing';
 import { FretboardStateService } from './fretboard-state.service';
 import { FretboardNotePositionService } from './note.service';
-import { GuitarNote } from '../shared/model/guitarNote';
+import { GuitarNote, createGuitarNote } from '../shared/model/guitarNote';
 
 describe('GuitarNeckService', () => {
   let service: FretboardStateService;
@@ -11,9 +11,9 @@ describe('GuitarNeckService', () => {
 
   beforeEach(() => {
     mockNotes = [
-      { string: 1, fret: 0, note: 'E', selected: false, interval: '', visible: true },
-      { string: 2, fret: 0, note: 'A', selected: false, interval: '', visible: true },
-      { string: 1, fret: 5, note: 'A', selected: false, interval: '', visible: true }
+      createGuitarNote(1, 0, 'E'),
+      createGuitarNote(2, 0, 'A'),
+      createGuitarNote(1, 5, 'A'),
     ];
 
     noteServiceSpy = {
@@ -30,114 +30,89 @@ describe('GuitarNeckService', () => {
     });
 
     service = TestBed.inject(FretboardStateService);
+    service.initialize(mockNotes);
   });
 
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should initialize notes from NoteService', () => {
-    expect(noteServiceSpy.getAllPositions!).toHaveBeenCalled();
-    expect(service.notes).toEqual(mockNotes);
+  it('should initialize with null snapshot', () => {
+    expect(service.currentSnapshot()).toBeNull();
   });
 
-  it('should build notesMap from constructor for O(1) lookup', () => {
-    const note = (service as any).notesMap.get('1-0');
-    expect(note).toBeDefined();
-    expect(note.note).toBe('E');
-    expect(note.string).toBe(1);
-    expect(note.fret).toBe(0);
-
-    const note2 = (service as any).notesMap.get('2-0');
-    expect(note2).toBeDefined();
-    expect(note2.note).toBe('A');
-    expect(note2.string).toBe(2);
-    expect(note2.fret).toBe(0);
-
-    const note3 = (service as any).notesMap.get('1-5');
-    expect(note3).toBeDefined();
-    expect(note3.note).toBe('A');
-    expect(note3.string).toBe(1);
-    expect(note3.fret).toBe(5);
-  });
-
-  describe('selectNotes', () => {
-    it('should select and make visible specified notes', () => {
+  describe('applyHighlightedNotes', () => {
+    it('should return a snapshot with selected notes visible', () => {
       const notesToSelect = [mockNotes[0]];
-      const selectedNotes = service.applyHighlightedNotes(notesToSelect);
+      const snapshot = service.applyHighlightedNotes(notesToSelect);
 
-      expect(selectedNotes.length).toBe(1);
-      expect(selectedNotes[0].selected).toBe(true);
-      expect(selectedNotes[0].visible).toBe(true);
+      expect(snapshot.hasActiveResult).toBe(true);
+      expect(snapshot.notes.length).toBe(3);
+
+      const selectedNote = snapshot.notes.find(n => n.string === 1 && n.fret === 0);
+      expect(selectedNote).toBeDefined();
+      expect(selectedNote!.visible).toBe(true);
+      expect(selectedNote!.selected).toBe(true);
     });
 
-    it('should deselect and hide unspecified notes', () => {
+    it('should return a snapshot with unselected notes hidden', () => {
       const notesToSelect = [mockNotes[0]];
-      service.applyHighlightedNotes(notesToSelect);
+      const snapshot = service.applyHighlightedNotes(notesToSelect);
 
-      const unselectedNotes = service.notes.filter(note => note !== mockNotes[0]);
+      const unselectedNotes = snapshot.notes.filter(n => n.string !== 1 || n.fret !== 0);
       unselectedNotes.forEach(note => {
         expect(note.selected).toBe(false);
         expect(note.visible).toBe(false);
       });
     });
-  });
 
-  describe('hideAllNotes and showAllNotes', () => {
-    it('should hide all notes', () => {
-      service.hideAllNotes();
-      expect(service.notes.every(note => !note.visible)).toBe(true);
-    });
+    it('should not mutate the original allPositions array', () => {
+      const notesToSelect = [mockNotes[0]];
+      service.applyHighlightedNotes(notesToSelect);
 
-    it('should show all notes', () => {
-      service.hideAllNotes();
-      service.showAll();
-      expect(service.notes.every(note => note.visible)).toBe(true);
+      // Original notes should still have default values
+      expect(mockNotes[0].visible).toBe(true);
+      expect(mockNotes[0].selected).toBe(false);
     });
   });
 
-  describe('removeSelections', () => {
-    it('should remove all selections', () => {
-      service.notes[0].selected = true;
-      service.clearSelection();
-      expect(service.notes.every(note => !note.selected)).toBe(true);
+  describe('hideAllNotes', () => {
+    it('should return a snapshot with all notes hidden', () => {
+      const snapshot = service.hideAllNotes();
+      expect(snapshot.notes.every(note => !note.visible)).toBe(true);
+      expect(snapshot.hasActiveResult).toBe(false);
+    });
+  });
+
+  describe('showAll', () => {
+    it('should return a snapshot with all notes visible', () => {
+      const snapshot = service.showAll();
+      expect(snapshot.notes.every(note => note.visible)).toBe(true);
+      expect(snapshot.hasActiveResult).toBe(true);
     });
   });
 
   describe('clearFretboard', () => {
-    it('should clear notes, selections, and intervals', () => {
-      service.clearFretboard();
+    it('should set currentSnapshot to null', () => {
+      // First set a snapshot
+      const snapshot = service.applyHighlightedNotes([mockNotes[0]]);
+      service.currentSnapshot.set(snapshot);
+      expect(service.currentSnapshot()).not.toBeNull();
 
-      expect(service.notes.every(note => !note.visible)).toBe(true);
-      expect(service.notes.every(note => !note.selected)).toBe(true);
+      // Then clear
+      service.clearFretboard();
+      expect(service.currentSnapshot()).toBeNull();
     });
   });
 
-  describe('hasActiveResult', () => {
-    it('should be false by default', () => {
-      expect(service.hasActiveResult()).toBe(false);
-    });
+  describe('snapshot includes currentSelection and scaleChordState', () => {
+    it('should pass currentSelection and scaleChordState through to snapshot', () => {
+      const selection = { type: 'scale' as const, name: 'major', rootNote: 'C' };
+      const scaleChordState = { scale: selection, chord: null };
+      const snapshot = service.applyHighlightedNotes([mockNotes[0]], undefined, selection, scaleChordState);
 
-    it('should be true after applyHighlightedNotes with notes', () => {
-      service.applyHighlightedNotes([mockNotes[0]]);
-      expect(service.hasActiveResult()).toBe(true);
-    });
-
-    it('should be false after applyHighlightedNotes with empty array', () => {
-      service.applyHighlightedNotes([]);
-      expect(service.hasActiveResult()).toBe(false);
-    });
-
-    it('should be true after showAll', () => {
-      service.showAll();
-      expect(service.hasActiveResult()).toBe(true);
-    });
-
-    it('should be false after clearFretboard', () => {
-      service.applyHighlightedNotes([mockNotes[0]]);
-      expect(service.hasActiveResult()).toBe(true);
-      service.clearFretboard();
-      expect(service.hasActiveResult()).toBe(false);
+      expect(snapshot.currentSelection).toEqual(selection);
+      expect(snapshot.scaleChordState).toEqual(scaleChordState);
     });
   });
 });

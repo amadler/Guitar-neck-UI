@@ -48,7 +48,7 @@ export class LegendComponent {
   }
 
   get hasActiveResult(): boolean {
-    return this.guitarNeckService.hasActiveResult();
+    return this.guitarNeckService.currentSnapshot()?.hasActiveResult ?? false;
   }
 
   get hasRelation(): boolean {

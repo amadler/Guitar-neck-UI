@@ -3,10 +3,22 @@ import { PatternBuilderService } from './pattern-builder.service';
 import { FretboardStateService } from './fretboard-state.service';
 import { FretboardNotePositionService } from './note.service';
 import { beforeEach, describe, expect, it } from 'vitest';
+import { FretboardSnapshot } from '../shared/model/fretboard-snapshot';
 
 describe('PatternBuilderService', () => {
   let service: PatternBuilderService;
   let fretboardState: FretboardStateService;
+
+  /** Helper: set a minimal snapshot so currentSnapshot is not null. */
+  function initSnapshot(): void {
+    const snapshot: FretboardSnapshot = {
+      notes: [],
+      hasActiveResult: false,
+      currentSelection: null,
+      scaleChordState: null,
+    };
+    fretboardState.currentSnapshot.set(snapshot);
+  }
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -18,6 +30,7 @@ describe('PatternBuilderService', () => {
     });
     service = TestBed.inject(PatternBuilderService);
     fretboardState = TestBed.inject(FretboardStateService);
+    initSnapshot();
   });
 
   it('should be created', () => {
@@ -55,17 +68,21 @@ describe('PatternBuilderService', () => {
       expect(service.currentPattern()).toBeNull();
     });
 
-    it('should update fretboardState.currentSelection', () => {
+    it('should update currentSelection in snapshot', () => {
       service.setCurrentPattern('major', 'C', 'scale');
-      expect(fretboardState.currentSelection()).not.toBeNull();
-      expect(fretboardState.currentSelection()!.name).toBe('major');
-      expect(fretboardState.currentSelection()!.rootNote).toBe('C');
+      expect(fretboardState.currentSnapshot()!.currentSelection).not.toBeNull();
+      expect(fretboardState.currentSnapshot()!.currentSelection!.name).toBe('major');
+      expect(fretboardState.currentSnapshot()!.currentSelection!.rootNote).toBe('C');
     });
 
     it('should clear currentSelection when pattern is unknown', () => {
-      fretboardState.currentSelection.set({ type: 'scale', name: 'major', rootNote: 'C' });
+      // First set a selection
+      service.setCurrentPattern('major', 'C', 'scale');
+      expect(fretboardState.currentSnapshot()!.currentSelection).not.toBeNull();
+
+      // Then clear with unknown pattern
       service.setCurrentPattern('nonexistent', 'C', 'scale');
-      expect(fretboardState.currentSelection()).toBeNull();
+      expect(fretboardState.currentSnapshot()!.currentSelection).toBeNull();
     });
   });
 
@@ -99,7 +116,7 @@ describe('PatternBuilderService', () => {
       service.clearCurrentPattern();
       expect(service.currentPattern()).toBeNull();
       expect(service.relatedChord()).toBeNull();
-      expect(fretboardState.currentSelection()).toBeNull();
+      expect(fretboardState.currentSnapshot()!.currentSelection).toBeNull();
     });
   });
 });
