@@ -48,11 +48,17 @@ Guitar Neck UI to interaktywne narzędzie edukacyjne zaprojektowane, aby pomóc 
 
 ## Przepływ Pracy Użytkownika
 
+### Wejście do aplikacji
+1. Nowy użytkownik trafia na **stronę główną** (`/`) z hero sekcją i formularzem konfiguracji AI
+2. Może skonfigurować klucz API i wybrać model AI (opcjonalnie) lub pominąć
+3. Kliknięcie "Save & Enter App" lub "Skip" przenosi do **widoku aplikacji** (`/app`)
+4. Powracający użytkownicy mogą kliknąć logo w headerze, by wrócić do strony głównej i zmienić konfigurację
+
 ### Podstawowe Operacje (tryb scale-or-chord)
-1. Aplikacja startuje od razu z widocznym toolboxem (bez ekranu startowego)
+1. Aplikacja startuje z widocznym **pustym gryfem** — wszystkie nuty są widoczne, żadna nie jest podświetlona
 2. Wybór narzędzia (Show — skala/akord, Compare — skala+akord, Build — custom pattern)
 3. Wybór tonacji i patternu
-4. Kliknięcie przycisku → wizualizacja na gryfie
+4. Kliknięcie przycisku → wizualizacja patternu na gryfie
 5. Interakcja z nutami, przełączanie strun, zmiana zakresu progów
 
 ### Scale-Chord Relation (tryb Compare)

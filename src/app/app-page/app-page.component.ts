@@ -4,8 +4,6 @@ import { DomainService } from '../domain/domain.service';
 import { DomainCommand } from '../domain/commands';
 import { GuitarNeckComponent } from '../guitar-neck/guitar-neck.component';
 import { RangeToolbarComponent } from '../range-toolbar/range-toolbar.component';
-import { environment } from '../../environments/environment';
-import { HeaderComponent } from '../header/header.component';
 import { FooterComponent } from '../footer/footer.component';
 import { LegendComponent } from '../legend/legend.component';
 import { PatternDisplayComponent } from '../pattern-display/pattern-display.component';
@@ -17,11 +15,10 @@ import { ChatComponent } from '../chat/chat.component';
 export type DisplayMode = 'legend' | 'relationship' | null;
 
 @Component({
-  selector: 'app-home-page',
+  selector: 'app-app-page',
   imports: [
     GuitarNeckComponent,
     RangeToolbarComponent,
-    HeaderComponent,
     FooterComponent,
     LegendComponent,
     PatternDisplayComponent,
@@ -30,11 +27,11 @@ export type DisplayMode = 'legend' | 'relationship' | null;
     ToolboxBuilderComponent,
     ChatComponent,
   ],
-  templateUrl: './home-page.component.html',
+  templateUrl: './app-page.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styleUrl: './home-page.component.scss'
+  styleUrl: './app-page.component.scss'
 })
-export class HomePageComponent {
+export class AppPageComponent {
   private domainService = inject(DomainService);
 
   /** Whether AI chat mode is active — metronome hides, chat gets fixed width. */

@@ -33,8 +33,13 @@ describe('GuitarNeckComponent', () => {
 
   it('should initialize the fretboard state service', () => {
     // After construction, the service should have allPositions set
-    // and currentSnapshot should be null (no display action yet)
-    expect(guitarNeckService.currentSnapshot()).toBeNull();
+    // and currentSnapshot should be an empty snapshot (fretboard visible, no notes highlighted)
+    const snapshot = guitarNeckService.currentSnapshot();
+    expect(snapshot).not.toBeNull();
+    expect(snapshot!.hasActiveResult).toBe(false);
+    expect(snapshot!.notes.length).toBeGreaterThan(0);
+    // All notes should be visible=false (not highlighted) on init
+    expect(snapshot!.notes.every(n => n.visible === false)).toBe(true);
   });
 
   it('should render FreatboardComponent', () => {

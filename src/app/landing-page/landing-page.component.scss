@@ -1,0 +1,322 @@
+/* ==========================================================================
+   Landing Page
+   ========================================================================== */
+
+.landing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* --------------------------------------------------------------------------
+   Hero
+   -------------------------------------------------------------------------- */
+
+.hero {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 80px 24px 48px;
+  background: linear-gradient(135deg, var(--md-primary) 0%, var(--md-primary-dim) 100%);
+  color: var(--md-on-primary);
+}
+
+.hero__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 640px;
+}
+
+.hero__brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.hero__icon {
+  font-size: 48px;
+  line-height: 1;
+}
+
+.hero__title {
+  margin: 0;
+  font-family: var(--font-headline), serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.hero__title--light {
+  font-weight: 300;
+  opacity: 0.85;
+}
+
+.hero__tagline {
+  margin: 0;
+  font-size: 1.125rem;
+  line-height: 1.6;
+  opacity: 0.9;
+  max-width: 520px;
+}
+
+/* --------------------------------------------------------------------------
+   Setup Card
+   -------------------------------------------------------------------------- */
+
+.setup {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding: 48px 24px;
+}
+
+.setup__card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: 480px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  padding: 32px;
+}
+
+.setup__heading {
+  margin: 0;
+  font-family: var(--font-headline), serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--app-text);
+}
+
+.setup__desc {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--app-muted);
+}
+
+.setup__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.setup__label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--app-text);
+}
+
+.setup__input,
+.setup__select {
+  width: 100%;
+  padding: 10px 14px;
+  font-family: var(--font-body), sans-serif;
+  font-size: 0.9375rem;
+  color: var(--app-text);
+  background: var(--app-bg);
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-md);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.setup__input:focus,
+.setup__select:focus {
+  border-color: var(--md-primary);
+  box-shadow: 0 0 0 3px rgba(56, 105, 72, 0.15);
+}
+
+.setup__hint {
+  margin: 2px 0 0;
+  font-size: 0.8125rem;
+  color: var(--app-muted);
+}
+
+.setup__hint a {
+  color: var(--md-primary);
+  text-decoration: underline;
+}
+
+.setup__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.setup__saved {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--md-primary);
+  text-align: center;
+}
+
+/* --------------------------------------------------------------------------
+   Buttons
+   -------------------------------------------------------------------------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  font-family: var(--font-body), sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+  text-decoration: none;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn--primary {
+  background: var(--md-primary);
+  color: var(--md-on-primary);
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: var(--md-primary-dim);
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--app-muted);
+  border: 1px solid var(--app-border);
+}
+
+.btn--ghost:hover {
+  background: var(--app-surface-soft);
+  color: var(--app-text);
+}
+
+/* --------------------------------------------------------------------------
+   Features
+   -------------------------------------------------------------------------- */
+
+.features {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 900px;
+  padding: 48px 24px 64px;
+}
+
+.features__heading {
+  margin: 0 0 32px;
+  font-family: var(--font-headline), serif;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--app-text);
+  text-align: center;
+}
+
+.features__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+  width: 100%;
+}
+
+.feature-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 24px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.feature-card:hover {
+  box-shadow: 0 12px 32px rgba(15, 32, 22, 0.12);
+  transform: translateY(-2px);
+}
+
+.feature-card__icon {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.feature-card__title {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: var(--app-text);
+}
+
+.feature-card__desc {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--app-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Footer
+   -------------------------------------------------------------------------- */
+
+.landing-footer {
+  width: 100%;
+  padding: 24px;
+  text-align: center;
+  font-size: 0.8125rem;
+  color: var(--app-muted);
+  border-top: 1px solid var(--app-border);
+}
+
+.landing-footer p {
+  margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 600px) {
+  .hero {
+    padding: 60px 16px 36px;
+  }
+
+  .hero__title {
+    font-size: 1.75rem;
+  }
+
+  .hero__tagline {
+    font-size: 1rem;
+  }
+
+  .setup {
+    padding: 32px 16px;
+  }
+
+  .setup__card {
+    padding: 24px;
+  }
+
+  .features {
+    padding: 32px 16px 48px;
+  }
+
+  .features__grid {
+    grid-template-columns: 1fr;
+  }
+}

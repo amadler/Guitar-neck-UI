@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { HomePageComponent } from './home-page.component';
+import { AppPageComponent } from './app-page.component';
 import { DomainService } from '../domain/domain.service';
 import { FretboardOrchestrationService } from '../services/fretboard-orchestration.service';
 import { PatternBuilderService } from '../services/pattern-builder.service';
@@ -12,14 +12,14 @@ import { MarkerRoleService } from '../services/marker-role.service';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { DomainCommand } from '../domain/commands';
 
-describe('HomePageComponent', () => {
-    let component: HomePageComponent;
-    let fixture: ComponentFixture<HomePageComponent>;
+describe('AppPageComponent', () => {
+    let component: AppPageComponent;
+    let fixture: ComponentFixture<AppPageComponent>;
     let domainService: DomainService;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [HomePageComponent],
+            imports: [AppPageComponent],
             providers: [
                 DomainService,
                 FretboardOrchestrationService,
@@ -33,12 +33,12 @@ describe('HomePageComponent', () => {
             ],
             schemas: [NO_ERRORS_SCHEMA],
         })
-            .overrideComponent(HomePageComponent, {
+            .overrideComponent(AppPageComponent, {
             set: { template: '<div></div>', imports: [], schemas: [NO_ERRORS_SCHEMA] },
         })
             .compileComponents();
 
-        fixture = TestBed.createComponent(HomePageComponent);
+        fixture = TestBed.createComponent(AppPageComponent);
         component = fixture.componentInstance;
         domainService = TestBed.inject(DomainService);
         fixture.detectChanges();

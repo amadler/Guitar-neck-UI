@@ -23,6 +23,8 @@ export class GuitarNeckComponent {
   constructor() {
     const allPositions = this.noteService.getAllPositions();
     this.guitarNeckService.initialize(allPositions);
+    // Set an empty snapshot so the fretboard renders (hasSnapshot=true) but shows no highlighted notes.
+    this.guitarNeckService.setSnapshot(this.guitarNeckService.hideAllNotes());
   }
 
   onNoteClicked(note: GuitarNote): void {

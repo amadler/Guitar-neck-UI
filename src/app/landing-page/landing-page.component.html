@@ -1,0 +1,110 @@
+<main class="landing">
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero__content">
+      <div class="hero__brand">
+        <span class="hero__icon">🎸</span>
+        <h1 class="hero__title">Guitar Neck <span class="hero__title--light">UI</span></h1>
+      </div>
+      <p class="hero__tagline">
+        Visualize scales, chords, and intervals directly on the guitar fretboard.
+        Explore music theory in a hands-on way.
+      </p>
+    </div>
+  </section>
+
+  <!-- Setup -->
+  <section class="setup">
+    <div class="setup__card">
+      <h2 class="setup__heading">Configure AI Assistant</h2>
+      <p class="setup__desc">
+        Optional — set up your AI model to get interactive help with scales, chords, and fretboard patterns.
+        You can always change this later from the header.
+      </p>
+
+      <div class="setup__field">
+        <label class="setup__label" for="api-key">API Key</label>
+        <input
+          id="api-key"
+          class="setup__input"
+          type="password"
+          placeholder="Paste your OpenRouter API key…"
+          [ngModel]="apiKey()"
+          (ngModelChange)="apiKey.set($event)"
+        />
+        <p class="setup__hint">
+          Get a free key at <a href="https://openrouter.ai/keys" target="_blank" rel="noopener">openrouter.ai/keys</a>
+        </p>
+      </div>
+
+      <div class="setup__field">
+        <label class="setup__label" for="model-select">Model</label>
+        <select
+          id="model-select"
+          class="setup__select"
+          [ngModel]="selectedModel()"
+          (ngModelChange)="selectedModel.set($event)"
+        >
+          @for (m of models; track m.id) {
+            <option [value]="m.id">{{ m.label }} ({{ m.provider }})</option>
+          }
+        </select>
+      </div>
+
+      <div class="setup__actions">
+        <button class="btn btn--primary" type="button" [disabled]="!apiKey().trim()" (click)="saveAndGo()">
+          Save & Enter App
+        </button>
+        <button class="btn btn--ghost" type="button" (click)="skipSetup()">
+          Skip — use app without AI
+        </button>
+      </div>
+
+      @if (saved()) {
+        <p class="setup__saved">✓ Configuration saved. You can change it anytime from the header.</p>
+      }
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="features">
+    <h2 class="features__heading">What you can do</h2>
+    <div class="features__grid">
+      <div class="feature-card">
+        <span class="feature-card__icon">🎯</span>
+        <h3 class="feature-card__title">Show Notes</h3>
+        <p class="feature-card__desc">Display all notes on the fretboard with proper enharmonic spelling.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-card__icon">🎼</span>
+        <h3 class="feature-card__title">Scales & Chords</h3>
+        <p class="feature-card__desc">Visualize any scale or chord pattern across the entire neck.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-card__icon">🔗</span>
+        <h3 class="feature-card__title">Intervals</h3>
+        <p class="feature-card__desc">Highlight specific intervals from any root note.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-card__icon">🧩</span>
+        <h3 class="feature-card__title">Compare Patterns</h3>
+        <p class="feature-card__desc">Overlay a scale and chord to see how they relate.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-card__icon">🤖</span>
+        <h3 class="feature-card__title">AI Assistant</h3>
+        <p class="feature-card__desc">Ask questions in natural language — the AI controls the fretboard for you.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-card__icon">⏱️</span>
+        <h3 class="feature-card__title">Metronome</h3>
+        <p class="feature-card__desc">Practice with a built-in metronome to build speed and accuracy.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="landing-footer">
+    <p>Guitar Neck UI — Open source tool for guitarists and music learners.</p>
+  </footer>
+</main>

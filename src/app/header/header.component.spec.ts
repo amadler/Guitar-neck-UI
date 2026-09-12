@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PLATFORM_ID } from '@angular/core';
 import { By } from '@angular/platform-browser';
+import { provideRouter, Router } from '@angular/router';
 
 import { HeaderComponent } from './header.component';
 
@@ -12,10 +13,16 @@ describe('HeaderComponent', () => {
     await TestBed.configureTestingModule({
       imports: [HeaderComponent],
       providers: [
-        { provide: PLATFORM_ID, useValue: 'server' }
+        { provide: PLATFORM_ID, useValue: 'server' },
+        provideRouter([
+          { path: 'app', component: HeaderComponent as any },
+        ]),
       ]
     })
     .compileComponents();
+
+    const router = TestBed.inject(Router);
+    await router.navigate(['/app']);
 
     fixture = TestBed.createComponent(HeaderComponent);
     component = fixture.componentInstance;

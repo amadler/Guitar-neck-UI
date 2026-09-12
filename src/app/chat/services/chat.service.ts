@@ -7,6 +7,10 @@ import { DomainService } from "../../domain/domain.service";
 import { ChatOpenRouter } from '@langchain/openrouter';
 import { ChatMessage } from "../models";
 
+const API_KEY_STORAGE_KEY = 'modelApiKey';
+const MODEL_STORAGE_KEY = 'modelName';
+const DEFAULT_MODEL = 'deepseek/deepseek-v4-flash';
+
 @Injectable({ providedIn: "root" })
 export class ChatService {
   private domainService = inject(DomainService);
@@ -20,15 +24,17 @@ export class ChatService {
 
   private getOrCreateAgent(): ReturnType<typeof createAgent> {
     if (!this._agent) {
-
-      const apiKey = localStorage.getItem('modelApiKey') || window.prompt('Podaj klucz API do modelu AI deepseek-v4-flash');
+      const apiKey = localStorage.getItem(API_KEY_STORAGE_KEY);
       if (!apiKey) {
         throw new Error(
-          "Brak klucza API. Ustaw go w konsoli devtools: window.modelApiKey = 'twój-klucz'"
+          "Brak klucza API. Skonfiguruj go na stronie głównej lub w localStorage pod kluczem 'modelApiKey'."
         );
       }
+
+      const modelName = localStorage.getItem(MODEL_STORAGE_KEY) || DEFAULT_MODEL;
+
       this._agent = createAgent({
-        model: new ChatOpenRouter({ model: "deepseek/deepseek-v4-flash", apiKey }),
+        model: new ChatOpenRouter({ model: modelName, apiKey }),
         tools: createDomainTools(this.domainService),
         checkpointer: new MemorySaver(),
         systemPrompt:
@@ -48,7 +54,6 @@ export class ChatService {
   }
 
   async send(userMessage: string): Promise<void> {
-
     if (this.loading()) return;
     this.loading.set(true);
     this.messages.update(m => [...m, { role: 'user', text: userMessage }]);
@@ -77,7 +82,6 @@ export class ChatService {
               }
               return msgs;
             });
-
           }
         }
       })(),
