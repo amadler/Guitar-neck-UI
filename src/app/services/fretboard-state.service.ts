@@ -12,7 +12,7 @@ export class FretboardStateService {
   /** Private signal — state can only be updated via setSnapshot() or clearFretboard(). */
   private readonly snapshotSignal = signal<FretboardSnapshot | null>(null);
 
-  /** Public readonly view of the current snapshot. Consumers can read but not write. */
+  /** Single source of truth for fretboard rendering state. Consumers can read but not write. */
   readonly currentSnapshot = this.snapshotSignal.asReadonly();
 
   /**
