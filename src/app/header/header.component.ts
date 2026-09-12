@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, PLATFORM_ID, inject, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, PLATFORM_ID, inject, ChangeDetectionStrategy, signal, ApplicationRef } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
@@ -19,6 +19,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   readonly platformId = inject(PLATFORM_ID);
   readonly domainService = inject(DomainService);
   private readonly router = inject(Router);
+  private readonly appRef = inject(ApplicationRef);
 
   helpModalOpen = false;
 
@@ -35,7 +36,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.routerEventsSub = this.router.events.pipe(
       filter((e): e is NavigationEnd => e instanceof NavigationEnd)
     ).subscribe(e => {
-      this.isLanding.set(this.isRootUrl(e.urlAfterRedirects));
+      this.isLanding.set(this.isRootUrl(e.url));
+      // Force full change detection to ensure the header re-renders
+      this.appRef.tick();
     });
 
     // Only open help modal on the app page, not on landing
