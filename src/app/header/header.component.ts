@@ -1,8 +1,6 @@
-import { Component, OnInit, OnDestroy, PLATFORM_ID, inject, ChangeDetectionStrategy, signal, ApplicationRef } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
-import { Router, RouterLink, NavigationEnd } from '@angular/router';
-import { filter } from 'rxjs/operators';
-import { Subscription } from 'rxjs';
+import { Component, OnInit, OnDestroy, PLATFORM_ID, inject, ChangeDetectionStrategy, signal } from '@angular/core';
+import { isPlatformBrowser, Location } from '@angular/common';
+import { Router, RouterLink } from '@angular/router';
 
 import { DomainService } from '../domain/domain.service';
 
@@ -18,27 +16,22 @@ const STORAGE_KEY = 'guitar-neck-ui-visited';
 export class HeaderComponent implements OnInit, OnDestroy {
   readonly platformId = inject(PLATFORM_ID);
   readonly domainService = inject(DomainService);
-  private readonly router = inject(Router);
-  private readonly appRef = inject(ApplicationRef);
+  private readonly location = inject(Location);
 
   helpModalOpen = false;
 
   /** True when on the landing page — header shows only the brand. */
   readonly isLanding = signal(true);
 
-  private routerEventsSub: Subscription | null = null;
+  private locationSub: (url: string) => void = () => {};
 
   ngOnInit(): void {
-    // Set initial value based on current URL (initial navigation already completed)
-    this.isLanding.set(this.isRootUrl(this.router.url));
+    // Set initial value based on current URL
+    this.isLanding.set(this.isRootUrl(this.location.path()));
 
-    // Subscribe to subsequent navigations
-    this.routerEventsSub = this.router.events.pipe(
-      filter((e): e is NavigationEnd => e instanceof NavigationEnd)
-    ).subscribe(e => {
-      this.isLanding.set(this.isRootUrl(e.url));
-      // Force full change detection to ensure the header re-renders
-      this.appRef.tick();
+    // Listen for URL changes — fires on every navigation
+    this.locationSub = this.location.onUrlChange((url) => {
+      this.isLanding.set(this.isRootUrl(url));
     });
 
     // Only open help modal on the app page, not on landing
@@ -49,7 +42,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.routerEventsSub?.unsubscribe();
+    // Location.onUrlChange cleanup is handled internally
   }
 
   /** Check if a URL path is the root landing page, ignoring trailing slash and query params. */
