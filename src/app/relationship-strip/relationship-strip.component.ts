@@ -46,23 +46,23 @@ export class RelationshipStripComponent {
   legendItems = ROLE_LEGEND;
 
   get hasRelation(): boolean {
-    return this.fretboardState.scaleChordState()?.chord != null;
+    return this.fretboardState.currentSnapshot()?.scaleChordState?.chord != null;
   }
 
   get scaleName(): string {
-    return this.fretboardState.scaleChordState()?.scale.name ?? '';
+    return this.fretboardState.currentSnapshot()?.scaleChordState?.scale.name ?? '';
   }
 
   get scaleRoot(): string {
-    return this.fretboardState.scaleChordState()?.scale.rootNote ?? '';
+    return this.fretboardState.currentSnapshot()?.scaleChordState?.scale.rootNote ?? '';
   }
 
   get chordName(): string {
-    return this.fretboardState.scaleChordState()?.chord?.name ?? '';
+    return this.fretboardState.currentSnapshot()?.scaleChordState?.chord?.name ?? '';
   }
 
   get chordRoot(): string {
-    return this.fretboardState.scaleChordState()?.chord?.rootNote ?? '';
+    return this.fretboardState.currentSnapshot()?.scaleChordState?.chord?.rootNote ?? '';
   }
 
   get chordTonesInScale(): string[] {

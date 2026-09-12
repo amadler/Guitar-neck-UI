@@ -59,7 +59,7 @@ export class MarkerRoleService {
    * are returned — preserving backward-compatible behaviour.
    */
   computeRoles(
-    notes: GuitarNote[],
+    notes: readonly GuitarNote[],
     scaleSelection: MusicSelection,
     chordSelection: MusicSelection | null,
   ): Map<string, MarkerRole> {

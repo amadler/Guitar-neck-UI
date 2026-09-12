@@ -48,8 +48,10 @@ export class FretboardDisplayService {
   }
 
   getMarkerCssClass(interval: string | undefined): string {
+    const snapshot = this.guitarNeckService.currentSnapshot();
+
     // When a chord relation is active, use role-based coloring instead of interval colors
-    if (this.guitarNeckService.scaleChordState()?.chord) {
+    if (snapshot?.scaleChordState?.chord) {
       return '';
     }
 
@@ -76,11 +78,12 @@ export class FretboardDisplayService {
   }
 
   getActiveIntervals(): string[] {
-    const intervalSet = new Set<string>();
-    if (!this.guitarNeckService.hasActiveResult) {
+    const snapshot = this.guitarNeckService.currentSnapshot();
+    if (!snapshot || !snapshot.hasActiveResult) {
       return [];
     }
-    this.guitarNeckService.notes.forEach(note => {
+    const intervalSet = new Set<string>();
+    snapshot.notes.forEach(note => {
       if (note.selected && note.interval) {
         intervalSet.add(note.interval);
       }
@@ -92,7 +95,8 @@ export class FretboardDisplayService {
 
   /** Returns the role CSS class for a note at a given position, or empty string. */
   getRoleCssClass(stringIndex: number, fret: number): string {
-    if (!this.guitarNeckService.scaleChordState()) {
+    const snapshot = this.guitarNeckService.currentSnapshot();
+    if (!snapshot?.scaleChordState) {
       return '';
     }
     const key = `${stringIndex}-${fret}`;
@@ -106,6 +110,6 @@ export class FretboardDisplayService {
 
   /** Returns true if there is an active scale+chord relation. */
   get hasRelation(): boolean {
-    return this.guitarNeckService.scaleChordState() !== null;
+    return !!this.guitarNeckService.currentSnapshot()?.scaleChordState;
   }
 }

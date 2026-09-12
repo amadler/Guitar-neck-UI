@@ -7,6 +7,7 @@ import { FretboardNotePositionService } from '../services/note.service';
 import { TonalFacadeService } from '../services/tonal-facade.service';
 import { MusicSelection } from '../shared/model/music-selection';
 import { beforeEach, describe, expect, it } from 'vitest';
+import { FretboardSnapshot } from '../shared/model/fretboard-snapshot';
 
 describe('RelationshipStripComponent', () => {
   let component: RelationshipStripComponent;
@@ -18,6 +19,17 @@ describe('RelationshipStripComponent', () => {
     scale: { type: 'scale', name: 'major', rootNote: 'C' } as MusicSelection,
     chord: { type: 'chord', name: 'major', rootNote: 'C' } as MusicSelection,
   };
+
+  /** Helper: set currentSnapshot with the given scaleChordState. */
+  function setScaleChordState(scaleChordState: any): void {
+    const snapshot: FretboardSnapshot = {
+      notes: [],
+      hasActiveResult: true,
+      currentSelection: null,
+      scaleChordState,
+    };
+    fretboardState.setSnapshot(snapshot);
+  }
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -43,30 +55,30 @@ describe('RelationshipStripComponent', () => {
 
   describe('hasRelation', () => {
     it('should be false when no scale-chord state', () => {
-      fretboardState.scaleChordState.set(null);
+      setScaleChordState(null);
       expect(component.hasRelation).toBe(false);
     });
 
     it('should be true when scale-chord state has chord', () => {
-      fretboardState.scaleChordState.set(mockScaleChordState as any);
+      setScaleChordState(mockScaleChordState);
       expect(component.hasRelation).toBe(true);
     });
 
     it('should be false when chord is null', () => {
-      fretboardState.scaleChordState.set({ scale: mockScaleChordState.scale, chord: null } as any);
+      setScaleChordState({ scale: mockScaleChordState.scale, chord: null });
       expect(component.hasRelation).toBe(false);
     });
   });
 
   describe('scaleName and scaleRoot', () => {
     it('should return empty when no state', () => {
-      fretboardState.scaleChordState.set(null);
+      setScaleChordState(null);
       expect(component.scaleName).toBe('');
       expect(component.scaleRoot).toBe('');
     });
 
     it('should return scale info when state exists', () => {
-      fretboardState.scaleChordState.set(mockScaleChordState as any);
+      setScaleChordState(mockScaleChordState);
       expect(component.scaleName).toBe('major');
       expect(component.scaleRoot).toBe('C');
     });
@@ -74,13 +86,13 @@ describe('RelationshipStripComponent', () => {
 
   describe('chordName and chordRoot', () => {
     it('should return empty when chord is null', () => {
-      fretboardState.scaleChordState.set({ scale: mockScaleChordState.scale, chord: null } as any);
+      setScaleChordState({ scale: mockScaleChordState.scale, chord: null });
       expect(component.chordName).toBe('');
       expect(component.chordRoot).toBe('');
     });
 
     it('should return chord info when chord exists', () => {
-      fretboardState.scaleChordState.set(mockScaleChordState as any);
+      setScaleChordState(mockScaleChordState);
       expect(component.chordName).toBe('major');
       expect(component.chordRoot).toBe('C');
     });
@@ -88,23 +100,21 @@ describe('RelationshipStripComponent', () => {
 
   describe('chordTonesInScale', () => {
     it('should return empty array when no relation', () => {
-      fretboardState.scaleChordState.set(null);
+      setScaleChordState(null);
       expect(component.chordTonesInScale).toEqual([]);
     });
 
     it('should compute chord tones that are in the scale — C major chord in C major scale', () => {
-      fretboardState.scaleChordState.set(mockScaleChordState as any);
+      setScaleChordState(mockScaleChordState);
       // C major chord: C, E, G → all in C major scale
       expect(component.chordTonesInScale).toEqual(['C', 'E', 'G']);
     });
 
     it('should compute partial overlap — F major chord in C major scale', () => {
-      fretboardState.scaleChordState.set(
-        {
-          scale: { type: 'scale', name: 'major', rootNote: 'C' },
-          chord: { type: 'chord', name: 'major', rootNote: 'F' },
-        } as any
-      );
+      setScaleChordState({
+        scale: { type: 'scale', name: 'major', rootNote: 'C' },
+        chord: { type: 'chord', name: 'major', rootNote: 'F' },
+      });
       // F major chord: F, A, C → all in C major scale
       expect(component.chordTonesInScale).toEqual(['A', 'C', 'F']);
     });
@@ -112,20 +122,20 @@ describe('RelationshipStripComponent', () => {
 
   describe('chordTonesOutsideScale', () => {
     it('should return empty array when no relation', () => {
-      fretboardState.scaleChordState.set(null);
+      setScaleChordState(null);
       expect(component.chordTonesOutsideScale).toEqual([]);
     });
 
     it('should return empty for C major chord in C major scale', () => {
-      fretboardState.scaleChordState.set(mockScaleChordState as any);
+      setScaleChordState(mockScaleChordState);
       expect(component.chordTonesOutsideScale).toEqual([]);
     });
 
     it('should detect outside tones for non-diatonic chord', () => {
-      fretboardState.scaleChordState.set({
+      setScaleChordState({
         scale: { type: 'scale', name: 'major', rootNote: 'C' },
         chord: { type: 'chord', name: 'diminished', rootNote: 'C' },
-      } as any);
+      });
       // C diminished = C, D#, F# → D# and F# are not in C major
       const outside = component.chordTonesOutsideScale;
       expect(outside).toContain('D#');
@@ -135,7 +145,7 @@ describe('RelationshipStripComponent', () => {
   });
 
   it('should render legend items', () => {
-    fretboardState.scaleChordState.set(mockScaleChordState as any);
+    setScaleChordState(mockScaleChordState);
     fixture.detectChanges();
 
     const legendDots = fixture.debugElement.queryAll(By.css('[class*="rel-legend__dot"]'));

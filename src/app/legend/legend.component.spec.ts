@@ -7,6 +7,7 @@ import { FretboardStateService } from '../services/fretboard-state.service';
 import { FretboardDisplayService } from '../services/fretboard-display.service';
 import { DomainService } from '../domain/domain.service';
 import { signal } from "@angular/core";
+import { FretboardSnapshot } from "../shared/model/fretboard-snapshot";
 
 describe('LegendComponent', () => {
   let component: LegendComponent;
@@ -14,6 +15,17 @@ describe('LegendComponent', () => {
   let guitarNeckService: FretboardStateService;
   let domainService: Partial<MockedObject<DomainService>>;
   let mockState: any;
+
+  /** Helper to set hasActiveResult via snapshot. */
+  function setHasActiveResult(value: boolean): void {
+    const snapshot: FretboardSnapshot = {
+      notes: [],
+      hasActiveResult: value,
+      currentSelection: null,
+      scaleChordState: null,
+    };
+    guitarNeckService.setSnapshot(snapshot);
+  }
 
   beforeEach(async () => {
     mockState = {
@@ -94,13 +106,13 @@ describe('LegendComponent', () => {
     }
 
     it('should be disabled when hasActiveResult is false', () => {
-      guitarNeckService.hasActiveResult.set(false);
+      setHasActiveResult(false);
       fixture.detectChanges();
       expect(getSelect().disabled).toBe(true);
     });
 
     it('should be enabled when hasActiveResult is true', () => {
-      guitarNeckService.hasActiveResult.set(true);
+      setHasActiveResult(true);
       fixture.detectChanges();
       expect(getSelect().disabled).toBe(false);
     });

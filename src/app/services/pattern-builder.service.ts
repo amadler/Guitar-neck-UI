@@ -3,6 +3,7 @@ import { neckConfig, CHORD_PATTERNS, SCALE_PATTERNS } from 'guitar-neck-shared';
 import { PatternInfo } from '../shared/model/patternInfo';
 import { MusicSelection } from '../shared/model/music-selection';
 import { FretboardStateService } from './fretboard-state.service';
+import { FretboardSnapshot } from '../shared/model/fretboard-snapshot';
 import { resolveNotesFromIntervals } from '../shared/pattern-resolver';
 import { INTERVAL_CONFIG } from '../shared/tonal-adapter';
 
@@ -17,19 +18,31 @@ export class PatternBuilderService {
   readonly currentPattern = signal<PatternInfo | null>(null);
   /** Chord pattern info when a scale+chord relation is active. */
   readonly relatedChord = signal<PatternInfo | null>(null);
+
+  /** Helper: set currentSelection on the snapshot. */
+  private setCurrentSelection(selection: MusicSelection | null): void {
+    const current = this.fretboardState.currentSnapshot();
+    if (current) {
+      this.fretboardState.setSnapshot({
+        ...current,
+        currentSelection: selection,
+      });
+    }
+  }
+
   setCurrentPattern(patternName: string, rootNote: string, type: 'scale' | 'chord'): void {
     const patterns = type === 'scale' ? SCALE_PATTERNS : CHORD_PATTERNS;
     const pattern = patterns.find(p => p.name === patternName);
     if (!pattern) {
       this.currentPattern.set(null);
-      this.fretboardState.currentSelection.set(null);
+      this.setCurrentSelection(null);
       return;
     }
 
     const rootIndex = neckConfig.chromaticNotes.indexOf(rootNote);
     if (rootIndex === -1) {
       this.currentPattern.set(null);
-      this.fretboardState.currentSelection.set(null);
+      this.setCurrentSelection(null);
       return;
     }
 
@@ -47,7 +60,7 @@ export class PatternBuilderService {
     });
 
     this.currentPattern.set({ name: patternName, rootNote, type, notes, intervals, semitones, steps });
-    this.fretboardState.currentSelection.set(
+    this.setCurrentSelection(
       {
         type,
         name: patternName,
@@ -99,6 +112,6 @@ export class PatternBuilderService {
   clearCurrentPattern(): void {
     this.currentPattern.set(null);
     this.relatedChord.set(null);
-    this.fretboardState.currentSelection.set(null);
+    this.setCurrentSelection(null);
   }
 }

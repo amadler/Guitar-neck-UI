@@ -18,13 +18,11 @@ export class GuitarNeckComponent {
   private guitarNeckService = inject(FretboardStateService);
 
   neckConfig = neckConfig;
-  guitarNotes: GuitarNote[];
   @ViewChild(FreatboardComponent) freatboardComponent!: FreatboardComponent;
 
   constructor() {
-    this.guitarNotes = this.noteService.getAllPositions();
-    this.guitarNeckService.notes = this.guitarNotes;
-    this.guitarNeckService.hideAllNotes();
+    const allPositions = this.noteService.getAllPositions();
+    this.guitarNeckService.initialize(allPositions);
   }
 
   onNoteClicked(note: GuitarNote): void {

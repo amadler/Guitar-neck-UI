@@ -1,5 +1,5 @@
-import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectionStrategy, inject, input, output } from '@angular/core';
-import { GuitarNote } from '../shared/model/guitarNote';
+import { Component, EventEmitter, Output, ChangeDetectionStrategy, inject, output } from '@angular/core';
+import type { GuitarNote } from '../shared/model/guitarNote';
 import { DomainService } from '../domain/domain.service';
 import { FretboardStateService } from '../services/fretboard-state.service';
 import { FretboardNoteQueryService } from '../services/fretboard-note-query.service';
@@ -15,13 +15,12 @@ import { StringToggleComponent } from '../string-toggle/string-toggle.component'
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./freatboard.component.scss']
 })
-export class FreatboardComponent implements OnInit {
+export class FreatboardComponent {
   private domainService = inject(DomainService);
   private guitarNeckService = inject(FretboardStateService);
   private noteQueryService = inject(FretboardNoteQueryService);
   private displayService = inject(FretboardDisplayService);
 
-  notes = input.required<GuitarNote[]>();
   onNoteClicked$ = output<GuitarNote>();
   strings: string[] = [];
   frets: number[] = [];
@@ -31,10 +30,9 @@ export class FreatboardComponent implements OnInit {
     this.frets = Array.from({ length: neckConfig.numberOfFrets }, (_, i) => i + 1);
   }
 
-  ngOnInit(): void {
-    if (this.notes) {
-      this.guitarNeckService.notes = this.notes();
-    }
+  /** Returns true when the fretboard has been initialized with a snapshot. */
+  get hasSnapshot(): boolean {
+    return this.guitarNeckService.currentSnapshot() !== null;
   }
 
   get fretRange() {
@@ -102,7 +100,7 @@ export class FreatboardComponent implements OnInit {
     }
   }
 
-  protected getNote(stringIndex: number, fret: number): GuitarNote | undefined {
+  protected getNote(stringIndex: number, fret: number) {
     return this.noteQueryService.getNote(stringIndex, fret);
   }
 

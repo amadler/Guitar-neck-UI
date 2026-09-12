@@ -3,7 +3,7 @@
  **/
 
 import { Injectable } from '@angular/core';
-import { GuitarNote } from '../shared/model/guitarNote';
+import { GuitarNote, createGuitarNote } from '../shared/model/guitarNote';
 import { neckConfig } from 'guitar-neck-shared';
 import { noteToChroma } from '../shared/note-utils';
 
@@ -23,7 +23,7 @@ export class FretboardNotePositionService {
       const openNote = this.guitarStrings[stringIndex];
       for (let fretIndex = 0; fretIndex <= this.fretsCount; fretIndex++) {
         const note = this.calculateNoteOnFret(openNote, fretIndex);
-        const guitarNote = new GuitarNote(
+        const guitarNote = createGuitarNote(
           stringIndex + 1,
           fretIndex,
           note

@@ -107,4 +107,9 @@ export class ChatService {
       return msgs;
     });
   }
+
+  reset(): void {
+    this.messages.set([]);
+    this.config = { configurable: { thread_id: crypto.randomUUID() } };
+  }
 }

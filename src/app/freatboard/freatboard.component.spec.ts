@@ -10,6 +10,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { neckConfig } from 'guitar-neck-shared';
 import { signal } from '@angular/core';
+import { FretboardSnapshot } from '../shared/model/fretboard-snapshot';
 
 describe('FreatboardComponent', () => {
   let component: FreatboardComponent;
@@ -18,6 +19,20 @@ describe('FreatboardComponent', () => {
   let noteService: FretboardNotePositionService;
   let domainService: Partial<MockedObject<DomainService>>;
   let mockState: any;
+
+  /** Set up a basic snapshot so the fretboard renders. */
+  function initSnapshot(): void {
+    const snapshot: FretboardSnapshot = {
+      notes: [
+        { string: 1, fret: 0, note: 'E', visible: true, selected: false, interval: '' },
+        { string: 2, fret: 1, note: 'F', visible: true, selected: true, interval: 'root' },
+      ],
+      hasActiveResult: true,
+      currentSelection: null,
+      scaleChordState: null,
+    };
+    guitarNeckService.setSnapshot(snapshot);
+  }
 
   beforeEach(async () => {
     mockState = {
@@ -47,10 +62,7 @@ describe('FreatboardComponent', () => {
     component = fixture.componentInstance;
     guitarNeckService = TestBed.inject(FretboardStateService);
     noteService = TestBed.inject(FretboardNotePositionService);
-    fixture.componentRef.setInput('notes', [
-      { string: 1, fret: 0, note: 'E', selected: false, interval: '', visible: true },
-      { string: 2, fret: 1, note: 'F', selected: true, interval: 'root', visible: true },
-    ]);
+    initSnapshot();
     fixture.detectChanges();
   });
 

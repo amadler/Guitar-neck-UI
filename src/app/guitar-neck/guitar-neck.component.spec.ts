@@ -4,7 +4,7 @@ import { FretboardNotePositionService } from '../services/note.service';
 import { GuitarNeckComponent } from './guitar-neck.component';
 import { FreatboardComponent } from '../freatboard/freatboard.component';
 import { By } from '@angular/platform-browser';
-import { GuitarNote } from '../shared/model/guitarNote';
+import { GuitarNote, createGuitarNote } from '../shared/model/guitarNote';
 import { vi } from 'vitest';
 describe('GuitarNeckComponent', () => {
   let component: GuitarNeckComponent;
@@ -24,10 +24,6 @@ describe('GuitarNeckComponent', () => {
     component = fixture.componentInstance;
     guitarNeckService = TestBed.inject(FretboardStateService);
     noteService = TestBed.inject(FretboardNotePositionService);
-    component.guitarNotes = [
-      { string: 1, fret: 0, note: 'E', selected: false, interval: '', visible: true },
-      { string: 2, fret: 1, note: 'F', selected: true, interval: 'root', visible: true },
-    ];
     fixture.detectChanges();
   });
 
@@ -35,8 +31,10 @@ describe('GuitarNeckComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should initialize guitarNotes correctly', () => {
-    expect(component.guitarNotes.length).toBeGreaterThan(1);
+  it('should initialize the fretboard state service', () => {
+    // After construction, the service should have allPositions set
+    // and currentSnapshot should be null (no display action yet)
+    expect(guitarNeckService.currentSnapshot()).toBeNull();
   });
 
   it('should render FreatboardComponent', () => {
@@ -46,7 +44,7 @@ describe('GuitarNeckComponent', () => {
 
   it('should call onNoteClicked when a note is clicked in FreatboardComponent', () => {
     vi.spyOn(component, 'onNoteClicked').mockReturnValue(undefined);
-    const note: GuitarNote = { string: 1, fret: 0, note: 'E', selected: false, interval: '', visible: true };
+    const note: GuitarNote = createGuitarNote(1, 0, 'E');
     const freatboardElement = fixture.debugElement.query(By.directive(FreatboardComponent));
     const freatboardComponent = freatboardElement.componentInstance;
 

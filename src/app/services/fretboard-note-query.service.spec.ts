@@ -5,12 +5,33 @@ import { FretboardStateService } from './fretboard-state.service';
 import { FretboardNotePositionService } from './note.service';
 import { DomainService } from '../domain/domain.service';
 import { signal } from "@angular/core";
+import { FretboardSnapshot } from "../shared/model/fretboard-snapshot";
 
 describe('FretboardNoteQueryService', () => {
   let service: FretboardNoteQueryService;
   let guitarNeckService: FretboardStateService;
   let domainService: Partial<MockedObject<DomainService>>;
   let mockState: any;
+
+  /** Helper: set currentSnapshot with notes that have the given visibility. */
+  function setNotesWithVisibility(
+    notes: Array<{ string: number; fret: number; note: string; visible: boolean }>
+  ): void {
+    const snapshot: FretboardSnapshot = {
+      notes: notes.map(n => ({
+        string: n.string,
+        fret: n.fret,
+        note: n.note,
+        visible: n.visible,
+        selected: false,
+        interval: '',
+      })),
+      hasActiveResult: notes.some(n => n.visible),
+      currentSelection: null,
+      scaleChordState: null,
+    };
+    guitarNeckService.setSnapshot(snapshot);
+  }
 
   beforeEach(() => {
     mockState = {
@@ -42,30 +63,40 @@ describe('FretboardNoteQueryService', () => {
 
   describe('isNoteOnFret', () => {
     it('should return true when a visible note exists at the position', () => {
-      // Set up a known note: string 1, fret 0 is visible
-      const note = guitarNeckService.notes.find(n => n.string === 1 && n.fret === 0)!;
-      note.visible = true;
+      setNotesWithVisibility([
+        { string: 1, fret: 0, note: 'E', visible: true },
+      ]);
       expect(service.isNoteOnFret(0, 0)).toBe(true);
     });
 
     it('should return false when the string is inactive', () => {
+      setNotesWithVisibility([
+        { string: 1, fret: 0, note: 'E', visible: true },
+      ]);
       mockState.enabledStrings[0] = false;
       expect(service.isNoteOnFret(0, 0)).toBe(false);
     });
 
     it('should return false when no note exists at the position', () => {
+      setNotesWithVisibility([
+        { string: 1, fret: 0, note: 'E', visible: true },
+      ]);
       expect(service.isNoteOnFret(99, 99)).toBe(false);
     });
 
     it('should return false when the note is not visible', () => {
-      const note = guitarNeckService.notes.find(n => n.string === 1 && n.fret === 0)!;
-      note.visible = false;
+      setNotesWithVisibility([
+        { string: 1, fret: 0, note: 'E', visible: false },
+      ]);
       expect(service.isNoteOnFret(0, 0)).toBe(false);
     });
   });
 
   describe('getNote', () => {
     it('should return the note at a given position', () => {
+      setNotesWithVisibility([
+        { string: 1, fret: 0, note: 'E', visible: true },
+      ]);
       const note = service.getNote(0, 0);
       expect(note).toBeDefined();
       expect(note!.string).toBe(1);
@@ -73,37 +104,49 @@ describe('FretboardNoteQueryService', () => {
     });
 
     it('should return undefined for non-existent position', () => {
+      setNotesWithVisibility([
+        { string: 1, fret: 0, note: 'E', visible: true },
+      ]);
       expect(service.getNote(99, 99)).toBeUndefined();
     });
 
     it('should return undefined when string is inactive', () => {
+      setNotesWithVisibility([
+        { string: 1, fret: 0, note: 'E', visible: true },
+      ]);
       mockState.enabledStrings[0] = false;
       expect(service.getNote(0, 0)).toBeUndefined();
     });
 
     it('should return undefined when note is not visible', () => {
-      const note = guitarNeckService.notes.find(n => n.string === 1 && n.fret === 0)!;
-      note.visible = false;
+      setNotesWithVisibility([
+        { string: 1, fret: 0, note: 'E', visible: false },
+      ]);
       expect(service.getNote(0, 0)).toBeUndefined();
     });
   });
 
   describe('getNoteName', () => {
     it('should return the note name at a given position', () => {
-      const note = guitarNeckService.notes.find(n => n.string === 1 && n.fret === 0)!;
-      note.visible = true;
-      expect(service.getNoteName(0, 0)).toBe(note.note);
+      setNotesWithVisibility([
+        { string: 1, fret: 0, note: 'E', visible: true },
+      ]);
+      expect(service.getNoteName(0, 0)).toBe('E');
     });
 
     it('should return empty string for non-existent position', () => {
+      setNotesWithVisibility([
+        { string: 1, fret: 0, note: 'E', visible: true },
+      ]);
       expect(service.getNoteName(99, 99)).toBe('');
     });
   });
 
   describe('fretNoteClicked', () => {
     it('should return the note when found', () => {
-      const note = guitarNeckService.notes.find(n => n.string === 1 && n.fret === 0)!;
-      note.visible = true;
+      setNotesWithVisibility([
+        { string: 1, fret: 0, note: 'E', visible: true },
+      ]);
       const result = service.fretNoteClicked(0, 0);
       expect(result).not.toBeNull();
       expect(result!.string).toBe(1);
@@ -111,6 +154,9 @@ describe('FretboardNoteQueryService', () => {
     });
 
     it('should return null when no note at position', () => {
+      setNotesWithVisibility([
+        { string: 1, fret: 0, note: 'E', visible: true },
+      ]);
       expect(service.fretNoteClicked(99, 99)).toBeNull();
     });
   });
