@@ -93,15 +93,18 @@ describe('GuitarNeckService', () => {
   });
 
   describe('clearFretboard', () => {
-    it('should set currentSnapshot to null', () => {
+    it('should set an empty snapshot (not null) so the fretboard stays rendered', () => {
       // First set a snapshot
       const snapshot = service.applyHighlightedNotes([mockNotes[0]]);
       service.setSnapshot(snapshot);
       expect(service.currentSnapshot()).not.toBeNull();
+      expect(service.currentSnapshot()!.hasActiveResult).toBe(true);
 
-      // Then clear
+      // Then clear — snapshot should still exist but be empty
       service.clearFretboard();
-      expect(service.currentSnapshot()).toBeNull();
+      expect(service.currentSnapshot()).not.toBeNull();
+      expect(service.currentSnapshot()!.hasActiveResult).toBe(false);
+      expect(service.currentSnapshot()!.notes.every(n => n.visible === false)).toBe(true);
     });
   });
 

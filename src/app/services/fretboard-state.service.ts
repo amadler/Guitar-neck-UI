@@ -68,9 +68,9 @@ export class FretboardStateService {
     };
   }
 
-  /** Clear the fretboard — sets currentSnapshot to null. */
+  /** Clear the fretboard — sets an empty snapshot so the fretboard stays rendered but shows no highlighted notes. */
   clearFretboard(): void {
-    this.snapshotSignal.set(null);
+    this.snapshotSignal.set(this.hideAllNotes());
   }
 
   /**

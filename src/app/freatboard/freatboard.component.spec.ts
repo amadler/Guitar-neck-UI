@@ -122,4 +122,22 @@ describe('FreatboardComponent', () => {
     fixture.detectChanges();
     expect(domainService.execute).toHaveBeenCalledWith({ type: 'set-view', enabledStrings: [false, true, true, true, true, true] });
   });
+
+  it('keeps the fretboard rendered after clear-view', () => {
+    // Clear the snapshot as clear-view would do
+    guitarNeckService.clearFretboard();
+    fixture.detectChanges();
+
+    // The fretboard container should still be in the DOM
+    const fretboardEl = fixture.debugElement.query(By.css('.fretboard'));
+    expect(fretboardEl).toBeTruthy();
+
+    // All strings should still be rendered
+    const stringElements = fixture.debugElement.queryAll(By.css('.fretboard__string'));
+    expect(stringElements.length).toBe(component.strings.length);
+
+    // No dots should be highlighted (all visible=false)
+    const selectedDots = fixture.debugElement.queryAll(By.css('.fretboard__dot.selected'));
+    expect(selectedDots.length).toBe(0);
+  });
 });
