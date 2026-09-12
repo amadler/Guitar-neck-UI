@@ -22,6 +22,12 @@ export class ChatService {
 
   private _agent: ReturnType<typeof createAgent> | null = null;
 
+  /** Clear the cached agent so the next send() rebuilds it with fresh config. */
+  resetAgent(): void {
+    this._agent = null;
+    this.config = { configurable: { thread_id: crypto.randomUUID() } };
+  }
+
   private getOrCreateAgent(): ReturnType<typeof createAgent> {
     if (!this._agent) {
       const apiKey = localStorage.getItem(API_KEY_STORAGE_KEY);
@@ -59,57 +65,73 @@ export class ChatService {
     this.messages.update(m => [...m, { role: 'user', text: userMessage }]);
     this.messages.update(m => [...m, { role: 'assistant', text: '', streaming: true }]);
 
-    const stream = await this.getOrCreateAgent().streamEvents(
-      {
-        messages: [
-          new HumanMessage(userMessage),
-        ],
-      },
-      { ...this.config, version: "v3" },
-    );
+    try {
+      const agent = this.getOrCreateAgent();
+      const stream = await agent.streamEvents(
+        {
+          messages: [
+            new HumanMessage(userMessage),
+          ],
+        },
+        { ...this.config, version: "v3" },
+      );
 
-    await Promise.all([
-      (async () => {
-        for await (const message of stream.messages) {
-          let accumulated = '';
-          for await (const token of message.text) {
-            accumulated += token;
+      await Promise.all([
+        (async () => {
+          for await (const message of stream.messages) {
+            let accumulated = '';
+            for await (const token of message.text) {
+              accumulated += token;
+              this.messages.update(m => {
+                const msgs = [...m];
+                const last = msgs[msgs.length - 1];
+                if (last?.streaming) {
+                  msgs[msgs.length - 1] = { ...last, text: accumulated };
+                }
+                return msgs;
+              });
+            }
+          }
+        })(),
+        (async () => {
+          for await (const call of stream.toolCalls) {
             this.messages.update(m => {
               const msgs = [...m];
               const last = msgs[msgs.length - 1];
               if (last?.streaming) {
-                msgs[msgs.length - 1] = { ...last, text: accumulated };
+                msgs[msgs.length - 1] = { ...last, text: `🔧 Używam narzędzia: ${call.name}...` };
               }
               return msgs;
             });
+            await call.output;
           }
-        }
-      })(),
-      (async () => {
-        for await (const call of stream.toolCalls) {
-          this.messages.update(m => {
-            const msgs = [...m];
-            const last = msgs[msgs.length - 1];
-            if (last?.streaming) {
-              msgs[msgs.length - 1] = { ...last, text: `🔧 Używam narzędzia: ${call.name}...` };
-            }
-            return msgs;
-          });
-          const result = await call.output;
-          this.loading.set(false);
-        }
-      })(),
-    ]);
+        })(),
+      ]);
 
-    this.messages.update(m => {
-      const msgs = [...m];
-      const last = msgs[msgs.length - 1];
-      if (last?.streaming) {
-        msgs[msgs.length - 1] = { ...last, streaming: false };
-      }
+      this.messages.update(m => {
+        const msgs = [...m];
+        const last = msgs[msgs.length - 1];
+        if (last?.streaming) {
+          msgs[msgs.length - 1] = { ...last, streaming: false };
+        }
+        return msgs;
+      });
+    } catch (err) {
+      // Gracefully handle missing key or agent creation errors
+      const errorMsg = err instanceof Error ? err.message : 'Nieznany błąd';
+      this.messages.update(m => {
+        const msgs = [...m];
+        const last = msgs[msgs.length - 1];
+        if (last?.streaming) {
+          msgs[msgs.length - 1] = { ...last, text: `❌ ${errorMsg}`, streaming: false };
+        } else {
+          msgs.push({ role: 'assistant', text: `❌ ${errorMsg}` });
+        }
+        return msgs;
+      });
+    } finally {
       this.loading.set(false);
-      return msgs;
-    });
+    }
   }
 
   reset(): void {

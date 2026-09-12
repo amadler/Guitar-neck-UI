@@ -1,6 +1,7 @@
 import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { ChatService } from '../chat/services/chat.service';
 
 export interface ModelOption {
   id: string;
@@ -18,6 +19,22 @@ export const MODEL_OPTIONS: ModelOption[] = [
 const API_KEY_STORAGE_KEY = 'modelApiKey';
 const MODEL_STORAGE_KEY = 'modelName';
 
+function getStorageItem(key: string): string | null {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function setStorageItem(key: string, value: string): void {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    // Storage may not be available (SSR, test environment)
+  }
+}
+
 @Component({
   selector: 'app-landing-page',
   imports: [FormsModule],
@@ -27,12 +44,13 @@ const MODEL_STORAGE_KEY = 'modelName';
 })
 export class LandingPageComponent {
   private router = inject(Router);
+  private chatService = inject(ChatService);
 
   readonly models = MODEL_OPTIONS;
 
-  apiKey = signal(localStorage.getItem(API_KEY_STORAGE_KEY) ?? '');
-  selectedModel = signal(localStorage.getItem(MODEL_STORAGE_KEY) ?? MODEL_OPTIONS[0].id);
-  saved = signal(!!localStorage.getItem(API_KEY_STORAGE_KEY));
+  apiKey = signal(getStorageItem(API_KEY_STORAGE_KEY) ?? '');
+  selectedModel = signal(getStorageItem(MODEL_STORAGE_KEY) ?? MODEL_OPTIONS[0].id);
+  saved = signal(!!getStorageItem(API_KEY_STORAGE_KEY));
 
   saveAndGo(): void {
     const key = this.apiKey().trim();
@@ -40,9 +58,12 @@ export class LandingPageComponent {
 
     if (!key) return;
 
-    localStorage.setItem(API_KEY_STORAGE_KEY, key);
-    localStorage.setItem(MODEL_STORAGE_KEY, model);
+    setStorageItem(API_KEY_STORAGE_KEY, key);
+    setStorageItem(MODEL_STORAGE_KEY, model);
     this.saved.set(true);
+
+    // Clear cached agent so next chat uses the new key/model
+    this.chatService.resetAgent();
 
     this.router.navigate(['/app']);
   }

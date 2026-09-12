@@ -38,7 +38,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.isLanding.set(e.url === '/');
     });
 
-    if (isPlatformBrowser(this.platformId) && !localStorage.getItem(STORAGE_KEY)) {
+    // Only open help modal on the app page, not on landing
+    if (isPlatformBrowser(this.platformId) && !this.isLanding() && !localStorage.getItem(STORAGE_KEY)) {
       this.helpModalOpen = true;
       localStorage.setItem(STORAGE_KEY, 'true');
     }

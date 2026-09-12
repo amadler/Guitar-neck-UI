@@ -6,7 +6,6 @@ import { DomainService } from "../../domain/domain.service";
 
 /**
  * Helper: create an async iterable from an array.
- * Used to mock the streamEvents return value.
  */
 async function* asyncIterable<T>(items: T[]): AsyncIterable<T> {
   for (const item of items) {
@@ -23,12 +22,38 @@ async function* textStream(text: string): AsyncIterable<string> {
   }
 }
 
+/**
+ * Minimal localStorage mock for test environments where it's unavailable.
+ */
+function ensureLocalStorage(): void {
+  if (typeof globalThis.localStorage === 'undefined' || typeof globalThis.localStorage.getItem !== 'function') {
+    const store = new Map<string, string>();
+    const mockStorage = {
+      getItem: (key: string) => store.get(key) ?? null,
+      setItem: (key: string, value: string) => { store.set(key, value); },
+      removeItem: (key: string) => { store.delete(key); },
+      clear: () => { store.clear(); },
+      get length() { return store.size; },
+      key: (index: number) => Array.from(store.keys())[index] ?? null,
+    };
+    Object.defineProperty(globalThis, 'localStorage', {
+      value: mockStorage,
+      writable: true,
+      configurable: true,
+    });
+  }
+}
+
 describe("ChatService", () => {
   let service: ChatService;
   let mockDomainService: { execute: ReturnType<typeof vi.fn> };
   let mockAgent: { streamEvents: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
+    ensureLocalStorage();
+    globalThis.localStorage.setItem('modelApiKey', 'sk-test-key');
+    globalThis.localStorage.setItem('modelName', 'deepseek/deepseek-v4-flash');
+
     mockDomainService = {
       execute: vi.fn().mockReturnValue({ success: true, action: "test", message: "ok" }),
     };
@@ -48,6 +73,10 @@ describe("ChatService", () => {
     (service as any)._agent = mockAgent;
   });
 
+  afterEach(() => {
+    globalThis.localStorage.clear();
+  });
+
   describe("reset", () => {
     it("should clear messages and generate a new threadId", () => {
       const initialConfig = { ...(service as any).config };
@@ -60,9 +89,20 @@ describe("ChatService", () => {
     });
   });
 
+  describe("resetAgent", () => {
+    it("should clear cached agent and reset thread", () => {
+      (service as any)._agent = mockAgent;
+      const oldConfig = { ...(service as any).config };
+
+      service.resetAgent();
+
+      expect((service as any)._agent).toBeNull();
+      expect((service as any).config.configurable.thread_id).not.toBe(oldConfig.configurable.thread_id);
+    });
+  });
+
   describe("send", () => {
     it("should set loading to true at start and false at end", async () => {
-      // Mock streamEvents to return empty streams (no messages, no tool calls)
       mockAgent.streamEvents.mockResolvedValue({
         messages: asyncIterable([]),
         toolCalls: asyncIterable([]),
@@ -96,43 +136,44 @@ describe("ChatService", () => {
       });
     });
 
-    it("should propagate error when agent.streamEvents throws", async () => {
+    it("should show error message in chat when agent.streamEvents throws", async () => {
       mockAgent.streamEvents.mockRejectedValue(new Error("Ollama not available"));
 
-      await expect(service.send("hello")).rejects.toThrow("Ollama not available");
+      await service.send("hello");
 
-      // Messages should still be added before the error
       expect(service.messages()).toHaveLength(2);
       expect(service.messages()[0]).toMatchObject({ role: "user", text: "hello" });
-      expect(service.messages()[1]).toMatchObject({ role: "assistant", text: "", streaming: true });
+      expect(service.messages()[1]).toMatchObject({ role: "assistant", streaming: false });
+      expect(service.messages()[1].text).toContain("❌");
+      expect(service.messages()[1].text).toContain("Ollama not available");
+      expect(service.loading()).toBe(false);
     });
 
-    it("should propagate error and preserve existing messages", async () => {
-      // Seed some existing messages
+    it("should show error and preserve existing messages", async () => {
       service.messages.set([{ role: "assistant", text: "Witaj!" }]);
       mockAgent.streamEvents.mockRejectedValue(new Error("Ollama not available"));
 
-      await expect(service.send("hello")).rejects.toThrow("Ollama not available");
+      await service.send("hello");
 
-      // Existing messages preserved, new ones added before error
       expect(service.messages()).toHaveLength(3);
       expect(service.messages()[0]).toMatchObject({ role: "assistant", text: "Witaj!" });
       expect(service.messages()[1]).toMatchObject({ role: "user", text: "hello" });
-      expect(service.messages()[2]).toMatchObject({ role: "assistant", text: "", streaming: true });
+      expect(service.messages()[2]).toMatchObject({ role: "assistant", streaming: false });
+      expect(service.messages()[2].text).toContain("❌");
+      expect(service.loading()).toBe(false);
     });
   
     describe("missing API key", () => {
-      it("should propagate error when no API key is available", async () => {
-        // Clear any pre-set _agent so getOrCreateAgent() runs from scratch
+      it("should show error in chat when no API key is available", async () => {
         (service as any)._agent = null;
-        // Mock localStorage to return null (no key) — Vitest Node env may not have localStorage
-        const getItemSpy = vi.spyOn(globalThis, 'localStorage' as any, 'get').mockReturnValue({
-          getItem: vi.fn().mockReturnValue(null),
-        });
-  
-        await expect(service.send("hello")).rejects.toThrow("Brak klucza API");
-  
-        getItemSpy.mockRestore();
+        globalThis.localStorage.removeItem('modelApiKey');
+
+        await service.send("hello");
+
+        expect(service.messages()).toHaveLength(2);
+        expect(service.messages()[1].text).toContain("❌");
+        expect(service.messages()[1].text).toContain("Brak klucza API");
+        expect(service.loading()).toBe(false);
       });
     });
   });
