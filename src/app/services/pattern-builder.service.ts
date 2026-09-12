@@ -23,7 +23,7 @@ export class PatternBuilderService {
   private setCurrentSelection(selection: MusicSelection | null): void {
     const current = this.fretboardState.currentSnapshot();
     if (current) {
-      this.fretboardState.currentSnapshot.set({
+      this.fretboardState.setSnapshot({
         ...current,
         currentSelection: selection,
       });

@@ -2,7 +2,8 @@ import { beforeEach, describe, expect, it, vi, type MockedObject } from "vitest"
 import { TestBed } from '@angular/core/testing';
 import { FretboardOrchestrationService } from './fretboard-orchestration.service';
 import { FretboardNotePositionService } from './note.service';
-import { FretboardStateService, ScaleChordState } from './fretboard-state.service';
+import { FretboardStateService } from './fretboard-state.service';
+import { ScaleChordState } from '../shared/model/fretboard-snapshot';
 import { MarkerRoleService } from './marker-role.service';
 import { TonalFacadeService } from './tonal-facade.service';
 import { GuitarNote, createGuitarNote } from '../shared/model/guitarNote';
@@ -45,7 +46,10 @@ describe('FretboardOrchestrationService', () => {
     const neckSpy = {
       applyHighlightedNotes: vi.fn().mockName("FretboardStateService.applyHighlightedNotes"),
       clearFretboard: vi.fn().mockName("FretboardStateService.clearFretboard"),
-      currentSnapshot,
+      currentSnapshot: currentSnapshot.asReadonly(),
+      setSnapshot: vi.fn().mockName("FretboardStateService.setSnapshot").mockImplementation(
+        (snapshot: FretboardSnapshot) => currentSnapshot.set(snapshot)
+      ),
     };
     const markerSpy = {
       computeRoles: vi.fn().mockName("MarkerRoleService.computeRoles")

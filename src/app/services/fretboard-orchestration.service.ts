@@ -2,7 +2,8 @@ import { Injectable, inject } from '@angular/core';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { MusicSelection } from '../shared/model/music-selection';
 import { FretboardNotePositionService } from './note.service';
-import { FretboardStateService, ScaleChordState } from './fretboard-state.service';
+import { FretboardStateService } from './fretboard-state.service';
+import { ScaleChordState } from '../shared/model/fretboard-snapshot';
 import { MarkerRoleService } from './marker-role.service';
 import { TonalFacadeService } from './tonal-facade.service';
 
@@ -13,7 +14,7 @@ import { TonalFacadeService } from './tonal-facade.service';
  *           → podświetlenie (FretboardStateService) → interwały/role (MarkerRoleService)
  *
  * All display*() methods now produce an immutable FretboardSnapshot and set it
- * on FretboardStateService.currentSnapshot. They return void.
+ * on FretboardStateService via setSnapshot(). They return void.
  *
  */
 @Injectable({ providedIn: 'root' })
@@ -30,7 +31,7 @@ export class FretboardOrchestrationService {
     const positions = this.noteService.findPositionsByScaleNotes(simplified);
     const intervalMap = this.computeIntervals(rootNote, positions, raw);
     const snapshot = this.guitarNeckService.applyHighlightedNotes(positions, intervalMap, null, null);
-    this.guitarNeckService.currentSnapshot.set(snapshot);
+    this.guitarNeckService.setSnapshot(snapshot);
   }
 
   /** Wyświetla akord na gryfie z oznaczeniem interwałów. */
@@ -40,7 +41,7 @@ export class FretboardOrchestrationService {
     const positions = this.noteService.findPositionsByScaleNotes(simplified);
     const intervalMap = this.computeIntervals(rootNote, positions, raw);
     const snapshot = this.guitarNeckService.applyHighlightedNotes(positions, intervalMap, null, null);
-    this.guitarNeckService.currentSnapshot.set(snapshot);
+    this.guitarNeckService.setSnapshot(snapshot);
   }
 
   /** Clear the fretboard — reset notes, selection, and intervals. */
@@ -54,7 +55,7 @@ export class FretboardOrchestrationService {
     const positions = this.noteService.findPositionsByScaleNotes(notes);
     const intervalMap = this.computeIntervals(rootNote, positions);
     const snapshot = this.guitarNeckService.applyHighlightedNotes(positions, intervalMap, null, null);
-    this.guitarNeckService.currentSnapshot.set(snapshot);
+    this.guitarNeckService.setSnapshot(snapshot);
   }
 
   /**
@@ -66,7 +67,7 @@ export class FretboardOrchestrationService {
     this.clearFretboard();
     const intervalMap = rootNote ? this.computeIntervals(rootNote, positions) : undefined;
     const snapshot = this.guitarNeckService.applyHighlightedNotes(positions, intervalMap, null, null);
-    this.guitarNeckService.currentSnapshot.set(snapshot);
+    this.guitarNeckService.setSnapshot(snapshot);
   }
 
   // ---- Scale + Chord relation ----
@@ -91,7 +92,7 @@ export class FretboardOrchestrationService {
       type: 'chord',
       name: chordName,
       rootNote: chordRoot,
-      notes: simplifiedScaleNotes
+      notes: simplifiedChordNotes, // FIX: was simplifiedScaleNotes — now stores correct chord notes
     };
 
     const scaleSelection: MusicSelection = {
@@ -107,7 +108,7 @@ export class FretboardOrchestrationService {
     };
 
     const snapshot = this.guitarNeckService.applyHighlightedNotes(allPositions, undefined, null, scaleChordState);
-    this.guitarNeckService.currentSnapshot.set(snapshot);
+    this.guitarNeckService.setSnapshot(snapshot);
 
     this.markerRoleService.computeRoles(
       snapshot.notes,

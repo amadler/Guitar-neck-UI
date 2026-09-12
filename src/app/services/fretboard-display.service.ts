@@ -110,6 +110,6 @@ export class FretboardDisplayService {
 
   /** Returns true if there is an active scale+chord relation. */
   get hasRelation(): boolean {
-    return this.guitarNeckService.currentSnapshot()?.scaleChordState !== null;
+    return !!this.guitarNeckService.currentSnapshot()?.scaleChordState;
   }
 }

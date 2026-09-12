@@ -30,7 +30,7 @@ describe('FretboardNoteQueryService', () => {
       currentSelection: null,
       scaleChordState: null,
     };
-    guitarNeckService.currentSnapshot.set(snapshot);
+    guitarNeckService.setSnapshot(snapshot);
   }
 
   beforeEach(() => {

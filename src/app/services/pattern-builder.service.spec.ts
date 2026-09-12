@@ -17,7 +17,7 @@ describe('PatternBuilderService', () => {
       currentSelection: null,
       scaleChordState: null,
     };
-    fretboardState.currentSnapshot.set(snapshot);
+    fretboardState.setSnapshot(snapshot);
   }
 
   beforeEach(() => {

@@ -1,6 +1,11 @@
 import { MusicSelection } from './music-selection';
 import { GuitarNote } from './guitarNote';
-import { ScaleChordState } from '../../services/fretboard-state.service';
+
+/** Dual selection state when both a scale and a chord are displayed. */
+export interface ScaleChordState {
+  scale: MusicSelection;
+  chord: MusicSelection | null;
+}
 
 /**
  * Immutable snapshot of the complete fretboard rendering state at a point in time.

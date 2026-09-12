@@ -24,7 +24,7 @@ describe('FretboardDisplayService', () => {
       scaleChordState: null,
       ...overrides,
     };
-    guitarNeckService.currentSnapshot.set(defaultSnapshot);
+    guitarNeckService.setSnapshot(defaultSnapshot);
   }
 
   beforeEach(() => {

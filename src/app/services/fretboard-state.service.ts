@@ -1,25 +1,19 @@
 /* FretboardStateService — immutable snapshot store for fretboard rendering state. */
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { GuitarNote } from '../shared/model/guitarNote';
-import { FretboardSnapshot } from '../shared/model/fretboard-snapshot';
+import { FretboardSnapshot, ScaleChordState } from '../shared/model/fretboard-snapshot';
 import { MusicSelection } from '../shared/model/music-selection';
-import { FretboardNotePositionService } from './note.service';
-
-/** Dual selection state when both a scale and a chord are displayed. */
-export interface ScaleChordState {
-  scale: MusicSelection;
-  chord: MusicSelection | null;
-}
 
 @Injectable({ providedIn: 'root' })
 export class FretboardStateService {
-  private noteService = inject(FretboardNotePositionService);
-
   /** All possible positions on the fretboard — initialized once via initialize(). */
   private allPositions: readonly GuitarNote[] = [];
 
-  /** The single source of truth: current immutable snapshot of rendering state. */
-  readonly currentSnapshot = signal<FretboardSnapshot | null>(null);
+  /** Private signal — state can only be updated via setSnapshot() or clearFretboard(). */
+  private readonly snapshotSignal = signal<FretboardSnapshot | null>(null);
+
+  /** Public readonly view of the current snapshot. Consumers can read but not write. */
+  readonly currentSnapshot = this.snapshotSignal.asReadonly();
 
   /**
    * Initialize the service with all possible fretboard positions.
@@ -30,9 +24,17 @@ export class FretboardStateService {
   }
 
   /**
+   * Atomically replace the current snapshot.
+   * This is the ONLY way to update the snapshot from outside the service.
+   */
+  setSnapshot(snapshot: FretboardSnapshot): void {
+    this.snapshotSignal.set(snapshot);
+  }
+
+  /**
    * Create a snapshot with the given notes highlighted (visible + selected).
    * Optionally applies an interval map for interval annotations.
-   * Does NOT set currentSnapshot — the caller (orchestration) does that.
+   * Does NOT set currentSnapshot — the caller (orchestration) does that via setSnapshot().
    */
   applyHighlightedNotes(
     notesToShow: readonly GuitarNote[],
@@ -50,7 +52,7 @@ export class FretboardStateService {
 
   /** Create a snapshot with all notes visible (but not selected). */
   showAll(): FretboardSnapshot {
-    const allNotes = this.allPositions.map(pos => ({
+    const allNotes: GuitarNote[] = this.allPositions.map(pos => ({
       string: pos.string,
       fret: pos.fret,
       note: pos.note,
@@ -68,7 +70,7 @@ export class FretboardStateService {
 
   /** Clear the fretboard — sets currentSnapshot to null. */
   clearFretboard(): void {
-    this.currentSnapshot.set(null);
+    this.snapshotSignal.set(null);
   }
 
   /**

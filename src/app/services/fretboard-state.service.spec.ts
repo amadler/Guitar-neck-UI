@@ -96,7 +96,7 @@ describe('GuitarNeckService', () => {
     it('should set currentSnapshot to null', () => {
       // First set a snapshot
       const snapshot = service.applyHighlightedNotes([mockNotes[0]]);
-      service.currentSnapshot.set(snapshot);
+      service.setSnapshot(snapshot);
       expect(service.currentSnapshot()).not.toBeNull();
 
       // Then clear

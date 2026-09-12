@@ -28,7 +28,7 @@ describe('RelationshipStripComponent', () => {
       currentSelection: null,
       scaleChordState,
     };
-    fretboardState.currentSnapshot.set(snapshot);
+    fretboardState.setSnapshot(snapshot);
   }
 
   beforeEach(async () => {
