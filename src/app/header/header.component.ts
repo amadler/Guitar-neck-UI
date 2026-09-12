@@ -29,13 +29,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Set initial value based on current URL (initial navigation already completed)
-    this.isLanding.set(this.router.url === '/');
+    this.isLanding.set(this.isRootUrl(this.router.url));
 
     // Subscribe to subsequent navigations
     this.routerEventsSub = this.router.events.pipe(
       filter((e): e is NavigationEnd => e instanceof NavigationEnd)
     ).subscribe(e => {
-      this.isLanding.set(e.url === '/');
+      this.isLanding.set(this.isRootUrl(e.urlAfterRedirects));
     });
 
     // Only open help modal on the app page, not on landing
@@ -47,6 +47,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.routerEventsSub?.unsubscribe();
+  }
+
+  /** Check if a URL path is the root landing page, ignoring trailing slash and query params. */
+  private isRootUrl(url: string): boolean {
+    const path = url.split('?')[0].replace(/\/$/, '');
+    return path === '' || path === '/';
   }
 
   toggleHelpModal(): void {

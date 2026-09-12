@@ -102,8 +102,7 @@ describe('LandingPageComponent', () => {
   });
 
   describe('restore saved config', () => {
-    it('should have saved=true when localStorage had a key', () => {
-      // The component reads localStorage in signal initializers.
+    it('should default to saved=false when storage is unavailable', () => {
       // In environments without localStorage, getStorageItem returns null,
       // so saved defaults to false. This is acceptable behavior.
       expect(component.saved()).toBe(false);

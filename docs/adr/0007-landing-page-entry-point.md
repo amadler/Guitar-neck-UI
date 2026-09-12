@@ -63,7 +63,7 @@ We will introduce a **Landing Page** at route `/` and move the main application 
 - All models go through OpenRouter — native provider SDKs are not used
 
 **Risks:**
-- If localStorage is cleared, the user sees the landing page again — this is acceptable behavior
+- If localStorage is cleared, the user sees the landing page on next visit to `/` — there is no automatic redirect from `/app`
 - OpenRouter-only approach means all models depend on OpenRouter availability; if OpenRouter is down, no models work
 - If more providers are needed later, `ChatService` will need to support multiple LangChain model classes
 
