@@ -13,6 +13,15 @@
 | **DomainError** | Enum of possible validation failures: `PATTERN_NOT_FOUND`, `INVALID_ROOT_NOTE`, `INVALID_FRET_RANGE`, `INVALID_INTERVAL`, `UNKNOWN_COMMAND`. | Used in `DomainResult`. |
 | **Emphasis** | Optional parameter on commands specifying which intervals or roles to highlight visually. | `{ intervals?: string[]; roles?: string[] }`. Not a separate overlay — part of the command. |
 
+## Landing Page Concepts (new)
+
+| Term | Definition | Notes |
+|------|------------|-------|
+| **Landing Page** | The entry point of the application at route `/`. Shows hero section and setup form before redirecting to the main app. | `LandingPageComponent` at `src/app/landing-page/` |
+| **Adapter** | An AI model provider that the user can select on the landing page. Each adapter has a display name, a storage key, and a LangChain model class. | Stored in `localStorage` under `modelName`. Examples: OpenRouter, OpenAI, Anthropic, Google. |
+| **Setup Form** | The form on the landing page where the user selects an adapter/model and enters their API key. | Part of `LandingPageComponent`. Saves to `localStorage` and redirects to `/app`. |
+| **App Page** | The main application view with the fretboard, toolbox, metronome, and AI chat. Previously called HomePage. | `AppPageComponent` at `src/app/app-page/` (renamed from `home-page/`). |
+
 ## State Fields
 
 | Term | Type | Description |
