@@ -63,7 +63,10 @@ describe('HomePageComponent', () => {
     describe('onToolboxEvent', () => {
         it('should delegate show-pattern to DomainService and displayMode becomes legend', () => {
             const command: DomainCommand = { type: 'show-pattern', patternType: 'scale', patternName: 'major', rootNote: 'C' };
-            vi.spyOn(domainService, 'execute').mockReturnValue({ success: true, data: { ...domainService.currentState(), mode: 'scale', displayMode: 'legend' } });
+            vi.spyOn(domainService, 'execute').mockImplementation((cmd) => {
+                // Call through to real implementation so state actually updates
+                return DomainService.prototype.execute.call(domainService, cmd);
+            });
             component.onToolboxEvent(command);
             expect(domainService.execute).toHaveBeenCalledWith(command);
             expect(component.displayMode()).toBe('legend');
@@ -71,7 +74,9 @@ describe('HomePageComponent', () => {
 
         it('should delegate show-interval to DomainService and displayMode becomes legend', () => {
             const command: DomainCommand = { type: 'show-interval', rootNote: 'C', interval: 'b3' };
-            vi.spyOn(domainService, 'execute').mockReturnValue({ success: true, data: { ...domainService.currentState(), mode: 'custom', displayMode: 'legend' } });
+            vi.spyOn(domainService, 'execute').mockImplementation((cmd) => {
+                return DomainService.prototype.execute.call(domainService, cmd);
+            });
             component.onToolboxEvent(command);
             expect(domainService.execute).toHaveBeenCalledWith(command);
             expect(component.displayMode()).toBe('legend');
@@ -83,7 +88,9 @@ describe('HomePageComponent', () => {
                 primary: { patternType: 'scale', patternName: 'major', rootNote: 'C' },
                 secondary: { patternType: 'chord', patternName: 'major', rootNote: 'C' },
             };
-            vi.spyOn(domainService, 'execute').mockReturnValue({ success: true, data: { ...domainService.currentState(), mode: 'scale-chord', displayMode: 'relationship' } });
+            vi.spyOn(domainService, 'execute').mockImplementation((cmd) => {
+                return DomainService.prototype.execute.call(domainService, cmd);
+            });
             component.onToolboxEvent(command);
             expect(domainService.execute).toHaveBeenCalledWith(command);
             expect(component.displayMode()).toBe('relationship');
@@ -91,7 +98,9 @@ describe('HomePageComponent', () => {
 
         it('should delegate clear-view to DomainService and displayMode becomes null', () => {
             const command: DomainCommand = { type: 'clear-view' };
-            vi.spyOn(domainService, 'execute').mockReturnValue({ success: true, data: { ...domainService.currentState(), mode: 'scale', displayMode: null } });
+            vi.spyOn(domainService, 'execute').mockImplementation((cmd) => {
+                return DomainService.prototype.execute.call(domainService, cmd);
+            });
             component.onToolboxEvent(command);
             expect(domainService.execute).toHaveBeenCalledWith(command);
             expect(component.displayMode()).toBeNull();

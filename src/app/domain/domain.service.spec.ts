@@ -35,7 +35,8 @@ describe('DomainService', () => {
       const result = service.query<{ chords: string[] }>(query);
       expect(result.success).toBe(true);
       if (result.success) {
-        expect(result.data.chords).toContain('C major');
+        // Tonal.js returns chord symbols like 'CM' (not 'C major')
+        expect(result.data.chords).toContain('CM');
       }
     });
 
@@ -44,7 +45,8 @@ describe('DomainService', () => {
       const result = service.query<{ scales: string[] }>(query);
       expect(result.success).toBe(true);
       if (result.success) {
-        expect(result.data.scales).toContain('major');
+        // Tonal.js returns scale names like 'C major' (not bare 'major')
+        expect(result.data.scales).toContain('C major');
       }
     });
 
