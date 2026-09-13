@@ -286,7 +286,7 @@ describe("ChatService", () => {
  */
 describe("StateGraph interrupt/resume integration", () => {
   it("should pause on interrupt and resume with Command", async () => {
-    const { StateGraph, Annotation, Command, interrupt, isGraphInterrupt, messagesStateReducer } = await import("@langchain/langgraph");
+    const { StateGraph, Annotation, Command, interrupt, messagesStateReducer } = await import("@langchain/langgraph");
     const { MemorySaver } = await import("@langchain/langgraph-checkpoint");
     const { ToolMessage } = await import("@langchain/core/messages");
 
@@ -294,10 +294,11 @@ describe("StateGraph interrupt/resume integration", () => {
     const callLog: string[] = [];
     const testTool = async (input: { value: string }) => {
       callLog.push(`before_interrupt:${input.value}`);
-      interrupt({ type: "test_interrupt", value: input.value });
-      // After resume, this code runs
-      callLog.push(`after_resume:${input.value}`);
-      return { result: `done:${input.value}` };
+      const resumeValue = interrupt({ type: "test_interrupt", value: input.value });
+      // After resume, this code runs. Per LangGraph semantics, the node
+      // re-executes from the beginning, so before_interrupt runs again.
+      callLog.push(`after_resume:${input.value} resume=${resumeValue}`);
+      return { result: `done:${input.value} resume=${resumeValue}` };
     };
 
     // Build a minimal graph with one agent node and one tools node
@@ -357,31 +358,39 @@ describe("StateGraph interrupt/resume integration", () => {
 
     const threadConfig = { configurable: { thread_id: "test-integration-1" } };
 
-    // First run: should pause at interrupt
-    try {
-      const stream1 = graph.streamEvents(
-        { messages: [] },
-        { ...threadConfig, version: "v2" },
-      );
-      for await (const _event of stream1) {
-        // consume stream
-      }
-    } catch (err: any) {
-      expect(isGraphInterrupt(err)).toBe(true);
+    // First run: should pause at interrupt.
+    // Use version "v3" and check stream.interrupted per LangGraph HITL API.
+    const stream1 = await graph.streamEvents(
+      { messages: [] },
+      { ...threadConfig, version: "v3" },
+    );
+
+    // GraphRunStream is an async iterable of StreamEvent objects
+    for await (const _event of stream1) {
+      // consume events
     }
+
+    // Verify the graph was interrupted
+    expect(stream1.interrupted).toBe(true);
 
     // Verify tool ran before interrupt but not after
     expect(callLog).toEqual(["before_interrupt:hello"]);
 
     // Resume with Command
-    const stream2 = graph.streamEvents(
+    const stream2 = await graph.streamEvents(
       new Command({ resume: "user_response" }),
-      { ...threadConfig, version: "v2" },
+      { ...threadConfig, version: "v3" },
     );
+
     for await (const _event of stream2) {
-      // consume stream
+      // consume events
     }
 
-    // Verify tool completed after resume
-    expect(callLog).toEqual(["before_interrupt:hello", "after_resume:hello"]);
+    // Per LangGraph semantics, the node re-executes from the beginning on resume.
+    // So before_interrupt runs again, then after_resume runs with the resume value.
+    expect(callLog).toEqual([
+      "before_interrupt:hello",
+      "before_interrupt:hello",
+      "after_resume:hello resume=user_response",
+    ]);
   });

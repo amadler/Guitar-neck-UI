@@ -2,7 +2,7 @@ import { Injectable, inject, signal } from "@angular/core";
 import { createAgent } from "langchain";
 import { MemorySaver } from "@langchain/langgraph-checkpoint";
 import { HumanMessage, BaseMessage, ToolMessage, AIMessage, SystemMessage } from '@langchain/core/messages';
-import { StateGraph, Annotation, Command, interrupt, isGraphInterrupt, messagesStateReducer } from "@langchain/langgraph";
+import { StateGraph, Annotation, Command, interrupt, messagesStateReducer, GraphRunStream } from "@langchain/langgraph";
 import { createDomainTools, LessonToolContext } from "../tools/domain-tools";
 import { DomainService } from "../../domain/domain.service";
 import { ChatOpenRouter } from '@langchain/openrouter';
@@ -269,6 +269,7 @@ export class ChatService {
   /**
    * Process a message through the lesson graph.
    * The graph may be interrupted by interrupt() calls inside didactic tools.
+   * Uses version "v2" for StreamEvent format, checks stream.interrupted after.
    */
   private async processLessonStream(userMessage: string): Promise<void> {
     if (this.loading()) return;
@@ -282,11 +283,13 @@ export class ChatService {
       const stream = await graph.streamEvents(
         { messages: [new HumanMessage(userMessage)] },
         { ...this.config, version: "v2" },
-      );
+      ) as unknown as GraphRunStream;
 
       let accumulatedText = '';
 
-      for await (const event of stream) {
+      // GraphRunStream is an async iterable of StreamEvent objects
+      for await (const rawEvent of stream) {
+        const event = rawEvent as any;
         if (event.event === 'on_chat_model_stream') {
           const chunk = event.data?.chunk;
           if (chunk?.content) {
@@ -312,7 +315,7 @@ export class ChatService {
         }
       }
 
-      // Stream completed normally (no interrupt)
+      // Finalize the assistant message
       this.messages.update(m => {
         const msgs = [...m];
         const last = msgs[msgs.length - 1];
@@ -321,23 +324,14 @@ export class ChatService {
         }
         return msgs;
       });
-      this._graphStatus = 'idle';
-    } catch (err) {
-      if (isGraphInterrupt(err)) {
-        // Graph was interrupted by interrupt() in a didactic tool
-        this._graphStatus = 'interrupted';
-        this.messages.update(m => {
-          const msgs = [...m];
-          const last = msgs[msgs.length - 1];
-          if (last?.streaming) {
-            msgs[msgs.length - 1] = { ...last, streaming: false };
-          }
-          return msgs;
-        });
-        return;
-      }
 
-      // Real error
+      // Check interrupt status per LangGraph HITL API
+      if (stream.interrupted) {
+        this._graphStatus = 'interrupted';
+      } else {
+        this._graphStatus = 'idle';
+      }
+    } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Nieznany błąd';
       this.messages.update(m => [...m, { role: 'assistant', text: `❌ ${errorMsg}` }]);
       this._graphStatus = 'idle';
@@ -349,6 +343,7 @@ export class ChatService {
   /**
    * Resume an interrupted lesson graph with a resume value.
    * Used both for normal user messages ("dalej") and exercise results.
+   * Uses version "v2" for StreamEvent format, checks stream.interrupted after.
    */
   private async resumeGraph(resumeValue: unknown): Promise<void> {
     if (this.loading()) return;
@@ -362,11 +357,13 @@ export class ChatService {
       const stream = await graph.streamEvents(
         new Command({ resume: resumeValue }),
         { ...this.config, version: "v2" },
-      );
+      ) as unknown as GraphRunStream;
 
       let accumulatedText = '';
 
-      for await (const event of stream) {
+      // GraphRunStream is an async iterable of StreamEvent objects
+      for await (const rawEvent of stream) {
+        const event = rawEvent as any;
         if (event.event === 'on_chat_model_stream') {
           const chunk = event.data?.chunk;
           if (chunk?.content) {
@@ -392,7 +389,7 @@ export class ChatService {
         }
       }
 
-      // Stream completed normally
+      // Finalize the assistant message
       this.messages.update(m => {
         const msgs = [...m];
         const last = msgs[msgs.length - 1];
@@ -401,22 +398,14 @@ export class ChatService {
         }
         return msgs;
       });
-      this._graphStatus = 'idle';
-    } catch (err) {
-      if (isGraphInterrupt(err)) {
-        // Another interrupt happened (e.g., next didactic step)
-        this._graphStatus = 'interrupted';
-        this.messages.update(m => {
-          const msgs = [...m];
-          const last = msgs[msgs.length - 1];
-          if (last?.streaming) {
-            msgs[msgs.length - 1] = { ...last, streaming: false };
-          }
-          return msgs;
-        });
-        return;
-      }
 
+      // Check interrupt status per LangGraph HITL API
+      if (stream.interrupted) {
+        this._graphStatus = 'interrupted';
+      } else {
+        this._graphStatus = 'idle';
+      }
+    } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Nieznany błąd';
       this.messages.update(m => [...m, { role: 'assistant', text: `❌ ${errorMsg}` }]);
       this._graphStatus = 'idle';
