@@ -1,9 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { PLATFORM_ID } from '@angular/core';
-import { vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { LandingPageComponent, MODEL_OPTIONS } from './landing-page.component';
+import { LandingPageComponent } from './landing-page.component';
+import { StorageService } from '../../utils/Storage.util';
 import { ChatService } from '../chat/services/chat.service';
 
 describe('LandingPageComponent', () => {
@@ -21,6 +22,7 @@ describe('LandingPageComponent', () => {
           { path: 'app', component: LandingPageComponent as any },
         ]),
         ChatService,
+        StorageService,
       ],
     }).compileComponents();
 
@@ -36,7 +38,8 @@ describe('LandingPageComponent', () => {
   });
 
   it('should have default model selected', () => {
-    expect(component.selectedModel()).toBe(MODEL_OPTIONS[0].id);
+    const storage = TestBed.inject(StorageService);
+    expect(component.selectedModel()).toBe(storage.MODEL_OPTIONS[0].id);
   });
 
   it('should have empty apiKey by default', () => {
