@@ -25,7 +25,7 @@
           </app-string-toggle>
           <div class="fretboard__nut-label">
             <span class="fretboard__nut-label__string-name">{{ string }}</span>
-            @if (isNoteOnFret(i, 0) && isNoteInRange(0)) {
+            @if ((isNoteOnFret(i, 0) || (exerciseMode && isPhysicalPositionInRange(i, 0))) && isNoteInRange(0)) {
               @if (!isNoteSelected(i, 0) && !isExerciseSelected(i, 0)) {
                 <button
                   [ngClass]="['fretboard__dot', 'fretboard__open-note-btn', exerciseMode ? 'fretboard__dot--clickable' : '']"

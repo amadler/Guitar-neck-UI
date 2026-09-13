@@ -112,6 +112,11 @@ export class FreatboardComponent {
   }
 
   protected getNoteName(stringIndex: number, fret: number) {
+    // In exercise mode, fall back to physical position if snapshot has no visible note
+    if (this.exerciseMode) {
+      const physical = this.noteQueryService.getNoteAtPhysicalPosition(stringIndex, fret);
+      if (physical) return physical.note;
+    }
     return this.noteQueryService.getNoteName(stringIndex, fret);
   }
 
