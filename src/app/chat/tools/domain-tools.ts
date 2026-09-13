@@ -1,5 +1,6 @@
 import { tool } from "langchain/tools";
 import { z } from "zod";
+import { interrupt } from "@langchain/langgraph";
 import { DomainService } from "../../domain/domain.service";
 import { DomainCommand } from "../../domain/commands";
 import { DomainQuery } from "../../domain/queries";
@@ -81,7 +82,18 @@ const startExerciseSchema = z.object({
 });
 type StartExerciseInput = z.infer<typeof startExerciseSchema>;
 
-export function createDomainTools(domainService: DomainService) {
+/**
+ * Context passed to tools for lesson-mode awareness.
+ * Tools use isLessonMode() to decide whether to call interrupt().
+ */
+export interface LessonToolContext {
+  isLessonMode: () => boolean;
+}
+
+export function createDomainTools(
+  domainService: DomainService,
+  context?: LessonToolContext,
+) {
   return [
     tool(
       async (input: ShowPatternInput) => {
@@ -94,6 +106,18 @@ export function createDomainTools(domainService: DomainService) {
           emphasis: input.emphasis,
         };
         const result = domainService.execute(command);
+
+        // Interrupt in lesson mode — user needs time to see the pattern
+        if (context?.isLessonMode()) {
+          interrupt({
+            type: 'lesson_step',
+            action: 'show_pattern',
+            patternType: input.patternType,
+            patternName: input.patternName,
+            rootNote: input.rootNote,
+          });
+        }
+
         return {
           success: result.success,
           action: "show-pattern",
@@ -115,6 +139,17 @@ export function createDomainTools(domainService: DomainService) {
       async (input: ShowIntervalInput) => {
         const command: DomainCommand = { type: "show-interval", rootNote: input.rootNote, interval: input.interval };
         const result = domainService.execute(command);
+
+        // Interrupt in lesson mode — user needs time to see the interval
+        if (context?.isLessonMode()) {
+          interrupt({
+            type: 'lesson_step',
+            action: 'show_interval',
+            rootNote: input.rootNote,
+            interval: input.interval,
+          });
+        }
+
         return {
           success: result.success,
           action: "show-interval",
@@ -178,6 +213,17 @@ export function createDomainTools(domainService: DomainService) {
           secondary: input.secondary,
         };
         const result = domainService.execute(command);
+
+        // Interrupt in lesson mode — user needs time to see the comparison
+        if (context?.isLessonMode()) {
+          interrupt({
+            type: 'lesson_step',
+            action: 'compare_patterns',
+            primary: input.primary,
+            secondary: input.secondary,
+          });
+        }
+
         return {
           success: result.success,
           action: "compare-patterns",
@@ -248,6 +294,17 @@ export function createDomainTools(domainService: DomainService) {
           rootNote: input.rootNote,
         };
         const result = domainService.execute(command);
+
+        // Interrupt in lesson mode — user needs time to see the shape
+        if (context?.isLessonMode()) {
+          interrupt({
+            type: 'lesson_step',
+            action: 'resolve_shape',
+            shapeId: input.shapeId,
+            rootNote: input.rootNote,
+          });
+        }
+
         return {
           success: result.success,
           action: "resolve-shape",
@@ -290,24 +347,47 @@ export function createDomainTools(domainService: DomainService) {
     //start-exercise
     tool(
       async (input: StartExerciseInput) => {
-        const command: DomainCommand = {
-          type: "start-exercise",
-          question: input.question,
-          rootNote: input.rootNote,
-          expectedIntervals: input.expectedIntervals,
-          fretRange: input.fretRange,
-          enabledStrings: input.enabledStrings,
-        };
-        const result = domainService.execute(command);
+        // Guard: if exercise is already active with matching params, skip side effect
+        // This prevents double execution on resume after interrupt.
+        const currentState = domainService.query<DomainState>({ type: "get-current-view" });
+        const exerciseAlreadyActive = currentState.success && currentState.data.exerciseMode;
+
+        if (!exerciseAlreadyActive) {
+          const command: DomainCommand = {
+            type: "start-exercise",
+            question: input.question,
+            rootNote: input.rootNote,
+            expectedIntervals: input.expectedIntervals,
+            fretRange: input.fretRange,
+            enabledStrings: input.enabledStrings,
+          };
+          domainService.execute(command);
+        }
+
+        // Interrupt in lesson mode — user needs to click notes on the fretboard
+        if (context?.isLessonMode()) {
+          interrupt({
+            type: 'exercise',
+            question: input.question,
+            rootNote: input.rootNote,
+            expectedIntervals: input.expectedIntervals,
+          });
+        }
+
+        // After resume: read the exercise result from state
+        const state = domainService.query<DomainState>({ type: "get-current-view" });
+        const exerciseResult = state.success ? state.data.lastExerciseResult : undefined;
+
         return {
-          success: result.success,
+          success: true,
           action: "start-exercise",
           question: input.question,
           rootNote: input.rootNote,
           expectedIntervals: input.expectedIntervals,
-          message: result.success
-            ? `Rozpoczęto ćwiczenie: ${input.question}`
-            : result.message,
+          exerciseResult,
+          message: exerciseResult
+            ? `Ćwiczenie zakończone. Poprawne: ${exerciseResult.correctCount}, błędne: ${exerciseResult.incorrectCount}`
+            : `Rozpoczęto ćwiczenie: ${input.question}`,
         };
       },
       {

@@ -41,9 +41,12 @@ export class GuitarNeckComponent {
     console.log('onNoteClicked$', note);
   }
 
-  /** Submit the current exercise for validation and notify the agent. */
+  /** Submit the current exercise for validation and resume the lesson agent. */
   submitExercise(): void {
     this.domainService.execute({ type: 'submit-exercise' });
-    this.chatService.notifyExerciseSubmitted();
+    const exerciseResult = this.domainService.currentState().lastExerciseResult;
+    if (exerciseResult) {
+      this.chatService.resumeWithExerciseResult(exerciseResult);
+    }
   }
 }
