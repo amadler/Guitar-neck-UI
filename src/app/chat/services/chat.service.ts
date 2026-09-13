@@ -257,7 +257,7 @@ export class ChatService {
       const model = new ChatOpenRouter({ model: modelName, apiKey });
       const tools = createDomainTools(this.domainService, {
         isLessonMode: () => this._lessonMode,
-        pendingExerciseKey: this._pendingExerciseKey,
+        getPendingExerciseKey: () => this._pendingExerciseKey,
         setPendingExerciseKey: (key: string | null) => { this._pendingExerciseKey = key; },
       });
 

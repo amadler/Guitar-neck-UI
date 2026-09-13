@@ -85,12 +85,14 @@ type StartExerciseInput = z.infer<typeof startExerciseSchema>;
 /**
  * Context passed to tools for lesson-mode awareness.
  * Tools use isLessonMode() to decide whether to call interrupt().
- * pendingExerciseKey tracks whether start_exercise is being resumed
- * (same key) or called for the first time (different/null key).
+ * getPendingExerciseKey / setPendingExerciseKey track whether
+ * start_exercise is being resumed (same key) or called for the
+ * first time (different/null key). Must use a getter function
+ * so the tool reads the live value, not a snapshot from creation.
  */
 export interface LessonToolContext {
   isLessonMode: () => boolean;
-  pendingExerciseKey: string | null;
+  getPendingExerciseKey: () => string | null;
   setPendingExerciseKey: (key: string | null) => void;
 }
 
@@ -362,7 +364,8 @@ export function createDomainTools(
         });
 
         // First call (not resume): execute start-exercise and record the key
-        if (context && context.pendingExerciseKey !== key) {
+        // Uses getter function so the live value is read, not a creation-time snapshot.
+        if (context && context.getPendingExerciseKey() !== key) {
           const command: DomainCommand = {
             type: "start-exercise",
             question: input.question,
