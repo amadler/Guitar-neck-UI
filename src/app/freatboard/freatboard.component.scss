@@ -160,6 +160,24 @@
   background-color: rgb(32, 1, 27);
 }
 
+/* ---- Exercise mode ---- */
+
+.fretboard__dot--clickable {
+  cursor: pointer;
+  opacity: 0.85;
+  transition: opacity 0.15s;
+}
+
+.fretboard__dot--clickable:hover {
+  opacity: 1;
+}
+
+.fretboard__dot--exercise-selected {
+  outline: 3px solid var(--md-primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 8px rgba(56, 105, 72, 0.4);
+}
+
 /* ---- Neutral display modes ---- */
 
 .fretboard__dot--neutral {

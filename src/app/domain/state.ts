@@ -11,6 +11,39 @@ export interface SelectedNotePosition {
 }
 
 /**
+ * An exercise task set by the agent during a lesson.
+ * The user must find/select notes matching the expected intervals.
+ */
+export interface ExerciseTask {
+  /** Question text shown to the user (e.g., "Find all fifths relative to A"). */
+  question: string;
+  /** The reference note for interval calculation. */
+  rootNote: string;
+  /** Valid interval names the user should find (e.g., ['5'], ['1', 'b3']). */
+  expectedIntervals: string[];
+  /** Optional view constraint — limit which frets are visible. */
+  fretRange?: { min: number; max: number };
+  /** Optional view constraint — limit which strings are active. */
+  enabledStrings?: boolean[];
+}
+
+/**
+ * Result of an exercise submission.
+ * Computed by the app via Tonal.js assertion, sent back to the agent.
+ * The agent decides how to comment — this is just raw data.
+ */
+export interface ExerciseResult {
+  /** Per-note correctness (same order as selectedNotes). */
+  correct: boolean[];
+  /** The notes the user selected. */
+  selectedNotes: SelectedNotePosition[];
+  /** Number of correctly selected notes. */
+  correctCount: number;
+  /** Number of incorrectly selected notes. */
+  incorrectCount: number;
+}
+
+/**
  * Canonical state — minimal, immutable source of truth.
  *
  * patternType is NOT stored here — it is derived from `mode`:
@@ -65,6 +98,15 @@ export interface DomainState {
     shapeId?: string;
     positions: Array<{ string: number; fret: number; label?: string }>;
   };
+
+  /** Whether the fretboard is in exercise selection mode. */
+  exerciseMode: boolean;
+
+  /** The current exercise task set by the agent (present only when exerciseMode is true). */
+  exerciseTask?: ExerciseTask;
+
+  /** The result of the last submitted exercise. Cleared when a new exercise starts. */
+  lastExerciseResult?: ExerciseResult;
 }
 
 /** Default initial state. */
@@ -77,6 +119,7 @@ export const DEFAULT_DOMAIN_STATE: DomainState = {
   fretRange: { min: 0, max: 24 },
   enabledStrings: [true, true, true, true, true, true],
   markerDisplayMode: 'interval-colors',
+  exerciseMode: false,
 };
 
 /**
@@ -92,6 +135,7 @@ export enum DomainError {
   INVALID_POSITION = 'INVALID_POSITION',
   POSITION_NOTE_MISMATCH = 'POSITION_NOTE_MISMATCH',
   SHAPE_NOT_FOUND = 'SHAPE_NOT_FOUND',
+  NO_ACTIVE_EXERCISE = 'NO_ACTIVE_EXERCISE',
 }
 
 /**

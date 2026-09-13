@@ -2,6 +2,32 @@
   position: relative;
 }
 
+/* ─── Exercise bar ─────────────────────────────────────────── */
+
+.exercise-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  margin-bottom: 8px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-soft);
+}
+
+.exercise-bar__question {
+  flex: 1;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--app-text);
+  line-height: 1.4;
+}
+
+.exercise-bar__submit {
+  flex-shrink: 0;
+}
+
 .guitar-neck__spinner-overlay {
   position: absolute;
   inset: 0;

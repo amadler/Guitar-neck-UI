@@ -49,6 +49,11 @@ export class FreatboardComponent {
     return this.displayService.showNoteLabels;
   }
 
+  /** Whether the fretboard is in exercise selection mode. */
+  get exerciseMode(): boolean {
+    return this.domainService.currentState().exerciseMode;
+  }
+
   protected getMarkerCssClass(interval: string | undefined): string {
     return this.displayService.getMarkerCssClass(interval);
   }
@@ -73,9 +78,14 @@ export class FreatboardComponent {
     return note ? note.selected : false;
   }
 
+  /** Check if a position is in the exercise selectedNotes list. */
+  protected isExerciseSelected(stringIndex: number, fret: number): boolean {
+    const selected = this.domainService.currentState().selectedNotes ?? [];
+    return selected.some(n => n.string === stringIndex + 1 && n.fret === fret);
+  }
+
   getNoteInterval(stringIndex: number, fret: number): string | undefined {
     const note = this.getNote(stringIndex, fret);
-    //console.log('note', note?.interval);
     return note ? note.interval : undefined;
   }
 
@@ -96,7 +106,26 @@ export class FreatboardComponent {
   protected fretNoteClicked(stringIndex: number, fret: number) {
     const note = this.noteQueryService.fretNoteClicked(stringIndex, fret);
     if (note) {
-      this.onNoteClicked$.emit(note);
+      // In exercise mode, toggle selection directly
+      if (this.exerciseMode) {
+        const isSelected = this.isExerciseSelected(stringIndex, fret);
+        if (isSelected) {
+          this.domainService.execute({
+            type: 'deselect-note',
+            string: stringIndex + 1,
+            fret,
+          });
+        } else {
+          this.domainService.execute({
+            type: 'select-note',
+            note: note.note,
+            string: stringIndex + 1,
+            fret,
+          });
+        }
+      } else {
+        this.onNoteClicked$.emit(note);
+      }
     }
   }
 
