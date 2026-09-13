@@ -1,3 +1,11 @@
 <div class="guitar-neck-wrapper">
+  @if (exerciseMode()) {
+    <div class="exercise-bar">
+      <span class="exercise-bar__question">{{ exerciseQuestion() }}</span>
+      <button class="exercise-bar__submit btn btn--primary" type="button" (click)="submitExercise()">
+        Sprawdź
+      </button>
+    </div>
+  }
   <app-freatboard #freatboardComponent (onNoteClicked$)="onNoteClicked($event)"></app-freatboard>
 </div>

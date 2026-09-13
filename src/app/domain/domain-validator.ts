@@ -1,5 +1,5 @@
 import { neckConfig, SCALE_PATTERNS, CHORD_PATTERNS } from 'guitar-neck-shared';
-import { DomainResult, DomainError } from './state';
+import { DomainResult, DomainError, DomainState } from './state';
 import { PatternType } from '../services/tonal-facade.service';
 import { INTERVAL_SEMITONE_MAP } from '../shared/tonal-adapter';
 
@@ -126,6 +126,42 @@ export class DomainValidator {
         success: false,
         error: DomainError.POSITION_NOTE_MISMATCH,
         message: `Note "${expectedNote}" does not sound at string ${string}, fret ${fret}. Found: "${actualNote}".`,
+      };
+    }
+    return null;
+  }
+
+  /** Validate that an exercise task has valid parameters. */
+  static validateExerciseTask(
+    rootNote: string,
+    expectedIntervals: string[],
+  ): DomainResult<never> | null {
+    const rootErr = this.validateRootNote(rootNote);
+    if (rootErr) return rootErr;
+
+    if (!expectedIntervals || expectedIntervals.length === 0) {
+      return {
+        success: false,
+        error: DomainError.INVALID_INTERVAL,
+        message: 'Expected intervals must be a non-empty array.',
+      };
+    }
+
+    for (const interval of expectedIntervals) {
+      const { error } = this.validateInterval(interval);
+      if (error) return error;
+    }
+
+    return null;
+  }
+
+  /** Validate that an exercise is currently active. */
+  static validateExerciseActive(state: DomainState): DomainResult<never> | null {
+    if (!state.exerciseMode || !state.exerciseTask) {
+      return {
+        success: false,
+        error: DomainError.NO_ACTIVE_EXERCISE,
+        message: 'No active exercise. Use start-exercise first.',
       };
     }
     return null;

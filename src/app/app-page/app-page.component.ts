@@ -1,4 +1,5 @@
-import { Component, computed, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, computed, ChangeDetectionStrategy, inject, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 
 import { DomainService } from '../domain/domain.service';
 import { DomainCommand } from '../domain/commands';
@@ -12,6 +13,8 @@ import { RelationshipStripComponent } from '../relationship-strip/relationship-s
 import { ToolboxBuilderComponent } from '../toolbox/toolbox-builder.component';
 import { ChatComponent } from '../chat/chat.component';
 import { HeaderComponent } from '../header/header.component';
+import { ChatService } from '../chat/services/chat.service';
+import { LessonRegistryService } from '../services/lesson-registry.service';
 
 export type DisplayMode = 'legend' | 'relationship' | null;
 
@@ -33,8 +36,11 @@ export type DisplayMode = 'legend' | 'relationship' | null;
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './app-page.component.scss'
 })
-export class AppPageComponent {
+export class AppPageComponent implements OnInit {
   private domainService = inject(DomainService);
+  private route = inject(ActivatedRoute);
+  private chatService = inject(ChatService);
+  private lessonRegistry = inject(LessonRegistryService);
 
   /** Whether AI chat mode is active — metronome hides, chat gets fixed width. */
   aiMode = computed(() => this.domainService.currentState().aiModeEnabled);
@@ -47,6 +53,18 @@ export class AppPageComponent {
 
   /** Whether the Range toolbar should be disabled (e.g. in Shape/positions mode). */
   rangeDisabled = computed(() => this.domainService.currentState().mode === 'positions');
+
+  ngOnInit(): void {
+    const lessonId = this.route.snapshot.queryParamMap.get('lesson');
+    if (lessonId) {
+      const lesson = this.lessonRegistry.getLesson(lessonId);
+      if (lesson) {
+        // Enable AI mode and start the lesson
+        this.domainService.execute({ type: 'set-ai-mode', enabled: true });
+        this.chatService.startLesson(lessonId);
+      }
+    }
+  }
 
   onRangeChange(range: { minFret: number; maxFret: number }): void {
     this.domainService.execute({ type: 'set-view', fretRange: { min: range.minFret, max: range.maxFret } });

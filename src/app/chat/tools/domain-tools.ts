@@ -69,6 +69,18 @@ const setAiModeSchema = z.object({
 });
 type SetAiModeInput = z.infer<typeof setAiModeSchema>;
 
+const startExerciseSchema = z.object({
+  question: z.string().describe("Pytanie do użytkownika, np. 'Znajdź wszystkie kwinty względem A'"),
+  rootNote: z.string().describe("Nuta podstawowa, np. 'A', 'C'"),
+  expectedIntervals: z.array(z.string()).describe("Oczekiwane interwały, np. ['5'], ['1', 'b3']"),
+  fretRange: z.object({
+    min: z.number().min(0).max(24),
+    max: z.number().min(0).max(24),
+  }).optional().describe("Opcjonalny zakres progów do wyświetlenia"),
+  enabledStrings: z.array(z.boolean()).length(6).optional().describe("Opcjonalnie które struny mają być aktywne"),
+});
+type StartExerciseInput = z.infer<typeof startExerciseSchema>;
+
 export function createDomainTools(domainService: DomainService) {
   return [
     tool(
@@ -273,6 +285,82 @@ export function createDomainTools(domainService: DomainService) {
         name: "set_ai_mode",
         description: "Włącza lub wyłącza tryb AI. Gdy włączony, metronom chowa się a czat zajmuje stałą szerokość.",
         schema: setAiModeSchema,
+      }
+    ),
+    //start-exercise
+    tool(
+      async (input: StartExerciseInput) => {
+        const command: DomainCommand = {
+          type: "start-exercise",
+          question: input.question,
+          rootNote: input.rootNote,
+          expectedIntervals: input.expectedIntervals,
+          fretRange: input.fretRange,
+          enabledStrings: input.enabledStrings,
+        };
+        const result = domainService.execute(command);
+        return {
+          success: result.success,
+          action: "start-exercise",
+          question: input.question,
+          rootNote: input.rootNote,
+          expectedIntervals: input.expectedIntervals,
+          message: result.success
+            ? `Rozpoczęto ćwiczenie: ${input.question}`
+            : result.message,
+        };
+      },
+      {
+        name: "start_exercise",
+        description: "Rozpoczyna ćwiczenie w trybie lekcji. Aktywuje klikalny tryb na gryfie — użytkownik może zaznaczać nuty. Gdy skończy, kliknie Sprawdź. Użyj gdy prowadzisz lekcję i chcesz zadać pytanie typu 'znajdź wszystkie kwinty względem A'.",
+        schema: startExerciseSchema,
+      }
+    ),
+    //submit-exercise
+    tool(
+      async () => {
+        const result = domainService.execute({ type: "submit-exercise" });
+        if (!result.success) {
+          return { success: false, action: "submit-exercise", message: result.message };
+        }
+        // Read the exercise result from state
+        const state = domainService.query<DomainState>({ type: "get-current-view" });
+        const exerciseResult = state.success ? state.data.lastExerciseResult : undefined;
+        return {
+          success: true,
+          action: "submit-exercise",
+          exerciseResult,
+          message: exerciseResult
+            ? `Ćwiczenie sprawdzone. Poprawne: ${exerciseResult.correctCount}, błędne: ${exerciseResult.incorrectCount}`
+            : "Ćwiczenie sprawdzone.",
+        };
+      },
+      {
+        name: "submit_exercise",
+        description: "Zatwierdza aktualne ćwiczenie do sprawdzenia. Aplikacja weryfikuje zaznaczone nuty i zwraca wynik. Użyj po tym jak użytkownik zaznaczy nuty i kliknie Sprawdź.",
+        schema: z.object({}),
+      }
+    ),
+    //get-exercise-result
+    tool(
+      async () => {
+        const state = domainService.query<DomainState>({ type: "get-current-view" });
+        if (!state.success) {
+          return { success: false, action: "get-exercise-result", message: state.message };
+        }
+        return {
+          success: true,
+          action: "get-exercise-result",
+          exerciseMode: state.data.exerciseMode,
+          exerciseTask: state.data.exerciseTask,
+          selectedNotes: state.data.selectedNotes,
+          lastExerciseResult: state.data.lastExerciseResult,
+        };
+      },
+      {
+        name: "get_exercise_result",
+        description: "Pobiera wynik ostatniego ćwiczenia oraz aktualny stan trybu ćwiczeń. Użyj gdy chcesz sprawdzić co użytkownik zaznaczył lub jaki był wynik walidacji.",
+        schema: z.object({}),
       }
     ),
   ];

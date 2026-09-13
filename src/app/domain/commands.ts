@@ -97,6 +97,46 @@ export interface SetAiModeCommand {
 }
 
 /**
+ * Start an exercise during a lesson.
+ * Activates selection mode on the fretboard — user can click notes and submit.
+ */
+export interface StartExerciseCommand {
+  type: 'start-exercise';
+  question: string;
+  rootNote: string;
+  expectedIntervals: string[];
+  fretRange?: { min: number; max: number };
+  enabledStrings?: boolean[];
+}
+
+/**
+ * Submit the current exercise for validation.
+ * The app checks selected notes against expected intervals and returns ExerciseResult.
+ */
+export interface SubmitExerciseCommand {
+  type: 'submit-exercise';
+}
+
+/**
+ * Select a note on the fretboard (toggle on).
+ */
+export interface SelectNoteCommand {
+  type: 'select-note';
+  note: string;
+  string: number;
+  fret: number;
+}
+
+/**
+ * Deselect a note on the fretboard (toggle off).
+ */
+export interface DeselectNoteCommand {
+  type: 'deselect-note';
+  string: number;
+  fret: number;
+}
+
+/**
  * A domain command expresses a user intent to change the fretboard view.
  * It does NOT describe how to mutate state — that mapping is the responsibility of DomainService.
  */
@@ -108,4 +148,8 @@ export type DomainCommand =
   | SetEmphasisCommand
   | ClearViewCommand
   | ResolveShapeCommand
-  | SetAiModeCommand;
+  | SetAiModeCommand
+  | StartExerciseCommand
+  | SubmitExerciseCommand
+  | SelectNoteCommand
+  | DeselectNoteCommand;

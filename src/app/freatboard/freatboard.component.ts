@@ -49,6 +49,11 @@ export class FreatboardComponent {
     return this.displayService.showNoteLabels;
   }
 
+  /** Whether the fretboard is in exercise selection mode. */
+  get exerciseMode(): boolean {
+    return this.domainService.currentState().exerciseMode;
+  }
+
   protected getMarkerCssClass(interval: string | undefined): string {
     return this.displayService.getMarkerCssClass(interval);
   }
@@ -68,14 +73,31 @@ export class FreatboardComponent {
     return this.noteQueryService.isNoteOnFret(stringIndex, fret);
   }
 
+  /**
+   * Returns true if a physical position exists at (stringIndex, fret)
+   * and is within the current fret range.
+   * Unlike isNoteOnFret(), this does NOT check note.visible — it works
+   * even with an empty snapshot. Used in exercise mode.
+   */
+  protected isPhysicalPositionInRange(stringIndex: number, fret: number): boolean {
+    if (stringIndex < 0 || stringIndex > 5) return false;
+    if (fret < 0 || fret > 24) return false;
+    return fret >= this.fretRange.min && fret <= this.fretRange.max;
+  }
+
   protected isNoteSelected(stringIndex: number, fret: number): boolean | undefined {
     const note = this.getNote(stringIndex, fret);
     return note ? note.selected : false;
   }
 
+  /** Check if a position is in the exercise selectedNotes list. */
+  protected isExerciseSelected(stringIndex: number, fret: number): boolean {
+    const selected = this.domainService.currentState().selectedNotes ?? [];
+    return selected.some(n => n.string === stringIndex + 1 && n.fret === fret);
+  }
+
   getNoteInterval(stringIndex: number, fret: number): string | undefined {
     const note = this.getNote(stringIndex, fret);
-    //console.log('note', note?.interval);
     return note ? note.interval : undefined;
   }
 
@@ -90,10 +112,38 @@ export class FreatboardComponent {
   }
 
   protected getNoteName(stringIndex: number, fret: number) {
+    // In exercise mode, fall back to physical position if snapshot has no visible note
+    if (this.exerciseMode) {
+      const physical = this.noteQueryService.getNoteAtPhysicalPosition(stringIndex, fret);
+      if (physical) return physical.note;
+    }
     return this.noteQueryService.getNoteName(stringIndex, fret);
   }
 
   protected fretNoteClicked(stringIndex: number, fret: number) {
+    // In exercise mode, use physical position (works even with empty snapshot)
+    if (this.exerciseMode) {
+      const physicalNote = this.noteQueryService.getNoteAtPhysicalPosition(stringIndex, fret);
+      if (!physicalNote) return;
+      const isSelected = this.isExerciseSelected(stringIndex, fret);
+      if (isSelected) {
+        this.domainService.execute({
+          type: 'deselect-note',
+          string: stringIndex + 1,
+          fret,
+        });
+      } else {
+        this.domainService.execute({
+          type: 'select-note',
+          note: physicalNote.note,
+          string: stringIndex + 1,
+          fret,
+        });
+      }
+      return;
+    }
+
+    // Normal mode: only clickable if note is visible in snapshot
     const note = this.noteQueryService.fretNoteClicked(stringIndex, fret);
     if (note) {
       this.onNoteClicked$.emit(note);

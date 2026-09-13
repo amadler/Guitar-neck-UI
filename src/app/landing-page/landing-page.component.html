@@ -103,6 +103,39 @@
     </div>
   </section>
 
+  <!-- Lessons -->
+  <section class="lessons">
+    <h2 class="lessons__heading">Interactive Lessons</h2>
+    <p class="lessons__desc">
+      Guided lessons led by the AI assistant. Learn intervals, scales, and chords step by step
+      directly on the fretboard.
+    </p>
+    <div class="lessons__grid">
+      @for (lesson of lessons; track lesson.id) {
+        <div class="lesson-card">
+          <div class="lesson-card__header">
+            <span class="lesson-card__level" [class]="'lesson-card__level--' + lesson.level">
+              {{ lesson.level }}
+            </span>
+            <h3 class="lesson-card__title">{{ lesson.title }}</h3>
+          </div>
+          <p class="lesson-card__desc">{{ lesson.description }}</p>
+          <button
+            class="btn btn--primary lesson-card__btn"
+            type="button"
+            [disabled]="!apiKey().trim()"
+            (click)="startLesson(lesson.id)"
+          >
+            Start Lesson
+          </button>
+          @if (!apiKey().trim()) {
+            <p class="lesson-card__hint">Configure your API key above to start lessons.</p>
+          }
+        </div>
+      }
+    </div>
+  </section>
+
   <!-- Footer -->
   <footer class="landing-footer">
     <p>Guitar Neck UI — Open source tool for guitarists and music learners.</p>

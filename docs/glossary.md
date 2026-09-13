@@ -12,6 +12,11 @@
 | **DomainResult** | A discriminated union: `{ success: true; data: T }` or `{ success: false; error: DomainError; message: string }`. | Return type for all commands and queries. Named `DomainResult` (not `CommandResult`) because queries use it too. |
 | **DomainError** | Enum of possible validation failures: `PATTERN_NOT_FOUND`, `INVALID_ROOT_NOTE`, `INVALID_FRET_RANGE`, `INVALID_INTERVAL`, `UNKNOWN_COMMAND`. | Used in `DomainResult`. |
 | **Emphasis** | Optional parameter on commands specifying which intervals or roles to highlight visually. | `{ intervals?: string[]; roles?: string[] }`. Not a separate overlay — part of the command. |
+| **Lesson** | A structured learning session with a specific topic, delivered by the AI agent. Defined in a markdown file in `lessons/`. Loaded into agent context as plain text. | First lesson: [`lessons/interwały.md`](lessons/interwały.md) |
+| **Exercise** | A task within a lesson where the user must find/select specific notes on the fretboard. Defined by the agent via `start_exercise` tool. | Part of a Lesson session. |
+| **Selection Mode** | A state of the fretboard where notes are clickable for exercise purposes. Activated by `start_exercise` command. | When active, a Submit button appears. No button when idle. |
+| **Exercise Task** | The current exercise definition: question text, rootNote, expectedIntervals, optional fretRange/enabledStrings. | Passed by agent via `start_exercise` tool. |
+| **Exercise Result** | The outcome of a submitted exercise: which selected notes were correct/incorrect, plus a summary message. | Computed by app via Tonal.js assertion, sent back to agent. |
 
 ## Landing Page Concepts (new)
 
@@ -37,6 +42,8 @@
 | **markerDisplayMode** | `'interval-colors' \| 'note-names' \| 'neutral-dots'` | How fretboard markers are rendered. |
 | **emphasis** | `{ intervals?: string[]; roles?: string[] }?` | Which intervals or roles to highlight. |
 | **selectedNotes** | `Array<{ note: string; string: number; fret: number }>?` | Notes manually selected by clicking specific positions on the fretboard. Each entry records the exact string and fret, not just the note name. |
+| **exerciseMode** | `boolean` | Whether the fretboard is in exercise selection mode. When true, notes are clickable and a Submit button appears. |
+| **exerciseTask** | `{ question: string; rootNote: string; expectedIntervals: string[]; fretRange?: { min: number; max: number }; enabledStrings?: boolean[] }?` | The current exercise definition set by the agent via `start_exercise`. When present, user can click notes and submit. |
 
 ## Derived Concepts
 

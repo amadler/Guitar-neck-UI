@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ChatService } from '../chat/services/chat.service';
 import { StorageService } from '../../utils/Storage.util';
+import { LessonRegistryService } from '../services/lesson-registry.service';
 
 @Component({
   selector: 'app-landing-page',
@@ -15,10 +16,12 @@ export class LandingPageComponent {
   private router = inject(Router);
   private chatService = inject(ChatService);
   private storage = inject(StorageService);
+  private lessonRegistry = inject(LessonRegistryService);
   apiKey = this.storage.apiKey;
   selectedModel = this.storage.selectedModel;
   saved = this.storage.saved;
   models = this.storage.models;
+  lessons = this.lessonRegistry.lessons;
 
   saveAndGo(): void {
     const key = this.apiKey().trim();
@@ -34,5 +37,9 @@ export class LandingPageComponent {
 
   skipSetup(): void {
     this.router.navigate(['/app']);
+  }
+
+  startLesson(lessonId: string): void {
+    this.router.navigate(['/app'], { queryParams: { lesson: lessonId } });
   }
 }

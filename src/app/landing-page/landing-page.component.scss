@@ -271,6 +271,120 @@
 }
 
 /* --------------------------------------------------------------------------
+   Lessons
+   -------------------------------------------------------------------------- */
+
+.lessons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 900px;
+  padding: 48px 24px 64px;
+}
+
+.lessons__heading {
+  margin: 0 0 8px;
+  font-family: var(--font-headline), serif;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--app-text);
+  text-align: center;
+}
+
+.lessons__desc {
+  margin: 0 0 32px;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--app-muted);
+  text-align: center;
+  max-width: 560px;
+}
+
+.lessons__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  width: 100%;
+}
+
+.lesson-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.lesson-card:hover {
+  box-shadow: 0 12px 32px rgba(15, 32, 22, 0.12);
+  transform: translateY(-2px);
+}
+
+.lesson-card__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.lesson-card__level {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: var(--radius-sm);
+  background: var(--app-surface-soft);
+  color: var(--app-muted);
+}
+
+.lesson-card__level--podstawowy {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.lesson-card__level--średni {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.lesson-card__level--zaawansowany {
+  background: #fce4ec;
+  color: #c62828;
+}
+
+.lesson-card__title {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: var(--app-text);
+}
+
+.lesson-card__desc {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--app-muted);
+  flex: 1;
+}
+
+.lesson-card__btn {
+  align-self: flex-start;
+  margin-top: 4px;
+}
+
+.lesson-card__hint {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--app-muted);
+}
+
+/* --------------------------------------------------------------------------
    Footer
    -------------------------------------------------------------------------- */
 

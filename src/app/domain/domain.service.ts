@@ -2,7 +2,7 @@ import { Injectable, signal, inject } from '@angular/core';
 import { neckConfig, SCALE_PATTERNS, CHORD_PATTERNS } from 'guitar-neck-shared';
 import { DomainCommand } from './commands';
 import { DomainQuery, GetPatternDetailsResult, KeyAnalysis } from './queries';
-import { DomainState, DomainResult, DomainError, DEFAULT_DOMAIN_STATE } from './state';
+import { DomainState, DomainResult, DomainError, DEFAULT_DOMAIN_STATE, ExerciseTask, ExerciseResult } from './state';
 import { DomainValidator } from './domain-validator';
 import { FretboardOrchestrationService } from '../services/fretboard-orchestration.service';
 import { FretboardNotePositionService } from '../services/note.service';
@@ -11,6 +11,13 @@ import { TonalFacadeService, PatternType } from '../services/tonal-facade.servic
 import { PatternInfo } from '../shared/model/patternInfo';
 import { spellNote } from '../shared/note-utils';
 import { ShapeResolverService } from '../services/shape-resolver.service';
+import { ExerciseValidatorService } from '../services/exercise-validator.service';
+import { INTERVAL_CONFIG } from '../shared/tonal-adapter';
+
+/** Reverse map: Tonal interval name (e.g., '3M') → UI symbol (e.g., '3'). */
+const TONAL_TO_SYMBOL: Record<string, string> = Object.fromEntries(
+  INTERVAL_CONFIG.map(i => [i.tonalName, i.symbol])
+);
 
 // Handler types use `any` for the registry parameter because the narrowing
 // happens inside each handler via the `& { type: ... }` intersection.
@@ -35,6 +42,7 @@ export class DomainService {
   private tonalFacade = inject(TonalFacadeService);
   private noteService = inject(FretboardNotePositionService);
   private shapeResolver = inject(ShapeResolverService);
+  private exerciseValidator = inject(ExerciseValidatorService);
 
   private stateSignal = signal<DomainState>(DEFAULT_DOMAIN_STATE);
 
@@ -62,6 +70,10 @@ export class DomainService {
     this.commandHandlers.set('clear-view', (_c) => this.handleClearView());
     this.commandHandlers.set('resolve-shape', (c) => this.handleResolveShape(c));
     this.commandHandlers.set('set-ai-mode', (c) => this.handleSetAiMode(c));
+    this.commandHandlers.set('start-exercise', (c) => this.handleStartExercise(c));
+    this.commandHandlers.set('submit-exercise', (_c) => this.handleSubmitExercise());
+    this.commandHandlers.set('select-note', (c) => this.handleSelectNote(c));
+    this.commandHandlers.set('deselect-note', (c) => this.handleDeselectNote(c));
   }
 
   private registerQueryHandlers(): void {
@@ -273,6 +285,104 @@ export class DomainService {
     });
   }
 
+  // ─── Exercise command handlers ───────────────────────────────────────
+
+  private handleStartExercise(command: DomainCommand & { type: 'start-exercise' }): DomainResult<DomainState> {
+    const { question, rootNote, expectedIntervals, fretRange, enabledStrings } = command;
+
+    const err = DomainValidator.validateExerciseTask(rootNote, expectedIntervals)
+      ?? DomainValidator.validateFretRange(fretRange);
+    if (err) return err;
+
+    const range = fretRange ?? this.currentState().fretRange;
+    const strings = enabledStrings ?? this.currentState().enabledStrings;
+
+    // Compute expected positions for completeness checking
+    const expectedPositions = this.computeExpectedPositions(
+      rootNote,
+      expectedIntervals,
+      range,
+      strings,
+    );
+
+    const task: ExerciseTask = {
+      question,
+      rootNote,
+      expectedIntervals,
+      fretRange: range,
+      enabledStrings: strings,
+      expectedPositions,
+    };
+
+    return this.emitState({
+      ...this.currentState(),
+      exerciseMode: true,
+      exerciseTask: task,
+      selectedNotes: [],
+      lastExerciseResult: undefined,
+      fretRange: range,
+      enabledStrings: strings,
+    });
+  }
+
+  private handleSubmitExercise(): DomainResult<DomainState> {
+    const activeErr = DomainValidator.validateExerciseActive(this.currentState());
+    if (activeErr) return activeErr;
+
+    const state = this.currentState();
+    const task = state.exerciseTask!;
+    const notes = state.selectedNotes ?? [];
+
+    const result: ExerciseResult = this.exerciseValidator.validate(
+      notes,
+      task.rootNote,
+      task.expectedIntervals,
+      task.expectedPositions, // pass expectedPositions for completeness check
+    );
+
+    // Reset exercise mode, store result, keep selectedNotes for agent to inspect
+    return this.emitState({
+      ...state,
+      exerciseMode: false,
+      exerciseTask: undefined,
+      lastExerciseResult: result,
+    });
+  }
+
+  private handleSelectNote(command: DomainCommand & { type: 'select-note' }): DomainResult<DomainState> {
+    const { note, string, fret } = command;
+
+    const err = DomainValidator.validateExerciseActive(this.currentState())
+      ?? DomainValidator.validatePosition(string, fret);
+    if (err) return err;
+
+    const currentNotes = this.currentState().selectedNotes ?? [];
+
+    // Avoid duplicates — same (string, fret) can't be selected twice
+    if (currentNotes.some(n => n.string === string && n.fret === fret)) {
+      return this.emitState(this.currentState());
+    }
+
+    return this.emitState({
+      ...this.currentState(),
+      selectedNotes: [...currentNotes, { note, string, fret }],
+    });
+  }
+
+  private handleDeselectNote(command: DomainCommand & { type: 'deselect-note' }): DomainResult<DomainState> {
+    const { string, fret } = command;
+
+    const err = DomainValidator.validateExerciseActive(this.currentState());
+    if (err) return err;
+
+    const currentNotes = this.currentState().selectedNotes ?? [];
+
+    return this.emitState({
+      ...this.currentState(),
+      selectedNotes: currentNotes.filter(n => !(n.string === string && n.fret === fret)),
+    });
+  }
+
   // ─── Query handlers ──────────────────────────────────────────────────
 
   private handleGetPatternDetails(query: { type: 'get-pattern-details'; patternType: PatternType; patternName: string; rootNote: string }): DomainResult<GetPatternDetailsResult> {
@@ -364,6 +474,42 @@ export class DomainService {
       return { success: false, error: DomainError.SHAPE_NOT_FOUND, message: result.message ?? `Shape not found: "${query.shapeId}".` };
     }
     return { success: true, data: { positions: result.positions } };
+  }
+
+  /**
+   * Compute all positions in the given fret range and enabled strings
+   * that match the expected intervals from the root note.
+   * Used for completeness checking in exercises.
+   */
+  private computeExpectedPositions(
+    rootNote: string,
+    expectedIntervals: string[],
+    fretRange: { min: number; max: number },
+    enabledStrings: boolean[],
+  ): Array<{ string: number; fret: number }> {
+    const positions: Array<{ string: number; fret: number }> = [];
+    const { chromaticNotes, stringNotes } = neckConfig;
+
+    for (let stringIdx = 0; stringIdx < 6; stringIdx++) {
+      if (!enabledStrings[stringIdx]) continue;
+      const openNote = stringNotes[stringIdx];
+
+      for (let fret = fretRange.min; fret <= fretRange.max; fret++) {
+        const openIdx = chromaticNotes.indexOf(openNote);
+        const noteIdx = (openIdx + fret) % chromaticNotes.length;
+        const noteName = chromaticNotes[noteIdx];
+
+        // Calculate interval from root to this note
+        const tonalInterval = this.tonalFacade.intervalBetween(rootNote, noteName);
+        // Map Tonal interval to UI symbol
+        const symbol = TONAL_TO_SYMBOL[tonalInterval] ?? '';
+        if (expectedIntervals.includes(symbol)) {
+          positions.push({ string: stringIdx + 1, fret });
+        }
+      }
+    }
+
+    return positions;
   }
 
   // ─── Helpers ─────────────────────────────────────────────────────────
