@@ -1,6 +1,8 @@
-import { Component, OnInit, OnDestroy, PLATFORM_ID, inject, ChangeDetectionStrategy, signal } from '@angular/core';
-import { isPlatformBrowser, Location } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Component, OnInit, OnDestroy, PLATFORM_ID, inject, ChangeDetectionStrategy, signal, ChangeDetectorRef } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { Router, RouterLink, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 
 import { DomainService } from '../domain/domain.service';
 
@@ -16,22 +18,26 @@ const STORAGE_KEY = 'guitar-neck-ui-visited';
 export class HeaderComponent implements OnInit, OnDestroy {
   readonly platformId = inject(PLATFORM_ID);
   readonly domainService = inject(DomainService);
-  private readonly location = inject(Location);
+  private readonly router = inject(Router);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   helpModalOpen = false;
 
   /** True when on the landing page — header shows only the brand. */
   readonly isLanding = signal(true);
 
-  private locationSub: (url: string) => void = () => {};
+  private routerEventsSub: Subscription | null = null;
 
   ngOnInit(): void {
     // Set initial value based on current URL
-    this.isLanding.set(this.isRootUrl(this.location.path()));
+    this.isLanding.set(this.isRootUrl(this.router.url));
 
-    // Listen for URL changes — fires on every navigation
-    this.locationSub = this.location.onUrlChange((url) => {
-      this.isLanding.set(this.isRootUrl(url));
+    // Subscribe to navigation events
+    this.routerEventsSub = this.router.events.pipe(
+      filter((e): e is NavigationEnd => e instanceof NavigationEnd)
+    ).subscribe(e => {
+      this.isLanding.set(this.isRootUrl(e.url));
+      this.cdr.markForCheck();
     });
 
     // Only open help modal on the app page, not on landing
@@ -42,7 +48,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // Location.onUrlChange cleanup is handled internally
+    this.routerEventsSub?.unsubscribe();
   }
 
   /** Check if a URL path is the root landing page, ignoring trailing slash and query params. */
