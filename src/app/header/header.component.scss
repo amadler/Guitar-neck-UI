@@ -36,6 +36,13 @@
   letter-spacing: -0.02em;
   color: var(--app-text);
   margin: 0;
+
+  a,
+  a:hover,
+  a:visited {
+    text-decoration: none;
+    color: inherit;
+  }
 }
 
 .app-brand__name--light {
@@ -60,7 +67,9 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s;
 }
 
 .icon-btn:hover {
@@ -101,10 +110,20 @@
   position: relative;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 
-  h2 { margin-top: 0; font-family: var(--font-headline); }
-  h3 { margin-top: 20px; font-family: var(--font-headline); }
-  ul { padding-left: 20px; }
-  li { margin-bottom: 4px; }
+  h2 {
+    margin-top: 0;
+    font-family: var(--font-headline);
+  }
+  h3 {
+    margin-top: 20px;
+    font-family: var(--font-headline);
+  }
+  ul {
+    padding-left: 20px;
+  }
+  li {
+    margin-bottom: 4px;
+  }
 }
 
 .help-modal__close {
