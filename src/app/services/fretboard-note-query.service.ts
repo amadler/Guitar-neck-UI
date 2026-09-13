@@ -34,6 +34,10 @@ export class FretboardNoteQueryService {
   }
 
   getNoteName(stringIndex: number, fret: number): string {
+    // In exercise mode, return physical position name regardless of visibility
+    if (this.domainService.currentState().exerciseMode) {
+      return this.getNoteAtPhysicalPosition(stringIndex, fret)?.note ?? '';
+    }
     const note = this.snapshotNotes.find(note => this.isMatchingNoteOnFret(note, stringIndex, fret));
     return note ? note.note : '';
   }
