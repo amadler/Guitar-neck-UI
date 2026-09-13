@@ -86,6 +86,7 @@ export class ChatService {
     this.config = { configurable: { thread_id: crypto.randomUUID() } };
     this._lessonMode = false;
     this._graphStatus = 'idle';
+    this._pendingExerciseKey = null;
   }
 
   /**
@@ -240,6 +241,9 @@ export class ChatService {
    * Build the lesson LangGraph with interrupt support.
    * Uses StateGraph directly (not createAgent) to support interrupt().
    */
+  /** Tracks the currently pending exercise key to prevent double execution on resume. */
+  private _pendingExerciseKey: string | null = null;
+
   private getOrCreateLessonGraph(): ReturnType<typeof buildLessonGraph> {
     if (!this._lessonGraph) {
       const apiKey = localStorage.getItem(API_KEY_STORAGE_KEY);
@@ -253,6 +257,8 @@ export class ChatService {
       const model = new ChatOpenRouter({ model: modelName, apiKey });
       const tools = createDomainTools(this.domainService, {
         isLessonMode: () => this._lessonMode,
+        pendingExerciseKey: this._pendingExerciseKey,
+        setPendingExerciseKey: (key: string | null) => { this._pendingExerciseKey = key; },
       });
 
       this._lessonGraph = buildLessonGraph(model, tools, LESSON_SYSTEM_PROMPT, new MemorySaver());
@@ -424,10 +430,14 @@ export class ChatService {
   async send(userMessage: string): Promise<void> {
     if (!userMessage.trim()) return;
 
-    if (this._lessonMode && this._graphStatus === 'interrupted') {
-      // Resume interrupted lesson graph with user's message
+    if (this._lessonMode) {
+      // Every message in lesson mode goes through the lesson graph
       this.messages.update(m => [...m, { role: 'user', text: userMessage }]);
-      await this.resumeGraph(userMessage);
+      if (this._graphStatus === 'interrupted') {
+        await this.resumeGraph(userMessage);
+      } else {
+        await this.processLessonStream(userMessage);
+      }
       return;
     }
 
@@ -453,6 +463,7 @@ export class ChatService {
     this._lessonGraph = null;
     this._lessonMode = false;
     this._graphStatus = 'idle';
+    this._pendingExerciseKey = null;
   }
 }
 

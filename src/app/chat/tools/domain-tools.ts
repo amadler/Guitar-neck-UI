@@ -85,9 +85,13 @@ type StartExerciseInput = z.infer<typeof startExerciseSchema>;
 /**
  * Context passed to tools for lesson-mode awareness.
  * Tools use isLessonMode() to decide whether to call interrupt().
+ * pendingExerciseKey tracks whether start_exercise is being resumed
+ * (same key) or called for the first time (different/null key).
  */
 export interface LessonToolContext {
   isLessonMode: () => boolean;
+  pendingExerciseKey: string | null;
+  setPendingExerciseKey: (key: string | null) => void;
 }
 
 export function createDomainTools(
@@ -347,12 +351,18 @@ export function createDomainTools(
     //start-exercise
     tool(
       async (input: StartExerciseInput) => {
-        // Guard: if exercise is already active with matching params, skip side effect
-        // This prevents double execution on resume after interrupt.
-        const currentState = domainService.query<DomainState>({ type: "get-current-view" });
-        const exerciseAlreadyActive = currentState.success && currentState.data.exerciseMode;
+        // Build a stable key from exercise parameters to distinguish
+        // "resume of the same exercise" from "start of a new exercise".
+        const key = JSON.stringify({
+          question: input.question,
+          rootNote: input.rootNote,
+          expectedIntervals: input.expectedIntervals,
+          fretRange: input.fretRange,
+          enabledStrings: input.enabledStrings,
+        });
 
-        if (!exerciseAlreadyActive) {
+        // First call (not resume): execute start-exercise and record the key
+        if (context && context.pendingExerciseKey !== key) {
           const command: DomainCommand = {
             type: "start-exercise",
             question: input.question,
@@ -362,6 +372,7 @@ export function createDomainTools(
             enabledStrings: input.enabledStrings,
           };
           domainService.execute(command);
+          context.setPendingExerciseKey(key);
         }
 
         // Interrupt in lesson mode — user needs to click notes on the fretboard
@@ -374,7 +385,8 @@ export function createDomainTools(
           });
         }
 
-        // After resume: read the exercise result from state
+        // After resume: clear the pending key and read the exercise result
+        context?.setPendingExerciseKey(null);
         const state = domainService.query<DomainState>({ type: "get-current-view" });
         const exerciseResult = state.success ? state.data.lastExerciseResult : undefined;
 

@@ -278,3 +278,110 @@ describe("ChatService", () => {
     });
   });
 });
+
+/**
+ * Integration test: real StateGraph + interrupt + Command({ resume }).
+ * This test builds a minimal LangGraph with a tool that calls interrupt(),
+ * runs it, confirms the graph pauses, then resumes and verifies continuation.
+ */
+describe("StateGraph interrupt/resume integration", () => {
+  it("should pause on interrupt and resume with Command", async () => {
+    const { StateGraph, Annotation, Command, interrupt, isGraphInterrupt, messagesStateReducer } = await import("@langchain/langgraph");
+    const { MemorySaver } = await import("@langchain/langgraph-checkpoint");
+    const { ToolMessage } = await import("@langchain/core/messages");
+
+    // A simple tool that records calls and interrupts
+    const callLog: string[] = [];
+    const testTool = async (input: { value: string }) => {
+      callLog.push(`before_interrupt:${input.value}`);
+      interrupt({ type: "test_interrupt", value: input.value });
+      // After resume, this code runs
+      callLog.push(`after_resume:${input.value}`);
+      return { result: `done:${input.value}` };
+    };
+
+    // Build a minimal graph with one agent node and one tools node
+    const TestState = Annotation.Root({
+      messages: Annotation<any[]>({
+        reducer: messagesStateReducer,
+        default: () => [],
+      }),
+    });
+
+    const agentNode = async (state: typeof TestState.State) => {
+      // Simulate LLM deciding to call the tool
+      return {
+        messages: [{
+          type: "ai",
+          tool_calls: [{
+            name: "test_tool",
+            args: { value: "hello" },
+            id: "call_1",
+          }],
+        }],
+      };
+    };
+
+    const toolsNode = async (state: typeof TestState.State) => {
+      const lastMsg = state.messages[state.messages.length - 1];
+      if (!lastMsg?.tool_calls?.length) return state;
+      const results: any[] = [];
+      for (const tc of lastMsg.tool_calls) {
+        if (tc.name === "test_tool") {
+          const result = await testTool(tc.args);
+          results.push(new ToolMessage({
+            content: JSON.stringify(result),
+            tool_call_id: tc.id,
+          }));
+        }
+      }
+      return { messages: results };
+    };
+
+    const shouldContinue = (state: typeof TestState.State) => {
+      const lastMsg = state.messages[state.messages.length - 1];
+      if (lastMsg?.tool_calls?.length) return "tools";
+      return "__end__";
+    };
+
+    const graph = new StateGraph(TestState)
+      .addNode("agent", agentNode)
+      .addNode("tools", toolsNode)
+      .addEdge("__start__", "agent")
+      .addConditionalEdges("agent", shouldContinue, {
+        tools: "tools",
+        __end__: "__end__",
+      })
+      .addEdge("tools", "agent")
+      .compile({ checkpointer: new MemorySaver() });
+
+    const threadConfig = { configurable: { thread_id: "test-integration-1" } };
+
+    // First run: should pause at interrupt
+    try {
+      const stream1 = graph.streamEvents(
+        { messages: [] },
+        { ...threadConfig, version: "v2" },
+      );
+      for await (const _event of stream1) {
+        // consume stream
+      }
+    } catch (err: any) {
+      expect(isGraphInterrupt(err)).toBe(true);
+    }
+
+    // Verify tool ran before interrupt but not after
+    expect(callLog).toEqual(["before_interrupt:hello"]);
+
+    // Resume with Command
+    const stream2 = graph.streamEvents(
+      new Command({ resume: "user_response" }),
+      { ...threadConfig, version: "v2" },
+    );
+    for await (const _event of stream2) {
+      // consume stream
+    }
+
+    // Verify tool completed after resume
+    expect(callLog).toEqual(["before_interrupt:hello", "after_resume:hello"]);
+  });
