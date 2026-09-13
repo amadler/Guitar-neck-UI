@@ -11,6 +11,7 @@ import { MetronomeComponent } from '../metronome/metronome.component';
 import { RelationshipStripComponent } from '../relationship-strip/relationship-strip.component';
 import { ToolboxBuilderComponent } from '../toolbox/toolbox-builder.component';
 import { ChatComponent } from '../chat/chat.component';
+import { HeaderComponent } from '../header/header.component';
 
 export type DisplayMode = 'legend' | 'relationship' | null;
 
@@ -19,6 +20,7 @@ export type DisplayMode = 'legend' | 'relationship' | null;
   imports: [
     GuitarNeckComponent,
     RangeToolbarComponent,
+    HeaderComponent,
     FooterComponent,
     LegendComponent,
     PatternDisplayComponent,
