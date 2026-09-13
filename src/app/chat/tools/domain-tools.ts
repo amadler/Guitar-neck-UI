@@ -113,9 +113,12 @@ export function createDomainTools(
         };
         const result = domainService.execute(command);
 
-        // Interrupt in lesson mode — user needs time to see the pattern
+        // Interrupt in lesson mode — user needs time to see the pattern.
+        // On resume, interrupt() returns the user's response so the LLM
+        // can see it in the tool output.
+        let userResponse: unknown = undefined;
         if (context?.isLessonMode()) {
-          interrupt({
+          userResponse = interrupt({
             type: 'lesson_step',
             action: 'show_pattern',
             patternType: input.patternType,
@@ -130,6 +133,7 @@ export function createDomainTools(
           patternType: input.patternType,
           patternName: input.patternName,
           rootNote: input.rootNote,
+          userResponse,
           message: result.success
             ? `Pokazano ${input.patternType} ${input.patternName} (${input.rootNote})`
             : result.message,
@@ -146,9 +150,12 @@ export function createDomainTools(
         const command: DomainCommand = { type: "show-interval", rootNote: input.rootNote, interval: input.interval };
         const result = domainService.execute(command);
 
-        // Interrupt in lesson mode — user needs time to see the interval
+        // Interrupt in lesson mode — user needs time to see the interval.
+        // On resume, interrupt() returns the user's response so the LLM
+        // can see it in the tool output.
+        let userResponse: unknown = undefined;
         if (context?.isLessonMode()) {
-          interrupt({
+          userResponse = interrupt({
             type: 'lesson_step',
             action: 'show_interval',
             rootNote: input.rootNote,
@@ -161,6 +168,7 @@ export function createDomainTools(
           action: "show-interval",
           rootNote: input.rootNote,
           interval: input.interval,
+          userResponse,
           message: result.success
             ? `Pokazano interwał ${input.interval} od ${input.rootNote}`
             : result.message,
@@ -220,9 +228,12 @@ export function createDomainTools(
         };
         const result = domainService.execute(command);
 
-        // Interrupt in lesson mode — user needs time to see the comparison
+        // Interrupt in lesson mode — user needs time to see the comparison.
+        // On resume, interrupt() returns the user's response so the LLM
+        // can see it in the tool output.
+        let userResponse: unknown = undefined;
         if (context?.isLessonMode()) {
-          interrupt({
+          userResponse = interrupt({
             type: 'lesson_step',
             action: 'compare_patterns',
             primary: input.primary,
@@ -235,6 +246,7 @@ export function createDomainTools(
           action: "compare-patterns",
           primary: input.primary,
           secondary: input.secondary,
+          userResponse,
           message: result.success
             ? `Porównano ${input.primary.patternName} (${input.primary.rootNote}) z ${input.secondary.patternName} (${input.secondary.rootNote})`
             : result.message,
@@ -301,9 +313,12 @@ export function createDomainTools(
         };
         const result = domainService.execute(command);
 
-        // Interrupt in lesson mode — user needs time to see the shape
+        // Interrupt in lesson mode — user needs time to see the shape.
+        // On resume, interrupt() returns the user's response so the LLM
+        // can see it in the tool output.
+        let userResponse: unknown = undefined;
         if (context?.isLessonMode()) {
-          interrupt({
+          userResponse = interrupt({
             type: 'lesson_step',
             action: 'resolve_shape',
             shapeId: input.shapeId,
@@ -316,6 +331,7 @@ export function createDomainTools(
           action: "resolve-shape",
           shapeId: input.shapeId,
           rootNote: input.rootNote,
+          userResponse,
           message: result.success
             ? `Pokazano kształt ${input.shapeId}${input.rootNote ? ` (${input.rootNote})` : ''}`
             : result.message,
@@ -378,15 +394,17 @@ export function createDomainTools(
           context.setPendingExerciseKey(key);
         }
 
-        // Interrupt in lesson mode — user needs to click notes on the fretboard
-        if (context?.isLessonMode()) {
-          interrupt({
-            type: 'exercise',
-            question: input.question,
-            rootNote: input.rootNote,
-            expectedIntervals: input.expectedIntervals,
-          });
-        }
+        // Interrupt in lesson mode — user needs to click notes on the fretboard.
+        // On resume, interrupt() returns the resume value (ExerciseResult from
+        // resumeWithExerciseResult, or user message if resumed via send()).
+        const resumeValue = context?.isLessonMode()
+          ? interrupt({
+              type: 'exercise',
+              question: input.question,
+              rootNote: input.rootNote,
+              expectedIntervals: input.expectedIntervals,
+            })
+          : undefined;
 
         // After resume: clear the pending key and read the exercise result
         context?.setPendingExerciseKey(null);
