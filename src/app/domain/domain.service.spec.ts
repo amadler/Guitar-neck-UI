@@ -91,4 +91,101 @@ describe('DomainService', () => {
       }
     });
   });
+
+  describe('exercise commands', () => {
+    it('should start an exercise and set exerciseMode', () => {
+      const command: DomainCommand = {
+        type: 'start-exercise',
+        question: 'Find all fifths relative to A',
+        rootNote: 'A',
+        expectedIntervals: ['5'],
+      };
+      const result = service.execute(command);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.exerciseMode).toBe(true);
+        expect(result.data.exerciseTask?.question).toBe('Find all fifths relative to A');
+        expect(result.data.exerciseTask?.rootNote).toBe('A');
+        expect(result.data.exerciseTask?.expectedIntervals).toEqual(['5']);
+        expect(result.data.selectedNotes).toEqual([]);
+      }
+    });
+
+    it('should select a note during exercise', () => {
+      // Start exercise first
+      service.execute({
+        type: 'start-exercise',
+        question: 'Find fifths',
+        rootNote: 'A',
+        expectedIntervals: ['5'],
+      });
+
+      const result = service.execute({
+        type: 'select-note',
+        note: 'E',
+        string: 1,
+        fret: 7,
+      });
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.selectedNotes).toEqual([
+          { note: 'E', string: 1, fret: 7 },
+        ]);
+      }
+    });
+
+    it('should deselect a note', () => {
+      service.execute({ type: 'start-exercise', question: 'Find fifths', rootNote: 'A', expectedIntervals: ['5'] });
+      service.execute({ type: 'select-note', note: 'E', string: 1, fret: 7 });
+      service.execute({ type: 'select-note', note: 'E', string: 2, fret: 2 });
+
+      const result = service.execute({ type: 'deselect-note', string: 1, fret: 7 });
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.selectedNotes?.length).toBe(1);
+        expect(result.data.selectedNotes).not.toContain(jasmine.objectContaining({ string: 1, fret: 7 }));
+      }
+    });
+
+    it('should reject select-note without active exercise', () => {
+      const result = service.execute({ type: 'select-note', note: 'E', string: 1, fret: 7 });
+      expect(result.success).toBe(false);
+    });
+
+    it('should submit exercise and produce lastExerciseResult', () => {
+      service.execute({ type: 'start-exercise', question: 'Find fifths', rootNote: 'A', expectedIntervals: ['5'] });
+      service.execute({ type: 'select-note', note: 'E', string: 1, fret: 7 });
+
+      const result = service.execute({ type: 'submit-exercise' });
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.exerciseMode).toBe(false);
+        expect(result.data.exerciseTask).toBeUndefined();
+        expect(result.data.lastExerciseResult).toBeDefined();
+        expect(result.data.lastExerciseResult!.correctCount).toBe(1);
+        expect(result.data.lastExerciseResult!.incorrectCount).toBe(0);
+      }
+    });
+
+    it('should reject submit-exercise without active exercise', () => {
+      const result = service.execute({ type: 'submit-exercise' });
+      expect(result.success).toBe(false);
+    });
+
+    it('should compute expectedPositions on start', () => {
+      const result = service.execute({
+        type: 'start-exercise',
+        question: 'Find fifths',
+        rootNote: 'A',
+        expectedIntervals: ['5'],
+        fretRange: { min: 0, max: 5 },
+      });
+      expect(result.success).toBe(true);
+      if (result.success) {
+        // Should have expectedPositions computed
+        expect(result.data.exerciseTask?.expectedPositions).toBeDefined();
+        expect(result.data.exerciseTask!.expectedPositions!.length).toBeGreaterThan(0);
+      }
+    });
+  });
 });

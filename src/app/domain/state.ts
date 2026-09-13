@@ -25,6 +25,12 @@ export interface ExerciseTask {
   fretRange?: { min: number; max: number };
   /** Optional view constraint — limit which strings are active. */
   enabledStrings?: boolean[];
+  /**
+   * All correct positions in the current fretRange and enabledStrings.
+   * Computed by the app when the exercise starts.
+   * Used to check completeness — did the user find ALL expected notes?
+   */
+  expectedPositions?: Array<{ string: number; fret: number }>;
 }
 
 /**
@@ -41,6 +47,10 @@ export interface ExerciseResult {
   correctCount: number;
   /** Number of incorrectly selected notes. */
   incorrectCount: number;
+  /** Number of expected positions the user missed (only when expectedPositions is set). */
+  missingCount?: number;
+  /** Expected positions the user did not select (only when expectedPositions is set). */
+  missingPositions?: Array<{ string: number; fret: number }>;
 }
 
 /**

@@ -12,6 +12,12 @@ import { PatternInfo } from '../shared/model/patternInfo';
 import { spellNote } from '../shared/note-utils';
 import { ShapeResolverService } from '../services/shape-resolver.service';
 import { ExerciseValidatorService } from '../services/exercise-validator.service';
+import { INTERVAL_CONFIG } from '../shared/tonal-adapter';
+
+/** Reverse map: Tonal interval name (e.g., '3M') → UI symbol (e.g., '3'). */
+const TONAL_TO_SYMBOL: Record<string, string> = Object.fromEntries(
+  INTERVAL_CONFIG.map(i => [i.tonalName, i.symbol])
+);
 
 // Handler types use `any` for the registry parameter because the narrowing
 // happens inside each handler via the `& { type: ... }` intersection.
@@ -288,12 +294,24 @@ export class DomainService {
       ?? DomainValidator.validateFretRange(fretRange);
     if (err) return err;
 
+    const range = fretRange ?? this.currentState().fretRange;
+    const strings = enabledStrings ?? this.currentState().enabledStrings;
+
+    // Compute expected positions for completeness checking
+    const expectedPositions = this.computeExpectedPositions(
+      rootNote,
+      expectedIntervals,
+      range,
+      strings,
+    );
+
     const task: ExerciseTask = {
       question,
       rootNote,
       expectedIntervals,
-      fretRange,
-      enabledStrings,
+      fretRange: range,
+      enabledStrings: strings,
+      expectedPositions,
     };
 
     return this.emitState({
@@ -302,8 +320,8 @@ export class DomainService {
       exerciseTask: task,
       selectedNotes: [],
       lastExerciseResult: undefined,
-      fretRange: fretRange ?? this.currentState().fretRange,
-      enabledStrings: enabledStrings ?? this.currentState().enabledStrings,
+      fretRange: range,
+      enabledStrings: strings,
     });
   }
 
@@ -319,6 +337,7 @@ export class DomainService {
       notes,
       task.rootNote,
       task.expectedIntervals,
+      task.expectedPositions, // pass expectedPositions for completeness check
     );
 
     // Reset exercise mode, store result, keep selectedNotes for agent to inspect
@@ -455,6 +474,42 @@ export class DomainService {
       return { success: false, error: DomainError.SHAPE_NOT_FOUND, message: result.message ?? `Shape not found: "${query.shapeId}".` };
     }
     return { success: true, data: { positions: result.positions } };
+  }
+
+  /**
+   * Compute all positions in the given fret range and enabled strings
+   * that match the expected intervals from the root note.
+   * Used for completeness checking in exercises.
+   */
+  private computeExpectedPositions(
+    rootNote: string,
+    expectedIntervals: string[],
+    fretRange: { min: number; max: number },
+    enabledStrings: boolean[],
+  ): Array<{ string: number; fret: number }> {
+    const positions: Array<{ string: number; fret: number }> = [];
+    const { chromaticNotes, stringNotes } = neckConfig;
+
+    for (let stringIdx = 0; stringIdx < 6; stringIdx++) {
+      if (!enabledStrings[stringIdx]) continue;
+      const openNote = stringNotes[stringIdx];
+
+      for (let fret = fretRange.min; fret <= fretRange.max; fret++) {
+        const openIdx = chromaticNotes.indexOf(openNote);
+        const noteIdx = (openIdx + fret) % chromaticNotes.length;
+        const noteName = chromaticNotes[noteIdx];
+
+        // Calculate interval from root to this note
+        const tonalInterval = this.tonalFacade.intervalBetween(rootNote, noteName);
+        // Map Tonal interval to UI symbol
+        const symbol = TONAL_TO_SYMBOL[tonalInterval] ?? '';
+        if (expectedIntervals.includes(symbol)) {
+          positions.push({ string: stringIdx + 1, fret });
+        }
+      }
+    }
+
+    return positions;
   }
 
   // ─── Helpers ─────────────────────────────────────────────────────────

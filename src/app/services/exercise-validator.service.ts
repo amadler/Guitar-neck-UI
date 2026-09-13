@@ -33,6 +33,7 @@ export class ExerciseValidatorService {
     selectedNotes: SelectedNotePosition[],
     rootNote: string,
     expectedIntervals: string[],
+    expectedPositions?: Array<{ string: number; fret: number }>,
   ): ExerciseResult {
     const correct: boolean[] = [];
     let correctCount = 0;
@@ -52,11 +53,27 @@ export class ExerciseValidatorService {
       }
     }
 
+    // Check completeness: did the user find ALL expected positions?
+    let missingCount: number | undefined;
+    let missingPositions: Array<{ string: number; fret: number }> | undefined;
+
+    if (expectedPositions && expectedPositions.length > 0) {
+      const selectedSet = new Set(
+        selectedNotes.map(n => `${n.string},${n.fret}`)
+      );
+      missingPositions = expectedPositions.filter(
+        p => !selectedSet.has(`${p.string},${p.fret}`)
+      );
+      missingCount = missingPositions.length;
+    }
+
     return {
       correct,
       selectedNotes,
       correctCount,
       incorrectCount,
+      missingCount,
+      missingPositions,
     };
   }
 }

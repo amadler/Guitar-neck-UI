@@ -73,6 +73,18 @@ export class FreatboardComponent {
     return this.noteQueryService.isNoteOnFret(stringIndex, fret);
   }
 
+  /**
+   * Returns true if a physical position exists at (stringIndex, fret)
+   * and is within the current fret range.
+   * Unlike isNoteOnFret(), this does NOT check note.visible — it works
+   * even with an empty snapshot. Used in exercise mode.
+   */
+  protected isPhysicalPositionInRange(stringIndex: number, fret: number): boolean {
+    if (stringIndex < 0 || stringIndex > 5) return false;
+    if (fret < 0 || fret > 24) return false;
+    return fret >= this.fretRange.min && fret <= this.fretRange.max;
+  }
+
   protected isNoteSelected(stringIndex: number, fret: number): boolean | undefined {
     const note = this.getNote(stringIndex, fret);
     return note ? note.selected : false;
@@ -104,28 +116,32 @@ export class FreatboardComponent {
   }
 
   protected fretNoteClicked(stringIndex: number, fret: number) {
+    // In exercise mode, use physical position (works even with empty snapshot)
+    if (this.exerciseMode) {
+      const physicalNote = this.noteQueryService.getNoteAtPhysicalPosition(stringIndex, fret);
+      if (!physicalNote) return;
+      const isSelected = this.isExerciseSelected(stringIndex, fret);
+      if (isSelected) {
+        this.domainService.execute({
+          type: 'deselect-note',
+          string: stringIndex + 1,
+          fret,
+        });
+      } else {
+        this.domainService.execute({
+          type: 'select-note',
+          note: physicalNote.note,
+          string: stringIndex + 1,
+          fret,
+        });
+      }
+      return;
+    }
+
+    // Normal mode: only clickable if note is visible in snapshot
     const note = this.noteQueryService.fretNoteClicked(stringIndex, fret);
     if (note) {
-      // In exercise mode, toggle selection directly
-      if (this.exerciseMode) {
-        const isSelected = this.isExerciseSelected(stringIndex, fret);
-        if (isSelected) {
-          this.domainService.execute({
-            type: 'deselect-note',
-            string: stringIndex + 1,
-            fret,
-          });
-        } else {
-          this.domainService.execute({
-            type: 'select-note',
-            note: note.note,
-            string: stringIndex + 1,
-            fret,
-          });
-        }
-      } else {
-        this.onNoteClicked$.emit(note);
-      }
+      this.onNoteClicked$.emit(note);
     }
   }
 

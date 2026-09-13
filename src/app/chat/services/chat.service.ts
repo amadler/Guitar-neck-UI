@@ -73,17 +73,21 @@ export class ChatService {
 
     this._lessonMode = true;
 
-    // Load lesson content from markdown file
+    // Load lesson content from markdown file in assets
     try {
-      const response = await fetch(`/lessons/${lessonId}.md`);
+      const response = await fetch(`/assets/lessons/${lessonId}.md`);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
       const content = await response.text();
 
       // Send lesson content as the first message
       await this.sendRaw(
         `Rozpoczynam lekcję: ${lesson.title}\n\n---\n${content}\n---\n\nProwadź mnie krok po kroku przez tę lekcję. Zadawaj pytania i czekaj na moje odpowiedzi.`
       );
-    } catch {
-      this.messages.set([{ role: 'assistant', text: `❌ Nie udało się załadować lekcji "${lesson.title}".` }]);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Nieznany błąd';
+      this.messages.set([{ role: 'assistant', text: `❌ Nie udało się załadować lekcji "${lesson.title}": ${msg}` }]);
     }
   }
 
@@ -108,25 +112,37 @@ export class ChatService {
     return this._agent;
   }
 
-  async send(userMessage: string): Promise<void> {
+  /**
+   * Shared pipeline for sending messages to the agent and processing the response.
+   *
+   * @param userMessage - The message to send to the agent.
+   * @param options.showUserInput - If true, the user message is added to the chat history.
+   * @param options.showAssistantOutput - If true, the assistant response is streamed to the chat.
+   */
+  private async processStream(
+    userMessage: string,
+    options: { showUserInput: boolean; showAssistantOutput: boolean },
+  ): Promise<void> {
     if (this.loading()) return;
     this.loading.set(true);
-    this.messages.update(m => [...m, { role: 'user', text: userMessage }]);
-    this.messages.update(m => [...m, { role: 'assistant', text: '', streaming: true }]);
+
+    if (options.showUserInput) {
+      this.messages.update(m => [...m, { role: 'user', text: userMessage }]);
+    }
+    if (options.showAssistantOutput) {
+      this.messages.update(m => [...m, { role: 'assistant', text: '', streaming: true }]);
+    }
 
     try {
       const agent = this.getOrCreateAgent();
       const stream = await agent.streamEvents(
-        {
-          messages: [
-            new HumanMessage(userMessage),
-          ],
-        },
+        { messages: [new HumanMessage(userMessage)] },
         { ...this.config, version: "v3" },
       );
 
       await Promise.all([
         (async () => {
+          if (!options.showAssistantOutput) return;
           for await (const message of stream.messages) {
             let accumulated = '';
             for await (const token of message.text) {
@@ -143,6 +159,7 @@ export class ChatService {
           }
         })(),
         (async () => {
+          if (!options.showAssistantOutput) return;
           for await (const call of stream.toolCalls) {
             this.messages.update(m => {
               const msgs = [...m];
@@ -157,53 +174,52 @@ export class ChatService {
         })(),
       ]);
 
-      this.messages.update(m => {
-        const msgs = [...m];
-        const last = msgs[msgs.length - 1];
-        if (last?.streaming) {
-          msgs[msgs.length - 1] = { ...last, streaming: false };
-        }
-        return msgs;
-      });
+      if (options.showAssistantOutput) {
+        this.messages.update(m => {
+          const msgs = [...m];
+          const last = msgs[msgs.length - 1];
+          if (last?.streaming) {
+            msgs[msgs.length - 1] = { ...last, streaming: false };
+          }
+          return msgs;
+        });
+      }
     } catch (err) {
-      // Gracefully handle missing key or agent creation errors
       const errorMsg = err instanceof Error ? err.message : 'Nieznany błąd';
-      this.messages.update(m => {
-        const msgs = [...m];
-        const last = msgs[msgs.length - 1];
-        if (last?.streaming) {
-          msgs[msgs.length - 1] = { ...last, text: `❌ ${errorMsg}`, streaming: false };
-        } else {
-          msgs.push({ role: 'assistant', text: `❌ ${errorMsg}` });
-        }
-        return msgs;
-      });
+      if (options.showAssistantOutput) {
+        this.messages.update(m => {
+          const msgs = [...m];
+          const last = msgs[msgs.length - 1];
+          if (last?.streaming) {
+            msgs[msgs.length - 1] = { ...last, text: `❌ ${errorMsg}`, streaming: false };
+          } else {
+            msgs.push({ role: 'assistant', text: `❌ ${errorMsg}` });
+          }
+          return msgs;
+        });
+      }
     } finally {
       this.loading.set(false);
     }
   }
 
+  async send(userMessage: string): Promise<void> {
+    await this.processStream(userMessage, {
+      showUserInput: true,
+      showAssistantOutput: true,
+    });
+  }
+
   /**
-   * Send a message directly to the agent without adding it to the visible chat history.
-   * Used internally by startLesson() to inject lesson content.
+   * Send a message to the agent without showing the user's input in chat.
+   * The assistant's response IS shown in chat.
+   * Used internally by startLesson() and notifyExerciseSubmitted().
    */
   private async sendRaw(message: string): Promise<void> {
-    try {
-      const agent = this.getOrCreateAgent();
-      const stream = await agent.streamEvents(
-        {
-          messages: [new HumanMessage(message)],
-        },
-        { ...this.config, version: "v3" },
-      );
-
-      // Consume the stream — we don't display raw messages in chat
-      for await (const _event of stream) {
-        // Just consume
-      }
-    } catch {
-      // Silently fail for raw messages
-    }
+    await this.processStream(message, {
+      showUserInput: false,
+      showAssistantOutput: true,
+    });
   }
 
   /**

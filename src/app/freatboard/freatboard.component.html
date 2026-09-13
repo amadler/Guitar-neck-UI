@@ -75,7 +75,7 @@
               @if (isMarkedTwelffeFret(i, fret)) {
                 <div class="fretboard__marker--double"></div>
               }
-              @if (isNoteOnFret(i, fret) && isNoteInRange(fret)) {
+              @if ((isNoteOnFret(i, fret) || (exerciseMode && isPhysicalPositionInRange(i, fret))) && isNoteInRange(fret)) {
                 @if (!isNoteSelected(i, fret) && !isExerciseSelected(i, fret)) {
                   <button
                     [ngClass]="['fretboard__dot', exerciseMode ? 'fretboard__dot--clickable' : '']"
