@@ -1,4 +1,4 @@
-<div class="sentence-toolbox">
+<div class="sentence-toolbox" [class.sentence-toolbox--disabled]="disabled()">
   <span class="sentence-toolbox__label">I want to:</span>
 
   <!-- Intent dropdown: Show / Compare / Shape -->
@@ -160,5 +160,5 @@
   }
 
   <!-- Submit button -->
-  <button class="sentence-toolbox__submit" (click)="submit()">Show</button>
+  <button class="sentence-toolbox__submit" (click)="submit()" [disabled]="disabled()">Show</button>
 </div>

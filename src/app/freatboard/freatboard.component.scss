@@ -162,14 +162,10 @@
 
 /* ---- Exercise mode ---- */
 
-.fretboard__dot--clickable {
+/* Invisible but clickable — user clicks on empty fretboard, marker appears on selection */
+.fretboard__dot--exercise-hidden {
+  opacity: 0;
   cursor: pointer;
-  opacity: 0.85;
-  transition: opacity 0.15s;
-}
-
-.fretboard__dot--clickable:hover {
-  opacity: 1;
 }
 
 .fretboard__dot--exercise-selected {

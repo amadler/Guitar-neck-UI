@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter, ChangeDetectionStrategy, signal, output } from '@angular/core';
+import { Component, Output, EventEmitter, ChangeDetectionStrategy, signal, output, input } from '@angular/core';
 
 import { neckConfig, SCALE_PATTERNS, CHORD_PATTERNS } from 'guitar-neck-shared';
 import { DomainCommand, ShowPatternCommand, ComparePatternsCommand, ResolveShapeCommand } from '../domain/commands';
@@ -31,6 +31,7 @@ export type MusicKey = string;
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ToolboxBuilderComponent {
+  readonly disabled = input(false);
   toolboxEvent = output<DomainCommand>();
   // --- Data sources ---
   musicKeys: MusicKey[] = neckConfig.chromaticNotes;

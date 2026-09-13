@@ -314,6 +314,9 @@ export class DomainService {
       expectedPositions,
     };
 
+    // Clear the fretboard so no old markers show during exercise
+    this.orchestration.clearFretboard();
+
     return this.emitState({
       ...this.currentState(),
       exerciseMode: true,
