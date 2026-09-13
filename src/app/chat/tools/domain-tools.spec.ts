@@ -255,26 +255,76 @@ describe("createDomainTools", () => {
       });
     });
 
-    it("should skip side effect if exercise is already active", async () => {
-      const tool = tools[9];
-      mockDomainService.query = vi.fn().mockReturnValue({
-        success: true,
-        data: { exerciseMode: true, lastExerciseResult: undefined },
-      });
+    it("should skip side effect on resume when pendingExerciseKey matches", async () => {
+      const setKey = vi.fn();
+      const getKey = vi.fn();
+      const lessonTools = createDomainTools(
+        mockDomainService as unknown as DomainService,
+        {
+          isLessonMode: () => true,
+          getPendingExerciseKey: getKey,
+          setPendingExerciseKey: setKey,
+        },
+      );
+      const tool = lessonTools[9] as any;
 
-      // Clear the execute mock to track calls
-      mockDomainService.execute.mockClear();
-
-      await tool.invoke({
+      // Simulate resume: getPendingExerciseKey returns the same key as the input
+      const expectedKey = JSON.stringify({
         question: "Znajdź wszystkie kwinty względem A",
         rootNote: "A",
         expectedIntervals: ["5"],
+        fretRange: undefined,
+        enabledStrings: undefined,
       });
+      getKey.mockReturnValue(expectedKey);
+
+      mockDomainService.execute.mockClear();
+
+      // interrupt() will throw outside a graph — catch it
+      await expect(tool.invoke({
+        question: "Znajdź wszystkie kwinty względem A",
+        rootNote: "A",
+        expectedIntervals: ["5"],
+      })).rejects.toThrow();
 
       // Should NOT have called execute for start-exercise (guard prevents double execution)
       expect(mockDomainService.execute).not.toHaveBeenCalledWith(
         expect.objectContaining({ type: "start-exercise" })
       );
+    });
+
+    it("should execute side effect on first call when pendingExerciseKey is null", async () => {
+      const setKey = vi.fn();
+      const getKey = vi.fn().mockReturnValue(null);
+      const lessonTools = createDomainTools(
+        mockDomainService as unknown as DomainService,
+        {
+          isLessonMode: () => true,
+          getPendingExerciseKey: getKey,
+          setPendingExerciseKey: setKey,
+        },
+      );
+      const tool = lessonTools[9] as any;
+
+      mockDomainService.query = vi.fn().mockReturnValue({
+        success: true,
+        data: { exerciseMode: false },
+      });
+      mockDomainService.execute.mockClear();
+
+      // interrupt() will throw outside a graph — catch it
+      await expect(tool.invoke({
+        question: "Znajdź wszystkie kwinty względem A",
+        rootNote: "A",
+        expectedIntervals: ["5"],
+      })).rejects.toThrow();
+
+      // Should have called execute for start-exercise
+      expect(mockDomainService.execute).toHaveBeenCalledWith(
+        expect.objectContaining({ type: "start-exercise" })
+      );
+      // Should have set the pending key
+      expect(setKey).toHaveBeenCalledWith(expect.any(String));
     });
   });
 
@@ -334,10 +384,22 @@ describe("createDomainTools", () => {
   });
 
   describe("lesson mode interrupt behavior", () => {
+    // Helper: minimal LessonToolContext for tests that don't exercise pendingExerciseKey
+    const lessonContext = {
+      isLessonMode: () => true,
+      getPendingExerciseKey: () => null,
+      setPendingExerciseKey: vi.fn(),
+    };
+    const nonLessonContext = {
+      isLessonMode: () => false,
+      getPendingExerciseKey: () => null,
+      setPendingExerciseKey: vi.fn(),
+    };
+
     it("should throw GraphInterrupt when show_interval is called in lesson mode", async () => {
       const lessonTools = createDomainTools(
         mockDomainService as unknown as DomainService,
-        { isLessonMode: () => true },
+        lessonContext,
       );
       const showIntervalTool = lessonTools[1] as any;
 
@@ -351,7 +413,7 @@ describe("createDomainTools", () => {
     it("should NOT throw when show_interval is called outside lesson mode", async () => {
       const lessonTools = createDomainTools(
         mockDomainService as unknown as DomainService,
-        { isLessonMode: () => false },
+        nonLessonContext,
       );
       const showIntervalTool = lessonTools[1] as any;
 
@@ -369,7 +431,7 @@ describe("createDomainTools", () => {
     it("should throw GraphInterrupt when show_pattern is called in lesson mode", async () => {
       const lessonTools = createDomainTools(
         mockDomainService as unknown as DomainService,
-        { isLessonMode: () => true },
+        lessonContext,
       );
       const showPatternTool = lessonTools[0] as any;
 
@@ -383,7 +445,7 @@ describe("createDomainTools", () => {
     it("should throw GraphInterrupt when compare_patterns is called in lesson mode", async () => {
       const lessonTools = createDomainTools(
         mockDomainService as unknown as DomainService,
-        { isLessonMode: () => true },
+        lessonContext,
       );
       const compareTool = lessonTools[4] as any;
 
@@ -401,7 +463,7 @@ describe("createDomainTools", () => {
 
       const lessonTools = createDomainTools(
         mockDomainService as unknown as DomainService,
-        { isLessonMode: () => true },
+        lessonContext,
       );
       const startExerciseTool = lessonTools[9] as any;
 
@@ -415,7 +477,7 @@ describe("createDomainTools", () => {
     it("should NOT throw for clear_view in lesson mode", async () => {
       const lessonTools = createDomainTools(
         mockDomainService as unknown as DomainService,
-        { isLessonMode: () => true },
+        lessonContext,
       );
       const clearViewTool = lessonTools[2] as any;
 
@@ -426,7 +488,7 @@ describe("createDomainTools", () => {
     it("should NOT throw for set_view in lesson mode", async () => {
       const lessonTools = createDomainTools(
         mockDomainService as unknown as DomainService,
-        { isLessonMode: () => true },
+        lessonContext,
       );
       const setViewTool = lessonTools[5] as any;
 
