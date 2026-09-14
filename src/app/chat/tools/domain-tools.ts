@@ -1,6 +1,5 @@
 import { tool } from "langchain/tools";
 import { z } from "zod";
-import { interrupt } from "@langchain/langgraph";
 import { DomainService } from "../../domain/domain.service";
 import { DomainCommand } from "../../domain/commands";
 import { DomainQuery } from "../../domain/queries";
@@ -82,24 +81,7 @@ const startExerciseSchema = z.object({
 });
 type StartExerciseInput = z.infer<typeof startExerciseSchema>;
 
-/**
- * Context passed to tools for lesson-mode awareness.
- * Tools use isLessonMode() to decide whether to call interrupt().
- * getPendingExerciseKey / setPendingExerciseKey track whether
- * start_exercise is being resumed (same key) or called for the
- * first time (different/null key). Must use a getter function
- * so the tool reads the live value, not a snapshot from creation.
- */
-export interface LessonToolContext {
-  isLessonMode: () => boolean;
-  getPendingExerciseKey: () => string | null;
-  setPendingExerciseKey: (key: string | null) => void;
-}
-
-export function createDomainTools(
-  domainService: DomainService,
-  context?: LessonToolContext,
-) {
+export function createDomainTools(domainService: DomainService) {
   return [
     tool(
       async (input: ShowPatternInput) => {
@@ -113,27 +95,12 @@ export function createDomainTools(
         };
         const result = domainService.execute(command);
 
-        // Interrupt in lesson mode — user needs time to see the pattern.
-        // On resume, interrupt() returns the user's response so the LLM
-        // can see it in the tool output.
-        let userResponse: unknown = undefined;
-        if (context?.isLessonMode()) {
-          userResponse = interrupt({
-            type: 'lesson_step',
-            action: 'show_pattern',
-            patternType: input.patternType,
-            patternName: input.patternName,
-            rootNote: input.rootNote,
-          });
-        }
-
         return {
           success: result.success,
           action: "show-pattern",
           patternType: input.patternType,
           patternName: input.patternName,
           rootNote: input.rootNote,
-          userResponse,
           message: result.success
             ? `Pokazano ${input.patternType} ${input.patternName} (${input.rootNote})`
             : result.message,
@@ -150,25 +117,11 @@ export function createDomainTools(
         const command: DomainCommand = { type: "show-interval", rootNote: input.rootNote, interval: input.interval };
         const result = domainService.execute(command);
 
-        // Interrupt in lesson mode — user needs time to see the interval.
-        // On resume, interrupt() returns the user's response so the LLM
-        // can see it in the tool output.
-        let userResponse: unknown = undefined;
-        if (context?.isLessonMode()) {
-          userResponse = interrupt({
-            type: 'lesson_step',
-            action: 'show_interval',
-            rootNote: input.rootNote,
-            interval: input.interval,
-          });
-        }
-
         return {
           success: result.success,
           action: "show-interval",
           rootNote: input.rootNote,
           interval: input.interval,
-          userResponse,
           message: result.success
             ? `Pokazano interwał ${input.interval} od ${input.rootNote}`
             : result.message,
@@ -228,25 +181,11 @@ export function createDomainTools(
         };
         const result = domainService.execute(command);
 
-        // Interrupt in lesson mode — user needs time to see the comparison.
-        // On resume, interrupt() returns the user's response so the LLM
-        // can see it in the tool output.
-        let userResponse: unknown = undefined;
-        if (context?.isLessonMode()) {
-          userResponse = interrupt({
-            type: 'lesson_step',
-            action: 'compare_patterns',
-            primary: input.primary,
-            secondary: input.secondary,
-          });
-        }
-
         return {
           success: result.success,
           action: "compare-patterns",
           primary: input.primary,
           secondary: input.secondary,
-          userResponse,
           message: result.success
             ? `Porównano ${input.primary.patternName} (${input.primary.rootNote}) z ${input.secondary.patternName} (${input.secondary.rootNote})`
             : result.message,
@@ -313,25 +252,11 @@ export function createDomainTools(
         };
         const result = domainService.execute(command);
 
-        // Interrupt in lesson mode — user needs time to see the shape.
-        // On resume, interrupt() returns the user's response so the LLM
-        // can see it in the tool output.
-        let userResponse: unknown = undefined;
-        if (context?.isLessonMode()) {
-          userResponse = interrupt({
-            type: 'lesson_step',
-            action: 'resolve_shape',
-            shapeId: input.shapeId,
-            rootNote: input.rootNote,
-          });
-        }
-
         return {
           success: result.success,
           action: "resolve-shape",
           shapeId: input.shapeId,
           rootNote: input.rootNote,
-          userResponse,
           message: result.success
             ? `Pokazano kształt ${input.shapeId}${input.rootNote ? ` (${input.rootNote})` : ''}`
             : result.message,
@@ -369,47 +294,15 @@ export function createDomainTools(
     //start-exercise
     tool(
       async (input: StartExerciseInput) => {
-        // Build a stable key from exercise parameters to distinguish
-        // "resume of the same exercise" from "start of a new exercise".
-        const key = JSON.stringify({
+        const command: DomainCommand = {
+          type: "start-exercise",
           question: input.question,
           rootNote: input.rootNote,
           expectedIntervals: input.expectedIntervals,
           fretRange: input.fretRange,
           enabledStrings: input.enabledStrings,
-        });
-
-        // First call (not resume): execute start-exercise and record the key
-        // Uses getter function so the live value is read, not a creation-time snapshot.
-        if (context && context.getPendingExerciseKey() !== key) {
-          const command: DomainCommand = {
-            type: "start-exercise",
-            question: input.question,
-            rootNote: input.rootNote,
-            expectedIntervals: input.expectedIntervals,
-            fretRange: input.fretRange,
-            enabledStrings: input.enabledStrings,
-          };
-          domainService.execute(command);
-          context.setPendingExerciseKey(key);
-        }
-
-        // Interrupt in lesson mode — user needs to click notes on the fretboard.
-        // On resume, interrupt() returns the resume value (ExerciseResult from
-        // resumeWithExerciseResult, or user message if resumed via send()).
-        const resumeValue = context?.isLessonMode()
-          ? interrupt({
-              type: 'exercise',
-              question: input.question,
-              rootNote: input.rootNote,
-              expectedIntervals: input.expectedIntervals,
-            })
-          : undefined;
-
-        // After resume: clear the pending key and read the exercise result
-        context?.setPendingExerciseKey(null);
-        const state = domainService.query<DomainState>({ type: "get-current-view" });
-        const exerciseResult = state.success ? state.data.lastExerciseResult : undefined;
+        };
+        domainService.execute(command);
 
         return {
           success: true,
@@ -417,10 +310,7 @@ export function createDomainTools(
           question: input.question,
           rootNote: input.rootNote,
           expectedIntervals: input.expectedIntervals,
-          exerciseResult,
-          message: exerciseResult
-            ? `Ćwiczenie zakończone. Poprawne: ${exerciseResult.correctCount}, błędne: ${exerciseResult.incorrectCount}`
-            : `Rozpoczęto ćwiczenie: ${input.question}`,
+          message: `Rozpoczęto ćwiczenie: ${input.question}`,
         };
       },
       {

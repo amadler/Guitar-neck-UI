@@ -1,6 +1,6 @@
 import { TestBed } from "@angular/core/testing";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { AIMessage, HumanMessage } from "@langchain/core/messages";
+import { AIMessage, HumanMessage, ToolMessage } from "@langchain/core/messages";
 import { ChatService } from "./chat.service";
 import { DomainService } from "../../domain/domain.service";
 import { ExerciseResult } from "../../domain/state";
@@ -197,7 +197,10 @@ describe("ChatService", () => {
     it("should resume the lesson graph when _graphStatus is interrupted", async () => {
       (service as any)._lessonMode = true;
       (service as any)._graphStatus = 'interrupted';
-      mockLessonGraph.streamEvents.mockResolvedValue(asyncIterable([]));
+      mockLessonGraph.streamEvents.mockResolvedValue({
+        messages: asyncIterable([]),
+        [Symbol.asyncIterator]: async function*() {},
+      });
 
       await service.send("dalej");
 
@@ -241,7 +244,10 @@ describe("ChatService", () => {
 
     it("should resume the lesson graph when graph is interrupted", async () => {
       (service as any)._graphStatus = 'interrupted';
-      mockLessonGraph.streamEvents.mockResolvedValue(asyncIterable([]));
+      mockLessonGraph.streamEvents.mockResolvedValue({
+        messages: asyncIterable([]),
+        [Symbol.asyncIterator]: async function*() {},
+      });
       const exerciseResult: ExerciseResult = {
         correct: [true, false],
         selectedNotes: [{ note: 'C', string: 1, fret: 0 }],
@@ -270,7 +276,10 @@ describe("ChatService", () => {
       (service as any).lessonRegistry = mockRegistry;
 
       // Mock the lesson graph streamEvents to return empty (avoid real LLM)
-      mockLessonGraph.streamEvents.mockResolvedValue(asyncIterable([]));
+      mockLessonGraph.streamEvents.mockResolvedValue({
+        messages: asyncIterable([]),
+        [Symbol.asyncIterator]: async function*() {},
+      });
 
       await service.startLesson('test');
 
@@ -281,116 +290,240 @@ describe("ChatService", () => {
 
 /**
  * Integration test: real StateGraph + interrupt + Command({ resume }).
- * This test builds a minimal LangGraph with a tool that calls interrupt(),
- * runs it, confirms the graph pauses, then resumes and verifies continuation.
+ * This test builds a minimal LangGraph with the new architecture:
+ *   action → waitForHuman → finish
+ * interrupt() lives ONLY in waitForHuman, NOT in action.
+ * This proves side effects execute exactly once before the pause.
  */
 describe("StateGraph interrupt/resume integration", () => {
-  it("should pause on interrupt and resume with Command", async () => {
+  it("should pause on interrupt and resume with Command — side effect executes once", async () => {
     const { StateGraph, Annotation, Command, interrupt, messagesStateReducer } = await import("@langchain/langgraph");
     const { MemorySaver } = await import("@langchain/langgraph-checkpoint");
-    const { ToolMessage } = await import("@langchain/core/messages");
 
-    // A simple tool that records calls and interrupts
     const callLog: string[] = [];
-    const testTool = async (input: { value: string }) => {
-      callLog.push(`before_interrupt:${input.value}`);
-      const resumeValue = interrupt({ type: "test_interrupt", value: input.value });
-      // After resume, this code runs. Per LangGraph semantics, the node
-      // re-executes from the beginning, so before_interrupt runs again.
-      callLog.push(`after_resume:${input.value} resume=${resumeValue}`);
-      return { result: `done:${input.value} resume=${resumeValue}` };
-    };
 
-    // Build a minimal graph with one agent node and one tools node
     const TestState = Annotation.Root({
       messages: Annotation<any[]>({
         reducer: messagesStateReducer,
         default: () => [],
       }),
+      pendingPause: Annotation<{ type: string; toolName: string } | null>({
+        reducer: (_, next) => next,
+        default: () => null,
+      }),
     });
 
-    const agentNode = async (state: typeof TestState.State) => {
-      // Simulate LLM deciding to call the tool
+    const actionNode = async (state: typeof TestState.State) => {
+      callLog.push('action');
       return {
-        messages: [{
-          type: "ai",
-          tool_calls: [{
-            name: "test_tool",
-            args: { value: "hello" },
-            id: "call_1",
-          }],
-        }],
+        messages: [],
+        pendingPause: { type: 'lesson_step', toolName: 'test_tool' },
       };
     };
 
-    const toolsNode = async (state: typeof TestState.State) => {
-      const lastMsg = state.messages[state.messages.length - 1];
-      if (!lastMsg?.tool_calls?.length) return state;
-      const results: any[] = [];
-      for (const tc of lastMsg.tool_calls) {
-        if (tc.name === "test_tool") {
-          const result = await testTool(tc.args);
-          results.push(new ToolMessage({
-            content: JSON.stringify(result),
-            tool_call_id: tc.id,
-          }));
-        }
-      }
-      return { messages: results };
+    const waitNode = async (state: typeof TestState.State) => {
+      const answer = interrupt(state.pendingPause);
+      callLog.push(`resume:${answer}`);
+      return {
+        messages: [new HumanMessage(String(answer))],
+        pendingPause: null,
+      };
     };
 
-    const shouldContinue = (state: typeof TestState.State) => {
-      const lastMsg = state.messages[state.messages.length - 1];
-      if (lastMsg?.tool_calls?.length) return "tools";
-      return "__end__";
+    const finishNode = async (state: typeof TestState.State) => {
+      callLog.push('finish');
+      return { messages: [] };
     };
 
     const graph = new StateGraph(TestState)
-      .addNode("agent", agentNode)
-      .addNode("tools", toolsNode)
-      .addEdge("__start__", "agent")
-      .addConditionalEdges("agent", shouldContinue, {
-        tools: "tools",
-        __end__: "__end__",
+      .addNode("action", actionNode)
+      .addNode("waitForHuman", waitNode)
+      .addNode("finish", finishNode)
+      .addEdge("__start__", "action")
+      .addConditionalEdges("action", (s: any) => s.pendingPause ? "waitForHuman" : "finish", {
+        waitForHuman: "waitForHuman",
+        finish: "finish",
       })
-      .addEdge("tools", "agent")
+      .addEdge("waitForHuman", "finish")
       .compile({ checkpointer: new MemorySaver() });
 
-    const threadConfig = { configurable: { thread_id: "test-integration-1" } };
+    const threadConfig = { configurable: { thread_id: "test-integration-2" } };
 
-    // First run: should pause at interrupt.
-    // Use version "v3" and check stream.interrupted per LangGraph HITL API.
+    // ── First invocation ──
     const stream1 = await graph.streamEvents(
       { messages: [] },
       { ...threadConfig, version: "v3" },
     );
 
-    // GraphRunStream is an async iterable of StreamEvent objects
-    for await (const _event of stream1) {
+    for await (const _ of stream1) {
       // consume events
     }
 
-    // Verify the graph was interrupted
     expect(stream1.interrupted).toBe(true);
+    // 'action' must appear exactly ONCE — side effect does NOT re-execute
+    expect(callLog).toEqual(['action']);
 
-    // Verify tool ran before interrupt but not after
-    expect(callLog).toEqual(["before_interrupt:hello"]);
-
-    // Resume with Command
+    // ── Resume ──
     const stream2 = await graph.streamEvents(
-      new Command({ resume: "user_response" }),
+      new Command({ resume: 'dalej' }),
       { ...threadConfig, version: "v3" },
     );
 
-    for await (const _event of stream2) {
+    for await (const _ of stream2) {
       // consume events
     }
 
-    // Per LangGraph semantics, the node re-executes from the beginning on resume.
-    // So before_interrupt runs again, then after_resume runs with the resume value.
+    expect(stream2.interrupted).toBe(false);
+
     expect(callLog).toEqual([
-      "before_interrupt:hello",
-      "before_interrupt:hello",
-      "after_resume:hello resume=user_response",
+      'action',
+      'resume:dalej',
+      'finish',
     ]);
   });
+});
+
+/**
+ * Integration test: simulate a real lesson scenario with two tool calls.
+ * The graph should execute only ONE didactic tool, skip the second,
+ * set pendingPause, and pause. After resume, the skipped tool should
+ * NOT execute either.
+ */
+describe("Lesson graph didactic tool limiting", () => {
+  it("should execute only one didactic tool per turn and skip the rest", async () => {
+    const { StateGraph, Annotation, Command, interrupt, messagesStateReducer } = await import("@langchain/langgraph");
+    const { MemorySaver } = await import("@langchain/langgraph-checkpoint");
+    const { AIMessage, ToolMessage } = await import("@langchain/core/messages");
+
+    const executeLog: string[] = [];
+
+    const LessonState = Annotation.Root({
+      messages: Annotation<any[]>({
+        reducer: messagesStateReducer,
+        default: () => [],
+      }),
+      pendingPause: Annotation<{ type: string; toolName: string; payload?: unknown } | null>({
+        reducer: (_, next) => next,
+        default: () => null,
+      }),
+    });
+
+    const LESSON_PAUSE_TOOLS = new Set(['show_interval', 'show_pattern']);
+
+    // Simulate an agent that produces two tool calls
+    const agentNode = async (state: typeof LessonState.State) => {
+      return {
+        messages: [new AIMessage({
+          content: '',
+          tool_calls: [
+            { name: 'show_interval', args: { rootNote: 'C', interval: '3' }, id: 'call_1' },
+            { name: 'show_pattern', args: { patternType: 'scale', patternName: 'major', rootNote: 'C' }, id: 'call_2' },
+          ],
+        })],
+      };
+    };
+
+    const toolsNode = async (state: typeof LessonState.State) => {
+      const lastMsg = state.messages[state.messages.length - 1];
+      if (!lastMsg?.tool_calls?.length) return { pendingPause: null };
+
+      const results: any[] = [];
+      let didacticExecuted = false;
+      let pauseToolName: string | null = null;
+      let pausePayload: unknown = null;
+
+      for (const tc of lastMsg.tool_calls) {
+        const isDidactic = LESSON_PAUSE_TOOLS.has(tc.name);
+
+        if (isDidactic && didacticExecuted) {
+          // Skip — create placeholder ToolMessage
+          results.push(new ToolMessage({
+            content: JSON.stringify({
+              success: false,
+              skipped: true,
+              reason: 'Lesson paused after first didactic action.',
+            }),
+            tool_call_id: tc.id,
+          }));
+          continue;
+        }
+
+        // Execute
+        executeLog.push(tc.name);
+        results.push(new ToolMessage({
+          content: JSON.stringify({ success: true, action: tc.name }),
+          tool_call_id: tc.id,
+        }));
+
+        if (isDidactic) {
+          didacticExecuted = true;
+          pauseToolName = tc.name;
+          pausePayload = tc.args;
+        }
+      }
+
+      return {
+        messages: results,
+        pendingPause: pauseToolName
+          ? { type: 'lesson_step', toolName: pauseToolName, payload: pausePayload }
+          : null,
+      };
+    };
+
+    const waitForHumanNode = async (state: typeof LessonState.State) => {
+      const response = interrupt(state.pendingPause);
+      return {
+        messages: [new HumanMessage(String(response))],
+        pendingPause: null,
+      };
+    };
+
+    const graph = new StateGraph(LessonState)
+      .addNode("agent", agentNode)
+      .addNode("tools", toolsNode)
+      .addNode("waitForHuman", waitForHumanNode)
+      .addEdge("__start__", "agent")
+      .addConditionalEdges("agent", (s: any) => {
+        const last = s.messages[s.messages.length - 1];
+        return last?.tool_calls?.length ? "tools" : "__end__";
+      }, { tools: "tools", __end__: "__end__" })
+      .addConditionalEdges("tools", (s: any) => s.pendingPause ? "waitForHuman" : "agent", {
+        waitForHuman: "waitForHuman",
+        agent: "agent",
+      })
+      .addEdge("waitForHuman", "agent")
+      .compile({ checkpointer: new MemorySaver() });
+
+    const threadConfig = { configurable: { thread_id: "test-didactic-limit-1" } };
+
+    // ── First run: should execute show_interval, skip show_pattern, pause ──
+    const stream1 = await graph.streamEvents(
+      { messages: [] },
+      { ...threadConfig, version: "v3" },
+    );
+
+    for await (const _ of stream1) {
+      // consume
+    }
+
+    expect(stream1.interrupted).toBe(true);
+    // Only show_interval should have executed
+    expect(executeLog).toEqual(['show_interval']);
+
+    // ── Resume with user response ──
+    const stream2 = await graph.streamEvents(
+      new Command({ resume: 'dlaczego?' }),
+      { ...threadConfig, version: "v3" },
+    );
+
+    for await (const _ of stream2) {
+      // consume
+    }
+
+    // After resume, show_interval should still have executed only once
+    expect(executeLog).toEqual(['show_interval']);
+    // The graph should have continued to agent node (which produces more tool calls,
+    // but that's the agent's decision — the key is no re-execution of show_interval)
+    expect(stream2.interrupted).toBe(false);
+  });
+});

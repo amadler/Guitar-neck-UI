@@ -2,13 +2,14 @@ import { Injectable, inject, signal } from "@angular/core";
 import { createAgent } from "langchain";
 import { MemorySaver } from "@langchain/langgraph-checkpoint";
 import { HumanMessage, BaseMessage, ToolMessage, AIMessage, SystemMessage } from '@langchain/core/messages';
-import { StateGraph, Annotation, Command, interrupt, messagesStateReducer, GraphRunStream } from "@langchain/langgraph";
-import { createDomainTools, LessonToolContext } from "../tools/domain-tools";
+import { StateGraph, Annotation, Command, interrupt, messagesStateReducer } from "@langchain/langgraph";
+import { createDomainTools } from "../tools/domain-tools";
 import { DomainService } from "../../domain/domain.service";
 import { ChatOpenRouter } from '@langchain/openrouter';
 import { ChatMessage } from "../models";
 import { LessonRegistryService } from "../../services/lesson-registry.service";
 import { ExerciseResult } from "../../domain/state";
+import type { GraphRunStream } from "@langchain/langgraph";
 
 const API_KEY_STORAGE_KEY = 'modelApiKey';
 const MODEL_STORAGE_KEY = 'modelName';
@@ -48,14 +49,36 @@ type GraphStatus = 'idle' | 'running' | 'interrupted';
 
 /**
  * State schema for the lesson LangGraph.
- * Uses the standard messages reducer for conversation history.
+ * Uses the standard messages reducer for conversation history,
+ * plus pendingPause for orchestration state (not domain state).
  */
 const LessonState = Annotation.Root({
   messages: Annotation<BaseMessage[]>({
     reducer: messagesStateReducer,
     default: () => [],
   }),
+  pendingPause: Annotation<{
+    type: 'lesson_step' | 'exercise';
+    toolName: string;
+    payload?: unknown;
+  } | null>({
+    reducer: (_, next) => next,
+    default: () => null,
+  }),
 });
+
+/**
+ * Didactic tools that trigger a pause for human interaction.
+ * Only ONE of these is executed per turn; subsequent didactic
+ * tool calls are skipped with a placeholder ToolMessage.
+ */
+const LESSON_PAUSE_TOOLS = new Set([
+  'show_pattern',
+  'show_interval',
+  'compare_patterns',
+  'resolve_shape',
+  'start_exercise',
+]);
 
 @Injectable({ providedIn: "root" })
 export class ChatService {
@@ -86,7 +109,6 @@ export class ChatService {
     this.config = { configurable: { thread_id: crypto.randomUUID() } };
     this._lessonMode = false;
     this._graphStatus = 'idle';
-    this._pendingExerciseKey = null;
   }
 
   /**
@@ -115,9 +137,11 @@ export class ChatService {
       const content = await response.text();
 
       // Send lesson content as the first message
-      await this.processLessonStream(
-        `Rozpoczynam lekcję: ${lesson.title}\n\n---\n${content}\n---\n\nProwadź mnie krok po kroku przez tę lekcję. Zadawaj pytania i czekaj na moje odpowiedzi.`
-      );
+      await this.runLessonGraph({
+        messages: [new HumanMessage(
+          `Rozpoczynam lekcję: ${lesson.title}\n\n---\n${content}\n---\n\nProwadź mnie krok po kroku przez tę lekcję. Zadawaj pytania i czekaj na moje odpowiedzi.`
+        )],
+      });
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Nieznany błąd';
       this.messages.set([{ role: 'assistant', text: `❌ Nie udało się załadować lekcji "${lesson.title}": ${msg}` }]);
@@ -237,13 +261,6 @@ export class ChatService {
 
   // ─── Lesson graph ──────────────────────────────────────────────────────
 
-  /**
-   * Build the lesson LangGraph with interrupt support.
-   * Uses StateGraph directly (not createAgent) to support interrupt().
-   */
-  /** Tracks the currently pending exercise key to prevent double execution on resume. */
-  private _pendingExerciseKey: string | null = null;
-
   private getOrCreateLessonGraph(): ReturnType<typeof buildLessonGraph> {
     if (!this._lessonGraph) {
       const apiKey = localStorage.getItem(API_KEY_STORAGE_KEY);
@@ -255,11 +272,7 @@ export class ChatService {
 
       const modelName = localStorage.getItem(MODEL_STORAGE_KEY) || DEFAULT_MODEL;
       const model = new ChatOpenRouter({ model: modelName, apiKey });
-      const tools = createDomainTools(this.domainService, {
-        isLessonMode: () => this._lessonMode,
-        getPendingExerciseKey: () => this._pendingExerciseKey,
-        setPendingExerciseKey: (key: string | null) => { this._pendingExerciseKey = key; },
-      });
+      const tools = createDomainTools(this.domainService);
 
       this._lessonGraph = buildLessonGraph(model, tools, LESSON_SYSTEM_PROMPT, new MemorySaver());
     }
@@ -267,11 +280,12 @@ export class ChatService {
   }
 
   /**
-   * Process a message through the lesson graph.
-   * The graph may be interrupted by interrupt() calls inside didactic tools.
-   * Uses version "v2" for StreamEvent format, checks stream.interrupted after.
+   * Run the lesson graph with the given input (either initial messages or a Command for resume).
+   * Uses v3 streamEvents API and checks stream.interrupted after consumption.
    */
-  private async processLessonStream(userMessage: string): Promise<void> {
+  private async runLessonGraph(
+    input: { messages: BaseMessage[] } | Command,
+  ): Promise<void> {
     if (this.loading()) return;
     this.loading.set(true);
     this._graphStatus = 'running';
@@ -280,109 +294,41 @@ export class ChatService {
 
     try {
       const graph = this.getOrCreateLessonGraph();
-      const stream = await graph.streamEvents(
-        { messages: [new HumanMessage(userMessage)] },
-        { ...this.config, version: "v2" },
-      ) as unknown as GraphRunStream;
+      const stream = await (graph.streamEvents(
+        input as any,
+        { ...this.config, version: 'v3' },
+      ) as Promise<GraphRunStream>);
 
       let accumulatedText = '';
 
-      // GraphRunStream is an async iterable of StreamEvent objects
-      for await (const rawEvent of stream) {
-        const event = rawEvent as any;
-        if (event.event === 'on_chat_model_stream') {
-          const chunk = event.data?.chunk;
-          if (chunk?.content) {
-            accumulatedText += chunk.content;
-            this.messages.update(m => {
-              const msgs = [...m];
-              const last = msgs[msgs.length - 1];
-              if (last?.streaming) {
-                msgs[msgs.length - 1] = { ...last, text: accumulatedText };
-              }
-              return msgs;
-            });
-          }
-        } else if (event.event === 'on_tool_start') {
+      // Consume the stream using the typed v3 projection API
+      for await (const message of stream.messages) {
+        let accumulated = '';
+        for await (const token of message.text) {
+          accumulated += token;
           this.messages.update(m => {
             const msgs = [...m];
             const last = msgs[msgs.length - 1];
             if (last?.streaming) {
-              msgs[msgs.length - 1] = { ...last, text: `🔧 Używam narzędzia: ${event.name}...` };
+              msgs[msgs.length - 1] = { ...last, text: accumulated };
             }
             return msgs;
           });
         }
+        accumulatedText = accumulated;
       }
 
-      // Finalize the assistant message
-      this.messages.update(m => {
-        const msgs = [...m];
-        const last = msgs[msgs.length - 1];
-        if (last?.streaming) {
-          msgs[msgs.length - 1] = { ...last, streaming: false };
-        }
-        return msgs;
-      });
-
-      // Check interrupt status per LangGraph HITL API
-      if (stream.interrupted) {
-        this._graphStatus = 'interrupted';
-      } else {
-        this._graphStatus = 'idle';
-      }
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : 'Nieznany błąd';
-      this.messages.update(m => [...m, { role: 'assistant', text: `❌ ${errorMsg}` }]);
-      this._graphStatus = 'idle';
-    } finally {
-      this.loading.set(false);
-    }
-  }
-
-  /**
-   * Resume an interrupted lesson graph with a resume value.
-   * Used both for normal user messages ("dalej") and exercise results.
-   * Uses version "v2" for StreamEvent format, checks stream.interrupted after.
-   */
-  private async resumeGraph(resumeValue: unknown): Promise<void> {
-    if (this.loading()) return;
-    this.loading.set(true);
-    this._graphStatus = 'running';
-
-    this.messages.update(m => [...m, { role: 'assistant', text: '', streaming: true }]);
-
-    try {
-      const graph = this.getOrCreateLessonGraph();
-      const stream = await graph.streamEvents(
-        new Command({ resume: resumeValue }),
-        { ...this.config, version: "v2" },
-      ) as unknown as GraphRunStream;
-
-      let accumulatedText = '';
-
-      // GraphRunStream is an async iterable of StreamEvent objects
-      for await (const rawEvent of stream) {
-        const event = rawEvent as any;
-        if (event.event === 'on_chat_model_stream') {
-          const chunk = event.data?.chunk;
-          if (chunk?.content) {
-            accumulatedText += chunk.content;
-            this.messages.update(m => {
-              const msgs = [...m];
-              const last = msgs[msgs.length - 1];
-              if (last?.streaming) {
-                msgs[msgs.length - 1] = { ...last, text: accumulatedText };
-              }
-              return msgs;
-            });
-          }
-        } else if (event.event === 'on_tool_start') {
+      // Also consume raw events to detect tool starts for UI feedback
+      for await (const event of stream) {
+        if (
+          (event as any).method === 'tools' &&
+          (event as any).params?.data?.event === 'tool-started'
+        ) {
           this.messages.update(m => {
             const msgs = [...m];
             const last = msgs[msgs.length - 1];
             if (last?.streaming) {
-              msgs[msgs.length - 1] = { ...last, text: `🔧 Używam narzędzia: ${event.name}...` };
+              msgs[msgs.length - 1] = { ...last, text: `🔧 Używam narzędzia...` };
             }
             return msgs;
           });
@@ -423,9 +369,11 @@ export class ChatService {
       // Every message in lesson mode goes through the lesson graph
       this.messages.update(m => [...m, { role: 'user', text: userMessage }]);
       if (this._graphStatus === 'interrupted') {
-        await this.resumeGraph(userMessage);
+        await this.runLessonGraph(new Command({ resume: userMessage }));
       } else {
-        await this.processLessonStream(userMessage);
+        await this.runLessonGraph({
+          messages: [new HumanMessage(userMessage)],
+        });
       }
       return;
     }
@@ -442,7 +390,7 @@ export class ChatService {
    */
   async resumeWithExerciseResult(result: ExerciseResult): Promise<void> {
     if (this._graphStatus !== 'interrupted') return;
-    await this.resumeGraph(result);
+    await this.runLessonGraph(new Command({ resume: result }));
   }
 
   reset(): void {
@@ -452,7 +400,6 @@ export class ChatService {
     this._lessonGraph = null;
     this._lessonMode = false;
     this._graphStatus = 'idle';
-    this._pendingExerciseKey = null;
   }
 }
 
@@ -462,11 +409,20 @@ export class ChatService {
  * Build a LangGraph StateGraph for lesson mode.
  *
  * Structure:
- *   __start__ → agent (LLM) → tools (execute tool calls) → agent → ...
+ *   __start__ → agent → tools → waitForHuman → agent → ...
+ *              ↕ (no pause)  ↕ (no didactic tool)
  *
- * interrupt() is called inside didactic tool handlers (in domain-tools.ts).
- * When interrupt() fires, GraphInterrupt propagates through tools → graph,
- * pausing execution. The graph is resumed via Command({ resume: ... }).
+ * interrupt() lives ONLY in waitForHuman node, never inside tools.
+ * This ensures side effects execute exactly once before the pause.
+ *
+ * Flow:
+ * 1. agent produces tool_calls
+ * 2. toolsNode executes tools. If a didactic tool (LESSON_PAUSE_TOOLS) is
+ *    found, it executes ONLY that one and sets pendingPause. Subsequent
+ *    didactic tool calls get a skipped ToolMessage.
+ * 3. If pendingPause is set → waitForHuman (interrupt)
+ * 4. If no pendingPause → agent (continue)
+ * 5. waitForHuman resumes → adds user response as HumanMessage → agent
  */
 function buildLessonGraph(
   model: ChatOpenRouter,
@@ -484,20 +440,73 @@ function buildLessonGraph(
   const toolsNode = async (state: typeof LessonState.State) => {
     const lastMessage = state.messages[state.messages.length - 1];
     if (!(lastMessage instanceof AIMessage) || !lastMessage.tool_calls?.length) {
-      return state;
+      return { pendingPause: null };
     }
 
     const results: ToolMessage[] = [];
+    let didacticExecuted = false;
+    let pauseToolName: string | null = null;
+    let pausePayload: unknown = null;
+
     for (const tc of lastMessage.tool_calls) {
       const tool = tools.find((t: any) => t.name === tc.name);
       if (!tool) continue;
+
+      const isDidactic = LESSON_PAUSE_TOOLS.has(tc.name);
+
+      // If we already executed a didactic tool, skip remaining didactic ones
+      if (isDidactic && didacticExecuted) {
+        results.push(new ToolMessage({
+          content: JSON.stringify({
+            success: false,
+            skipped: true,
+            reason: 'Lesson paused after first didactic action.',
+          }),
+          tool_call_id: tc.id as string,
+        }));
+        continue;
+      }
+
+      // Execute the tool
       const result = await tool.invoke(tc.args);
       results.push(new ToolMessage({
         content: typeof result === 'string' ? result : JSON.stringify(result),
         tool_call_id: tc.id as string,
       }));
+
+      // If this is a didactic tool, mark it as executed and record pause info
+      if (isDidactic) {
+        didacticExecuted = true;
+        pauseToolName = tc.name;
+        pausePayload = tc.args;
+      }
     }
-    return { messages: results };
+
+    return {
+      messages: results,
+      pendingPause: pauseToolName
+        ? {
+            type: pauseToolName === 'start_exercise' ? 'exercise' : 'lesson_step',
+            toolName: pauseToolName,
+            payload: pausePayload,
+          }
+        : null,
+    };
+  };
+
+  const waitForHumanNode = async (state: typeof LessonState.State) => {
+    const response = interrupt(state.pendingPause);
+
+    return {
+      messages: [
+        new HumanMessage(
+          typeof response === 'string'
+            ? response
+            : JSON.stringify(response),
+        ),
+      ],
+      pendingPause: null,
+    };
   };
 
   const shouldContinue = (state: typeof LessonState.State) => {
@@ -508,14 +517,26 @@ function buildLessonGraph(
     return "__end__";
   };
 
+  const afterTools = (state: typeof LessonState.State) => {
+    if (state.pendingPause) {
+      return "waitForHuman";
+    }
+    return "agent";
+  };
+
   return new StateGraph(LessonState)
     .addNode("agent", agentNode)
     .addNode("tools", toolsNode)
+    .addNode("waitForHuman", waitForHumanNode)
     .addEdge("__start__", "agent")
     .addConditionalEdges("agent", shouldContinue, {
       tools: "tools",
       __end__: "__end__",
     })
-    .addEdge("tools", "agent")
+    .addConditionalEdges("tools", afterTools, {
+      waitForHuman: "waitForHuman",
+      agent: "agent",
+    })
+    .addEdge("waitForHuman", "agent")
     .compile({ checkpointer });
 }
