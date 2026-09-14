@@ -3,8 +3,6 @@ import { createDeepAgent } from "deepagents";
 import { MemorySaver } from "@langchain/langgraph-checkpoint";
 import { Command } from '@langchain/langgraph';
 import { HumanMessage } from '@langchain/core/messages';
-import { tool } from '@langchain/core/tools';
-import { z } from 'zod';
 import { createDomainTools } from "../tools/domain-tools";
 import { DomainService } from "../../domain/domain.service";
 import { ChatOpenRouter } from '@langchain/openrouter';
@@ -275,7 +273,9 @@ export class ChatService {
 
     return createDeepAgent({
       model: new ChatOpenRouter({ model: modelName, apiKey }),
-      tools: this._lessonMode ? [...domainTools] : domainTools,
+      tools: this._lessonMode
+        ? [...domainTools]
+        : domainTools,
       checkpointer: new MemorySaver(),
       systemPrompt: prompt,
       ...(this._lessonMode
