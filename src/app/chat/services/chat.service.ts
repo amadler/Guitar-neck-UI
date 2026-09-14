@@ -9,32 +9,8 @@ import { ChatOpenRouter } from '@langchain/openrouter';
 import { ChatMessage } from "../models";
 import { LessonRegistryService } from "../../services/lesson-registry.service";
 import { StorageService } from "../../../utils/Storage.util";
+import { addMessage, BASE_SYSTEM_PROMPT, LESSON_SYSTEM_PROMPT, showError, updateLastAssistant } from "./helpers";
 
-const BASE_SYSTEM_PROMPT =
-  "Jesteś pomocnym asystentem gitarzysty. Mów po polsku, krótko i rzeczowo. " +
-  "Gdy użytkownik poprosi o pokazanie skali lub akordu na gryfie, użyj narzędzia show_pattern. " +
-  "Gdy zapyta o interwał, użyj show_interval. " +
-  "Gdy poprosi o wyczyszczenie widoku, użyj clear_view. " +
-  "Gdy poprosi o porównanie skali z akordem (np. 'pokaż C-dur z Am'), użyj compare_patterns. " +
-  "Gdy poprosi o zmianę widoku (zakres progów, tryb wyświetlania), użyj set_view. " +
-  "Gdy poprosi o podświetlenie konkretnych interwałów, użyj set_emphasis. " +
-  "Gdy zapyta o chwyty gitarowe (cowboy chords, barre), użyj resolve_shape. " +
-  "Gdy poprosi o włączenie/wyłączenie trybu AI, użyj set_ai_mode. " +
-  "Po wykonaniu narzędzia powiedz użytkownikowi co zostało pokazane.";
-
-const LESSON_SYSTEM_PROMPT =
-  "Jesteś nauczycielem gitary prowadzącym lekcję krok po kroku. " +
-  "Masz przed sobą pełny tekst lekcji. Trzymaj się ściśle jej treści — nie odchodź od tematu. " +
-  "Wykonuj jeden krok dydaktyczny na raz. " +
-  "Po pokazaniu interwału, skali, akordu lub innego przykładu użyj narzędzia wait_for_user i poczekaj na reakcję użytkownika. " +
-  "Nie przechodź do następnego kroku przed odpowiedzią użytkownika. " +
-  "Gdy chcesz zadać ćwiczenie, użyj narzędzia start_exercise. " +
-  "Podaj question (pytanie do użytkownika), rootNote, expectedIntervals (czego szukać). " +
-  "Po rozpoczęciu ćwiczenia użyj wait_for_user. " +
-  "Po otrzymaniu wyniku ćwiczenia (submit_exercise), skomentuj odpowiedź użytkownika. " +
-  "Jeśli odpowiedź jest dobra — pochwal. Jeśli nie — podpowiedz. " +
-  "Nie zadawaj kolejnego pytania, dopóki nie dostaniesz wyniku poprzedniego. " +
-  "Gdy użytkownik zada pytanie spoza lekcji, odpowiedz krótko i wróć do lekcji.";
 
 
 @Injectable({ providedIn: "root" })
@@ -119,10 +95,10 @@ export class ChatService {
     this.loading.set(true);
 
     if (options.showUserInput) {
-      this.addMessage({ role: 'user', text: userMessage });
+      addMessage(this.messages, { role: 'user', text: userMessage });
     }
     if (options.showAssistantOutput) {
-      this.addMessage({ role: 'assistant', text: '', streaming: true });
+      addMessage(this.messages, { role: 'assistant', text: '', streaming: true });
     }
 
     try {
@@ -138,7 +114,7 @@ export class ChatService {
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Nieznany błąd';
       if (options.showAssistantOutput) {
-        this.showError(errorMsg);
+        showError(this.messages, errorMsg);
       }
     } finally {
       this.loading.set(false);
@@ -153,10 +129,10 @@ export class ChatService {
     this.loading.set(true);
 
     if (showUserInput) {
-      this.addMessage({ role: 'user', text: userMessage });
+      addMessage(this.messages, { role: 'user', text: userMessage });
     }
 
-    this.addMessage({ role: 'assistant', text: '', streaming: true });
+    addMessage(this.messages, { role: 'assistant', text: '', streaming: true });
 
     try {
       const agent = this.getOrCreateAgent();
@@ -180,7 +156,7 @@ export class ChatService {
       this._waitingForUser = Boolean(stream.interrupted);
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Nieznany błąd';
-      this.showError(errorMsg);
+      showError(this.messages, errorMsg);
     } finally {
       this.loading.set(false);
     }
@@ -197,21 +173,21 @@ export class ChatService {
           let accumulated = '';
           for await (const token of message.text) {
             accumulated += token;
-            this.updateLastAssistant({ text: accumulated });
+            updateLastAssistant(this.messages, { text: accumulated });
           }
         }
       })(),
       (async () => {
         if (!showAssistantOutput) return;
         for await (const call of stream.toolCalls) {
-          this.updateLastAssistant({ text: `🔧 Używam narzędzia: ${call.name}...` });
+          updateLastAssistant(this.messages, { text: `🔧 Używam narzędzia: ${call.name}...` });
           await call.output;
         }
       })(),
     ]);
 
     if (showAssistantOutput) {
-      this.updateLastAssistant({ streaming: false });
+      updateLastAssistant(this.messages, { streaming: false });
     }
   }
 
@@ -288,42 +264,7 @@ export class ChatService {
     });
   }
 
-  private addMessage(message: ChatMessage): void {
-    this.messages.update(messages => [...messages, message]);
-  }
 
-  private updateLastAssistant(patch: Partial<ChatMessage>): void {
-    this.messages.update(messages => {
-      const next = [...messages];
-      const last = next.at(-1);
 
-      if (last?.role === 'assistant') {
-        next[next.length - 1] = { ...last, ...patch };
-      }
 
-      return next;
-    });
-  }
-
-  private showError(errorMsg: string): void {
-    this.messages.update(messages => {
-      const next = [...messages];
-      const last = next.at(-1);
-
-      if (last?.streaming) {
-        next[next.length - 1] = {
-          ...last,
-          text: `❌ ${errorMsg}`,
-          streaming: false,
-        };
-      } else {
-        next.push({
-          role: 'assistant',
-          text: `❌ ${errorMsg}`,
-        });
-      }
-
-      return next;
-    });
-  }
 }
