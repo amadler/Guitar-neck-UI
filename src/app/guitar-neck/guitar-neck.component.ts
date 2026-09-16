@@ -1,4 +1,3 @@
-import { AsyncPipe } from '@angular/common';
 import { Component, ViewChild, ChangeDetectionStrategy, inject, computed } from '@angular/core';
 import { neckConfig } from 'guitar-neck-shared';
 import { FreatboardComponent } from '../freatboard/freatboard.component';
@@ -10,7 +9,7 @@ import { ChatService } from '../chat/services/chat.service';
 
 @Component({
   selector: 'app-guitar-neck',
-  imports: [FreatboardComponent, AsyncPipe],
+  imports: [FreatboardComponent],
   templateUrl: './guitar-neck.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './guitar-neck.component.scss'
@@ -44,9 +43,6 @@ export class GuitarNeckComponent {
   /** Submit the current exercise for validation and resume the lesson agent. */
   submitExercise(): void {
     this.domainService.execute({ type: 'submit-exercise' });
-    const exerciseResult = this.domainService.currentState().lastExerciseResult;
-    if (exerciseResult) {
-      this.chatService.resumeWithExerciseResult(exerciseResult);
-    }
+    this.chatService.notifyExerciseSubmitted();
   }
 }

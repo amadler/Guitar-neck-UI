@@ -366,15 +366,6 @@ export function createDomainTools(domainService: DomainService) {
         schema: z.object({}),
       }
     ),
-    tool(
-      async ({ prompt }) => prompt,
-      {
-        name: "wait_for_user",
-        description: "Zatrzymuje lekcję po jednym kroku dydaktycznym i czeka na odpowiedź użytkownika.",
-        schema: z.object({
-          prompt: z.string(),
-        }),
-      },
-    )
+
   ];
 }

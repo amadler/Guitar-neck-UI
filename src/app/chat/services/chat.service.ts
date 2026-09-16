@@ -1,5 +1,5 @@
 import { Injectable, inject, signal } from "@angular/core";
-import { createDeepAgent } from "deepagents";
+import { createDeepAgent } from "deepagents/browser";
 import { MemorySaver } from "@langchain/langgraph-checkpoint";
 import { Command } from '@langchain/langgraph';
 import { HumanMessage } from '@langchain/core/messages';
@@ -10,8 +10,19 @@ import { ChatMessage } from "../models";
 import { LessonRegistryService } from "../../services/lesson-registry.service";
 import { StorageService } from "../../../utils/Storage.util";
 import { addMessage, BASE_SYSTEM_PROMPT, LESSON_SYSTEM_PROMPT, showError, updateLastAssistant } from "./helpers";
+import { tool } from "langchain";
+import { z } from 'zod';
 
-
+const waitForUserTool = tool(
+  async ({ prompt }) => prompt,
+  {
+    name: "wait_for_user",
+    description: "Zatrzymuje lekcję po jednym kroku dydaktycznym i czeka na odpowiedź użytkownika.",
+    schema: z.object({
+      prompt: z.string(),
+    }),
+  },
+)
 
 @Injectable({ providedIn: "root" })
 export class ChatService {
@@ -250,7 +261,7 @@ export class ChatService {
     return createDeepAgent({
       model: new ChatOpenRouter({ model: modelName, apiKey }),
       tools: this._lessonMode
-        ? [...domainTools]
+        ? [...domainTools, waitForUserTool]
         : domainTools,
       checkpointer: new MemorySaver(),
       systemPrompt: prompt,
@@ -263,8 +274,4 @@ export class ChatService {
         : {}),
     });
   }
-
-
-
-
 }
