@@ -25,7 +25,6 @@ This file provides guidance to agents when working with code in this repository.
 - **Pattern name mapping** (UI → Tonal) in `tonal-adapter.ts` handles Unicode variants (`♭`/`♯` → `b`/`#`). `SCALES_NOT_IN_TONAL` and `CHORDS_NOT_IN_TONAL` sets define patterns that fallback to `CHORD_PATTERNS`/`SCALE_PATTERNS`.
 - **Angular 22 standalone** — no NgModules. Uses `@angular/build:application` builder.
 - **`tsconfig.app.json` suppresses** `nullishCoalescingNotNullable` and `optionalChainNotNullable` diagnostics.
-- **`.claude/hooks/block-dangerous-git.ps1`** blocks `git push`, `reset --hard`, `clean`, `branch -D` from Claude agents.
 - **DomainState is immutable** — updated via `signal.set()`/`.update()`, never mutated in place.
 - **`spellNote()` in `note-utils.ts`** handles enharmonic spelling: minor intervals (`b2`, `b3`, etc.) get flat spelling, major/perfect get sharp spelling.
 
@@ -39,3 +38,11 @@ This file provides guidance to agents when working with code in this repository.
 - **`@Injectable({ providedIn: 'root' })`** for all services — no manual providers
 - **`inject()` function** over constructor injection (Angular 14+ pattern)
 - **Signals** for state management (`signal<T>()`, `.asReadonly()`) — no RxJS Subjects for state
+
+## Skills
+
+This repository includes local skills in [`.roo/skills/`](.roo/skills) that agents should follow when applicable:
+
+- [**`working-with-GIT-repositories`**](.roo/skills/working-with-GIT-repositories/SKILL.md) — Git workflow: status checks, staged review, commit approval, no destructive operations without consent.
+- [**`fixing-broken-tests`**](.roo/skills/fixing-broken-tests/SKILL.md) — Diagnose and fix failing tests without hiding bugs or adjusting tests to match buggy implementations.
+- [**`updating-backlog`**](.roo/skills/updating-backlog/SKILL.md) — Create, update, complete, and archive backlog items in `BACKLOG.md`; move completed work to `CHANGELOG.md`.
