@@ -10,6 +10,14 @@ This file provides guidance to agents when working with code in this repository.
 - **Compodoc docs**: `npm run compodoc` (serves at localhost:8080)
 - **Deploy**: via Cloudflare Workers — `wrangler.toml` deploys from `dist/guitar-neck-ui/browser` with SPA fallback
 
+## Skills
+
+This repository includes local skills in [`.roo/skills/`](.roo/skills) that agents should follow when applicable:
+
+- [**`working-with-GIT-repositories`**](.roo/skills/working-with-GIT-repositories/SKILL.md) — Git workflow: status checks, staged review, commit approval, no destructive operations without consent.
+- [**`fix-broken-tests`**](.roo/skills/fix-broken-tests/SKILL.md) — Diagnose and fix failing tests without hiding bugs or adjusting tests to match buggy implementations.
+- [**`updating-backlog`**](.roo/skills/updating-backlog/SKILL.md) — Create, update, complete, and archive backlog items in `BACKLOG.md`; move completed work to `CHANGELOG.md`.
+- 
 ## Non-Obvious Project Facts
 
 - **DomainService uses Registry Pattern** — commands/queries dispatched via `Map<string, Handler>`, not switch/if-else. Add new handlers by registering in `registerCommandHandlers()` or `registerQueryHandlers()`.
@@ -38,11 +46,3 @@ This file provides guidance to agents when working with code in this repository.
 - **`@Injectable({ providedIn: 'root' })`** for all services — no manual providers
 - **`inject()` function** over constructor injection (Angular 14+ pattern)
 - **Signals** for state management (`signal<T>()`, `.asReadonly()`) — no RxJS Subjects for state
-
-## Skills
-
-This repository includes local skills in [`.roo/skills/`](.roo/skills) that agents should follow when applicable:
-
-- [**`working-with-GIT-repositories`**](.roo/skills/working-with-GIT-repositories/SKILL.md) — Git workflow: status checks, staged review, commit approval, no destructive operations without consent.
-- [**`fixing-broken-tests`**](.roo/skills/fixing-broken-tests/SKILL.md) — Diagnose and fix failing tests without hiding bugs or adjusting tests to match buggy implementations.
-- [**`updating-backlog`**](.roo/skills/updating-backlog/SKILL.md) — Create, update, complete, and archive backlog items in `BACKLOG.md`; move completed work to `CHANGELOG.md`.
