@@ -5,7 +5,6 @@ import { GuitarNeckComponent } from './guitar-neck.component';
 import { FreatboardComponent } from '../freatboard/freatboard.component';
 import { By } from '@angular/platform-browser';
 import { GuitarNote, createGuitarNote } from '../shared/model/guitarNote';
-import { vi } from 'vitest';
 describe('GuitarNeckComponent', () => {
   let component: GuitarNeckComponent;
   let fixture: ComponentFixture<GuitarNeckComponent>;

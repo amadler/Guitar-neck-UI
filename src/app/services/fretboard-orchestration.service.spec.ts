@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi, type MockedObject } from "vitest";
+import type { MockedObject } from "vitest";
 import { TestBed } from '@angular/core/testing';
 import { FretboardOrchestrationService } from './fretboard-orchestration.service';
 import { FretboardNotePositionService } from './note.service';

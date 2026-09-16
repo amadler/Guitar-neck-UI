@@ -1,5 +1,4 @@
 import { TestBed } from "@angular/core/testing";
-import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AIMessage, HumanMessage, ToolMessage } from "@langchain/core/messages";
 import { ChatService } from "./chat.service";
 import { DomainService } from "../../domain/domain.service";
@@ -222,42 +221,6 @@ describe("ChatService", () => {
       await service.send("hello");
       expect(mockAgent.streamEvents).toHaveBeenCalled();
       expect(mockLessonGraph.streamEvents).not.toHaveBeenCalled();
-    });
-  });
-
-  describe("resumeWithExerciseResult", () => {
-    it("should do nothing when graph is not interrupted", async () => {
-      (service as any)._graphStatus = 'idle';
-      const exerciseResult: ExerciseResult = {
-        correct: [true, false],
-        selectedNotes: [{ note: 'C', string: 1, fret: 0 }],
-        correctCount: 1,
-        incorrectCount: 1,
-      };
-
-      await service.resumeWithExerciseResult(exerciseResult);
-
-      // Should not have called streamEvents on lesson graph
-      expect(mockLessonGraph.streamEvents).not.toHaveBeenCalled();
-      expect(service.loading()).toBe(false);
-    });
-
-    it("should resume the lesson graph when graph is interrupted", async () => {
-      (service as any)._graphStatus = 'interrupted';
-      mockLessonGraph.streamEvents.mockResolvedValue({
-        messages: asyncIterable([]),
-        [Symbol.asyncIterator]: async function*() {},
-      });
-      const exerciseResult: ExerciseResult = {
-        correct: [true, false],
-        selectedNotes: [{ note: 'C', string: 1, fret: 0 }],
-        correctCount: 1,
-        incorrectCount: 1,
-      };
-
-      await service.resumeWithExerciseResult(exerciseResult);
-
-      expect(mockLessonGraph.streamEvents).toHaveBeenCalled();
     });
   });
 

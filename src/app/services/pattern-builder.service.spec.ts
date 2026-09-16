@@ -2,7 +2,6 @@ import { TestBed } from '@angular/core/testing';
 import { PatternBuilderService } from './pattern-builder.service';
 import { FretboardStateService } from './fretboard-state.service';
 import { FretboardNotePositionService } from './note.service';
-import { beforeEach, describe, expect, it } from 'vitest';
 import { FretboardSnapshot } from '../shared/model/fretboard-snapshot';
 
 describe('PatternBuilderService', () => {

@@ -40,9 +40,7 @@
     "@angular/cli": "^22.1.7",
     "@angular/compiler-cli": "^22.1.5",
     "@compodoc/compodoc": "^2.0.0",
-    "@types/jasmine": "~5.1.0",
     "istanbul-lib-instrument": "^6.0.3",
-    "jasmine-core": "~5.2.0",
     "typescript": "^6.0.3",
     "vitest": "^4.0.8"
   }

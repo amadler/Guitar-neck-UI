@@ -2,7 +2,6 @@ import { TestBed } from '@angular/core/testing';
 import { MarkerRoleService } from './marker-role.service';
 import { GuitarNote } from '../shared/model/guitarNote';
 import { MusicSelection } from '../shared/model/music-selection';
-import { beforeEach, describe, expect, it } from 'vitest';
 
 describe('MarkerRoleService', () => {
   let service: MarkerRoleService;

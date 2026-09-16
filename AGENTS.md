@@ -12,7 +12,6 @@ This file provides guidance to agents when working with code in this repository.
 
 ## Non-Obvious Project Facts
 
-- **Tests use Vitest runner but Jasmine assertion syntax** (`expect().toBe()`, `@types/jasmine`). Do NOT use Vitest's `assert` or `expect` from vitest.
 - **DomainService uses Registry Pattern** — commands/queries dispatched via `Map<string, Handler>`, not switch/if-else. Add new handlers by registering in `registerCommandHandlers()` or `registerQueryHandlers()`.
 - **TonalFacadeService is the ONLY allowed importer of `@tonaljs/*`**. All other services must go through it. Violating this creates coupling.
 - **DomainValidator returns `null` on success, `DomainResult` on failure** — not boolean. Chain with `??` operator.

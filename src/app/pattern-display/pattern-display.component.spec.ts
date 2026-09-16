@@ -5,7 +5,6 @@ import { PatternBuilderService } from '../services/pattern-builder.service';
 import { PatternInfo } from '../shared/model/patternInfo';
 
 import { PatternDisplayComponent } from './pattern-display.component';
-import { beforeEach, describe, expect, it } from 'vitest';
 import { signal } from '@angular/core';
 
 describe('PatternDisplayComponent', () => {
