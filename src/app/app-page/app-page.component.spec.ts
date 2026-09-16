@@ -11,6 +11,7 @@ import { FretboardNoteQueryService } from '../services/fretboard-note-query.serv
 import { MarkerRoleService } from '../services/marker-role.service';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { DomainCommand } from '../domain/commands';
+import { ActivatedRoute } from '@angular/router';
 
 describe('AppPageComponent', () => {
     let component: AppPageComponent;
@@ -30,6 +31,10 @@ describe('AppPageComponent', () => {
                 FretboardDisplayService,
                 FretboardNoteQueryService,
                 MarkerRoleService,
+                {
+                    provide: ActivatedRoute,
+                    useValue: { snapshot: { queryParamMap: { get: () => null } } },
+                },
             ],
             schemas: [NO_ERRORS_SCHEMA],
         })

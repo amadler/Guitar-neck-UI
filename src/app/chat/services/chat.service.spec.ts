@@ -84,33 +84,26 @@ describe("ChatService", () => {
   });
 
   describe("reset", () => {
-    it("should clear messages, graph, and generate a new threadId", () => {
+    it("should clear messages, agent, and generate a new threadId", () => {
       const initialConfig = { ...(service as any).config };
       service.messages.set([{ role: "user", text: "hello" }]);
-      (service as any)._lessonGraph = mockLessonGraph;
-      (service as any)._graphStatus = 'interrupted';
 
       service.reset();
 
       expect(service.messages()).toEqual([]);
-      expect((service as any)._lessonGraph).toBeNull();
-      expect((service as any)._graphStatus).toBe('idle');
+      expect((service as any)._agent).toBeNull();
       expect((service as any).config.configurable.thread_id).not.toBe(initialConfig.configurable.thread_id);
     });
   });
 
   describe("resetAgent", () => {
-    it("should clear cached agent, lesson graph, and reset thread", () => {
+    it("should clear cached agent and reset thread", () => {
       (service as any)._agent = mockAgent;
-      (service as any)._lessonGraph = mockLessonGraph;
-      (service as any)._graphStatus = 'interrupted';
       const oldConfig = { ...(service as any).config };
 
       service.resetAgent();
 
       expect((service as any)._agent).toBeNull();
-      expect((service as any)._lessonGraph).toBeNull();
-      expect((service as any)._graphStatus).toBe('idle');
       expect((service as any).config.configurable.thread_id).not.toBe(oldConfig.configurable.thread_id);
     });
   });
@@ -186,41 +179,38 @@ describe("ChatService", () => {
 
         expect(service.messages()).toHaveLength(2);
         expect(service.messages()[1].text).toContain("❌");
-        expect(service.messages()[1].text).toContain("Brak klucza API");
+        expect(service.messages()[1].text).toContain("Missing Authentication header");
         expect(service.loading()).toBe(false);
       });
     });
   });
 
-  describe("send (lesson mode with interrupted graph)", () => {
-    it("should resume the lesson graph when _graphStatus is interrupted", async () => {
-      (service as any)._lessonMode = true;
-      (service as any)._graphStatus = 'interrupted';
-      mockLessonGraph.streamEvents.mockResolvedValue({
-        messages: asyncIterable([]),
-        [Symbol.asyncIterator]: async function*() {},
-      });
-
-      await service.send("dalej");
-
-      // Should have added user message and called lesson graph streamEvents
-      expect(service.messages().length).toBeGreaterThanOrEqual(1);
-      expect(service.messages()[0]).toMatchObject({ role: "user", text: "dalej" });
-      expect(mockLessonGraph.streamEvents).toHaveBeenCalled();
-    });
-
-    it("should not resume when lesson mode is off even if graph is interrupted", async () => {
-      (service as any)._lessonMode = false;
-      (service as any)._graphStatus = 'interrupted';
+  describe("send (resume after waiting for user)", () => {
+    it("should resume the agent when _waitingForUser is true", async () => {
+      (service as any)._waitingForUser = true;
       mockAgent.streamEvents.mockResolvedValue({
         messages: asyncIterable([]),
         toolCalls: asyncIterable([]),
       });
 
-      // Should use normal agent, not lesson graph
+      await service.send("dalej");
+
+      // Should have added user message and called agent streamEvents via resume()
+      expect(service.messages().length).toBeGreaterThanOrEqual(1);
+      expect(service.messages()[0]).toMatchObject({ role: "user", text: "dalej" });
+      expect(mockAgent.streamEvents).toHaveBeenCalled();
+    });
+
+    it("should not resume when _waitingForUser is false", async () => {
+      (service as any)._waitingForUser = false;
+      mockAgent.streamEvents.mockResolvedValue({
+        messages: asyncIterable([]),
+        toolCalls: asyncIterable([]),
+      });
+
+      // Should use normal processStream path
       await service.send("hello");
       expect(mockAgent.streamEvents).toHaveBeenCalled();
-      expect(mockLessonGraph.streamEvents).not.toHaveBeenCalled();
     });
   });
 
@@ -359,6 +349,7 @@ describe("Lesson graph didactic tool limiting", () => {
     const { AIMessage, ToolMessage } = await import("@langchain/core/messages");
 
     const executeLog: string[] = [];
+    let agentInvocationCount = 0;
 
     const LessonState = Annotation.Root({
       messages: Annotation<any[]>({
@@ -373,16 +364,24 @@ describe("Lesson graph didactic tool limiting", () => {
 
     const LESSON_PAUSE_TOOLS = new Set(['show_interval', 'show_pattern']);
 
-    // Simulate an agent that produces two tool calls
+    // Simulate an agent that produces two tool calls on first invocation,
+    // then no tool calls after resume (lesson step complete)
     const agentNode = async (state: typeof LessonState.State) => {
+      agentInvocationCount++;
+      if (agentInvocationCount === 1) {
+        return {
+          messages: [new AIMessage({
+            content: '',
+            tool_calls: [
+              { name: 'show_interval', args: { rootNote: 'C', interval: '3' }, id: 'call_1' },
+              { name: 'show_pattern', args: { patternType: 'scale', patternName: 'major', rootNote: 'C' }, id: 'call_2' },
+            ],
+          })],
+        };
+      }
+      // After resume, agent produces no tool calls (lesson step complete)
       return {
-        messages: [new AIMessage({
-          content: '',
-          tool_calls: [
-            { name: 'show_interval', args: { rootNote: 'C', interval: '3' }, id: 'call_1' },
-            { name: 'show_pattern', args: { patternType: 'scale', patternName: 'major', rootNote: 'C' }, id: 'call_2' },
-          ],
-        })],
+        messages: [new AIMessage({ content: 'Dobra robota!' })],
       };
     };
 
@@ -485,8 +484,8 @@ describe("Lesson graph didactic tool limiting", () => {
 
     // After resume, show_interval should still have executed only once
     expect(executeLog).toEqual(['show_interval']);
-    // The graph should have continued to agent node (which produces more tool calls,
-    // but that's the agent's decision — the key is no re-execution of show_interval)
+    // The graph should have continued to agent node (which now produces no tool calls,
+    // so the graph ends without interruption)
     expect(stream2.interrupted).toBe(false);
   });
 });
