@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RangeToolbarComponent } from './range-toolbar.component';
 import { neckConfig } from 'guitar-neck-shared';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('RangeToolbarComponent', () => {
   let component: RangeToolbarComponent;

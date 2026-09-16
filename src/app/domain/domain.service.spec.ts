@@ -143,7 +143,7 @@ describe('DomainService', () => {
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.selectedNotes?.length).toBe(1);
-        expect(result.data.selectedNotes).not.toContain(jasmine.objectContaining({ string: 1, fret: 7 }));
+        expect(result.data.selectedNotes).not.toContain(expect.objectContaining({ string: 1, fret: 7 }));
       }
     });
 

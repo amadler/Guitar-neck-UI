@@ -6,7 +6,6 @@ import { MarkerRoleService } from '../services/marker-role.service';
 import { FretboardNotePositionService } from '../services/note.service';
 import { TonalFacadeService } from '../services/tonal-facade.service';
 import { MusicSelection } from '../shared/model/music-selection';
-import { beforeEach, describe, expect, it } from 'vitest';
 import { FretboardSnapshot } from '../shared/model/fretboard-snapshot';
 
 describe('RelationshipStripComponent', () => {

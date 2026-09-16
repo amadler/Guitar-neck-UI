@@ -51,8 +51,14 @@ export class AppPageComponent implements OnInit {
    */
   displayMode = computed<DisplayMode>(() => this.domainService.currentState().displayMode);
 
-  /** Whether the Range toolbar should be disabled (e.g. in Shape/positions mode). */
-  rangeDisabled = computed(() => this.domainService.currentState().mode === 'positions');
+  /** Whether the Range toolbar should be disabled (e.g. in Shape/positions mode or during exercise). */
+  rangeDisabled = computed(() =>
+    this.domainService.currentState().mode === 'positions' ||
+    this.domainService.currentState().exerciseMode
+  );
+
+  /** Whether the fretboard is in exercise selection mode. */
+  exerciseMode = computed(() => this.domainService.currentState().exerciseMode);
 
   ngOnInit(): void {
     const lessonId = this.route.snapshot.queryParamMap.get('lesson');

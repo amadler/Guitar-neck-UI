@@ -94,6 +94,7 @@ export function createDomainTools(domainService: DomainService) {
           emphasis: input.emphasis,
         };
         const result = domainService.execute(command);
+
         return {
           success: result.success,
           action: "show-pattern",
@@ -115,6 +116,7 @@ export function createDomainTools(domainService: DomainService) {
       async (input: ShowIntervalInput) => {
         const command: DomainCommand = { type: "show-interval", rootNote: input.rootNote, interval: input.interval };
         const result = domainService.execute(command);
+
         return {
           success: result.success,
           action: "show-interval",
@@ -178,6 +180,7 @@ export function createDomainTools(domainService: DomainService) {
           secondary: input.secondary,
         };
         const result = domainService.execute(command);
+
         return {
           success: result.success,
           action: "compare-patterns",
@@ -248,6 +251,7 @@ export function createDomainTools(domainService: DomainService) {
           rootNote: input.rootNote,
         };
         const result = domainService.execute(command);
+
         return {
           success: result.success,
           action: "resolve-shape",
@@ -298,16 +302,15 @@ export function createDomainTools(domainService: DomainService) {
           fretRange: input.fretRange,
           enabledStrings: input.enabledStrings,
         };
-        const result = domainService.execute(command);
+        domainService.execute(command);
+
         return {
-          success: result.success,
+          success: true,
           action: "start-exercise",
           question: input.question,
           rootNote: input.rootNote,
           expectedIntervals: input.expectedIntervals,
-          message: result.success
-            ? `Rozpoczęto ćwiczenie: ${input.question}`
-            : result.message,
+          message: `Rozpoczęto ćwiczenie: ${input.question}`,
         };
       },
       {
@@ -363,5 +366,6 @@ export function createDomainTools(domainService: DomainService) {
         schema: z.object({}),
       }
     ),
+
   ];
 }

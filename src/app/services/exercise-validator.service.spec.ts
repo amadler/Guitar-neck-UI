@@ -67,7 +67,7 @@ describe('ExerciseValidatorService', () => {
       expect(result.missingCount).toBe(2);
       expect(result.missingPositions?.length).toBe(2);
       // Should NOT include the found position in missing
-      expect(result.missingPositions).not.toContain(jasmine.objectContaining({ string: 1, fret: 7 }));
+      expect(result.missingPositions).not.toContain(expect.objectContaining({ string: 1, fret: 7 }));
     });
 
     it('should report no missing when all expected positions are found', () => {

@@ -1,4 +1,3 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createDomainTools } from "./domain-tools";
 import { DomainService } from "../../domain/domain.service";
 import { DomainQuery } from '../../domain/queries';
@@ -223,6 +222,91 @@ describe("createDomainTools", () => {
         enabled: false,
       });
       expect(result).toMatchObject({ success: true, action: "set-ai-mode", enabled: false });
+    });
+  });
+
+  describe("start_exercise tool", () => {
+    it("should call DomainService.execute() with start-exercise command", async () => {
+      const tool = tools[9];
+      mockDomainService.query = vi.fn().mockReturnValue({
+        success: true,
+        data: { exerciseMode: false },
+      });
+
+      const result = await tool.invoke({
+        question: "Znajdź wszystkie kwinty względem A",
+        rootNote: "A",
+        expectedIntervals: ["5"],
+      });
+
+      expect(mockDomainService.execute).toHaveBeenCalledWith({
+        type: "start-exercise",
+        question: "Znajdź wszystkie kwinty względem A",
+        rootNote: "A",
+        expectedIntervals: ["5"],
+        fretRange: undefined,
+        enabledStrings: undefined,
+      });
+      expect(result).toMatchObject({
+        success: true,
+        action: "start-exercise",
+        question: "Znajdź wszystkie kwinty względem A",
+      });
+    });
+  });
+
+  describe("submit_exercise tool", () => {
+    it("should call DomainService.execute() with submit-exercise command", async () => {
+      const tool = tools[10];
+      mockDomainService.execute = vi.fn().mockReturnValue({ success: true });
+      mockDomainService.query = vi.fn().mockReturnValue({
+        success: true,
+        data: {
+          lastExerciseResult: {
+            correct: [true],
+            selectedNotes: [{ note: 'C', string: 1, fret: 0 }],
+            correctCount: 1,
+            incorrectCount: 0,
+          },
+        },
+      });
+
+      const result = await tool.invoke({});
+
+      expect(mockDomainService.execute).toHaveBeenCalledWith({ type: "submit-exercise" });
+      expect(result).toMatchObject({
+        success: true,
+        action: "submit-exercise",
+      });
+    });
+  });
+
+  describe("get_exercise_result tool", () => {
+    it("should return exercise state from DomainService", async () => {
+      const tool = tools[11];
+      const exerciseState = {
+        exerciseMode: false,
+        exerciseTask: undefined,
+        selectedNotes: [],
+        lastExerciseResult: {
+          correct: [true],
+          selectedNotes: [{ note: 'C', string: 1, fret: 0 }],
+          correctCount: 1,
+          incorrectCount: 0,
+        },
+      };
+      mockDomainService.query = vi.fn().mockReturnValue({
+        success: true,
+        data: exerciseState,
+      });
+
+      const result = await tool.invoke({});
+
+      expect(result).toMatchObject({
+        success: true,
+        action: "get-exercise-result",
+        exerciseMode: false,
+      });
     });
   });
 });

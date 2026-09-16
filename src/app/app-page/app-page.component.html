@@ -6,6 +6,7 @@
   <section class="command-bar">
     <div class="command-bar__toolbox">
       <app-toolbox-builder
+        [disabled]="exerciseMode()"
         (toolboxEvent)="onToolboxEvent($event)"
       ></app-toolbox-builder>
     </div>
