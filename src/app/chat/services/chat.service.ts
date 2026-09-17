@@ -1,17 +1,12 @@
 import { Injectable, inject, signal } from "@angular/core";
-import { createDeepAgent } from "deepagents/browser";
-import { MemorySaver } from "@langchain/langgraph-checkpoint";
-import { Command } from '@langchain/langgraph';
-import { HumanMessage } from '@langchain/core/messages';
-import { createDomainTools } from "../tools/domain-tools";
 import { DomainService } from "../../domain/domain.service";
-import { ChatOpenRouter } from '@langchain/openrouter';
 import { ChatMessage } from "../models";
 import { LessonRegistryService } from "../../services/lesson-registry.service";
 import { StorageService } from "../../../utils/Storage.util";
-import { addMessage, BASE_SYSTEM_PROMPT, LESSON_SYSTEM_PROMPT, showError, updateLastAssistant } from "./helpers";
+import { addMessage, showError, updateLastAssistant } from "./helpers";
 import { tool } from "langchain";
 import { z } from 'zod';
+import { AgentApiService } from "../../services/agent-api.service";
 
 const waitForUserTool = tool(
   async ({ prompt }) => prompt,
@@ -29,13 +24,11 @@ export class ChatService {
   private domainService = inject(DomainService);
   private lessonRegistry = inject(LessonRegistryService);
   private storageService = inject(StorageService);
+  private agentApi = inject(AgentApiService);
 
   readonly messages = signal<ChatMessage[]>([]);
   readonly loading = signal(false);
-
-  private config = { configurable: { thread_id: crypto.randomUUID() } };
-
-  private _agent: ReturnType<typeof createDeepAgent> | null = null;
+  private _threadId = crypto.randomUUID();
 
   /** Whether a lesson is currently active. */
   private _lessonMode = false;
@@ -44,8 +37,7 @@ export class ChatService {
 
   /** Clear the cached agent so the next send() rebuilds it with fresh config. */
   resetAgent(): void {
-    this._agent = null;
-    this.config = { configurable: { thread_id: crypto.randomUUID() } };
+    this._threadId = crypto.randomUUID();
     this._lessonMode = false;
     this._waitingForUser = false;
   }
@@ -85,12 +77,6 @@ export class ChatService {
     }
   }
 
-  private getOrCreateAgent() {
-    return this._agent ??= this.createAgentFor(
-      this._lessonMode ? LESSON_SYSTEM_PROMPT : BASE_SYSTEM_PROMPT
-    );
-  }
-
   /**
    * Shared pipeline for sending messages to the agent and processing the response.
    *
@@ -108,22 +94,57 @@ export class ChatService {
     if (options.showUserInput) {
       addMessage(this.messages, { role: 'user', text: userMessage });
     }
+
     if (options.showAssistantOutput) {
       addMessage(this.messages, { role: 'assistant', text: '', streaming: true });
     }
 
     try {
-      const agent = this.getOrCreateAgent();
-      const stream = await agent.streamEvents(
-        { messages: [new HumanMessage(userMessage)] },
-        { ...this.config, version: "v3" },
+      await this.agentApi.send(
+        {
+          type: this._waitingForUser ? 'resume' : 'message',
+          threadId: this._threadId,
+          text: userMessage,
+          domainState: this.domainService.currentState(),
+          lessonMode: this._lessonMode,
+        },
+        (event) => {
+          switch (event.type) {
+            case 'token':
+              if (options.showAssistantOutput) {
+                updateLastAssistant(this.messages, {
+                  text: event.text,
+                });
+              }
+              break;
+
+            case 'domain-command':
+              this.domainService.execute(event.command);
+              break;
+
+            case 'interrupt':
+              this._waitingForUser = event.waitingForUser;
+              break;
+
+            case 'error':
+              if (options.showAssistantOutput) {
+                showError(this.messages, event.message);
+              }
+              break;
+
+            case 'done':
+              if (options.showAssistantOutput) {
+                updateLastAssistant(this.messages, {
+                  streaming: false,
+                });
+              }
+              break;
+          }
+        },
       );
-
-      await this.consumeStream(stream, options.showAssistantOutput);
-
-      this._waitingForUser = Boolean(stream.interrupted);
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Nieznany błąd';
+
       if (options.showAssistantOutput) {
         showError(this.messages, errorMsg);
       }
@@ -132,84 +153,11 @@ export class ChatService {
     }
   }
 
-  private async resume(
-    userMessage: string,
-    showUserInput = true,
-  ): Promise<void> {
-    if (this.loading()) return;
-    this.loading.set(true);
 
-    if (showUserInput) {
-      addMessage(this.messages, { role: 'user', text: userMessage });
-    }
 
-    addMessage(this.messages, { role: 'assistant', text: '', streaming: true });
 
-    try {
-      const agent = this.getOrCreateAgent();
-
-      const stream = await agent.streamEvents(
-        new Command({
-          resume: {
-            decisions: [
-              {
-                type: "respond",
-                message: userMessage,
-              },
-            ],
-          } as any,
-        }),
-        { ...this.config, version: "v3" },
-      );
-
-      await this.consumeStream(stream, true);
-
-      this._waitingForUser = Boolean(stream.interrupted);
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : 'Nieznany błąd';
-      showError(this.messages, errorMsg);
-    } finally {
-      this.loading.set(false);
-    }
-  }
-
-  private async consumeStream(
-    stream: any,
-    showAssistantOutput: boolean,
-  ): Promise<void> {
-    await Promise.all([
-      (async () => {
-        if (!showAssistantOutput) return;
-        for await (const message of stream.messages) {
-          let accumulated = '';
-          for await (const token of message.text) {
-            accumulated += token;
-            updateLastAssistant(this.messages, { text: accumulated });
-          }
-        }
-      })(),
-      (async () => {
-        if (!showAssistantOutput) return;
-        for await (const call of stream.toolCalls) {
-          updateLastAssistant(this.messages, { text: `🔧 Używam narzędzia: ${call.name}...` });
-          await call.output;
-        }
-      })(),
-    ]);
-
-    if (showAssistantOutput) {
-      updateLastAssistant(this.messages, { streaming: false });
-    }
-  }
 
   async send(userMessage: string): Promise<void> {
-    if (!userMessage.trim()) return;
-
-    if (this._waitingForUser) {
-      await this.resume(userMessage);
-      return;
-    }
-
     await this.processStream(userMessage, {
       showUserInput: true,
       showAssistantOutput: true,
@@ -237,41 +185,17 @@ export class ChatService {
       "Użytkownik kliknął Sprawdź. Ćwiczenie zostało zweryfikowane. " +
       "Użyj narzędzia get_exercise_result aby zobaczyć wynik i skomentuj odpowiedź użytkownika.";
 
-    if (this._waitingForUser) {
-      await this.resume(message, false);
-      return;
-    }
-
-    await this.sendRaw(message);
+    await this.processStream(message, {
+      showUserInput: false,
+      showAssistantOutput: true,
+    });
   }
 
   reset(): void {
     this.messages.set([]);
-    this.config = { configurable: { thread_id: crypto.randomUUID() } };
-    this._agent = null;
+    this._threadId = crypto.randomUUID();
     this._lessonMode = false;
     this._waitingForUser = false;
   }
 
-  private createAgentFor(prompt: string) {
-    const apiKey = this.storageService.apiKey();
-    const modelName = this.storageService.selectedModel();
-    const domainTools = createDomainTools(this.domainService);
-
-    return createDeepAgent({
-      model: new ChatOpenRouter({ model: modelName, apiKey }),
-      tools: this._lessonMode
-        ? [...domainTools, waitForUserTool]
-        : domainTools,
-      checkpointer: new MemorySaver(),
-      systemPrompt: prompt,
-      ...(this._lessonMode
-        ? {
-          interruptOn: {
-            wait_for_user: true,
-          },
-        }
-        : {}),
-    });
-  }
 }
