@@ -1,8 +1,6 @@
-import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { ChatService } from '../chat/services/chat.service';
-import { StorageService } from '../../utils/Storage.util';
 import { LessonRegistryService } from '../services/lesson-registry.service';
 
 @Component({
@@ -14,28 +12,11 @@ import { LessonRegistryService } from '../services/lesson-registry.service';
 })
 export class LandingPageComponent {
   private router = inject(Router);
-  private chatService = inject(ChatService);
-  private storage = inject(StorageService);
   private lessonRegistry = inject(LessonRegistryService);
-  apiKey = this.storage.apiKey;
-  selectedModel = this.storage.selectedModel;
-  saved = this.storage.saved;
-  models = this.storage.models;
   lessons = this.lessonRegistry.lessons;
 
-  saveAndGo(): void {
-    const key = this.apiKey().trim();
-    const model = this.selectedModel();
 
-    if (!key) return;
-    this.storage.saveConfig(key, this.selectedModel());
-    // Clear cached agent so next chat uses the new key/model
-    this.chatService.resetAgent();
-
-    this.router.navigate(['/app']);
-  }
-
-  skipSetup(): void {
+  goToApp(): void {
     this.router.navigate(['/app']);
   }
 
