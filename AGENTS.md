@@ -35,13 +35,6 @@ This repository includes local skills in [`.roo/skills/`](.roo/skills) that agen
 - **`tsconfig.app.json` suppresses** `nullishCoalescingNotNullable` and `optionalChainNotNullable` diagnostics.
 - **DomainState is immutable** — updated via `signal.set()`/`.update()`, never mutated in place.
 - **`spellNote()` in `note-utils.ts`** handles enharmonic spelling: minor intervals (`b2`, `b3`, etc.) get flat spelling, major/perfect get sharp spelling.
-- **Two agent modes**: local (browser DeepAgents, default) and remote (Node `guitar-neck-agent`). Toggle via `window.__USE_REMOTE_AGENT__ = true`.
-- **Remote agent** (`guitar-neck-agent`) is a separate repo with Express + DeepAgents on VPS. Communicates via `POST /api/chat` with NDJSON streaming.
-- **`AgentApiService`** in `src/app/chat/services/agent-api.service.ts` handles HTTP communication with the remote agent. Parses NDJSON stream, executes `DomainCommand` locally via `DomainService.execute()`.
-- **DomainState snapshot** is sent with every `/api/chat` request (request-scoped, not stored in agent checkpoint). Within a single request, Node does NOT see the effects of DomainCommand executed locally.
-- **Flow**: `DomainCommand → wait_for_user → next request with new DomainState snapshot`. No round-trip/ack for DomainCommand in MVP.
-- **Tool definitions live in Node** (`guitar-neck-agent/src/tools/domain-tools.ts`). Angular does not import tool definitions — it only exposes `DomainService.execute()` locally.
-- **Tonal.js stays in Angular** — the remote Node agent has no access to music theory queries. Query tools read from the DomainState snapshot.
 
 ## Code Style
 
