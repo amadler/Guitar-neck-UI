@@ -60,8 +60,20 @@
 | Term | Description |
 |------|-------------|
 | **Toolbox** | Current UI client (dropdowns, buttons). Emits `DomainCommand` through `DomainService`. |
-| **AI** | Future Langchain-based client. Sends `DomainCommand` and `DomainQuery` through the same `DomainService` interface. |
+| **AI (local)** | Browser-based DeepAgents agent. Sends `DomainCommand` through `DomainService` directly. Used when `__USE_REMOTE_AGENT__` is false. |
+| **AI (remote)** | Node-based DeepAgents agent (`guitar-neck-agent`). Sends `DomainCommand` via HTTP NDJSON stream. Used when `__USE_REMOTE_AGENT__` is true. |
 | **DomainService** | Central service that accepts `DomainCommand`/`DomainQuery`, validates, executes, and returns `DomainResult`. |
+| **AgentApiService** | Angular service that handles HTTP communication with the remote Node agent. Parses NDJSON stream, executes `DomainCommand` locally. |
+
+## Agent Architecture
+
+| Term | Description |
+|------|-------------|
+| **guitar-neck-agent** | Separate Node.js repo with Express + DeepAgents. Runs on VPS. Handles LLM calls, tool execution, HITL interrupts. |
+| **NDJSON stream** | Newline-delimited JSON — transport format for streaming agent responses. Each line is a `ChatResponseEvent`. |
+| **DomainState snapshot** | Request-scoped snapshot of `DomainState` sent with every `/api/chat` request. Not stored in agent checkpoint. |
+| **Feature flag** | `window.__USE_REMOTE_AGENT__` — toggles between local browser agent and remote Node agent. |
+| **No round-trip** | Constraint: within a single request, Node does not see the effects of `DomainCommand` executed locally in Angular. Flow: `DomainCommand → wait_for_user → next request with new snapshot`. |
 
 ## Architectural Layers
 
@@ -69,6 +81,8 @@
 |-------|----------|----------------|
 | **Domain Contract** | `src/app/domain/` | Command/query types, canonical state type, domain errors |
 | **Domain Service** | `src/app/domain/domain.service.ts` | Validates and dispatches commands/queries to application services |
+| **Agent API** | `src/app/chat/services/agent-api.service.ts` | HTTP client for remote Node agent. Parses NDJSON stream, executes DomainCommand locally. |
+| **Chat Service** | `src/app/chat/services/chat.service.ts` | Orchestrates chat UI state. Supports both local and remote agent modes via feature flag. |
 | **Orchestration** | `src/app/services/fretboard-orchestration.service.ts` | Coordinates music theory → positions → highlighting pipeline |
 | **State** | `src/app/services/fretboard-state.service.ts` | (To be refactored) Currently mutable state; will become immutable canonical state store |
 | **Derived State** | `src/app/services/fretboard-display.service.ts` | Single source of derived state — computes CSS classes, visible notes, etc. from `DomainState` |
