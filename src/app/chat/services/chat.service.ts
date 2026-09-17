@@ -2,28 +2,14 @@ import { Injectable, inject, signal } from "@angular/core";
 import { DomainService } from "../../domain/domain.service";
 import { ChatMessage } from "../models";
 import { LessonRegistryService } from "../../services/lesson-registry.service";
-import { StorageService } from "../../../utils/Storage.util";
 import { addMessage, showError, updateLastAssistant } from "./helpers";
-import { tool } from "langchain";
-import { z } from 'zod';
 import { AgentApiService } from "../../services/agent-api.service";
 
-const waitForUserTool = tool(
-  async ({ prompt }) => prompt,
-  {
-    name: "wait_for_user",
-    description: "Zatrzymuje lekcję po jednym kroku dydaktycznym i czeka na odpowiedź użytkownika.",
-    schema: z.object({
-      prompt: z.string(),
-    }),
-  },
-)
 
 @Injectable({ providedIn: "root" })
 export class ChatService {
   private domainService = inject(DomainService);
   private lessonRegistry = inject(LessonRegistryService);
-  private storageService = inject(StorageService);
   private agentApi = inject(AgentApiService);
 
   readonly messages = signal<ChatMessage[]>([]);
@@ -100,6 +86,7 @@ export class ChatService {
     }
 
     try {
+      let accumulatedText = '';
       await this.agentApi.send(
         {
           type: this._waitingForUser ? 'resume' : 'message',
@@ -111,9 +98,11 @@ export class ChatService {
         (event) => {
           switch (event.type) {
             case 'token':
+              accumulatedText += event.text;
+
               if (options.showAssistantOutput) {
                 updateLastAssistant(this.messages, {
-                  text: event.text,
+                  text: accumulatedText,
                 });
               }
               break;
@@ -153,11 +142,8 @@ export class ChatService {
     }
   }
 
-
-
-
-
   async send(userMessage: string): Promise<void> {
+    if (!userMessage.trim()) return;
     await this.processStream(userMessage, {
       showUserInput: true,
       showAssistantOutput: true,
