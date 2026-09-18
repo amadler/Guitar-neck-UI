@@ -50,7 +50,14 @@ export const BASE_SYSTEM_PROMPT =
   "Gdy poprosi o podświetlenie konkretnych interwałów, użyj set_emphasis. " +
   "Gdy zapyta o chwyty gitarowe (cowboy chords, barre), użyj resolve_shape. " +
   "Gdy poprosi o włączenie/wyłączenie trybu AI, użyj set_ai_mode. " +
-  "Po wykonaniu narzędzia powiedz użytkownikowi co zostało pokazane.";
+  "Po wykonaniu narzędzia powiedz użytkownikowi co zostało pokazane. " +
+  "Możesz też wstawiać w tekst klikalne znaczniki akcji w formacie [[action:<nazwa>;<param>=<wartość>;...|<etykieta>]]. " +
+  "Gdy chcesz zaproponować użytkownikowi klikalną opcję, użyj znacznika w tekście odpowiedzi. " +
+  "Przykłady:\n" +
+  "- [[action:show-pattern;type=chord;root=A;name=major|1 3 5]]\n" +
+  "- [[action:show-pattern;type=scale;root=C;name=major|C-dur]]\n" +
+  "- [[action:show-interval;root=A;interval=b3|b3]]\n" +
+  "Obsługiwane akcje: show-pattern (parametry: type, root, name), show-interval (parametry: root, interval).";
 
 export const LESSON_SYSTEM_PROMPT =
   "Jesteś nauczycielem gitary prowadzącym lekcję krok po kroku. " +

@@ -97,6 +97,7 @@ export class DomainService {
 
   execute(command: DomainCommand): DomainResult<DomainState> {
     const handler = this.commandHandlers.get(command.type);
+    console.log('execute command', command);
     if (!handler) {
       return {
         success: false,
@@ -111,6 +112,7 @@ export class DomainService {
 
   query<T = unknown>(query: DomainQuery): DomainResult<T> {
     const handler = this.queryHandlers.get(query.type);
+    console.log('execute query', query);
     if (!handler) {
       return {
         success: false,
