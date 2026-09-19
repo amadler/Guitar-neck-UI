@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { get as scaleGet } from '@tonaljs/scale';
 import { get as chordGet } from '@tonaljs/chord';
-import { simplify } from '@tonaljs/note';
+import { simplify, transposeBy } from '@tonaljs/note';
 import { fromSemitones } from '@tonaljs/interval';
 import { detect as chordDetect } from '@tonaljs/chord-detect';
 import { detect as scaleDetect } from '@tonaljs/scale';
@@ -85,6 +85,15 @@ export class TonalFacadeService {
    */
   simplifyNote(noteName: string): string {
     return simplify(noteName);
+  }
+
+  /**
+   * Transponuje nutę o interwał Tonal (np. '3m', '5P').
+   * Deleguje do @tonaljs/note.transposeBy() dla poprawnej enharmonicznej pisowni.
+   * Np. transposeNote('C', '3m') → 'Eb', transposeNote('C', '3M') → 'E'.
+   */
+  transposeNote(note: string, tonalInterval: string): string {
+    return transposeBy(tonalInterval)(note);
   }
 
   // ─── Detekcja ─────────────────────────────────────────────────────────

@@ -112,7 +112,7 @@ export class ToolboxBuilderComponent {
           command = { type: 'show-pattern', patternType: 'chord', patternName: this.selectedChordType(), rootNote: key } as ShowPatternCommand;
           break;
         case 'interval':
-          command = { type: 'show-interval', rootNote: key, interval: this.selectedInterval().symbol };
+          command = { type: 'show-intervals', rootNote: key, intervals: [this.selectedInterval().symbol] };
           break;
       }
       this.toolboxEvent.emit(command);

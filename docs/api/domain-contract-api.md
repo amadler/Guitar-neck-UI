@@ -41,15 +41,15 @@ interface ShowPatternCommand {
 ```
 Wyświetla pattern (skalę/akord) na gryfie. Zastępuje poprzedni widok.
 
-### ShowIntervalCommand
+### ShowIntervalsCommand
 ```typescript
-interface ShowIntervalCommand {
-  type: 'show-interval';
-  rootNote: string;   // np. 'C', 'A'
-  interval: string;   // np. 'b3', '3', '5', 'b7'
+interface ShowIntervalsCommand {
+  type: 'show-intervals';
+  rootNote: string;     // np. 'C', 'A'
+  intervals: string[];  // np. ['1', 'b3'], ['1', '3', '5']
 }
 ```
-Wyświetla pojedynczy interwał od roota na gryfie. Używa `spellNote()` dla poprawnej enharmonicznej pisowni.
+Wyświetla jeden lub więcej interwałów od roota na gryfie w jednym widoku. Używa Tonal.js (`transposeBy()`) dla poprawnej enharmonicznej pisowni. Deduplikuje interwały zachowując kolejność pierwszego wystąpienia. Zastępuje `show_interval` w API agenta — pojedynczy interwał też przez tę komendę (np. `intervals: ['b3']`).
 
 ### ComparePatternsCommand
 ```typescript
@@ -276,13 +276,27 @@ window.__ds.execute({
   patternName: 'maj7',
   rootNote: 'C'
 });
-
-// Pokaż interwał
+// Pokaż interwał(y) — jedna logiczna intencja
 window.__ds.execute({
-  type: 'show-interval',
+  type: 'show-intervals',
   rootNote: 'A',
-  interval: 'b3'
+  intervals: ['b3']
 });
+
+// Pokaż wiele interwałów
+window.__ds.execute({
+  type: 'show-intervals',
+  rootNote: 'A',
+  intervals: ['1', 'b3']
+});
+
+// Pokaż triadę
+window.__ds.execute({
+  type: 'show-intervals',
+  rootNote: 'C',
+  intervals: ['1', '3', '5']
+});
+
 
 // Porównaj
 window.__ds.execute({

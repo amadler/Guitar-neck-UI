@@ -9,7 +9,6 @@ import { FretboardNotePositionService } from '../services/note.service';
 import { PatternBuilderService } from '../services/pattern-builder.service';
 import { TonalFacadeService, PatternType } from '../services/tonal-facade.service';
 import { PatternInfo } from '../shared/model/patternInfo';
-import { spellNote } from '../shared/note-utils';
 import { ShapeResolverService } from '../services/shape-resolver.service';
 import { ExerciseValidatorService } from '../services/exercise-validator.service';
 import { INTERVAL_CONFIG } from '../shared/tonal-adapter';
@@ -63,7 +62,7 @@ export class DomainService {
 
   private registerCommandHandlers(): void {
     this.commandHandlers.set('show-pattern', (c) => this.handleShowPattern(c));
-    this.commandHandlers.set('show-interval', (c) => this.handleShowInterval(c));
+    this.commandHandlers.set('show-intervals', (c) => this.handleShowIntervals(c));
     this.commandHandlers.set('compare-patterns', (c) => this.handleComparePatterns(c));
     this.commandHandlers.set('set-view', (c) => this.handleSetView(c));
     this.commandHandlers.set('set-emphasis', (c) => this.handleSetEmphasis(c));
@@ -156,24 +155,37 @@ export class DomainService {
     });
   }
 
-  private handleShowInterval(command: DomainCommand & { type: 'show-interval' }): DomainResult<DomainState> {
-    const { rootNote, interval } = command;
+  private handleShowIntervals(command: DomainCommand & { type: 'show-intervals' }): DomainResult<DomainState> {
+    return this.applyShowIntervals(command.rootNote, command.intervals);
+  }
 
-    const err = DomainValidator.validateRootNote(rootNote);
+  /**
+   * Core logic for showing intervals — shared by both show-interval and show-intervals commands.
+   * Validates, deduplicates, computes notes via Tonal.js, and displays in one call.
+   */
+  private applyShowIntervals(rootNote: string, intervals: string[]): DomainResult<DomainState> {
+    const err = DomainValidator.validateRootNote(rootNote)
+      ?? DomainValidator.validateIntervals(intervals);
     if (err) return err;
 
-    const { semitone, error } = DomainValidator.validateInterval(interval);
-    if (error) return error;
+    // Deduplicate preserving first-occurrence order
+    const uniqueIntervals = [...new Set(intervals)];
 
-    const note = spellNote(rootNote, semitone, interval);
-    this.orchestration.displayCustomPattern([rootNote, note], rootNote);
+    // Compute notes via Tonal.js for proper enharmonic spelling
+    const notes = uniqueIntervals.map(interval => {
+      const config = INTERVAL_CONFIG.find(i => i.symbol === interval)!;
+      return this.tonalFacade.transposeNote(rootNote, config.tonalName);
+    });
+
+    // Display root + all computed notes in a single call
+    this.orchestration.displayCustomPattern([rootNote, ...notes], rootNote);
 
     return this.emitState({
       ...this.currentState(),
       mode: 'custom',
       displayMode: 'legend',
       rootNote,
-      patternName: `interval-${interval}`,
+      patternName: `intervals-${uniqueIntervals.join('-')}`,
       compareTarget: undefined,
       shapeInfo: undefined,
     });

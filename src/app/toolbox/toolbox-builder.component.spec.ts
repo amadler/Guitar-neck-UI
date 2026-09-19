@@ -46,15 +46,15 @@ describe('ToolboxBuilderComponent', () => {
         } as DomainCommand);
     });
 
-    it('should emit show-interval command when showKind is interval', () => {
+    it('should emit show-intervals command when showKind is interval', () => {
         vi.spyOn(component.toolboxEvent, 'emit').mockReturnValue(undefined);
 
         component.setShowKind('interval');
         component.submit();
         expect(component.toolboxEvent.emit).toHaveBeenCalledWith({
-            type: 'show-interval',
+            type: 'show-intervals',
             rootNote: 'C',
-            interval: '3',
+            intervals: ['3'],
         } as DomainCommand);
     });
 

@@ -20,11 +20,11 @@ const showPatternSchema = z.object({
 });
 type ShowPatternInput = z.infer<typeof showPatternSchema>;
 
-const showIntervalSchema = z.object({
-  rootNote: z.string().describe("Nuta podstawowa"),
-  interval: z.string().describe("Nazwa interwału, np. b3, 3, 5, b7"),
+const showIntervalsSchema = z.object({
+  rootNote: z.string().describe("Nuta podstawowa, np. 'A', 'C'"),
+  intervals: z.array(z.string()).describe("Lista interwałów, np. ['1', 'b3'], ['1', '3', '5']"),
 });
-type ShowIntervalInput = z.infer<typeof showIntervalSchema>;
+type ShowIntervalsInput = z.infer<typeof showIntervalsSchema>;
 
 const comparePatternsSchema = z.object({
   primary: z.object({
@@ -113,24 +113,24 @@ export function createDomainTools(domainService: DomainService) {
       }
     ),
     tool(
-      async (input: ShowIntervalInput) => {
-        const command: DomainCommand = { type: "show-interval", rootNote: input.rootNote, interval: input.interval };
+      async (input: ShowIntervalsInput) => {
+        const command: DomainCommand = { type: "show-intervals", rootNote: input.rootNote, intervals: input.intervals };
         const result = domainService.execute(command);
 
         return {
           success: result.success,
-          action: "show-interval",
+          action: "show-intervals",
           rootNote: input.rootNote,
-          interval: input.interval,
+          intervals: input.intervals,
           message: result.success
-            ? `Pokazano interwał ${input.interval} od ${input.rootNote}`
+            ? `Pokazano interwały [${input.intervals.join(', ')}] od ${input.rootNote}`
             : result.message,
         };
       },
       {
-        name: "show_interval",
-        description: "Wyświetla pojedynczy interwał od root note na gryfie",
-        schema: showIntervalSchema,
+        name: "show_intervals",
+        description: "Wyświetla jeden lub więcej interwałów od root note na gryfie w jednym widoku. Użyj gdy użytkownik chce zobaczyć konkretne interwały, np. 'pokaż tercję małą od A', 'pokaż A i C', 'pokaż triadę C-dur'. Dla pojedynczego interwału też użyj tej komendy z ['b3'] zamiast osobnej show_interval.",
+        schema: showIntervalsSchema,
       }
     ),
     tool(

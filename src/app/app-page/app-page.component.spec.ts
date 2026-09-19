@@ -77,8 +77,8 @@ describe('AppPageComponent', () => {
             expect(component.displayMode()).toBe('legend');
         });
 
-        it('should delegate show-interval to DomainService and displayMode becomes legend', () => {
-            const command: DomainCommand = { type: 'show-interval', rootNote: 'C', interval: 'b3' };
+        it('should delegate show-intervals to DomainService and displayMode becomes legend', () => {
+            const command: DomainCommand = { type: 'show-intervals', rootNote: 'C', intervals: ['b3'] };
             vi.spyOn(domainService, 'execute').mockImplementation((cmd) => {
                 return DomainService.prototype.execute.call(domainService, cmd);
             });

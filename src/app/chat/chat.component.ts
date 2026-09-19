@@ -95,9 +95,9 @@ export class ChatComponent {
       }
       case 'show-interval': {
         const command: DomainCommand = {
-          type: 'show-interval',
+          type: 'show-intervals',
           rootNote: action.params['root'],
-          interval: action.params['interval'],
+          intervals: [action.params['interval']],
         };
         this.domainService.execute(command);
         break;

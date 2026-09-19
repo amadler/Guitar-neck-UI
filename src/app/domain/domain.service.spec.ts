@@ -29,6 +29,70 @@ describe('DomainService', () => {
     });
   });
 
+  describe('show-intervals', () => {
+    it('should show a single interval', () => {
+      const command: DomainCommand = { type: 'show-intervals', rootNote: 'A', intervals: ['b3'] };
+      const result = service.execute(command);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.mode).toBe('custom');
+        expect(result.data.rootNote).toBe('A');
+        expect(result.data.patternName).toContain('b3');
+      }
+    });
+
+    it('should show multiple intervals in one view', () => {
+      const command: DomainCommand = { type: 'show-intervals', rootNote: 'A', intervals: ['1', 'b3'] };
+      const result = service.execute(command);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.mode).toBe('custom');
+        expect(result.data.rootNote).toBe('A');
+        expect(result.data.patternName).toContain('1');
+        expect(result.data.patternName).toContain('b3');
+      }
+    });
+
+    it('should show a triad (C, 1, 3, 5)', () => {
+      const command: DomainCommand = { type: 'show-intervals', rootNote: 'C', intervals: ['1', '3', '5'] };
+      const result = service.execute(command);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.mode).toBe('custom');
+        expect(result.data.rootNote).toBe('C');
+      }
+    });
+
+    it('should deduplicate intervals', () => {
+      const command: DomainCommand = { type: 'show-intervals', rootNote: 'A', intervals: ['1', '1', 'b3'] };
+      const result = service.execute(command);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        // patternName should only contain '1' once
+        const matches = result.data.patternName.match(/1/g);
+        expect(matches?.length).toBe(1);
+      }
+    });
+
+    it('should reject empty intervals array', () => {
+      const command: DomainCommand = { type: 'show-intervals', rootNote: 'A', intervals: [] };
+      const result = service.execute(command);
+      expect(result.success).toBe(false);
+    });
+
+    it('should reject invalid interval', () => {
+      const command: DomainCommand = { type: 'show-intervals', rootNote: 'A', intervals: ['INVALID'] };
+      const result = service.execute(command);
+      expect(result.success).toBe(false);
+    });
+
+    it('should reject invalid root note', () => {
+      const command: DomainCommand = { type: 'show-intervals', rootNote: 'X', intervals: ['1'] };
+      const result = service.execute(command);
+      expect(result.success).toBe(false);
+    });
+  });
+
   describe('query', () => {
     it('should detect C major chord from notes C, E, G', () => {
       const query: DomainQuery = { type: 'detect-chord', notes: ['C', 'E', 'G'] };

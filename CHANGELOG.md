@@ -7,6 +7,26 @@ a projekt stosuje [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.10.0] — 2026-09-19
+
+### Added
+- **`ShowIntervalsCommand`** — new domain command accepting `rootNote: string` + `intervals: string[]` for showing multiple intervals in one logical view ([`src/app/domain/commands.ts`](src/app/domain/commands.ts:66))
+- **`TonalFacadeService.transposeNote()`** — delegates to `@tonaljs/note.transposeBy()` for proper enharmonic spelling, replaces custom `spellNote()` in DomainService ([`src/app/services/tonal-facade.service.ts`](src/app/services/tonal-facade.service.ts:93))
+- **`DomainValidator.validateIntervals()`** — validates interval arrays (empty, invalid entries) ([`src/app/domain/domain-validator.ts`](src/app/domain/domain-validator.ts:134))
+- **`show_intervals` agent tool** — replaces `show_interval`; accepts `intervals: string[]` for single or multiple intervals ([`src/app/chat/tools/domain-tools.ts`](src/app/chat/tools/domain-tools.ts:116))
+
+### Changed
+- **`handleShowInterval()` → `applyShowIntervals()`** — single implementation for all interval display; `ShowIntervalCommand` removed, Toolbox and chat now emit `show-intervals` ([`src/app/domain/domain.service.ts`](src/app/domain/domain.service.ts:162))
+- **Toolbox** — emits `{ type: 'show-intervals', intervals: [symbol] }` instead of `show-interval` ([`src/app/toolbox/toolbox-builder.component.ts`](src/app/toolbox/toolbox-builder.component.ts:115))
+- **Chat action tag** — `show-interval` tag maps to `show-intervals` DomainCommand ([`src/app/chat/chat.component.ts`](src/app/chat/chat.component.ts:96))
+
+### Removed
+- **`ShowIntervalCommand`** — removed from `DomainCommand` union; all consumers migrated to `ShowIntervalsCommand` ([`src/app/domain/commands.ts`](src/app/domain/commands.ts))
+- **`show_interval` agent tool** — replaced by `show_intervals` ([`src/app/chat/tools/domain-tools.ts`](src/app/chat/tools/domain-tools.ts))
+- **`spellNote()` usage in DomainService** — replaced by `TonalFacadeService.transposeNote()` ([`src/app/domain/domain.service.ts`](src/app/domain/domain.service.ts))
+
+---
+
 ## [0.9.0] — 2026-09-04
 
 ### Changed

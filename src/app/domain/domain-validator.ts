@@ -131,6 +131,24 @@ export class DomainValidator {
     return null;
   }
 
+  /** Validate a list of intervals (empty array, invalid entries). */
+  static validateIntervals(intervals: string[]): DomainResult<never> | null {
+    if (!intervals || intervals.length === 0) {
+      return {
+        success: false,
+        error: DomainError.INVALID_INTERVAL,
+        message: 'Intervals array must be non-empty.',
+      };
+    }
+
+    for (const interval of intervals) {
+      const { error } = this.validateInterval(interval);
+      if (error) return error;
+    }
+
+    return null;
+  }
+
   /** Validate that an exercise task has valid parameters. */
   static validateExerciseTask(
     rootNote: string,
@@ -139,18 +157,8 @@ export class DomainValidator {
     const rootErr = this.validateRootNote(rootNote);
     if (rootErr) return rootErr;
 
-    if (!expectedIntervals || expectedIntervals.length === 0) {
-      return {
-        success: false,
-        error: DomainError.INVALID_INTERVAL,
-        message: 'Expected intervals must be a non-empty array.',
-      };
-    }
-
-    for (const interval of expectedIntervals) {
-      const { error } = this.validateInterval(interval);
-      if (error) return error;
-    }
+    const intervalsErr = this.validateIntervals(expectedIntervals);
+    if (intervalsErr) return intervalsErr;
 
     return null;
   }

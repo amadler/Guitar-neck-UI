@@ -59,15 +59,15 @@ export interface SetEmphasisCommand {
 }
 
 /**
- * Show a single interval from a root note on the fretboard.
- * Uses displayCustomPattern internally with proper enharmonic spelling.
+ * Show multiple intervals from a root note on the fretboard in one logical view.
+ * Replaces multiple show-interval calls with a single command.
+ * Uses displayCustomPattern internally with Tonal.js for enharmonic spelling.
  */
-export interface ShowIntervalCommand {
-  type: 'show-interval';
+export interface ShowIntervalsCommand {
+  type: 'show-intervals';
   rootNote: string;
-  interval: string; // e.g., 'b3', '3', '5', 'b7'
+  intervals: string[]; // e.g., ['1', 'b3'], ['1', '3', '5']
 }
-
 /**
  * Clear the fretboard, reset state to default.
  */
@@ -143,7 +143,7 @@ export interface DeselectNoteCommand {
 export type DomainCommand =
   | ShowPatternCommand
   | ComparePatternsCommand
-  | ShowIntervalCommand
+  | ShowIntervalsCommand
   | SetViewCommand
   | SetEmphasisCommand
   | ClearViewCommand

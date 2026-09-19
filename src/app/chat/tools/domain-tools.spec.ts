@@ -60,25 +60,46 @@ describe("createDomainTools", () => {
     });
   });
 
-  describe("show_interval tool", () => {
-    it("should call DomainService.execute() with show-interval command", async () => {
-      const showIntervalTool = tools[1];
+  describe("show_intervals tool", () => {
+    it("should call DomainService.execute() with show-intervals command (single interval)", async () => {
+      const showIntervalsTool = tools[1];
 
-      const result = await showIntervalTool.invoke({
-        rootNote: "C",
-        interval: "3",
+      const result = await showIntervalsTool.invoke({
+        rootNote: "A",
+        intervals: ["b3"],
       });
 
       expect(mockDomainService.execute).toHaveBeenCalledWith({
-        type: "show-interval",
-        rootNote: "C",
-        interval: "3",
+        type: "show-intervals",
+        rootNote: "A",
+        intervals: ["b3"],
       });
       expect(result).toMatchObject({
         success: true,
-        action: "show-interval",
+        action: "show-intervals",
+        rootNote: "A",
+        intervals: ["b3"],
+      });
+    });
+
+    it("should call DomainService.execute() with show-intervals command (multiple intervals)", async () => {
+      const showIntervalsTool = tools[1];
+
+      const result = await showIntervalsTool.invoke({
         rootNote: "C",
-        interval: "3",
+        intervals: ["1", "3", "5"],
+      });
+
+      expect(mockDomainService.execute).toHaveBeenCalledWith({
+        type: "show-intervals",
+        rootNote: "C",
+        intervals: ["1", "3", "5"],
+      });
+      expect(result).toMatchObject({
+        success: true,
+        action: "show-intervals",
+        rootNote: "C",
+        intervals: ["1", "3", "5"],
       });
     });
   });
