@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter, ChangeDetectionStrategy, signal, output, input } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, signal, output, input } from '@angular/core';
 
 import { neckConfig, SCALE_PATTERNS, CHORD_PATTERNS } from 'guitar-neck-shared';
 import { DomainCommand, ShowPatternCommand, ComparePatternsCommand, ResolveShapeCommand } from '../domain/commands';
@@ -30,8 +30,12 @@ export type MusicKey = string;
   styleUrl: './toolbox-builder.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ToolboxBuilderComponent {
+export class ToolboxBuilderComponent implements OnInit {
   readonly disabled = input(false);
+  /** Optional initial intent — set by landing page feature cards. */
+  readonly initialIntent = input<ToolboxIntent | null>(null);
+  /** Optional initial show kind — set by landing page feature cards. */
+  readonly initialShowKind = input<ShowKind | null>(null);
   toolboxEvent = output<DomainCommand>();
   // --- Data sources ---
   musicKeys: MusicKey[] = neckConfig.chromaticNotes;
@@ -87,6 +91,17 @@ export class ToolboxBuilderComponent {
     this.shapeCategory.set(category);
     const shapes = this.currentShapes;
     this.selectedShape.set(shapes.length > 0 ? shapes[0] : null);
+  }
+
+  ngOnInit(): void {
+    const intent = this.initialIntent();
+    if (intent) {
+      this.intent.set(intent);
+    }
+    const showKind = this.initialShowKind();
+    if (showKind) {
+      this.showKind.set(showKind);
+    }
   }
 
   get currentShapes(): Array<{ id: string; name: string; category: string }> {

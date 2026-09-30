@@ -7,6 +7,8 @@
     <div class="command-bar__toolbox">
       <app-toolbox-builder
         [disabled]="exerciseMode()"
+        [initialIntent]="toolboxIntent()"
+        [initialShowKind]="toolboxShowKind()"
         (toolboxEvent)="onToolboxEvent($event)"
       ></app-toolbox-builder>
     </div>
