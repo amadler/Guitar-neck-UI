@@ -244,11 +244,22 @@
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-soft);
   transition: box-shadow 0.2s, transform 0.2s;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  text-align: left;
+  color: inherit;
+  width: 100%;
 }
 
 .feature-card:hover {
   box-shadow: 0 12px 32px rgba(15, 32, 22, 0.12);
   transform: translateY(-2px);
+}
+
+.feature-card:focus-visible {
+  outline: 2px solid var(--md-primary);
+  outline-offset: 2px;
 }
 
 .feature-card__icon {

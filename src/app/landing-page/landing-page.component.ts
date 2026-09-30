@@ -22,6 +22,10 @@ export class LandingPageComponent {
     this.router.navigate(['/app']);
   }
 
+  goToAppWithAction(action: string): void {
+    this.router.navigate(['/app'], { queryParams: { action } });
+  }
+
   startLesson(lessonId: string): void {
     this.router.navigate(['/app'], { queryParams: { lesson: lessonId } });
   }

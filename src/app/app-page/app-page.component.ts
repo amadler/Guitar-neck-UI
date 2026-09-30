@@ -62,6 +62,8 @@ export class AppPageComponent implements OnInit {
 
   ngOnInit(): void {
     const lessonId = this.route.snapshot.queryParamMap.get('lesson');
+    const action = this.route.snapshot.queryParamMap.get('action');
+
     if (lessonId) {
       const lesson = this.lessonRegistry.getLesson(lessonId);
       if (lesson) {
@@ -69,6 +71,26 @@ export class AppPageComponent implements OnInit {
         this.domainService.execute({ type: 'set-ai-mode', enabled: true });
         this.chatService.startLesson(lessonId);
       }
+    }
+
+    if (action) {
+      this.handleLandingAction(action);
+    }
+  }
+
+  private handleLandingAction(action: string): void {
+    switch (action) {
+      case 'show-notes':
+        this.domainService.execute({ type: 'clear-view' });
+        this.domainService.execute({ type: 'set-view', markerDisplayMode: 'note-names' });
+        break;
+      case 'ai-mode':
+        this.domainService.execute({ type: 'set-ai-mode', enabled: true });
+        break;
+      // 'show-pattern', 'show-intervals', 'compare', 'metronome'
+      // just navigate to the app — the toolbox UI is already visible
+      default:
+        break;
     }
   }
 
