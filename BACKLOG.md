@@ -187,3 +187,158 @@ This candidate is **speculative** because it depends on Candidate 1 (mutable sta
 ## Status
 
 OPEN
+
+---
+
+# P17: Frontend Integration — Auth, Credentials, Progress, Settings
+
+**Źródło:** Backend architecture plan — [`C:\code\Guitar-neck-app\guitar-neck-agent\plans\backend-architecture.md`](file:///C:/code/Guitar-neck-app/guitar-neck-agent/plans/backend-architecture.md)
+**Backend tickets:** [`C:\code\Guitar-neck-app\guitar-neck-agent\tickets.md`](file:///C:/code/Guitar-neck-app/guitar-neck-agent/tickets.md)
+**BE integration instructions:** [`C:\code\Guitar-neck-app\guitar-neck-agent\plans\frontend-integration-instructions.md`](file:///C:/code/Guitar-neck-app/guitar-neck-agent/plans/frontend-integration-instructions.md)
+**BE branch:** `persistant-be` (wypchnięte, wszystkie endpointy gotowe)
+
+## Motivation
+
+Backend (guitar-neck-agent) został rozbudowany o PostgreSQL + Drizzle ORM, auth (register/login/logout z HTTP-only cookie session), szyfrowane credentials OpenRouter per user (AES-GCM), lesson progress + exercise results, oraz persistent LangGraph checkpoints.
+
+Frontend (Angular) musi się zintegrować z nowymi endpointami. Obecnie `AgentApiService` ma hardcoded `http://localhost:3001/api/chat`, brak auth, brak UI do zarządzania kluczem OpenRouter, brak zapisu progresu lekcji.
+
+## Solution
+
+Dodać warstwę konta użytkownika do Angulara: auth flow, settings z kluczem OpenRouter, progress tracking. Wszystkie requesty do backendu z `credentials: 'include'`.
+
+## Pliki do zmiany / utworzenia
+
+### F1 — Konfiguracja globalna
+
+| Plik | Zmiana |
+|------|--------|
+| `src/environments/environment.ts` | Dodać `apiUrl: 'http://localhost:3001'` |
+| `src/environments/environment.prod.ts` | Dodać `apiUrl` (produkcyjny URL) |
+| `src/app/app.config.ts` | Dodać `withCredentials()` do `provideHttpClient` |
+| `src/app/app.routes.ts` | Dodać route dla login, register, settings |
+
+### F2 — Auth service + komponenty
+
+| Plik | Zmiana |
+|------|--------|
+| `src/app/auth/auth.service.ts` | **NOWY** — `login()`, `register()`, `logout()`, `getMe()`, `isLoggedIn` signal |
+| `src/app/auth/login/login.component.ts` | **NOWY** — formularz logowania |
+| `src/app/auth/login/login.component.html` | **NOWY** — email + password + submit |
+| `src/app/auth/register/register.component.ts` | **NOWY** — formularz rejestracji |
+| `src/app/auth/register/register.component.html` | **NOWY** — email + password + confirm + submit |
+
+### F3 — Settings / Credentials
+
+| Plik | Zmiana |
+|------|--------|
+| `src/app/settings/settings.component.ts` | **NOWY** — strona ustawień |
+| `src/app/settings/settings.component.html` | **NOWY** — formularz klucza OpenRouter + status |
+| `src/app/settings/credentials.service.ts` | **NOWY** — `saveKey()`, `getStatus()`, `deleteKey()` |
+
+### F4 — Progress tracking
+
+| Plik | Zmiana |
+|------|--------|
+| `src/app/services/progress.service.ts` | **NOWY** — `getProgress()`, `getLessonProgress()`, `updateLessonProgress()`, `saveExerciseResult()`, `getExerciseHistory()` |
+
+### F5 — AgentApiService refactor
+
+| Plik | Zmiana |
+|------|--------|
+| `src/app/services/agent-api.service.ts` | URL z `environment.apiUrl`, `credentials: 'include'`, dodać metody auth + credentials + progress |
+
+### F6 — Chat service update
+
+| Plik | Zmiana |
+|------|--------|
+| `src/app/chat/services/chat.service.ts` | `domainState` optional w body, `credentials: 'include'` |
+
+### F7 — Header / Navigation
+
+| Plik | Zmiana |
+|------|--------|
+| `src/app/header/header.component.ts` | Dodać user menu (login/logout/email/settings link) |
+| `src/app/header/header.component.html` | Dodać przyciski auth + settings |
+
+### F8 — Landing page update
+
+| Plik | Zmiana |
+|------|--------|
+| `src/app/landing-page/landing-page.component.ts` | Dodać login/register CTA |
+| `src/app/landing-page/landing-page.component.html` | Dodać linki do auth |
+
+## Kolejność implementacji
+
+1. **F1** — Konfiguracja: `environment.ts`, `app.config.ts`, `app.routes.ts`
+2. **F5** — `AgentApiService` refactor: URL z environment, `credentials: 'include'`
+3. **F6** — `ChatService` update: `domainState` optional
+4. **F2** — Auth: `auth.service.ts` + login/register komponenty
+5. **F7** — Header: user menu z login/logout
+6. **F8** — Landing page: auth CTA
+7. **F3** — Settings: `settings.component.ts` + `credentials.service.ts`
+8. **F4** — Progress: `progress.service.ts`
+
+## API Reference (z backendu)
+
+### Auth
+
+| Metoda | Endpoint | Body | Response |
+|--------|----------|------|----------|
+| `POST` | `/api/auth/register` | `{ email, password }` | `{ user: { id, email } }` |
+| `POST` | `/api/auth/login` | `{ email, password }` | `{ user: { id, email } }` |
+| `POST` | `/api/auth/logout` | — | `{ ok: true }` |
+| `GET` | `/api/me` | — | `{ user: { id, email } }` |
+
+### Credentials
+
+| Metoda | Endpoint | Body | Response |
+|--------|----------|------|----------|
+| `PUT` | `/api/credentials/openrouter` | `{ apiKey: string }` | `{ ok: true }` |
+| `GET` | `/api/credentials/openrouter/status` | — | `{ configured: boolean }` |
+| `DELETE` | `/api/credentials/openrouter` | — | `{ ok: true }` |
+
+### Progress
+
+| Metoda | Endpoint | Body | Response |
+|--------|----------|------|----------|
+| `GET` | `/api/progress` | — | `{ progress: LessonProgress[] }` |
+| `GET` | `/api/progress/:lessonId` | — | `{ progress: LessonProgress }` |
+| `PUT` | `/api/progress/:lessonId` | `{ status?, currentStep?, data? }` | `{ ok: true }` |
+| `POST` | `/api/progress/exercises/result` | `{ lessonId, exerciseId, result }` | `{ ok: true }` |
+| `GET` | `/api/progress/exercises/history` | `?limit=50` | `{ history: ExerciseResult[] }` |
+
+### Chat
+
+| Metoda | Endpoint | Body | Response |
+|--------|----------|------|----------|
+| `POST` | `/api/chat` | `{ type, threadId, text, domainState?, lessonMode }` | NDJSON stream |
+
+## Zasady
+
+1. **Wszystkie requesty** z `credentials: 'include'` (HTTP-only cookie auth)
+2. **Agent nie zapisuje do DB** — to Angular wysyła progress po `DomainCommand`
+3. **`domainState` optional** w chat body — backend używa domyślnego jeśli nie podany
+4. **`threadId` walidowany** — 403 jeśli thread innego usera
+5. **Klucz OpenRouter** nie jest zwracany z backendu — tylko `{ configured: boolean }`
+
+## MVP
+
+- User może się zarejestrować i zalogować
+- User może dodać klucz OpenRouter w settings
+- Chat działa z kluczem usera (nie globalnym)
+- `npm run build` succeeds
+- `npm test` succeeds
+
+## Done when
+
+- `AgentApiService` używa `environment.apiUrl` i `credentials: 'include'`
+- Login/register działają z backendem
+- Settings page pozwala zapisać/usunąć klucz OpenRouter
+- Chat działa po zalogowaniu z własnym kluczem
+- Header pokazuje email usera + logout
+- Progress jest wysyłany po każdej zmianie lekcji
+
+## Status
+
+OPEN

@@ -12,6 +12,16 @@
         Visualize scales, chords, and intervals directly on the guitar
         fretboard. Explore music theory in a hands-on way.
       </p>
+      <div class="hero__actions">
+        @if (auth.user(); as user) {
+          <button class="btn btn--primary" type="button" (click)="goToApp()">
+            Go to App
+          </button>
+        } @else {
+          <a class="btn btn--primary" routerLink="/register">Create Account</a>
+          <a class="btn btn--ghost" routerLink="/login">Sign In</a>
+        }
+      </div>
     </div>
   </section>
 

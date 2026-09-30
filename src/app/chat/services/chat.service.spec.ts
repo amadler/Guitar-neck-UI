@@ -2,7 +2,7 @@ import { TestBed } from "@angular/core/testing";
 import { AIMessage, HumanMessage, ToolMessage } from "@langchain/core/messages";
 import { ChatService } from "./chat.service";
 import { DomainService } from "../../domain/domain.service";
-import { ExerciseResult } from "../../domain/state";
+import { AgentApiService } from "../../services/agent-api.service";
 
 /**
  * Helper: create an async iterable from an array.
@@ -46,73 +46,70 @@ function ensureLocalStorage(): void {
 
 describe("ChatService", () => {
   let service: ChatService;
-  let mockDomainService: { execute: ReturnType<typeof vi.fn>; query: ReturnType<typeof vi.fn> };
-  let mockAgent: { streamEvents: ReturnType<typeof vi.fn> };
-  let mockLessonGraph: { streamEvents: ReturnType<typeof vi.fn> };
+  let mockDomainService: { execute: ReturnType<typeof vi.fn>; query: ReturnType<typeof vi.fn>; currentState: ReturnType<typeof vi.fn> };
+  let mockAgentApi: { send: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
-    ensureLocalStorage();
-    globalThis.localStorage.setItem('modelApiKey', 'sk-test-key');
-    globalThis.localStorage.setItem('modelName', 'deepseek/deepseek-v4-flash');
-
     mockDomainService = {
       execute: vi.fn().mockReturnValue({ success: true, action: "test", message: "ok" }),
       query: vi.fn().mockReturnValue({ success: true, data: {} }),
+      currentState: vi.fn().mockReturnValue({
+        mode: 'scale',
+        aiModeEnabled: false,
+        displayMode: null,
+        rootNote: 'C',
+        patternName: 'major',
+        fretRange: { min: 0, max: 12 },
+        enabledStrings: [true, true, true, true, true, true],
+        markerDisplayMode: 'interval-colors',
+        exerciseMode: false,
+      }),
     };
-    mockAgent = {
-      streamEvents: vi.fn(),
-    };
-    mockLessonGraph = {
-      streamEvents: vi.fn(),
+    mockAgentApi = {
+      send: vi.fn(),
     };
 
     TestBed.configureTestingModule({
       providers: [
         ChatService,
         { provide: DomainService, useValue: mockDomainService },
+        { provide: AgentApiService, useValue: mockAgentApi },
       ],
     });
 
     service = TestBed.inject(ChatService);
-    // Override the private agent field with a mock to avoid real LLM calls
-    (service as any)._agent = mockAgent;
-    (service as any)._lessonGraph = mockLessonGraph;
-  });
-
-  afterEach(() => {
-    globalThis.localStorage.clear();
   });
 
   describe("reset", () => {
-    it("should clear messages, agent, and generate a new threadId", () => {
-      const initialConfig = { ...(service as any).config };
+    it("should clear messages and generate a new threadId", () => {
+      const oldThreadId = (service as any)._threadId;
       service.messages.set([{ role: "user", text: "hello" }]);
 
       service.reset();
 
       expect(service.messages()).toEqual([]);
-      expect((service as any)._agent).toBeNull();
-      expect((service as any).config.configurable.thread_id).not.toBe(initialConfig.configurable.thread_id);
+      expect((service as any)._threadId).not.toBe(oldThreadId);
     });
   });
 
   describe("resetAgent", () => {
-    it("should clear cached agent and reset thread", () => {
-      (service as any)._agent = mockAgent;
-      const oldConfig = { ...(service as any).config };
+    it("should reset thread and lesson mode", () => {
+      (service as any)._lessonMode = true;
+      (service as any)._waitingForUser = true;
+      const oldThreadId = (service as any)._threadId;
 
       service.resetAgent();
 
-      expect((service as any)._agent).toBeNull();
-      expect((service as any).config.configurable.thread_id).not.toBe(oldConfig.configurable.thread_id);
+      expect((service as any)._lessonMode).toBe(false);
+      expect((service as any)._waitingForUser).toBe(false);
+      expect((service as any)._threadId).not.toBe(oldThreadId);
     });
   });
 
   describe("send (normal chat)", () => {
     it("should set loading to true at start and false at end", async () => {
-      mockAgent.streamEvents.mockResolvedValue({
-        messages: asyncIterable([]),
-        toolCalls: asyncIterable([]),
+      mockAgentApi.send.mockImplementation(async (_body: any, onEvent: any) => {
+        onEvent({ type: "done" });
       });
 
       const sendPromise = service.send("hello");
@@ -126,11 +123,9 @@ describe("ChatService", () => {
 
     it("should add user message and assistant response on success", async () => {
       const responseText = "C-dur to skala: C, D, E, F, G, A, B.";
-      mockAgent.streamEvents.mockResolvedValue({
-        messages: asyncIterable([
-          { text: textStream(responseText) },
-        ]),
-        toolCalls: asyncIterable([]),
+      mockAgentApi.send.mockImplementation(async (_body: any, onEvent: any) => {
+        onEvent({ type: "token", text: responseText });
+        onEvent({ type: "done" });
       });
 
       await service.send("hello");
@@ -143,8 +138,8 @@ describe("ChatService", () => {
       });
     });
 
-    it("should show error message in chat when agent.streamEvents throws", async () => {
-      mockAgent.streamEvents.mockRejectedValue(new Error("Ollama not available"));
+    it("should show error message in chat when agentApi.send throws", async () => {
+      mockAgentApi.send.mockRejectedValue(new Error("Ollama not available"));
 
       await service.send("hello");
 
@@ -158,7 +153,7 @@ describe("ChatService", () => {
 
     it("should show error and preserve existing messages", async () => {
       service.messages.set([{ role: "assistant", text: "Witaj!" }]);
-      mockAgent.streamEvents.mockRejectedValue(new Error("Ollama not available"));
+      mockAgentApi.send.mockRejectedValue(new Error("Ollama not available"));
 
       await service.send("hello");
 
@@ -169,48 +164,30 @@ describe("ChatService", () => {
       expect(service.messages()[2].text).toContain("❌");
       expect(service.loading()).toBe(false);
     });
-  
-    describe("missing API key", () => {
-      it("should show error in chat when no API key is available", async () => {
-        (service as any)._agent = null;
-        globalThis.localStorage.removeItem('modelApiKey');
-
-        await service.send("hello");
-
-        expect(service.messages()).toHaveLength(2);
-        expect(service.messages()[1].text).toContain("❌");
-        expect(service.messages()[1].text).toContain("Missing Authentication header");
-        expect(service.loading()).toBe(false);
-      });
-    });
   });
 
   describe("send (resume after waiting for user)", () => {
     it("should resume the agent when _waitingForUser is true", async () => {
       (service as any)._waitingForUser = true;
-      mockAgent.streamEvents.mockResolvedValue({
-        messages: asyncIterable([]),
-        toolCalls: asyncIterable([]),
+      mockAgentApi.send.mockImplementation(async (_body: any, onEvent: any) => {
+        onEvent({ type: "done" });
       });
 
       await service.send("dalej");
 
-      // Should have added user message and called agent streamEvents via resume()
       expect(service.messages().length).toBeGreaterThanOrEqual(1);
       expect(service.messages()[0]).toMatchObject({ role: "user", text: "dalej" });
-      expect(mockAgent.streamEvents).toHaveBeenCalled();
+      expect(mockAgentApi.send).toHaveBeenCalled();
     });
 
     it("should not resume when _waitingForUser is false", async () => {
       (service as any)._waitingForUser = false;
-      mockAgent.streamEvents.mockResolvedValue({
-        messages: asyncIterable([]),
-        toolCalls: asyncIterable([]),
+      mockAgentApi.send.mockImplementation(async (_body: any, onEvent: any) => {
+        onEvent({ type: "done" });
       });
 
-      // Should use normal processStream path
       await service.send("hello");
-      expect(mockAgent.streamEvents).toHaveBeenCalled();
+      expect(mockAgentApi.send).toHaveBeenCalled();
     });
   });
 
@@ -228,10 +205,8 @@ describe("ChatService", () => {
       };
       (service as any).lessonRegistry = mockRegistry;
 
-      // Mock the lesson graph streamEvents to return empty (avoid real LLM)
-      mockLessonGraph.streamEvents.mockResolvedValue({
-        messages: asyncIterable([]),
-        [Symbol.asyncIterator]: async function*() {},
+      mockAgentApi.send.mockImplementation(async (_body: any, onEvent: any) => {
+        onEvent({ type: "done" });
       });
 
       await service.startLesson('test');

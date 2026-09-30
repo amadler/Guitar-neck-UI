@@ -34,5 +34,14 @@
         />
       </svg>
     </button>
+
+    @if (auth.user(); as user) {
+      <span class="user-email">{{ user.email }}</span>
+      <a class="nav-link" routerLink="/settings">Ustawienia</a>
+      <button class="nav-link" (click)="auth.logout()">Wyloguj</button>
+    } @else {
+      <a class="nav-link" routerLink="/login">Zaloguj</a>
+      <a class="nav-link" routerLink="/register">Rejestracja</a>
+    }
   </div>
 </header>

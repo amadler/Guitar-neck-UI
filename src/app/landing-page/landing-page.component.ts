@@ -1,11 +1,12 @@
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LessonRegistryService } from '../services/lesson-registry.service';
+import { AuthService } from '../auth/auth.service';
 
 @Component({
   selector: 'app-landing-page',
-  imports: [FormsModule],
+  imports: [FormsModule, RouterModule],
   templateUrl: './landing-page.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './landing-page.component.scss',
@@ -13,6 +14,7 @@ import { LessonRegistryService } from '../services/lesson-registry.service';
 export class LandingPageComponent {
   private router = inject(Router);
   private lessonRegistry = inject(LessonRegistryService);
+  protected auth = inject(AuthService);
   lessons = this.lessonRegistry.lessons;
 
 
