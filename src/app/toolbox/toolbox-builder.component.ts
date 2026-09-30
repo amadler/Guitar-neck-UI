@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy, signal, output, input } from '@angular/core';
+import { Component, effect, ChangeDetectionStrategy, signal, output, input } from '@angular/core';
 
 import { neckConfig, SCALE_PATTERNS, CHORD_PATTERNS } from 'guitar-neck-shared';
 import { DomainCommand, ShowPatternCommand, ComparePatternsCommand, ResolveShapeCommand } from '../domain/commands';
@@ -30,7 +30,7 @@ export type MusicKey = string;
   styleUrl: './toolbox-builder.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ToolboxBuilderComponent implements OnInit {
+export class ToolboxBuilderComponent {
   readonly disabled = input(false);
   /** Optional initial intent — set by landing page feature cards. */
   readonly initialIntent = input<ToolboxIntent | null>(null);
@@ -87,21 +87,25 @@ export class ToolboxBuilderComponent implements OnInit {
     this.intent.set(intent);
   }
 
+  constructor() {
+    effect(() => {
+      const intent = this.initialIntent();
+      if (intent) {
+        this.intent.set(intent);
+      }
+    });
+    effect(() => {
+      const showKind = this.initialShowKind();
+      if (showKind) {
+        this.showKind.set(showKind);
+      }
+    });
+  }
+
   setShapeCategory(category: ShapeCategory): void {
     this.shapeCategory.set(category);
     const shapes = this.currentShapes;
     this.selectedShape.set(shapes.length > 0 ? shapes[0] : null);
-  }
-
-  ngOnInit(): void {
-    const intent = this.initialIntent();
-    if (intent) {
-      this.intent.set(intent);
-    }
-    const showKind = this.initialShowKind();
-    if (showKind) {
-      this.showKind.set(showKind);
-    }
   }
 
   get currentShapes(): Array<{ id: string; name: string; category: string }> {
