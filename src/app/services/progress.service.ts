@@ -1,9 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-import { AgentApiService, LessonProgress, ExerciseResult } from './agent-api.service';
+import { ProgressApiService, LessonProgress, ExerciseResult } from './progress-api.service';
 
 @Injectable({ providedIn: 'root' })
 export class ProgressService {
-  private api = inject(AgentApiService);
+  private api = inject(ProgressApiService);
 
   async getAllProgress(): Promise<LessonProgress[]> {
     const res = await this.api.getProgress();

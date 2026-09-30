@@ -2,7 +2,7 @@ import { TestBed } from "@angular/core/testing";
 import { AIMessage, HumanMessage, ToolMessage } from "@langchain/core/messages";
 import { ChatService } from "./chat.service";
 import { DomainService } from "../../domain/domain.service";
-import { AgentApiService } from "../../services/agent-api.service";
+import { ChatApiService } from "../../services/chat-api.service";
 
 /**
  * Helper: create an async iterable from an array.
@@ -73,7 +73,7 @@ describe("ChatService", () => {
       providers: [
         ChatService,
         { provide: DomainService, useValue: mockDomainService },
-        { provide: AgentApiService, useValue: mockAgentApi },
+        { provide: ChatApiService, useValue: mockAgentApi },
       ],
     });
 

@@ -3,14 +3,14 @@ import { DomainService } from "../../domain/domain.service";
 import { ChatMessage } from "../models";
 import { LessonRegistryService } from "../../services/lesson-registry.service";
 import { addMessage, showError, updateLastAssistant } from "./helpers";
-import { AgentApiService } from "../../services/agent-api.service";
+import { ChatApiService } from "../../services/chat-api.service";
 
 
 @Injectable({ providedIn: "root" })
 export class ChatService {
   private domainService = inject(DomainService);
   private lessonRegistry = inject(LessonRegistryService);
-  private agentApi = inject(AgentApiService);
+  private agentApi = inject(ChatApiService);
 
   readonly messages = signal<ChatMessage[]>([]);
   readonly loading = signal(false);

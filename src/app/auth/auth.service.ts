@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { AgentApiService } from '../services/agent-api.service';
+import { AuthApiService } from '../services/auth-api.service';
 
 export interface User {
   id: string;
@@ -9,7 +9,7 @@ export interface User {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private api = inject(AgentApiService);
+  private api = inject(AuthApiService);
   private router = inject(Router);
 
   readonly user = signal<User | null>(null);

@@ -1,0 +1,60 @@
+<div class="settings-page">
+  <div class="settings-card">
+    <h2>Ustawienia</h2>
+
+    <!-- User info -->
+    <section>
+      <h3>Konto</h3>
+      @if (auth.user(); as user) {
+        <p class="user-info">Zalogowany jako: <strong>{{ user.email }}</strong></p>
+      }
+    </section>
+
+    <!-- OpenRouter API Key -->
+    <section>
+      <h3>Klucz OpenRouter</h3>
+      <p class="desc">
+        Aby korzystać z asystenta AI, potrzebujesz klucza API OpenRouter.
+        Klucz jest szyfrowany i przechowywany na serwerze.
+      </p>
+
+      @if (keyStatus() === 'loading') {
+        <p>Sprawdzanie statusu...</p>
+      } @else if (keyStatus() === 'configured') {
+        <p class="status ok">✅ Klucz jest skonfigurowany</p>
+        <button class="btn btn--danger" (click)="deleteKey()" [disabled]="saving()">
+          Usuń klucz
+        </button>
+      } @else {
+        <p class="status missing">❌ Klucz nie jest skonfigurowany</p>
+
+        <form (ngSubmit)="saveKey()">
+          <label>
+            Klucz API OpenRouter
+            <input
+              type="password"
+              [(ngModel)]="apiKey"
+              name="apiKey"
+              placeholder="sk-or-v1-..."
+              required
+            />
+          </label>
+          <button type="submit" class="btn btn--primary" [disabled]="saving() || !apiKey.trim()">
+            {{ saving() ? 'Zapisywanie...' : 'Zapisz klucz' }}
+          </button>
+        </form>
+      }
+
+      @if (error()) {
+        <p class="error">{{ error() }}</p>
+      }
+      @if (success()) {
+        <p class="success">{{ success() }}</p>
+      }
+    </section>
+
+    <div class="nav-back">
+      <a routerLink="/app">← Powrót do aplikacji</a>
+    </div>
+  </div>
+</div>
