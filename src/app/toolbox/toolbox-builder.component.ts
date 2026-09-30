@@ -1,4 +1,4 @@
-import { Component, effect, ChangeDetectionStrategy, signal, output, input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, output, input } from '@angular/core';
 
 import { neckConfig, SCALE_PATTERNS, CHORD_PATTERNS } from 'guitar-neck-shared';
 import { DomainCommand, ShowPatternCommand, ComparePatternsCommand, ResolveShapeCommand } from '../domain/commands';
@@ -32,10 +32,6 @@ export type MusicKey = string;
 })
 export class ToolboxBuilderComponent {
   readonly disabled = input(false);
-  /** Optional initial intent — set by landing page feature cards. */
-  readonly initialIntent = input<ToolboxIntent | null>(null);
-  /** Optional initial show kind — set by landing page feature cards. */
-  readonly initialShowKind = input<ShowKind | null>(null);
   toolboxEvent = output<DomainCommand>();
   // --- Data sources ---
   musicKeys: MusicKey[] = neckConfig.chromaticNotes;
@@ -85,21 +81,6 @@ export class ToolboxBuilderComponent {
 
   setIntent(intent: ToolboxIntent): void {
     this.intent.set(intent);
-  }
-
-  constructor() {
-    effect(() => {
-      const intent = this.initialIntent();
-      if (intent) {
-        this.intent.set(intent);
-      }
-    });
-    effect(() => {
-      const showKind = this.initialShowKind();
-      if (showKind) {
-        this.showKind.set(showKind);
-      }
-    });
   }
 
   setShapeCategory(category: ShapeCategory): void {

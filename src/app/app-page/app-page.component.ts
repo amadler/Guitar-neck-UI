@@ -1,4 +1,4 @@
-import { Component, computed, signal, ChangeDetectionStrategy, inject, OnInit } from '@angular/core';
+import { Component, computed, ViewChild, ChangeDetectionStrategy, inject, OnInit, AfterViewInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { DomainService } from '../domain/domain.service';
@@ -15,7 +15,6 @@ import { ChatComponent } from '../chat/chat.component';
 import { HeaderComponent } from '../header/header.component';
 import { ChatService } from '../chat/services/chat.service';
 import { LessonRegistryService } from '../services/lesson-registry.service';
-import { ToolboxIntent, ShowKind } from '../toolbox/model';
 
 export type DisplayMode = 'legend' | 'relationship' | null;
 
@@ -37,35 +36,13 @@ export type DisplayMode = 'legend' | 'relationship' | null;
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './app-page.component.scss'
 })
-export class AppPageComponent implements OnInit {
+export class AppPageComponent implements OnInit, AfterViewInit {
   private domainService = inject(DomainService);
   private route = inject(ActivatedRoute);
   private chatService = inject(ChatService);
   private lessonRegistry = inject(LessonRegistryService);
 
-  /** Action from landing page feature cards. */
-  private landingAction = signal<string | null>(null);
-
-  /** Toolbox intent derived from landing action. */
-  toolboxIntent = computed<ToolboxIntent | null>(() => {
-    const action = this.landingAction();
-    switch (action) {
-      case 'show-pattern': return 'show';
-      case 'show-intervals': return 'show';
-      case 'compare': return 'compare';
-      default: return null;
-    }
-  });
-
-  /** Toolbox show kind derived from landing action. */
-  toolboxShowKind = computed<ShowKind | null>(() => {
-    const action = this.landingAction();
-    switch (action) {
-      case 'show-pattern': return 'scale';
-      case 'show-intervals': return 'interval';
-      default: return null;
-    }
-  });
+  @ViewChild(ToolboxBuilderComponent) toolbox?: ToolboxBuilderComponent;
 
   /** Whether AI chat mode is active — metronome hides, chat gets fixed width. */
   aiMode = computed(() => this.domainService.currentState().aiModeEnabled);
@@ -87,8 +64,6 @@ export class AppPageComponent implements OnInit {
 
   ngOnInit(): void {
     const lessonId = this.route.snapshot.queryParamMap.get('lesson');
-    const action = this.route.snapshot.queryParamMap.get('action');
-
     if (lessonId) {
       const lesson = this.lessonRegistry.getLesson(lessonId);
       if (lesson) {
@@ -97,12 +72,27 @@ export class AppPageComponent implements OnInit {
         this.chatService.startLesson(lessonId);
       }
     }
+  }
 
-    if (action) {
-      this.landingAction.set(action);
-      if (action === 'ai-mode') {
+  ngAfterViewInit(): void {
+    const action = this.route.snapshot.queryParamMap.get('action');
+    if (!action || !this.toolbox) return;
+
+    switch (action) {
+      case 'show-pattern':
+        this.toolbox.setIntent('show');
+        this.toolbox.setShowKind('scale');
+        break;
+      case 'show-intervals':
+        this.toolbox.setIntent('show');
+        this.toolbox.setShowKind('interval');
+        break;
+      case 'compare':
+        this.toolbox.setIntent('compare');
+        break;
+      case 'ai-mode':
         this.domainService.execute({ type: 'set-ai-mode', enabled: true });
-      }
+        break;
     }
   }
 
