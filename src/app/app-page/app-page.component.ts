@@ -80,40 +80,12 @@ export class AppPageComponent implements OnInit {
 
   private handleLandingAction(action: string): void {
     switch (action) {
-      case 'show-notes':
-        // Clear any pattern and show bare fretboard with note names
-        this.domainService.execute({ type: 'clear-view' });
-        this.domainService.execute({ type: 'set-view', markerDisplayMode: 'note-names' });
-        break;
-      case 'show-pattern':
-        // Show a default C major scale as a starting point
-        this.domainService.execute({
-          type: 'show-pattern',
-          patternType: 'scale',
-          patternName: 'major',
-          rootNote: 'C',
-        });
-        break;
-      case 'show-intervals':
-        // Show C major triad intervals (root, third, fifth)
-        this.domainService.execute({
-          type: 'show-intervals',
-          rootNote: 'C',
-          intervals: ['1', '3', '5'],
-        });
-        break;
-      case 'compare':
-        // Compare C major scale with Cmaj7 chord
-        this.domainService.execute({
-          type: 'compare-patterns',
-          primary: { patternType: 'scale', patternName: 'major', rootNote: 'C' },
-          secondary: { patternType: 'chord', patternName: 'maj7', rootNote: 'C' },
-        });
-        break;
       case 'ai-mode':
         this.domainService.execute({ type: 'set-ai-mode', enabled: true });
         break;
-      // 'metronome' — just navigate to app, metronome is always visible
+      // All other actions just navigate to the app — the toolbox is already
+      // visible and the user can interact with it to choose scales, chords,
+      // intervals, or compare patterns.
       default:
         break;
     }
