@@ -82,13 +82,16 @@ export class AppPageComponent implements OnInit, AfterViewInit {
       case 'show-pattern':
         this.toolbox.setIntent('show');
         this.toolbox.setShowKind('scale');
+        this.toolbox.submit();
         break;
       case 'show-intervals':
         this.toolbox.setIntent('show');
         this.toolbox.setShowKind('interval');
+        this.toolbox.submit();
         break;
       case 'compare':
         this.toolbox.setIntent('compare');
+        this.toolbox.submit();
         break;
       case 'ai-mode':
         this.domainService.execute({ type: 'set-ai-mode', enabled: true });
