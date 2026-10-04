@@ -302,7 +302,14 @@ export function createDomainTools(domainService: DomainService) {
           fretRange: input.fretRange,
           enabledStrings: input.enabledStrings,
         };
-        domainService.execute(command);
+        const result = domainService.execute(command);
+        if (!result.success) {
+          return {
+            success: false,
+            action: "start-exercise",
+            message: result.message,
+          };
+        }
 
         return {
           success: true,

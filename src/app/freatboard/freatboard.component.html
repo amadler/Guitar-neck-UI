@@ -20,16 +20,16 @@
             [stringName]="string"
             [stringIndex]="i"
             [active]="activeStrings[i]"
-            [disabled]="exerciseMode"
+            [disabled]="exerciseMode()"
             (stringToggled)="onStringToggled($event)"
           >
           </app-string-toggle>
           <div class="fretboard__nut-label">
             <span class="fretboard__nut-label__string-name">{{ string }}</span>
-            @if ((isNoteOnFret(i, 0) || (exerciseMode && isPhysicalPositionInRange(i, 0))) && isNoteInRange(0)) {
+            @if ((isNoteOnFret(i, 0) || (exerciseMode() && isPhysicalPositionInRange(i, 0))) && isNoteInRange(0)) {
               @if (!isNoteSelected(i, 0) && !isExerciseSelected(i, 0)) {
                 <button
-                  [ngClass]="['fretboard__dot', 'fretboard__open-note-btn', exerciseMode ? 'fretboard__dot--exercise-hidden' : '']"
+                  [ngClass]="['fretboard__dot', 'fretboard__open-note-btn', exerciseMode() ? 'fretboard__dot--exercise-hidden' : '']"
                   (click)="fretNoteClicked(i, 0)"
                 >
                   @if (showNoteLabels) {
@@ -76,10 +76,10 @@
               @if (isMarkedTwelffeFret(i, fret)) {
                 <div class="fretboard__marker--double"></div>
               }
-              @if ((isNoteOnFret(i, fret) || (exerciseMode && isPhysicalPositionInRange(i, fret))) && isNoteInRange(fret)) {
+              @if ((isNoteOnFret(i, fret) || (exerciseMode() && isPhysicalPositionInRange(i, fret))) && isNoteInRange(fret)) {
                 @if (!isNoteSelected(i, fret) && !isExerciseSelected(i, fret)) {
                   <button
-                    [ngClass]="['fretboard__dot', exerciseMode ? 'fretboard__dot--exercise-hidden' : '']"
+                    [ngClass]="['fretboard__dot', exerciseMode() ? 'fretboard__dot--exercise-hidden' : '']"
                     (click)="fretNoteClicked(i, fret)"
                   >
                     @if (showNoteLabels) {

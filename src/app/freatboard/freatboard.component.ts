@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, ChangeDetectionStrategy, inject, output } from '@angular/core';
+import { Component, inject, output, computed } from '@angular/core';
 import type { GuitarNote } from '../shared/model/guitarNote';
 import { DomainService } from '../domain/domain.service';
 import { FretboardStateService } from '../services/fretboard-state.service';
@@ -12,7 +12,6 @@ import { StringToggleComponent } from '../string-toggle/string-toggle.component'
   selector: 'app-freatboard',
   templateUrl: './freatboard.component.html',
   imports: [NgClass, StringToggleComponent],
-  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./freatboard.component.scss']
 })
 export class FreatboardComponent {
@@ -50,9 +49,7 @@ export class FreatboardComponent {
   }
 
   /** Whether the fretboard is in exercise selection mode. */
-  get exerciseMode(): boolean {
-    return this.domainService.currentState().exerciseMode;
-  }
+  exerciseMode = computed(() => this.domainService.currentState().exerciseMode);
 
   protected getMarkerCssClass(interval: string | undefined): string {
     return this.displayService.getMarkerCssClass(interval);
@@ -113,7 +110,7 @@ export class FreatboardComponent {
 
   protected getNoteName(stringIndex: number, fret: number) {
     // In exercise mode, fall back to physical position if snapshot has no visible note
-    if (this.exerciseMode) {
+    if (this.exerciseMode()) {
       const physical = this.noteQueryService.getNoteAtPhysicalPosition(stringIndex, fret);
       if (physical) return physical.note;
     }
@@ -122,7 +119,7 @@ export class FreatboardComponent {
 
   protected fretNoteClicked(stringIndex: number, fret: number) {
     // In exercise mode, use physical position (works even with empty snapshot)
-    if (this.exerciseMode) {
+    if (this.exerciseMode()) {
       const physicalNote = this.noteQueryService.getNoteAtPhysicalPosition(stringIndex, fret);
       if (!physicalNote) return;
       const isSelected = this.isExerciseSelected(stringIndex, fret);

@@ -162,16 +162,26 @@
 
 /* ---- Exercise mode ---- */
 
-/* Invisible but clickable — user clicks on empty fretboard, marker appears on selection */
+/* Subtle clickable hint — very faint dot so user knows positions are clickable */
 .fretboard__dot--exercise-hidden {
-  opacity: 0;
+  opacity: 0.15;
+  background-color: var(--guitar-neck-marker-bg-color);
   cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+.fretboard__dot--exercise-hidden:hover {
+  opacity: 0.35;
 }
 
+/* Selected note in exercise mode — clearly visible with note name */
 .fretboard__dot--exercise-selected {
+  background-color: var(--guitar-neck-marker-bg-color);
+  color: var(--guitar-neck-marker--color);
   outline: 3px solid var(--md-primary);
   outline-offset: 2px;
   box-shadow: 0 0 8px rgba(56, 105, 72, 0.4);
+  font-size: 12px;
+  font-weight: bold;
 }
 
 /* ---- Neutral display modes ---- */
