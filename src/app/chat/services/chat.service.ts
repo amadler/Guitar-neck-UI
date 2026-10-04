@@ -2,7 +2,7 @@ import { Injectable, inject, signal } from "@angular/core";
 import { DomainService } from "../../domain/domain.service";
 import { ChatMessage } from "../models";
 import { LessonRegistryService } from "../../services/lesson-registry.service";
-import { addMessage, showError, updateLastAssistant } from "./helpers";
+import { addMessage, showError, updateLastAssistant, getCommandLabel } from "./helpers";
 import { ChatApiService } from "../../services/chat-api.service";
 
 
@@ -109,6 +109,18 @@ export class ChatService {
 
             case 'domain-command':
               this.domainService.execute(event.command);
+              // Add to last assistant message as clickable history
+              if (options.showAssistantOutput) {
+                const label = getCommandLabel(event.command);
+                if (label) {
+                  updateLastAssistant(this.messages, {
+                    domainCommands: [
+                      ...(this.messages().at(-1)?.domainCommands ?? []),
+                      { command: event.command, label },
+                    ],
+                  });
+                }
+              }
               break;
 
             case 'interrupt':

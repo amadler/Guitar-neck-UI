@@ -1,5 +1,6 @@
 import { WritableSignal } from "@angular/core";
 import { ChatMessage } from "../models";
+import { DomainCommand } from "../../domain/commands";
 
 export function addMessage(messages: WritableSignal<ChatMessage[]>, message: ChatMessage): void {
   messages.update(messages => [...messages, message]);
@@ -38,6 +39,27 @@ export function showError(messages: WritableSignal<ChatMessage[]>, errorMsg: str
 
     return next;
   });
+}
+
+/**
+ * Generate a human-readable label for a domain command.
+ * Returns empty string for commands that don't modify the fretboard view.
+ */
+export function getCommandLabel(command: DomainCommand): string {
+  switch (command.type) {
+    case 'show-pattern':
+      return `${command.rootNote} ${command.patternName}`;
+    case 'show-intervals':
+      return `Interwały [${command.intervals.join(', ')}] od ${command.rootNote}`;
+    case 'compare-patterns':
+      return `${command.primary.rootNote} ${command.primary.patternName} vs ${command.secondary.rootNote} ${command.secondary.patternName}`;
+    case 'resolve-shape':
+      return `Kształt: ${command.shapeId}`;
+    case 'clear-view':
+      return 'Wyczyść widok';
+    default:
+      return '';
+  }
 }
 
 export const BASE_SYSTEM_PROMPT =

@@ -1,4 +1,4 @@
-import { Component, inject } from "@angular/core";
+import { Component, inject, effect, ElementRef, ViewChild } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { ChatService } from "./services/chat.service";
 import { DomainService } from "../domain/domain.service";
@@ -26,8 +26,16 @@ import { parseActionTags, ActionTag, isValidAction } from "./models/action-tag";
               }
               @if (msg.streaming) {<span class="cursor">|</span>}
             </p>
+            @if (msg.domainCommands?.length) {
+              <div class="msg-history">
+                @for (dc of msg.domainCommands; track $index) {
+                  <button class="history-chip" (click)="restoreHistory(dc.command)">{{ dc.label }}</button>
+                }
+              </div>
+            }
           </div>
         }
+        <div #scrollAnchor></div>
       </div>
       <form #f="ngForm" (ngSubmit)="send()">
         <input name="q" [(ngModel)]="query" placeholder="Np. pokaż C-dur" />
@@ -58,6 +66,25 @@ import { parseActionTags, ActionTag, isValidAction } from "./models/action-tag";
       line-height: 1.5;
     }
     .action-tag:hover { background: #1565c0; }
+    .msg-history {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 6px;
+    }
+    .history-chip {
+      display: inline-block;
+      padding: 2px 8px;
+      background: #37474f;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      font-family: inherit;
+      line-height: 1.5;
+    }
+    .history-chip:hover { background: #2c3a40; }
     form { display: flex; gap: 8px; padding: 10px; border-top: 1px solid #ddd; }
     input { flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
     button { padding: 8px 16px; background: #1976d2; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
@@ -69,8 +96,18 @@ export class ChatComponent {
   domainService = inject(DomainService);
   query = "";
 
+  @ViewChild('scrollAnchor', { read: ElementRef }) scrollAnchor!: ElementRef;
+
   /** Exposed to template for parsing action tags from message text. */
   parseActionTags = parseActionTags;
+
+  constructor() {
+    // Auto-scroll to bottom when messages change
+    effect(() => {
+      this.chatService.messages();
+      setTimeout(() => this.scrollToBottom());
+    });
+  }
 
   async send() {
     if (!this.query.trim()) return;
@@ -102,6 +139,19 @@ export class ChatComponent {
         this.domainService.execute(command);
         break;
       }
+    }
+  }
+
+  /** Restore a fretboard state by re-executing a domain command. */
+  restoreHistory(command: DomainCommand): void {
+    this.domainService.execute(command);
+  }
+
+  private scrollToBottom(): void {
+    try {
+      this.scrollAnchor?.nativeElement.scrollIntoView({ behavior: 'smooth' });
+    } catch {
+      // Ignore if view child not yet available
     }
   }
 }
