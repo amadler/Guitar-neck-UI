@@ -7,6 +7,43 @@ a projekt stosuje [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.12.0] — 2026-10-04
+
+### Added
+- **Immutable FretboardSnapshot (P12)** — pełny refactor stanu gryfu: `FretboardSnapshot` value object, `GuitarNote` jako immutable interface, `FretboardStateService` jako snapshot store z `signal<FretboardSnapshot | null>` ([`BACKLOG.md`](BACKLOG.md:1))
+- **Exercise system** — `ExerciseService`, `ExerciseValidatorService`, `ExerciseTask`/`ExerciseResult` w DomainState, klikalny pusty gryf w exercise mode, blokada kontrolek (range, string toggle, toolbox) ([`plans/fix-exercise-display.md`](plans/fix-exercise-display.md), [`plans/fix-5-blockers-plan.md`](plans/fix-5-blockers-plan.md))
+- **Lesson system** — `LessonRegistryService`, `ChatService.startLesson()`, ładowanie lekcji z `src/assets/lessons/`, wykrywanie `?lesson=` query param w `AppPageComponent` ([`plans/lesson-system-implementation-plan.md`](plans/lesson-system-implementation-plan.md))
+- **Chat auto-scroll** — `#scrollAnchor` + `scrollIntoView()` w `effect()` ([`plans/chat-history-and-scroll.md`](plans/chat-history-and-scroll.md))
+- **Clickable action tags** — `[[action:...|...]]` format w wiadomościach AI, `parseActionTags()`, `handleAction()` ([`plans/clickable-action-tags-mvp.md`](plans/clickable-action-tags-mvp.md))
+- **Clickable command history** — `domainCommands` w `ChatMessage`, chipy historii pod wiadomościami, `restoreHistory()` ([`plans/chat-history-and-scroll.md`](plans/chat-history-and-scroll.md))
+- **Landing page** — hero section, feature cards z click-to-action, lista lekcji, auth CTA ([`plans/landing-page-plan.md`](plans/landing-page-plan.md))
+- **Feature card actions** — klikalne karty na landing page przekierowują do `/app?action=...`, `AppPageComponent.ngAfterViewInit()` dispatchuje odpowiednią akcję ([`plans/ui-adjustments-after-backend.md`](plans/ui-adjustments-after-backend.md))
+- **Back navigation** — link "← Powrót do strony głównej" na login/register ([`plans/ui-adjustments-after-backend.md`](plans/ui-adjustments-after-backend.md))
+
+### Changed
+- **DomainService** — registry pattern → switch dispatch w `execute()` i `query()` ([`plans/domain-service-refactor-plan.md`](plans/domain-service-refactor-plan.md))
+- **Exercise logic** — wydzielona z `DomainService` do `ExerciseService` (`startExercise`, `submitExercise`, `selectNote`, `deselectNote`) ([`plans/domain-service-refactor-plan.md`](plans/domain-service-refactor-plan.md))
+- **`AgentApiService`** — rozbity na 4 dedykowane serwisy: `ChatApiService`, `AuthApiService`, `CredentialsApiService`, `ProgressApiService` ([`plans/refactor-after-review.md`](plans/refactor-after-review.md))
+- **Auth HTTP** — dodany `authInterceptor` z `withCredentials: true` dla wszystkich requestów przez `HttpClient` ([`plans/refactor-after-review.md`](plans/refactor-after-review.md))
+- **Login/Register/Settings** — przeniesione z inline template + styles do osobnych `.html` i `.scss` ([`plans/refactor-after-review.md`](plans/refactor-after-review.md))
+- **`ChatService`** — `send()`/`sendRaw()` używają wspólnego `processStream()` z opcjami `showUserInput`/`showAssistantOutput` ([`plans/fix-5-blockers-plan.md`](plans/fix-5-blockers-plan.md))
+- **Landing page** — usunięty formularz API key (przeniesiony do Settings), zastąpiony linkiem do konfiguracji ([`plans/ui-adjustments-after-backend.md`](plans/ui-adjustments-after-backend.md))
+- **`FretboardNoteQueryService`** — dodana `getNoteAtPhysicalPosition()` dla exercise mode ([`plans/fix-5-blockers-plan.md`](plans/fix-5-blockers-plan.md))
+- **`ExerciseValidatorService`** — dodana obsługa `expectedPositions` dla walidacji kompletności ([`plans/fix-5-blockers-plan.md`](plans/fix-5-blockers-plan.md))
+
+### Fixed
+- **Asset path mismatch** — `lessons/interwały.md` przeniesiony do `src/assets/lessons/interwaly.md` (ASCII-safe), dodana obsługa 404 w `ChatService.startLesson()` ([`plans/fix-5-blockers-plan.md`](plans/fix-5-blockers-plan.md))
+- **Exercise mode display** — pusty gryf na starcie ćwiczenia (brak starych markerów), klikalne niewidoczne pozycje, blokada kontrolek ([`plans/fix-exercise-display.md`](plans/fix-exercise-display.md))
+- **`sendRaw()`** — odpowiedź AI jest teraz widoczna w czacie (wspólny `processStream()`) ([`plans/fix-5-blockers-plan.md`](plans/fix-5-blockers-plan.md))
+- **Exercise completeness** — `missingCount`/`missingPositions` w `ExerciseResult` dla "znajdź wszystkie" ([`plans/fix-5-blockers-plan.md`](plans/fix-5-blockers-plan.md))
+- **Jasmine dependencies** — usunięte nieużywane `@types/jasmine` i `jasmine-core` z `package.json` ([`plans/fix-vitest-jasmine-inconsistency.md`](plans/fix-vitest-jasmine-inconsistency.md))
+
+### Removed
+- **`AgentApiService`** — zastąpiony przez `ChatApiService`, `AuthApiService`, `CredentialsApiService`, `ProgressApiService` ([`plans/refactor-after-review.md`](plans/refactor-after-review.md))
+- **`registerCommandHandlers()`/`registerQueryHandlers()`** — zastąpione przez switch w `DomainService` ([`plans/domain-service-refactor-plan.md`](plans/domain-service-refactor-plan.md))
+
+---
+
 ## [0.11.0] — 2026-09-30
 
 ### Added
