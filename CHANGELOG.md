@@ -7,6 +7,28 @@ a projekt stosuje [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.11.0] — 2026-09-30
+
+### Added
+- **Frontend Integration (P17)** — pełna warstwa konta użytkownika: auth, credentials OpenRouter, progress tracking ([`BACKLOG.md`](BACKLOG.md:193))
+- **`AuthService`** — `login()`, `register()`, `logout()`, `checkSession()`, `user` signal ([`src/app/auth/auth.service.ts`](src/app/auth/auth.service.ts))
+- **`authInterceptor`** — dodaje `withCredentials: true` do wszystkich requestów HTTP ([`src/app/auth/auth.interceptor.ts`](src/app/auth/auth.interceptor.ts))
+- **Login/Register components** — formularze z walidacją, przekierowaniem do `/app` ([`src/app/auth/login/login.component.ts`](src/app/auth/login/login.component.ts), [`src/app/auth/register/register.component.ts`](src/app/auth/register/register.component.ts))
+- **`SettingsComponent`** — strona ustawień z zapisem/usunięciem klucza OpenRouter ([`src/app/settings/settings.component.ts`](src/app/settings/settings.component.ts))
+- **`CredentialsApiService`** — `saveOpenRouterKey()`, `getOpenRouterStatus()`, `deleteOpenRouterKey()` ([`src/app/services/credentials-api.service.ts`](src/app/services/credentials-api.service.ts))
+- **`ProgressService`** + **`ProgressApiService`** — odczyt/zapis progresu lekcji i wyników ćwiczeń ([`src/app/services/progress.service.ts`](src/app/services/progress.service.ts), [`src/app/services/progress-api.service.ts`](src/app/services/progress-api.service.ts))
+- **`ChatApiService`** — nowa warstwa API dla chatu z `credentials: 'include'` i `environment.apiUrl` ([`src/app/services/chat-api.service.ts`](src/app/services/chat-api.service.ts))
+- **Header** — user menu z emailem, linkiem do ustawień, przyciskami login/logout/rejestracja ([`src/app/header/header.component.html`](src/app/header/header.component.html))
+- **Landing page** — auth CTA (Create Account / Sign In) dla niezalogowanych użytkowników ([`src/app/landing-page/landing-page.component.html`](src/app/landing-page/landing-page.component.html))
+
+### Changed
+- **`ChatService`** — wysyła `domainState` w body requestu do backendu ([`src/app/chat/services/chat.service.ts`](src/app/chat/services/chat.service.ts:95))
+- **`app.config.ts`** — dodany `authInterceptor` do `provideHttpClient` ([`src/app/app.config.ts`](src/app/app.config.ts:11))
+- **`app.routes.ts`** — dodane route dla `/login`, `/register`, `/settings` ([`src/app/app.routes.ts`](src/app/app.routes.ts:15-25))
+- **`environment.ts`/`environment.prod.ts`** — dodane `apiUrl` ([`src/environments/environment.ts`](src/environments/environment.ts:4))
+
+---
+
 ## [0.10.0] — 2026-09-19
 
 ### Added

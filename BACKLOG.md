@@ -341,4 +341,4 @@ Dodać warstwę konta użytkownika do Angulara: auth flow, settings z kluczem Op
 
 ## Status
 
-OPEN
+DONE — w pełni zaimplementowane. Auth, login/register, settings z kluczem OpenRouter, progress tracking, header z user menu, landing page z CTA — wszystko działa z backendem przez `credentials: 'include'`.

@@ -25,55 +25,48 @@
     </div>
   </section>
 
-  <!-- AI Assistant -->
-  <section class="setup">
-    <div class="setup__card">
-      <h2 class="setup__heading">AI Assistant</h2>
-      <p class="setup__desc">
-        Configure your AI model from the app header to get interactive help with
-        scales, chords, and fretboard patterns.
-      </p>
-      <div class="setup__actions">
-        <button class="btn btn--primary" type="button" (click)="goToApp()">
-          Go to App
-        </button>
-      </div>
-    </div>
-  </section>
-
   <!-- Features -->
   <section class="features">
     <h2 class="features__heading">What you can do</h2>
     <div class="features__grid">
-      <button type="button" class="feature-card" (click)="goToAppWithAction('show-notes')">
-        <span class="feature-card__icon">🎯</span>
-        <h3 class="feature-card__title">Show Notes</h3>
-        <p class="feature-card__desc">
-          Display all notes on the fretboard with proper enharmonic spelling.
-        </p>
-      </button>
-      <button type="button" class="feature-card" (click)="goToAppWithAction('show-pattern')">
+      <button
+        type="button"
+        class="feature-card"
+        (click)="goToAppWithAction('show-pattern')"
+      >
         <span class="feature-card__icon">🎼</span>
         <h3 class="feature-card__title">Scales & Chords</h3>
         <p class="feature-card__desc">
           Visualize any scale or chord pattern across the entire neck.
         </p>
       </button>
-      <button type="button" class="feature-card" (click)="goToAppWithAction('show-intervals')">
+      <button
+        type="button"
+        class="feature-card"
+        (click)="goToAppWithAction('show-intervals')"
+      >
         <span class="feature-card__icon">🔗</span>
         <h3 class="feature-card__title">Intervals</h3>
         <p class="feature-card__desc">
           Highlight specific intervals from any root note.
         </p>
       </button>
-      <button type="button" class="feature-card" (click)="goToAppWithAction('compare')">
+      <button
+        type="button"
+        class="feature-card"
+        (click)="goToAppWithAction('compare')"
+      >
         <span class="feature-card__icon">🧩</span>
         <h3 class="feature-card__title">Compare Patterns</h3>
         <p class="feature-card__desc">
           Overlay a scale and chord to see how they relate.
         </p>
       </button>
-      <button type="button" class="feature-card" (click)="goToAppWithAction('ai-mode')">
+      <button
+        type="button"
+        class="feature-card"
+        (click)="goToAppWithAction('ai-mode')"
+      >
         <span class="feature-card__icon">🤖</span>
         <h3 class="feature-card__title">AI Assistant</h3>
         <p class="feature-card__desc">
