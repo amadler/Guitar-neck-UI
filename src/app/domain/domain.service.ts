@@ -2,27 +2,22 @@ import { Injectable, signal, inject } from '@angular/core';
 import { neckConfig, SCALE_PATTERNS, CHORD_PATTERNS } from 'guitar-neck-shared';
 import { DomainCommand } from './commands';
 import { DomainQuery, GetPatternDetailsResult, KeyAnalysis } from './queries';
-import { DomainState, DomainResult, DomainError, DEFAULT_DOMAIN_STATE, ExerciseTask, ExerciseResult } from './state';
+import { DomainState, DomainResult, DomainError, DEFAULT_DOMAIN_STATE } from './state';
 import { DomainValidator } from './domain-validator';
+import { ExerciseService } from './exercise.service';
+import { ExerciseValidatorService } from '../services/exercise-validator.service';
 import { FretboardOrchestrationService } from '../services/fretboard-orchestration.service';
 import { FretboardNotePositionService } from '../services/note.service';
 import { PatternBuilderService } from '../services/pattern-builder.service';
 import { TonalFacadeService, PatternType } from '../services/tonal-facade.service';
 import { PatternInfo } from '../shared/model/patternInfo';
 import { ShapeResolverService } from '../services/shape-resolver.service';
-import { ExerciseValidatorService } from '../services/exercise-validator.service';
 import { INTERVAL_CONFIG } from '../shared/tonal-adapter';
 
 /** Reverse map: Tonal interval name (e.g., '3M') → UI symbol (e.g., '3'). */
 const TONAL_TO_SYMBOL: Record<string, string> = Object.fromEntries(
   INTERVAL_CONFIG.map(i => [i.tonalName, i.symbol])
 );
-
-// Handler types use `any` for the registry parameter because the narrowing
-// happens inside each handler via the `& { type: ... }` intersection.
-// The execute/query methods provide the type-safe entry point.
-type CommandHandler = (command: any) => DomainResult<DomainState>;
-type QueryHandler = (query: any) => DomainResult<any>;
 
 /**
  * DomainService — central facade for the domain contract.
@@ -32,7 +27,8 @@ type QueryHandler = (query: any) => DomainResult<any>;
  * and maintains immutable DomainState via signal.
  *
  * Both Toolbox and AI use this same service.
- * Commands are dispatched via Registry Pattern — no switch/if-else chains.
+ * Commands are dispatched via switch on the discriminant type field.
+ * Exercise commands are delegated to ExerciseService.
  */
 @Injectable({ providedIn: 'root' })
 export class DomainService {
@@ -41,6 +37,7 @@ export class DomainService {
   private tonalFacade = inject(TonalFacadeService);
   private noteService = inject(FretboardNotePositionService);
   private shapeResolver = inject(ShapeResolverService);
+  private exerciseService = inject(ExerciseService);
   private exerciseValidator = inject(ExerciseValidatorService);
 
   private stateSignal = signal<DomainState>(DEFAULT_DOMAIN_STATE);
@@ -50,76 +47,58 @@ export class DomainService {
   /** Saved marker display mode to restore after Compare mode. */
   private previousMarkerDisplayMode: DomainState['markerDisplayMode'] = 'interval-colors';
 
-  private commandHandlers = new Map<string, CommandHandler>();
-  private queryHandlers = new Map<string, QueryHandler>();
-
-  constructor() {
-    this.registerCommandHandlers();
-    this.registerQueryHandlers();
-  }
-
-  // ─── Registry ─────────────────────────────────────────────────────────
-
-  private registerCommandHandlers(): void {
-    this.commandHandlers.set('show-pattern', (c) => this.handleShowPattern(c));
-    this.commandHandlers.set('show-intervals', (c) => this.handleShowIntervals(c));
-    this.commandHandlers.set('compare-patterns', (c) => this.handleComparePatterns(c));
-    this.commandHandlers.set('set-view', (c) => this.handleSetView(c));
-    this.commandHandlers.set('set-emphasis', (c) => this.handleSetEmphasis(c));
-    this.commandHandlers.set('clear-view', (_c) => this.handleClearView());
-    this.commandHandlers.set('resolve-shape', (c) => this.handleResolveShape(c));
-    this.commandHandlers.set('set-ai-mode', (c) => this.handleSetAiMode(c));
-    this.commandHandlers.set('start-exercise', (c) => this.handleStartExercise(c));
-    this.commandHandlers.set('submit-exercise', (_c) => this.handleSubmitExercise());
-    this.commandHandlers.set('select-note', (c) => this.handleSelectNote(c));
-    this.commandHandlers.set('deselect-note', (c) => this.handleDeselectNote(c));
-  }
-
-  private registerQueryHandlers(): void {
-    this.queryHandlers.set('get-current-view', (_q) => ({ success: true as const, data: this.currentState() }));
-    this.queryHandlers.set('get-available-patterns', (_q) => ({
-      success: true as const,
-      data: {
-        scales: SCALE_PATTERNS.map(p => p.name),
-        chords: CHORD_PATTERNS.map(p => p.name),
-      },
-    }));
-    this.queryHandlers.set('get-pattern-details', (q) => this.handleGetPatternDetails(q));
-    this.queryHandlers.set('detect-chord', (q) => this.handleDetectChord(q));
-    this.queryHandlers.set('detect-scale', (q) => this.handleDetectScale(q));
-    this.queryHandlers.set('get-key-analysis', (q) => this.handleGetKeyAnalysis(q));
-    this.queryHandlers.set('get-available-shapes', (q) => this.handleGetAvailableShapes(q));
-    this.queryHandlers.set('resolve-shape-query', (q) => this.handleResolveShapeQuery(q));
-  }
-
   // ─── Commands ───────────────────────────────────────────────────────
 
   execute(command: DomainCommand): DomainResult<DomainState> {
-    const handler = this.commandHandlers.get(command.type);
     console.log('execute command', command);
-    if (!handler) {
-      return {
+    switch (command.type) {
+      case 'show-pattern':     return this.handleShowPattern(command);
+      case 'show-intervals':   return this.handleShowIntervals(command);
+      case 'compare-patterns': return this.handleComparePatterns(command);
+      case 'set-view':         return this.handleSetView(command);
+      case 'set-emphasis':     return this.handleSetEmphasis(command);
+      case 'clear-view':       return this.handleClearView();
+      case 'resolve-shape':    return this.handleResolveShape(command);
+      case 'set-ai-mode':      return this.handleSetAiMode(command);
+      case 'start-exercise':   return this.delegateExercise(this.exerciseService.startExercise(command, this.currentState()));
+      case 'submit-exercise':  return this.delegateExercise(this.exerciseService.submitExercise(this.currentState(), this.exerciseValidator));
+      case 'select-note':      return this.delegateExercise(this.exerciseService.selectNote(command, this.currentState()));
+      case 'deselect-note':    return this.delegateExercise(this.exerciseService.deselectNote(command, this.currentState()));
+      default: return {
         success: false,
         error: DomainError.UNKNOWN_COMMAND,
-        message: `Unknown command type: ${(command as any).type}`,
+        message: `Unknown command type: ${(command as DomainCommand).type}`,
       };
     }
-    return handler(command);
   }
 
   // ─── Queries ─────────────────────────────────────────────────────────
 
   query<T = unknown>(query: DomainQuery): DomainResult<T> {
-    const handler = this.queryHandlers.get(query.type);
     console.log('execute query', query);
-    if (!handler) {
-      return {
+    switch (query.type) {
+      case 'get-current-view':
+        return { success: true as const, data: this.currentState() } as DomainResult<T>;
+      case 'get-available-patterns':
+        return {
+          success: true as const,
+          data: {
+            scales: SCALE_PATTERNS.map(p => p.name),
+            chords: CHORD_PATTERNS.map(p => p.name),
+          },
+        } as DomainResult<T>;
+      case 'get-pattern-details': return this.handleGetPatternDetails(query) as DomainResult<T>;
+      case 'detect-chord':        return this.handleDetectChord(query) as DomainResult<T>;
+      case 'detect-scale':        return this.handleDetectScale(query) as DomainResult<T>;
+      case 'get-key-analysis':    return this.handleGetKeyAnalysis(query) as DomainResult<T>;
+      case 'get-available-shapes': return this.handleGetAvailableShapes(query) as DomainResult<T>;
+      case 'resolve-shape-query': return this.handleResolveShapeQuery(query) as DomainResult<T>;
+      default: return {
         success: false,
         error: DomainError.UNKNOWN_COMMAND,
-        message: `Unknown query type: ${(query as any).type}`,
-      };
+        message: `Unknown query type: ${(query as DomainQuery).type}`,
+      } as DomainResult<T>;
     }
-    return handler(query) as DomainResult<T>;
   }
 
   // ─── Command handlers ────────────────────────────────────────────────
@@ -299,107 +278,6 @@ export class DomainService {
     });
   }
 
-  // ─── Exercise command handlers ───────────────────────────────────────
-
-  private handleStartExercise(command: DomainCommand & { type: 'start-exercise' }): DomainResult<DomainState> {
-    const { question, rootNote, expectedIntervals, fretRange, enabledStrings } = command;
-
-    const err = DomainValidator.validateExerciseTask(rootNote, expectedIntervals)
-      ?? DomainValidator.validateFretRange(fretRange);
-    if (err) return err;
-
-    const range = fretRange ?? this.currentState().fretRange;
-    const strings = enabledStrings ?? this.currentState().enabledStrings;
-
-    // Compute expected positions for completeness checking
-    const expectedPositions = this.computeExpectedPositions(
-      rootNote,
-      expectedIntervals,
-      range,
-      strings,
-    );
-
-    const task: ExerciseTask = {
-      question,
-      rootNote,
-      expectedIntervals,
-      fretRange: range,
-      enabledStrings: strings,
-      expectedPositions,
-    };
-
-    // Clear the fretboard so no old markers show during exercise
-    this.orchestration.clearFretboard();
-
-    return this.emitState({
-      ...this.currentState(),
-      exerciseMode: true,
-      exerciseTask: task,
-      selectedNotes: [],
-      lastExerciseResult: undefined,
-      fretRange: range,
-      enabledStrings: strings,
-    });
-  }
-
-  private handleSubmitExercise(): DomainResult<DomainState> {
-    const activeErr = DomainValidator.validateExerciseActive(this.currentState());
-    if (activeErr) return activeErr;
-
-    const state = this.currentState();
-    const task = state.exerciseTask!;
-    const notes = state.selectedNotes ?? [];
-
-    const result: ExerciseResult = this.exerciseValidator.validate(
-      notes,
-      task.rootNote,
-      task.expectedIntervals,
-      task.expectedPositions, // pass expectedPositions for completeness check
-    );
-
-    // Reset exercise mode, store result, keep selectedNotes for agent to inspect
-    return this.emitState({
-      ...state,
-      exerciseMode: false,
-      exerciseTask: undefined,
-      lastExerciseResult: result,
-    });
-  }
-
-  private handleSelectNote(command: DomainCommand & { type: 'select-note' }): DomainResult<DomainState> {
-    const { note, string, fret } = command;
-
-    const err = DomainValidator.validateExerciseActive(this.currentState())
-      ?? DomainValidator.validatePosition(string, fret);
-    if (err) return err;
-
-    const currentNotes = this.currentState().selectedNotes ?? [];
-
-    // Avoid duplicates — same (string, fret) can't be selected twice
-    if (currentNotes.some(n => n.string === string && n.fret === fret)) {
-      return this.emitState(this.currentState());
-    }
-
-    return this.emitState({
-      ...this.currentState(),
-      selectedNotes: [...currentNotes, { note, string, fret }],
-    });
-  }
-
-  private handleDeselectNote(command: DomainCommand & { type: 'deselect-note' }): DomainResult<DomainState> {
-    const { string, fret } = command;
-
-    const err = DomainValidator.validateExerciseActive(this.currentState());
-    if (err) return err;
-
-    const currentNotes = this.currentState().selectedNotes ?? [];
-
-    return this.emitState({
-      ...this.currentState(),
-      selectedNotes: currentNotes.filter(n => !(n.string === string && n.fret === fret)),
-    });
-  }
-
   // ─── Query handlers ──────────────────────────────────────────────────
 
   private handleGetPatternDetails(query: { type: 'get-pattern-details'; patternType: PatternType; patternName: string; rootNote: string }): DomainResult<GetPatternDetailsResult> {
@@ -433,8 +311,6 @@ export class DomainService {
 
     return { success: true, data: details };
   }
-
-  // ─── Nowe query handlers ────────────────────────────────────────────
 
   private handleDetectChord(query: { type: 'detect-chord'; notes: string[] }): DomainResult<{ chords: string[] }> {
     if (!query.notes || query.notes.length === 0) {
@@ -493,47 +369,18 @@ export class DomainService {
     return { success: true, data: { positions: result.positions } };
   }
 
-  /**
-   * Compute all positions in the given fret range and enabled strings
-   * that match the expected intervals from the root note.
-   * Used for completeness checking in exercises.
-   */
-  private computeExpectedPositions(
-    rootNote: string,
-    expectedIntervals: string[],
-    fretRange: { min: number; max: number },
-    enabledStrings: boolean[],
-  ): Array<{ string: number; fret: number }> {
-    const positions: Array<{ string: number; fret: number }> = [];
-    const { chromaticNotes, stringNotes } = neckConfig;
-
-    for (let stringIdx = 0; stringIdx < 6; stringIdx++) {
-      if (!enabledStrings[stringIdx]) continue;
-      const openNote = stringNotes[stringIdx];
-
-      for (let fret = fretRange.min; fret <= fretRange.max; fret++) {
-        const openIdx = chromaticNotes.indexOf(openNote);
-        const noteIdx = (openIdx + fret) % chromaticNotes.length;
-        const noteName = chromaticNotes[noteIdx];
-
-        // Calculate interval from root to this note
-        const tonalInterval = this.tonalFacade.intervalBetween(rootNote, noteName);
-        // Map Tonal interval to UI symbol
-        const symbol = TONAL_TO_SYMBOL[tonalInterval] ?? '';
-        if (expectedIntervals.includes(symbol)) {
-          positions.push({ string: stringIdx + 1, fret });
-        }
-      }
-    }
-
-    return positions;
-  }
-
   // ─── Helpers ─────────────────────────────────────────────────────────
 
   private emitState(newState: DomainState): DomainResult<DomainState> {
     this.stateSignal.set(newState);
     return { success: true, data: newState };
+  }
+
+  /** Delegate to ExerciseService and emit state if successful. */
+  private delegateExercise(result: DomainResult<DomainState>): DomainResult<DomainState> {
+    if (!result.success) return result;
+    this.stateSignal.set(result.data);
+    return result;
   }
 
   /** Compute a fretRange that fits all given positions with ±1 fret padding. */
