@@ -395,3 +395,38 @@ PARTIALLY DONE — kroki 1-2 wdrożone, krok 3 (testy) do zrobienia.
 ## Status
 
 PARTIALLY DONE — tylko cleanup package.json zrobiony.
+
+---
+
+# P20: enabledStrings — brak walidacji w selectNote i UI
+
+**Źródło:** [`plans/ai-teacher-e2e-report.md`](plans/ai-teacher-e2e-report.md) — Issues 4 i 5
+**Plan implementacji:** [`plans/fix-enabledstrings-bugs.md`](plans/fix-enabledstrings-bugs.md)
+
+## Motivation
+
+Raport E2E wykazał dwie nieprawidłowości związane z `enabledStrings`:
+
+1. **Brak walidacji w `ExerciseService.selectNote()`** — domena akceptuje `select-note` dla wyłączonych strun. `selectNote()` sprawdza pozycję (string 1-6, fret 0-24) ale NIE sprawdza `currentState.enabledStrings[string-1]`. Konsola pokazuje `select-note` dla stringów 1-6 mimo że tylko string 6 był wizualnie aktywny.
+
+2. **Brak checka `enabledStrings` w `isPhysicalPositionInRange()`** — w trybie exercise template używa `isPhysicalPositionInRange()` do renderowania klikalnych przycisków. Ta metoda sprawdza zakres stringa i progu, ale NIE sprawdza `enabledStrings[stringIndex]`. Przez to nuty na wyłączonych strunach są renderowane jako klikalne.
+
+3. **Nieprecyzyjne opisy w AI tool schemas** — `enabledStrings` w `setViewSchema` i `startExerciseSchema` nie wyjaśnia mapowania indeksów tablicy na numery strun gitarowych. Agent AI może konstruować tablicę z błędnym mapowaniem (indeks 4 = struna 5 A, indeks 5 = struna 6 E).
+
+## Rozwiązanie
+
+1. **`ExerciseService.selectNote()`** — dodać walidację: jeśli `!currentState.enabledStrings[string - 1]`, zwrócić błąd `INVALID_POSITION`.
+2. **`FreatboardComponent.isPhysicalPositionInRange()`** — dodać check: jeśli `!domainService.currentState().enabledStrings[stringIndex]`, zwrócić `false`.
+3. **`domain-tools.ts`** — zaktualizować opisy Zod: "Indeksy: 0=struna 1 (cienkie E), 1=struna 2 (B), 2=struna 3 (G), 3=struna 4 (D), 4=struna 5 (A), 5=struna 6 (grube E)".
+
+## Pliki do zmiany
+
+| Plik | Zmiana |
+|------|--------|
+| `src/app/domain/exercise.service.ts` | Dodać `enabledStrings` check w `selectNote()` |
+| `src/app/freatboard/freatboard.component.ts` | Dodać `enabledStrings` check w `isPhysicalPositionInRange()` |
+| `src/app/chat/tools/domain-tools.ts` | Poprawić opisy `enabledStrings` w schematach Zod |
+
+## Status
+
+OPEN

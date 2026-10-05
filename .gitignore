@@ -8,3 +8,4 @@ dist
 plans
 fix-interval-coloring-with-sharp-notes.md
 MERGE_CONFLICT_LOG.md
+test-results/*
