@@ -105,6 +105,8 @@ export interface StartExerciseCommand {
   question: string;
   rootNote: string;
   expectedIntervals: string[];
+  /** Intervals to show on the fretboard as visual reference markers (not clickable). */
+  showIntervals?: string[];
   fretRange?: { min: number; max: number };
   enabledStrings?: boolean[];
 }

@@ -58,6 +58,7 @@
                     getMarkerCssClass(getNoteInterval(i, 0)),
                     getRoleCssClass(i, 0),
                     isExerciseSelected(i, 0) ? 'fretboard__dot--exercise-selected' : '',
+                    isReferencePosition(i, 0) ? 'fretboard__dot--reference' : '',
                   ]"
                   (click)="fretNoteClicked(i, 0)"
                 >
@@ -108,6 +109,7 @@
                       getMarkerCssClass(getNoteInterval(i, fret)),
                       getRoleCssClass(i, fret),
                       isExerciseSelected(i, fret) ? 'fretboard__dot--exercise-selected' : '',
+                      isReferencePosition(i, fret) ? 'fretboard__dot--reference' : '',
                     ]"
                     (click)="fretNoteClicked(i, fret)"
                   >

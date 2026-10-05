@@ -73,6 +73,7 @@ const startExerciseSchema = z.object({
   question: z.string().describe("Pytanie do użytkownika, np. 'Znajdź wszystkie kwinty względem A'"),
   rootNote: z.string().describe("Nuta podstawowa, np. 'A', 'C'"),
   expectedIntervals: z.array(z.string()).describe("Oczekiwane interwały, np. ['5'], ['1', 'b3']"),
+  showIntervals: z.array(z.string()).optional().describe("Interwały do pokazania jako wizualny punkt odniesienia na gryfie (nieklikalne), np. ['1'], ['1', '5']"),
   fretRange: z.object({
     min: z.number().min(0).max(24),
     max: z.number().min(0).max(24),
@@ -299,6 +300,7 @@ export function createDomainTools(domainService: DomainService) {
           question: input.question,
           rootNote: input.rootNote,
           expectedIntervals: input.expectedIntervals,
+          showIntervals: input.showIntervals,
           fretRange: input.fretRange,
           enabledStrings: input.enabledStrings,
         };

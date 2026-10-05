@@ -93,6 +93,13 @@ export class FreatboardComponent {
     return selected.some(n => n.string === stringIndex + 1 && n.fret === fret);
   }
 
+  /** Check if a position is a reference interval marker (not clickable). */
+  protected isReferencePosition(stringIndex: number, fret: number): boolean {
+    const task = this.domainService.currentState().exerciseTask;
+    if (!task?.referencePositions) return false;
+    return task.referencePositions.some(p => p.string === stringIndex + 1 && p.fret === fret);
+  }
+
   getNoteInterval(stringIndex: number, fret: number): string | undefined {
     const note = this.getNote(stringIndex, fret);
     return note ? note.interval : undefined;
@@ -118,6 +125,9 @@ export class FreatboardComponent {
   }
 
   protected fretNoteClicked(stringIndex: number, fret: number) {
+    // Ignore clicks on reference interval markers
+    if (this.isReferencePosition(stringIndex, fret)) return;
+
     // In exercise mode, use physical position (works even with empty snapshot)
     if (this.exerciseMode()) {
       const physicalNote = this.noteQueryService.getNoteAtPhysicalPosition(stringIndex, fret);

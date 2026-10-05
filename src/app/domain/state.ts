@@ -21,6 +21,10 @@ export interface ExerciseTask {
   rootNote: string;
   /** Valid interval names the user should find (e.g., ['5'], ['1', 'b3']). */
   expectedIntervals: string[];
+  /** Intervals to show as visual reference markers on the fretboard (not clickable). */
+  showIntervals?: string[];
+  /** Computed positions for reference interval markers. Used for click prevention. */
+  referencePositions?: Array<{ string: number; fret: number }>;
   /** Optional view constraint — limit which frets are visible. */
   fretRange?: { min: number; max: number };
   /** Optional view constraint — limit which strings are active. */

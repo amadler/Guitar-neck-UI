@@ -35,7 +35,7 @@ export class ExerciseService {
     command: StartExerciseCommand,
     currentState: DomainState,
   ): DomainResult<DomainState> {
-    const { question, rootNote, expectedIntervals, fretRange, enabledStrings } = command;
+    const { question, rootNote, expectedIntervals, showIntervals, fretRange, enabledStrings } = command;
 
     const err = DomainValidator.validateExerciseTask(rootNote, expectedIntervals)
       ?? DomainValidator.validateFretRange(fretRange);
@@ -52,10 +52,18 @@ export class ExerciseService {
       strings,
     );
 
+    // Compute reference positions for visual markers (if requested)
+    let referencePositions: Array<{ string: number; fret: number }> | undefined;
+    if (showIntervals && showIntervals.length > 0) {
+      referencePositions = this.displayReferenceIntervals(rootNote, showIntervals, range, strings);
+    }
+
     const task: ExerciseTask = {
       question,
       rootNote,
       expectedIntervals,
+      showIntervals,
+      referencePositions,
       fretRange: range,
       enabledStrings: strings,
       expectedPositions,
@@ -63,6 +71,11 @@ export class ExerciseService {
 
     // Clear the fretboard so no old markers show during exercise
     this.orchestration.clearFretboard();
+
+    // Display reference intervals on the fretboard (after clearing)
+    if (referencePositions) {
+      this.displayReferenceIntervalsOnFretboard(rootNote, showIntervals!);
+    }
 
     return {
       success: true,
@@ -97,6 +110,9 @@ export class ExerciseService {
       task.expectedIntervals,
       task.expectedPositions,
     );
+
+    // Clear the fretboard to remove reference markers
+    this.orchestration.clearFretboard();
 
     // Reset exercise mode, store result, keep selectedNotes for agent to inspect
     return {
@@ -196,5 +212,36 @@ export class ExerciseService {
     }
 
     return positions;
+  }
+
+  /**
+   * Compute reference interval positions for click prevention.
+   * Uses the same logic as computeExpectedPositions but for showIntervals.
+   */
+  private displayReferenceIntervals(
+    rootNote: string,
+    intervals: string[],
+    fretRange: { min: number; max: number },
+    enabledStrings: boolean[],
+  ): Array<{ string: number; fret: number }> {
+    return this.computeExpectedPositions(rootNote, intervals, fretRange, enabledStrings);
+  }
+
+  /**
+   * Display reference intervals on the fretboard as visual markers.
+   * Uses displayCustomPattern to show root + all reference notes with interval annotations.
+   */
+  private displayReferenceIntervalsOnFretboard(
+    rootNote: string,
+    intervals: string[],
+  ): void {
+    // Compute notes from intervals via TonalFacade for proper enharmonic spelling
+    const notes = intervals.map(interval => {
+      const config = INTERVAL_CONFIG.find(i => i.symbol === interval)!;
+      return this.tonalFacade.transposeNote(rootNote, config.tonalName);
+    });
+
+    // Display root + all computed notes in a single call
+    this.orchestration.displayCustomPattern([rootNote, ...notes], rootNote);
   }
 }

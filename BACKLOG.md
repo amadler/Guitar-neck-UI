@@ -342,3 +342,56 @@ Dodać warstwę konta użytkownika do Angulara: auth flow, settings z kluczem Op
 ## Status
 
 DONE — w pełni zaimplementowane. Auth, login/register, settings z kluczem OpenRouter, progress tracking, header z user menu, landing page z CTA — wszystko działa z backendem przez `credentials: 'include'`.
+
+---
+
+# P18: DomainService — Registry→switch + ExerciseService split
+
+**Źródło:** [`plans/domain-service-refactor-plan.md`](plans/domain-service-refactor-plan.md)
+
+## Motivation
+
+`DomainService` używał `Map<string, Handler>` z `registerCommandHandlers()`/`registerQueryHandlers()`, co wymuszało ręczne rzutowanie typów i generowało boilerplate. Dodatkowo logika exercise (start/submit/select/deselect) była w tym samym 550-linijkowym serwisie co widok gryfu.
+
+## Rozwiązanie
+
+1. **Registry → switch** (WDROŻONE) — `Map` + `register*Handlers()` zastąpione `switch (command.type)` w `execute()` i `query()`. TypeScript automatycznie zawęża typ w każdym case.
+2. **Split ExerciseService** (WDROŻONE) — logika exercise wydzielona do osobnego `ExerciseService`. DomainService tylko deleguje.
+3. **Testy ExerciseService** (DO ZROBIENIA) — brak testów jednostkowych dla `ExerciseService.startExercise()`, `submitExercise()`, `selectNote()`, `deselectNote()`.
+
+## Pliki
+
+- `src/app/domain/domain.service.ts` — switch + delegacja
+- `src/app/domain/exercise.service.ts` — NOWY, logika exercise
+- `src/app/domain/exercise.service.spec.ts` — NOWY, testy (do zrobienia)
+
+## Status
+
+PARTIALLY DONE — kroki 1-2 wdrożone, krok 3 (testy) do zrobienia.
+
+---
+
+# P19: Vitest import cleanup — remove explicit imports from spec files
+
+**Źródło:** [`plans/fix-vitest-jasmine-inconsistency.md`](plans/fix-vitest-jasmine-inconsistency.md)
+
+## Motivation
+
+`tsconfig.spec.json` konfiguruje `vitest/globals`, co udostępnia `expect`, `describe`, `it`, `beforeEach`, `vi` globalnie bez importów. Mimo to 18 plików spec jawnie importuje te nazwy z `"vitest"`, a 7 plików używa `MockedObject<T>` zamiast `vi.Mocked<T>`.
+
+## Rozwiązanie
+
+1. **Usunięcie `@types/jasmine` i `jasmine-core`** (WDROŻONE) — usunięte z `package.json`
+2. **Usunięcie vitest importów z 18 plików spec** (DO ZROBIENIA) — każdy plik ma `import { beforeEach, describe, expect, it, vi } from "vitest"` do usunięcia
+3. **Zamiana `MockedObject<T>` na `vi.Mocked<T>`** (DO ZROBIENIA) — w 7 plikach
+4. **Aktualizacja AGENTS.md** (DO ZROBIENIA) — doprecyzowanie reguły o globals
+
+## Pliki do zmiany
+
+- 18 plików `*.spec.ts` — usuń import z vitest
+- 7 plików `*.spec.ts` — `MockedObject<T>` → `vi.Mocked<T>`
+- `AGENTS.md` — aktualizacja reguły
+
+## Status
+
+PARTIALLY DONE — tylko cleanup package.json zrobiony.

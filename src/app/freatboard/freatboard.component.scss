@@ -184,6 +184,14 @@
   font-weight: bold;
 }
 
+/* ---- Reference interval markers (exercise visual aid) ---- */
+.fretboard__dot--reference {
+  opacity: 0.75;
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
+  cursor: default;
+}
+
 /* ---- Neutral display modes ---- */
 
 .fretboard__dot--neutral {
