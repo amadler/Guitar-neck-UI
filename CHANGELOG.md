@@ -33,6 +33,9 @@ a projekt stosuje [Semantic Versioning](https://semver.org/).
 - **P37: AI Chat button text mismatch** — plan w [`BACKLOG.md`](BACKLOG.md:1048)
 - **P38: Nieobserwowalne requesty AI Chat** — plan w [`BACKLOG.md`](BACKLOG.md:1077)
 
+### Fixed
+- **P37: AI Chat button text mismatch** — dodano `<span class="ai-toggle__label">AI Chat</span>` obok SVG w przycisku, usunięto fixed width/height z `.ai-toggle` w SCSS, text content przycisku to teraz "AI Chat" zgodny z `aria-label` ([`BACKLOG.md`](BACKLOG.md) → DONE, [`src/app/header/header.component.html`](src/app/header/header.component.html:36))
+
 ---
 
 ## [0.12.0] — 2026-10-04

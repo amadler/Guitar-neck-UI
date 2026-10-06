@@ -367,7 +367,7 @@ DONE — w pełni zaimplementowane. Auth, login/register, settings z kluczem Ope
 
 ## Status
 
-PARTIALLY DONE — kroki 1-2 wdrożone, krok 3 (testy) do zrobienia.
+PARTIALLY DONE — kroki 1-2 wdrożone, krok 3 (testy) do zrobienia. Plik `exercise.service.spec.ts` nie istnieje — brak testów jednostkowych dla `ExerciseService.startExercise()`, `submitExercise()`, `selectNote()`, `deselectNote()`.
 
 ---
 
@@ -394,7 +394,10 @@ PARTIALLY DONE — kroki 1-2 wdrożone, krok 3 (testy) do zrobienia.
 
 ## Status
 
-PARTIALLY DONE — tylko cleanup package.json zrobiony.
+PARTIALLY DONE — tylko cleanup package.json zrobiony. Pozostało:
+- 8 plików `*.spec.ts` z importami z vitest (w tym 7 z `MockedObject`, 1 z `{ describe, expect, it }`)
+- 7 plików `*.spec.ts` używających `MockedObject<T>` zamiast `vi.Mocked<T>`
+- `AGENTS.md` — aktualizacja reguły o globals
 
 ---
 
@@ -1062,44 +1065,6 @@ Usunąć `cursor: pointer` i `(click)` handler w trybie show (gdy `!exerciseMode
 OPEN
 
 ---
-
-# P37: AI Chat button — niezgodność text content z accessible name
-
-**Źródło:** [`test-results/qa-crash-test-report.md`](test-results/qa-crash-test-report.md) — P1
-
-## Motivation
-
-Przycisk "AI Chat" nie może być znaleziony przez `textContent().trim() === 'AI Chat'` ale działa przez `getByRole('button', { name: 'AI Chat' })`. Sugeruje to że text content zawiera dodatkowe białe znaki, znaki zerowej szerokości, lub accessible name jest ustawione przez aria-label.
-
-## Solution
-
-Ujednolicić text content z accessible name. Usunąć zbędne białe znaki lub dodać jawny text content.
-
-## Pliki do zmiany
-
-| Plik | Zmiana |
-|------|--------|
-| `src/app/header/header.component.html` | Sprawdzić text content przycisku AI Chat — usunąć zbędne spacje/znaki |
-
-## Kolejność implementacji
-
-1. Sprawdzić text content przycisku AI Chat w header.component.html
-2. Usunąć zbędne białe znaki
-3. Sprawdzić czy aria-label jest spójny z text content
-
-## MVP
-
-- `textContent().trim() === 'AI Chat'` zwraca true
-- `getByRole('button', { name: 'AI Chat' })` nadal działa
-
-## Done when
-
-- Text content przycisku jest "AI Chat" (bez zbędnych znaków)
-- `npm test` succeeds
-
-## Status
-
-DONE — dodano `<span class="ai-toggle__label">AI Chat</span>` obok SVG w przycisku, usunięto fixed width/height z `.ai-toggle` w SCSS, dodano style dla etykiety. Text content przycisku to teraz "AI Chat" — zgodny z `aria-label`.
 
 ---
 

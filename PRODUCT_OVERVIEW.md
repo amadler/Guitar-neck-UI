@@ -49,10 +49,10 @@ Guitar Neck UI to interaktywne narzędzie edukacyjne zaprojektowane, aby pomóc 
 ## Przepływ Pracy Użytkownika
 
 ### Wejście do aplikacji
-1. Nowy użytkownik trafia na **stronę główną** (`/`) z hero sekcją i formularzem konfiguracji AI
-2. Może skonfigurować klucz API i wybrać model AI (opcjonalnie) lub pominąć
-3. Kliknięcie "Save & Enter App" lub "Skip" przenosi do **widoku aplikacji** (`/app`)
-4. Powracający użytkownicy mogą kliknąć logo w headerze, by wrócić do strony głównej i zmienić konfigurację
+1. Nowy użytkownik trafia na **stronę główną** (`/`) z hero sekcją, kartami funkcji i listą lekcji
+2. Może kliknąć "Wypróbuj gryf" aby wejść do **widoku aplikacji** (`/app`) bez rejestracji, lub utworzyć konto / zalogować się
+3. Klucz API OpenRouter konfiguruje się w **ustawieniach** (`/settings`) po zalogowaniu
+4. Powracający użytkownicy mogą kliknąć logo w headerze, by wrócić do strony głównej
 
 ### Podstawowe Operacje (tryb scale-or-chord)
 1. Aplikacja startuje z widocznym **pustym gryfem** — wszystkie nuty są widoczne, żadna nie jest podświetlona
