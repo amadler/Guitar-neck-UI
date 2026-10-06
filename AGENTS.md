@@ -12,11 +12,11 @@ This file provides guidance to agents when working with code in this repository.
 
 ## Skills
 
-This repository includes local skills in [`.roo/skills/`](.roo/skills) that agents should follow when applicable:
+This repository uses the following skills (located in `~/.roo/skills/`):
 
-- [**`working-with-GIT-repositories`**](.roo/skills/working-with-GIT-repositories/SKILL.md) — Git workflow: status checks, staged review, commit approval, no destructive operations without consent.
-- [**`fix-broken-tests`**](.roo/skills/fix-broken-tests/SKILL.md) — Diagnose and fix failing tests without hiding bugs or adjusting tests to match buggy implementations.
-- [**`updating-backlog`**](.roo/skills/updating-backlog/SKILL.md) — Create, update, complete, and archive backlog items in `BACKLOG.md`; move completed work to `CHANGELOG.md`.
+- **`working-with-GIT-repositories`** — Git workflow: status checks, staged review, commit approval, no destructive operations without consent.
+- **`fix-broken-tests`** — Diagnose and fix failing tests without hiding bugs or adjusting tests to match buggy implementations.
+- **`updating-backlog`** — Create, update, complete, and archive backlog items in `BACKLOG.md`; move completed work to `CHANGELOG.md`.
 - 
 ## Non-Obvious Project Facts
 
