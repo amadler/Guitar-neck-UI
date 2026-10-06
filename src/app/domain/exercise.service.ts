@@ -139,6 +139,15 @@ export class ExerciseService {
       ?? DomainValidator.validatePosition(string, fret);
     if (err) return err;
 
+    // Check if the string is enabled
+    if (!currentState.enabledStrings[string - 1]) {
+      return {
+        success: false,
+        error: DomainError.INVALID_POSITION,
+        message: `String ${string} is disabled.`,
+      };
+    }
+
     const currentNotes = currentState.selectedNotes ?? [];
 
     // Avoid duplicates — same (string, fret) can't be selected twice

@@ -79,6 +79,8 @@ export class FreatboardComponent {
   protected isPhysicalPositionInRange(stringIndex: number, fret: number): boolean {
     if (stringIndex < 0 || stringIndex > 5) return false;
     if (fret < 0 || fret > 24) return false;
+    // Check if the string is enabled
+    if (!this.activeStrings[stringIndex]) return false;
     return fret >= this.fretRange.min && fret <= this.fretRange.max;
   }
 

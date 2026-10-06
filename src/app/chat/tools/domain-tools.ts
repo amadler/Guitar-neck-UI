@@ -45,7 +45,7 @@ const setViewSchema = z.object({
     min: z.number().min(0).max(24),
     max: z.number().min(0).max(24),
   }).optional().describe("Opcjonalny zakres progów"),
-  enabledStrings: z.array(z.boolean()).length(6).optional().describe("Opcjonalnie które struny są aktywne (6 elementów)"),
+  enabledStrings: z.array(z.boolean()).length(6).optional().describe("Opcjonalnie które struny są aktywne (6 elementów). Indeksy: 0=struna 1 (cienkie E), 1=struna 2 (B), 2=struna 3 (G), 3=struna 4 (D), 4=struna 5 (A), 5=struna 6 (grube E)"),
   markerDisplayMode: z.enum(["interval-colors", "note-names", "neutral-dots"]).optional().describe("Tryb wyświetlania markerów"),
 });
 type SetViewInput = z.infer<typeof setViewSchema>;
@@ -78,7 +78,7 @@ const startExerciseSchema = z.object({
     min: z.number().min(0).max(24),
     max: z.number().min(0).max(24),
   }).optional().describe("Opcjonalny zakres progów do wyświetlenia"),
-  enabledStrings: z.array(z.boolean()).length(6).optional().describe("Opcjonalnie które struny mają być aktywne"),
+  enabledStrings: z.array(z.boolean()).length(6).optional().describe("Opcjonalnie które struny mają być aktywne (6 elementów). Indeksy: 0=struna 1 (cienkie E), 1=struna 2 (B), 2=struna 3 (G), 3=struna 4 (D), 4=struna 5 (A), 5=struna 6 (grube E)"),
 });
 type StartExerciseInput = z.infer<typeof startExerciseSchema>;
 
