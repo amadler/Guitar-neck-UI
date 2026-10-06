@@ -4,6 +4,7 @@ import { ChatService } from "./services/chat.service";
 import { DomainService } from "../domain/domain.service";
 import { DomainCommand } from "../domain/commands";
 import { parseActionTags, ActionTag, isValidAction } from "./models/action-tag";
+import { renderMarkdown } from "./services/helpers";
 
 @Component({
   selector: "app-chat",
@@ -19,7 +20,7 @@ import { parseActionTags, ActionTag, isValidAction } from "./models/action-tag";
             <p>
               @for (segment of parseActionTags(msg.text); track $index) {
                 @if (segment.type === 'text') {
-                  <span>{{ segment.text }}</span>
+                  <span class="markdown-content" [innerHTML]="renderText(segment.text)"></span>
                 } @else {
                   <button class="action-tag" (click)="handleAction(segment.action)">{{ segment.action.label }}</button>
                 }
@@ -89,6 +90,13 @@ import { parseActionTags, ActionTag, isValidAction } from "./models/action-tag";
     input { flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
     button { padding: 8px 16px; background: #1976d2; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
     button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .markdown-content { line-height: 1.6; word-break: break-word; }
+    .markdown-content strong { font-weight: 600; }
+    .markdown-content code { background: #f0f0f0; padding: 1px 4px; border-radius: 3px; font-size: 0.9em; font-family: 'Consolas', 'Courier New', monospace; }
+    .markdown-content ul { margin: 4px 0; padding-left: 20px; }
+    .markdown-content li { margin: 2px 0; }
+    .markdown-content h3 { font-size: 1.1em; margin: 8px 0 4px; font-weight: 600; }
+    .markdown-content p { margin: 4px 0; }
   `],
 })
 export class ChatComponent {
@@ -100,6 +108,9 @@ export class ChatComponent {
 
   /** Exposed to template for parsing action tags from message text. */
   parseActionTags = parseActionTags;
+
+  /** Exposed to template for rendering Markdown in message text. */
+  renderText = renderMarkdown;
 
   constructor() {
     // Auto-scroll to bottom when messages change

@@ -1,6 +1,47 @@
-import { WritableSignal } from "@angular/core";
+﻿import { WritableSignal } from "@angular/core";
 import { ChatMessage } from "../models";
 import { DomainCommand } from "../../domain/commands";
+
+/**
+ * Render Markdown text to safe HTML.
+ * Pure function, stateless, no dependencies.
+ * Returns empty string for null/undefined input.
+ */
+export function renderMarkdown(text: string | null | undefined): string {
+  if (text == null) return "";
+  if (text === "") return "";
+
+  let html = text;
+
+  // 1. HTML-escaping (prevents XSS)
+  html = html
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+
+  // 2. Headers
+  html = html.replace(/^## (.+)$/gm, "<h3>$1</h3>");
+
+  // 3. Lists
+  html = html.replace(/^- (.+)$/gm, "<li>$1</li>");
+  html = html.replace(/((?:<li>[\s\S]*?<\/li>\n?)+)/g, "<ul>$1</ul>");
+
+  // 4. Paragraphs
+  if (html.includes("\n\n")) {
+    html = html.replace(/\n\n/g, "</p><p>");
+    html = "<p>" + html + "</p>";
+  } else {
+    html = "<p>" + html + "</p>";
+  }
+
+  // 5. Bold
+  html = html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+
+  // 6. Code inline
+  html = html.replace(/`(.+?)`/g, "<code>$1</code>");
+
+  return html;
+}
 
 export function addMessage(messages: WritableSignal<ChatMessage[]>, message: ChatMessage): void {
   messages.update(messages => [...messages, message]);
