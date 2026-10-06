@@ -7,6 +7,34 @@ a projekt stosuje [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.13.0] — 2026-10-05
+
+### Added
+- **UX Audit 2026-10-05** — pełny audyt UX/UI 10 problemów, rozpiskę zadań do obu repozytoriów ([`plans/ux-ui-audit-2026-10-05.md`](plans/ux-ui-audit-2026-10-05.md))
+- **P21: Renderowanie Markdown w AI** — plan w [`BACKLOG.md`](BACKLOG.md:434)
+- **P22: Wynik ćwiczenia na gryfie** — plan w [`BACKLOG.md`](BACKLOG.md:477) + [`plans/exercise-result-on-fretboard.md`](plans/exercise-result-on-fretboard.md)
+- **P23: Wejście do gryfu z home** — plan w [`BACKLOG.md`](BACKLOG.md:510)
+- **P24: Język kontrolek na polski** — plan w [`BACKLOG.md`](BACKLOG.md:549)
+- **P25: Czytelność markerów i legenda** — plan w [`BACKLOG.md`](BACKLOG.md:588)
+- **P26: Lekcja jako sekwencja** — plan w [`BACKLOG.md`](BACKLOG.md:627) + [`plans/lesson-sequence-redesign.md`](plans/lesson-sequence-redesign.md)
+- **P27: Spójność wizualna auth** — plan w [`BACKLOG.md`](BACKLOG.md:658)
+- **P28: Wykorzystanie powierzchni czatu** — plan w [`BACKLOG.md`](BACKLOG.md:695)
+- **P29: Typografia i hierarchia** — plan w [`BACKLOG.md`](BACKLOG.md:728)
+- **P30: Mobile redesign** — plan w [`BACKLOG.md`](BACKLOG.md:761) + [`plans/mobile-redesign.md`](plans/mobile-redesign.md)
+- **Backend: Markdown content type** — plan w [`C:\code\Guitar-neck-app\guitar-neck-agent\BACKLOG.md`](file:///C:/code/Guitar-neck-app/guitar-neck-agent/BACKLOG.md)
+- **Backend: Struktura lekcji jako sekwencja** — plan w [`C:\code\Guitar-neck-app\guitar-neck-agent\BACKLOG.md`](file:///C:/code/Guitar-neck-app/guitar-neck-agent/BACKLOG.md)
+- **Crash Test 2026-10-05** — raport z testów eksploracyjnych, 8 znalezionych problemów ([`test-results/qa-crash-test-report.md`](test-results/qa-crash-test-report.md))
+- **P31: Angular NG0955 duplicate track keys** — plan w [`BACKLOG.md`](BACKLOG.md:834)
+- **P32: Angular NG0956 track by identity** — plan w [`BACKLOG.md`](BACKLOG.md:877)
+- **P33: Brakujące favicon.ico** — plan w [`BACKLOG.md`](BACKLOG.md:914)
+- **P34: Niejednoznaczne etykiety strun E** — plan w [`BACKLOG.md`](BACKLOG.md:947)
+- **P35: Przycisk Wyślij wyłączony w lekcji** — plan w [`BACKLOG.md`](BACKLOG.md:982)
+- **P36: Brak feedbacku przy klikaniu nut** — plan w [`BACKLOG.md`](BACKLOG.md:1015)
+- **P37: AI Chat button text mismatch** — plan w [`BACKLOG.md`](BACKLOG.md:1048)
+- **P38: Nieobserwowalne requesty AI Chat** — plan w [`BACKLOG.md`](BACKLOG.md:1077)
+
+---
+
 ## [0.12.0] — 2026-10-04
 
 ### Added

@@ -430,3 +430,736 @@ Raport E2E wykazał dwie nieprawidłowości związane z `enabledStrings`:
 ## Status
 
 OPEN
+
+---
+
+# P21: Renderowanie Markdown w wiadomościach AI
+
+**Źródło:** [`plans/ux-ui-audit-2026-10-05.md`](plans/ux-ui-audit-2026-10-05.md) — Problem 2
+
+## Motivation
+
+Wiadomości AI w lekcji i wyniku ćwiczenia wyświetlają surowy Markdown: `**` dla pogrubienia, backticki dla kodu inline, listy jako `- ` na początku linii. Treść wygląda jak uszkodzona, utrudnia skanowanie instrukcji i obniża zaufanie do nauczyciela. Szczególnie dotyka początkujących, dla których treść zawiera nowe terminy.
+
+## Solution
+
+Dodać renderowanie Markdown po stronie frontendu (Angular) przed wyświetleniem wiadomości. Użyć lekkiego parsera (regex/własny) zamiast pełnej biblioteki — obsługiwane elementy: `**bold**`, `` `code` ``, listy `- ` / `1. `, nagłówki `## `, akapity. Backend nie wymaga zmian — wysyła Markdown jak dotychczas, frontend renderuje.
+
+## Pliki do zmiany
+
+| Plik | Zmiana |
+|------|--------|
+| `src/app/chat/chat.component.ts` | Dodać `renderMarkdown()` pipe w template — zamiana `msg.text` na renderowany HTML zamiast surowego tekstu |
+| `src/app/chat/chat.component.ts` | Dodać klasę CSS dla wyrenderowanych treści (`.markdown-content`) |
+| `src/app/chat/chat.component.scss` | Style dla wyrenderowanego Markdown: bold, code, listy, akapity |
+| `src/app/chat/models/chat-message.ts` | Opcjonalnie: dodać `renderedText?: string` jeśli cachowanie potrzebne |
+| `src/app/chat/services/helpers.ts` | Dodać czystą funkcję `renderMarkdown(text: string): string` |
+
+## Kolejność implementacji
+
+1. Dodać `renderMarkdown()` w `helpers.ts` — regex dla bold, code inline, list, nagłówków, akapitów
+2. Zastosować w `chat.component.ts` template — `@if` / metoda zamieniająca tekst przed wyświetleniem
+3. Dodać style CSS dla `.markdown-content`
+4. Testy: `helpers.spec.ts` — przypadki dla każdego elementu Markdown, w tym zagnieżdżenia i krawędzie
+
+## MVP
+
+- `**bold**` → `<strong>bold</strong>`
+- `` `code` `` → `<code>code</code>`
+- `- lista` → `<ul><li>lista</li></ul>`
+- `## Nagłówek` → `<h3>Nagłówek</h3>` (zwiększony margines)
+- Bezpieczne renderowanie — brak XSS (escapowanie HTML w treści)
+- `npm test` succeeds
+
+## Done when
+
+- Wiadomości AI w lekcji i wyniku ćwiczenia nie pokazują surowych znaczników Markdown
+- Bold, code inline, listy i nagłówki są renderowane semantycznie
+- Długie linie są łamane (word-break)
+- Testy pokrywają wszystkie obsługiwane elementy
+
+## Status
+
+OPEN
+
+---
+
+# P22: Wynik ćwiczenia na gryfie
+
+**Źródło:** [`plans/ux-ui-audit-2026-10-05.md`](plans/ux-ui-audit-2026-10-05.md) — Problem 3
+**Plan implementacji:** [`plans/exercise-result-on-fretboard.md`](plans/exercise-result-on-fretboard.md)
+
+## Motivation
+
+Po kliknięciu „Sprawdź" odpowiedź podaje trafienia i brakujące pozycje wyłącznie jako tekst w czacie. Gryf wraca do widoku bez wyraźnego oznaczenia poprawnych i pominiętych nut. Użytkownik musi pamiętać wynik słowny i sam mapować go z powrotem na gryf. W edukacyjnym zadaniu o lokalizacji dźwięków to właśnie gryf powinien pokazywać korektę.
+
+## Solution
+
+Utrzymać stan odpowiedzi na gryfie po sprawdzeniu: odróżnić poprawne wybory, pominięcia i błędne kliknięcia kolorami/kształtami markerów. Obok pokazać zwięzłe podsumowanie (np. „7 znalezionych, 5 pominiętych") oraz następny krok. Dłuższe wyjaśnienie zostawić nauczycielowi w czacie.
+
+Szczegółowy plan: [`plans/exercise-result-on-fretboard.md`](plans/exercise-result-on-fretboard.md)
+
+## Status
+
+OPEN
+
+---
+
+# P23: Bezpośrednie wejście do gryfu ze strony głównej
+
+**Źródło:** [`plans/ux-ui-audit-2026-10-05.md`](plans/ux-ui-audit-2026-10-05.md) — Problem 4
+
+## Motivation
+
+Pierwszy ekran na wszystkich rozmiarach eksponuje hero, opis produktu i logowanie/rejestrację; gryf jest poza widokiem. Karty funkcji są klikalne i przekierowują do `/app?action=...`, ale żadna nie jest jednoznacznym przyciskiem „Otwórz gryf / Wypróbuj bez rejestracji". Nowy użytkownik nie widzi od razu kluczowego narzędzia i może odczytać konto jako warunek rozpoczęcia nauki.
+
+## Solution
+
+Dodać wyraźny, bezrejestracyjny punkt wejścia do gryfu na stronie głównej. Dodać mały, rzeczywisty podgląd gryfu (lub statyczną grafikę) już na hero. Zachować istniejące karty funkcji i lekcje.
+
+## Pliki do zmiany
+
+| Plik | Zmiana |
+|------|--------|
+| `src/app/landing-page/landing-page.component.html` | Dodać przycisk „Wypróbuj gryf" (bez rejestracji) w hero; dodać miniaturę gryfu |
+| `src/app/landing-page/landing-page.component.ts` | Dodać `goToApp()` dla niezalogowanych (bez przekierowania do auth) |
+| `src/app/landing-page/landing-page.component.scss` | Style dla nowego CTA i miniatury |
+| `src/app/app-page/app-page.component.ts` | Upewnić się że `?action=show-pattern` działa bez auth |
+
+## Kolejność implementacji
+
+1. Dodać `goToApp()` w landing-page.component.ts — nawigacja do `/app` bez auth
+2. Dodać przycisk „Wypróbuj gryf" w hero, nad `Create Account` / `Sign In`
+3. Dodać miniaturę gryfu (SVG lub screenshot) obok/poniżej CTA
+4. Style: wyróżnić nowy CTA kolorem akcentu
+
+## MVP
+
+- Niezalogowany użytkownik może kliknąć „Wypróbuj gryf" i wejść do `/app`
+- Gryf jest widoczny (pusty, z neutralnymi markerami)
+- Auth CTA pozostają dostępne, ale nie blokują dostępu
+
+## Done when
+
+- Przycisk „Wypróbuj gryf" prowadzi do `/app` bez auth
+- Strona główna pokazuje miniaturę gryfu
+- `npm test` succeeds
+
+## Status
+
+OPEN
+
+---
+
+# P24: Ujednolicenie języka interfejsu na polski
+
+**Źródło:** [`plans/ux-ui-audit-2026-10-05.md`](plans/ux-ui-audit-2026-10-05.md) — Problem 6
+
+## Motivation
+
+Na `/app` dominują angielskie etykiety: „I want to", „Show", „Range", „Custom", „Intervals Legend", „Markers", podczas gdy ćwiczenie i szczegóły są po polsku. Strona główna ma angielskie opisy, karty lekcji są polskie. Początkujący musi przełączać język w ramach jednego zadania.
+
+## Solution
+
+Ujednolicić język interfejsu na polski. Nazwać komendy operacyjnie: „Pokaż na gryfie" / „Porównaj skalę i akord". Termin angielski zachować pomocniczo tam, gdzie należy do słownika gitarowego (np. „bend", „slide").
+
+## Pliki do zmiany
+
+| Plik | Zmiana |
+|------|--------|
+| `src/app/toolbox/toolbox-builder.component.html` | „I want to" → „Pokaż", „Show" → „Pokaż", „Compare" → „Porównaj" |
+| `src/app/range-toolbar/range-toolbar.component.html` | „Range" → „Zakres", „Custom" → „Własny" |
+| `src/app/legend/legend.component.html` | „Intervals Legend" → „Legenda interwałów", „Markers" → „Markery", opcje select |
+| `src/app/landing-page/landing-page.component.html` | Opisy kart, hero tagline, nagłówki sekcji |
+| `src/app/header/header.component.html` | Ewentualne angielskie etykiety |
+| `src/app/string-toggle/string-toggle.component.ts` | Etykiety/aria-label |
+
+## Kolejność implementacji
+
+1. Przetłumaczyć toolbox (najbardziej widoczny)
+2. Przetłumaczyć legendę i range-toolbar
+3. Przetłumaczyć landing page
+4. Sprawdzić spójność — wszystkie widoki `/app` po polsku
+
+## MVP
+
+- Wszystkie kontrolki na `/app` są po polsku
+- Landing page jest po polsku
+- Terminy gitarowe (bend, slide, fret) pozostają angielskie
+
+## Done when
+
+- `I want to` → `Pokaż` / `Porównaj`
+- `Show` → `Pokaż`
+- `Range` → `Zakres`
+- `Intervals Legend` → `Legenda interwałów`
+- Landing page hero i karty po polsku
+- `npm test` succeeds
+
+## Status
+
+OPEN
+
+---
+
+# P25: Czytelność markerów i dostępność legendy
+
+**Źródło:** [`plans/ux-ui-audit-2026-10-05.md`](plans/ux-ui-audit-2026-10-05.md) — Problem 5
+
+## Motivation
+
+Puste markery w początkowym `/app` są ciemnoszare na ciemnym gryfie i słabo widoczne. Po aktywacji kolorowe kropki mają litery nut, podczas gdy legenda opisuje stopnie interwałowe. Legenda jest długa i na mobile ucieka poza ekran. Kolor bez stale dostępnego klucza nie wyjaśnia funkcji, a sama barwa nie jest niezawodnym rozróżnieniem dla osób z zaburzeniami widzenia barw.
+
+## Solution
+
+Podnieść kontrast neutralnych kropek. Dodać redundantne cechy markerów (kształt, obwódka, tooltip). Utrzymać legendę blisko gryfu i w obrębie viewportu. Pokazać wybrany wzór/root w nagłówku widoku.
+
+## Pliki do zmiany
+
+| Plik | Zmiana |
+|------|--------|
+| `src/app/guitar-neck/guitar-neck.component.scss` | Podnieść kontrast/kolor neutralnych kropek (`.neutral-dot`) |
+| `src/app/guitar-neck/guitar-neck.component.html` | Dodać `title`/tooltip do markerów z nazwą nuty i interwału |
+| `src/app/legend/legend.component.html` | Użyć `position: sticky` lub inny mechanizm by legenda była w viewporcie |
+| `src/app/legend/legend.component.scss` | Style dla sticky legendy, zawijanie na mobile |
+| `src/app/services/marker-role.service.ts` | Dodać kształt/obwódkę jako redundantne kodowanie (oprócz koloru) |
+| `src/app/freatboard/freatboard.component.html` | Tooltip na klikalnych pozycjach |
+
+## Kolejność implementacji
+
+1. Poprawić kontrast neutralnych kropek
+2. Dodać tooltip z nazwą nuty i interwału do markerów
+3. Dodać redundantne kodowanie (kształt/obwódka) w `MarkerRoleService`
+4. Ustawić legendę jako sticky w obrębie viewportu
+
+## MVP
+
+- Neutralne kropki są widoczne na ciemnym gryfie
+- Każdy marker ma tooltip z nazwą nuty i interwału
+- Legenda jest widoczna bez przewijania (sticky)
+- Markery mają redundantne kodowanie (nie tylko kolor)
+
+## Done when
+
+- Kontrast neutralnych kropek poprawiony
+- Tooltip działa na hover dla wszystkich markerów
+- Legenda pozostaje w viewporcie podczas przewijania
+- `npm test` succeeds
+
+## Status
+
+OPEN
+
+---
+
+# P26: Lekcja jako sekwencja — wydzielenie zadania od historii rozmowy
+
+**Źródło:** [`plans/ux-ui-audit-2026-10-05.md`](plans/ux-ui-audit-2026-10-05.md) — Problem 9
+**Plan implementacji:** [`plans/lesson-sequence-redesign.md`](plans/lesson-sequence-redesign.md)
+
+## Motivation
+
+Odpowiedź nauczyciela, prośba użytkownika i aktywne zadanie występują jako kolejne długie dymki w czacie. Prompt pozostaje na dole, a akcja „Sprawdź" przenosi się nad gryf. Uczący się nie zawsze wie, czy ma czytać, klikać nuty, czy już odpowiadać w czacie. Instrukcja ćwiczenia ginie w historii wiadomości.
+
+## Solution
+
+Wizualnie wydzielić bieżące zadanie (krótkie polecenie i status), zostawiając historię wyjaśnień w czacie. Dodać jasny postęp lekcji oraz jeden kontekstowy następny krok. Wymaga zmian zarówno we frontendzie (UI lekcji) jak i backendzie (struktura odpowiedzi AI).
+
+Szczegółowy plan: [`plans/lesson-sequence-redesign.md`](plans/lesson-sequence-redesign.md)
+
+## Status
+
+OPEN
+
+---
+
+# P27: Spójność wizualna formularzy auth
+
+**Źródło:** [`plans/ux-ui-audit-2026-10-05.md`](plans/ux-ui-audit-2026-10-05.md) — Problem 8
+
+## Motivation
+
+Logowanie i rejestracja mają ciemnogranatowe karty, niebieskie przyciski i linki na prawie białym tle, podczas gdy narzędzie jest jasne z zielonym akcentem. Zmiana motywu między wejściem na stronę i kontem osłabia spójność produktu.
+
+## Solution
+
+Przenieść typografię, kolory akcentu, stany fokusu i przyciski do tych samych tokenów CSS co reszta aplikacji. Zachować prosty, skoncentrowany układ formularzy. Sprawdzić kontrast linków i CTA.
+
+## Pliki do zmiany
+
+| Plik | Zmiana |
+|------|--------|
+| `src/app/auth/login/login.component.scss` | Użyć zmiennych CSS z `styles.scss` zamiast hardcoded kolorów |
+| `src/app/auth/login/login.component.html` | Użyć klas `.btn--primary` zamiast inline style |
+| `src/app/auth/register/register.component.scss` | J.w. — dopasować do palety aplikacji |
+| `src/app/auth/register/register.component.html` | Użyć klas `.btn--primary` |
+| `src/styles.scss` | Dodać brakujące tokeny (jeśli potrzeba) dla formularzy |
+
+## Kolejność implementacji
+
+1. Zidentyfikować tokeny CSS używane w głównej aplikacji (kolory, fonty, spacing)
+2. Zastosować je w login.component.scss
+3. Zastosować je w register.component.scss
+4. Sprawdzić kontrast linków i CTA
+
+## MVP
+
+- Formularze auth używają tych samych kolorów akcentu co reszta aplikacji
+- Przyciski używają tych samych klas co główne CTA
+- Linki mają dobry kontrast
+
+## Done when
+
+- Login i register nie mają ciemnogranatowych kart
+- Przyciski są w kolorze akcentu aplikacji (zielony)
+- Typografia jest spójna z resztą
+- `npm test` succeeds
+
+## Status
+
+OPEN
+
+---
+
+# P28: Wykorzystanie powierzchni czatu na desktopie
+
+**Źródło:** [`plans/ux-ui-audit-2026-10-05.md`](plans/ux-ui-audit-2026-10-05.md) — Problem 7
+
+## Motivation
+
+W stanie AI Chat panel jest podzielony na pustą lewą kolumnę i czat po prawej. Obszar rozmowy zaczyna się od pustej historii. Na desktopie (1440×900) lewa kolumna marnuje połowę dostępnej powierzchni. Nie wiadomo, czy lewa część ma zawierać gryf, czy aplikacja nie załadowała treści.
+
+## Solution
+
+Jeśli lewa kolumna ma być gryfem, umieścić tam rzeczywisty kontekst i krótki opis aktualnego stanu. Jeśli nie, wykorzystać szerokość na rozmowę i przykłady promptów, zamiast utrzymywać pusty panel.
+
+## Pliki do zmiany
+
+| Plik | Zmiana |
+|------|--------|
+| `src/app/app-page/app-page.component.html` | Layout AI Chat: jedna kolumna (full-width) lub gryf + wąski czat |
+| `src/app/app-page/app-page.component.scss` | Responsywny podział na kolumny |
+| `src/app/chat/chat.component.scss` | Szerokość czatu, max-width |
+
+## Kolejność implementacji
+
+1. Zdecydować: jedna kolumna (full-width czat) czy dwie (gryf + czat)
+2. Zaimplementować wybrany layout
+3. Testy wizualne na 1440×900 i 1366×768
+
+## MVP
+
+- AI Chat nie ma pustej lewej kolumny
+- Czat wykorzystuje dostępną szerokość ekranu
+- Responsywność: na wąskich ekranach czat jest pełną szerokością
+
+## Done when
+
+- Pusta lewa kolumna nie występuje
+- Czat ma rozsądną szerokość (min 600px na desktopie)
+- `npm test` succeeds
+
+## Status
+
+OPEN
+
+---
+
+# P29: Porządkowanie typografii i hierarchii
+
+**Źródło:** [`plans/ux-ui-audit-2026-10-05.md`](plans/ux-ui-audit-2026-10-05.md) — Problem 10
+
+## Motivation
+
+Strona główna łączy duże szeryfowe nagłówki z sans-serifowymi kartami. Główne narzędzie ma drobne etykiety nad gryfem, a auth używa innej skali fontu i odcieni. Część ważnych informacji (stopnie i legenda) ma podobny ciężar do drugorzędnych elementów.
+
+## Solution
+
+Ustalić niewielką skalę typograficzną dla tytułu trybu, etykiet kontrolnych, danych muzycznych i pomocy. Nie zmieniać gryfu w dekoracyjny hero. Priorytetem pozostaje czytelny odczyt markerów.
+
+## Pliki do zmiany
+
+| Plik | Zmiana |
+|------|--------|
+| `src/styles.scss` | Zdefiniować zmienne CSS dla font-size: `--fs-title`, `--fs-label`, `--fs-data`, `--fs-legend` |
+| `src/app/landing-page/landing-page.component.scss` | Użyć zmiennych typograficznych |
+| `src/app/header/header.component.scss` | Użyć zmiennych typograficznych |
+| `src/app/legend/legend.component.scss` | Użyć zmiennych typograficznych |
+| `src/app/auth/login/login.component.scss` | Użyć zmiennych typograficznych |
+| `src/app/auth/register/register.component.scss` | Użyć zmiennych typograficznych |
+
+## Kolejność implementacji
+
+1. Zdefiniować zmienne CSS w `styles.scss`
+2. Zastosować w landing page
+3. Zastosować w header i legend
+4. Zastosować w auth
+
+## MVP
+
+- Wszystkie widoki używają wspólnej skali typograficznej
+- Legenda i dane muzyczne mają odpowiedni ciężar wizualny
+
+## Done when
+
+- Zmienne CSS dla font-size zdefiniowane w `styles.scss`
+- Landing page, header, legenda, auth używają tych samych zmiennych
+- `npm test` succeeds
+
+## Status
+
+OPEN
+
+---
+
+# P31: Angular NG0955 — duplikaty kluczy w `track` wyrażeniach `@for`
+
+**Źródło:** [`test-results/qa-crash-test-report.md`](test-results/qa-crash-test-report.md) — B1
+
+## Motivation
+
+Angular emituje `NG0955` warnings ponieważ `@for` loops w template używają `track` wyrażeń produkujących duplikaty kluczy. Dwa przypadki:
+1. Numery interwałów (1–7 + oktawa 1): `[1, 2, 3, 4, 5, 6, 7, 1]` — klucz `"1"` pojawia się dwa razy
+2. Litery kroków (W, W, H, W, W, W, H): klucze `"W"` i `"H"` są zduplikowane
+
+Angular fallbackuje do `track by identity`, co powoduje pełną rekreację DOM przy każdej zmianie — problem wydajnościowy i potencjalny flicker UI.
+
+## Solution
+
+Zastąpić `track` wyrażenia unikalnymi kluczami — użyć `track $index` lub kompozytowych kluczy tam, gdzie wartości się powtarzają.
+
+## Pliki do zmiany
+
+| Plik | Zmiana |
+|------|--------|
+| `src/app/pattern-display/pattern-display.component.html` | `track interval` → `track $index` (lub kompozytowy klucz) dla listy interwałów |
+| `src/app/pattern-display/pattern-display.component.html` | `track step` → `track $index` dla listy kroków |
+
+## Kolejność implementacji
+
+1. Zidentyfikować wszystkie `@for` z `track` na wartościach które mogą się powtarzać
+2. Zmienić na `track $index` tam gdzie kolejność jest stabilna
+3. Sprawdzić konsolę — brak `NG0955`
+
+## MVP
+
+- Brak `NG0955` w konsoli przy każdej zmianie widoku
+- `npm test` succeeds
+
+## Done when
+
+- `@for` loops w pattern-display używają unikalnych kluczy `track`
+- Brak warningów `NG0955` w konsoli
+- `npm test` succeeds
+
+## Status
+
+OPEN
+
+---
+
+# P32: Angular NG0956 — nieefektywne `track by identity` w lekcji
+
+**Źródło:** [`test-results/qa-crash-test-report.md`](test-results/qa-crash-test-report.md) — B2
+
+## Motivation
+
+W trybie lekcji Angular emituje `NG0956` warning — `track by identity` powoduje rekreację całej kolekcji (rozmiar 1) przy każdej zmianie. To niepotrzebna operacja DOM.
+
+## Solution
+
+Dodać `track` wyrażenie z unikalnym kluczem do `@for` w template lekcji. Użyć `track $index` lub `track msg` (jeśli ChatMessage ma unikalne ID).
+
+## Pliki do zmiany
+
+| Plik | Zmiana |
+|------|--------|
+| `src/app/chat/chat.component.html` | Dodać `track $index` do `@for` loop wiadomości |
+| Ewentualnie inne template z `@for` na kolekcjach rozmiaru 1 |
+
+## Kolejność implementacji
+
+1. Dodać `track $index` do `@for (msg of chatService.messages(); track msg)`
+2. Sprawdzić konsolę — brak `NG0956`
+
+## MVP
+
+- Brak `NG0956` w konsoli przy zmianie kroku lekcji
+- `npm test` succeeds
+
+## Done when
+
+- `@for` w chat.component.html ma unikalny `track`
+- Brak warningów `NG0956` w konsoli
+- `npm test` succeeds
+
+## Status
+
+OPEN
+
+---
+
+# P33: Brakujące favicon.ico (404)
+
+**Źródło:** [`test-results/qa-crash-test-report.md`](test-results/qa-crash-test-report.md) — B3
+
+## Motivation
+
+Aplikacja zwraca HTTP 404 dla `/favicon.ico`. Plik `public/favicon.ico` istnieje w projekcie, ale nie jest serwowany przez dev server.
+
+## Solution
+
+Sprawdzić konfigurację `angular.json` — upewnić się że `public/favicon.ico` jest kopiowane do outputu. Dodać referencję w `index.html` jeśli brak.
+
+## Pliki do zmiany
+
+| Plik | Zmiana |
+|------|--------|
+| `angular.json` | Sprawdzić `assets` config — dodać `public/favicon.ico` jeśli brak |
+| `src/index.html` | Dodać `<link rel="icon" type="image/x-icon" href="/favicon.ico">` jeśli brak |
+
+## Kolejność implementacji
+
+1. Sprawdzić `angular.json` — czy `public/` jest w `assets`
+2. Sprawdzić `src/index.html` — czy jest link do favicon
+3. Dodać brakujące konfiguracje
+
+## MVP
+
+- Brak 404 dla `/favicon.ico`
+- Favicon widoczny w karcie przeglądarki
+
+## Done when
+
+- `GET /favicon.ico` zwraca 200
+- `npm test` succeeds
+
+## Status
+
+OPEN
+
+---
+
+# P34: Niejednoznaczne etykiety strun E (niskie E vs wysokie E)
+
+**Źródło:** [`test-results/qa-crash-test-report.md`](test-results/qa-crash-test-report.md) — UX1
+
+## Motivation
+
+Zarówno niskie E (6. struna, E2) jak i wysokie E (1. struna, E4) są oznaczone jako "E string" w string toggle. Aria-label to `"Show notes on E string"` dla obu. Użytkownik nie może rozróżnić którą strunę przełącza bez liczenia strun z układu wizualnego.
+
+## Solution
+
+Dodać rozróżnienie w etykietach: "E (niskie)" / "E (wysokie)" lub "E2" / "E4". Zaktualizować zarówno widoczne etykiety jak i aria-label.
+
+## Pliki do zmiany
+
+| Plik | Zmiana |
+|------|--------|
+| `src/app/string-toggle/string-toggle.component.ts` | Dodać mapowanie stringIndex → etykieta: `['E (wysokie)', 'B', 'G', 'D', 'A', 'E (niskie)']` |
+| `src/app/string-toggle/string-toggle.component.html` | Użyć zmapowanych etykiet zamiast generycznych |
+
+## Kolejność implementacji
+
+1. Dodać tablicę etykiet w `string-toggle.component.ts`
+2. Użyć w template zamiast generycznej "E string"
+3. Zaktualizować testy jeśli sprawdzają etykiety
+
+## MVP
+
+- Struny E mają rozróżnialne etykiety
+- Aria-label również rozróżnia
+
+## Done when
+
+- String toggle pokazuje "E (wysokie)" dla struny 1 i "E (niskie)" dla struny 6
+- Aria-label jest unikalny dla każdej struny
+- `npm test` succeeds
+
+## Status
+
+OPEN
+
+---
+
+# P35: Przycisk "Wyślij" wyłączony przy starcie lekcji
+
+**Źródło:** [`test-results/qa-crash-test-report.md`](test-results/qa-crash-test-report.md) — UX2
+
+## Motivation
+
+Po załadowaniu lekcji przycisk "Wyślij" w czacie jest disabled. Staje się enabled dopiero po kliknięciu przycisku ćwiczenia. Może to dezorientować użytkowników którzy chcą zadać pytanie przed rozpoczęciem ćwiczenia.
+
+## Solution
+
+Przycisk "Wyślij" powinien być enabled od początku lekcji, lub powinien być jasny komunikat dlaczego jest disabled.
+
+## Pliki do zmiany
+
+| Plik | Zmiana |
+|------|--------|
+| `src/app/chat/chat.component.html` | Sprawdzić warunek `[disabled]="chatService.loading()"` — czy loading jest `true` na starcie lekcji |
+| `src/app/chat/services/chat.service.ts` | Upewnić się że `loading` signal jest `false` po załadowaniu lekcji (przed pierwszym ćwiczeniem) |
+
+## Kolejność implementacji
+
+1. Sprawdzić stan `loading()` po `startLesson()` — czy pozostaje `true`?
+2. Jeśli tak, zresetować `loading` do `false` po załadowaniu treści lekcji
+3. Jeśli nie, dodać warunek w template: disabled tylko gdy loading lub brak wiadomości
+
+## MVP
+
+- Przycisk "Wyślij" jest enabled od początku lekcji
+- Lub: jasny komunikat dlaczego jest disabled
+
+## Done when
+
+- "Wyślij" jest enabled po załadowaniu lekcji
+- `npm test` succeeds
+
+## Status
+
+OPEN
+
+---
+
+# P36: Brak wizualnego feedbacku przy klikaniu nut w trybie show
+
+**Źródło:** [`test-results/qa-crash-test-report.md`](test-results/qa-crash-test-report.md) — UX3
+
+## Motivation
+
+W domyślnym trybie "show" (nie exercise mode) kliknięcie na gryfie nie daje żadnego feedbacku — brak highlightu, tooltipa, dźwięku. Kropki mają `cursor: pointer` i `(click)` handler, ale kliknięcie nie zmienia stanu.
+
+## Solution
+
+Usunąć `cursor: pointer` i `(click)` handler w trybie show (gdy `!exerciseMode`), albo dodać feedback: tooltip z nazwą nuty i interwału.
+
+## Pliki do zmiany
+
+| Plik | Zmiana |
+|------|--------|
+| `src/app/freatboard/freatboard.component.html` | Dodać warunek: `(click)` tylko gdy `exerciseMode`; tooltip zawsze |
+| `src/app/freatboard/freatboard.component.ts` | Dodać tooltip/logikę: pokaż nazwę nuty i interwał na hover/click |
+
+## Kolejność implementacji
+
+1. Dodać tooltip z nazwą nuty i interwału do wszystkich markerów (nie tylko exercise mode)
+2. Usunąć `cursor: pointer` gdy `!exerciseMode` (lub zostawić jeśli tooltip jest wystarczającym feedbackiem)
+
+## MVP
+
+- Kliknięcie nuty w trybie show pokazuje tooltip z nazwą nuty i interwału
+- Lub: kursor nie wskazuje że element jest klikalny
+
+## Done when
+
+- Tooltip działa na wszystkich markerach (show i exercise mode)
+- `npm test` succeeds
+
+## Status
+
+OPEN
+
+---
+
+# P37: AI Chat button — niezgodność text content z accessible name
+
+**Źródło:** [`test-results/qa-crash-test-report.md`](test-results/qa-crash-test-report.md) — P1
+
+## Motivation
+
+Przycisk "AI Chat" nie może być znaleziony przez `textContent().trim() === 'AI Chat'` ale działa przez `getByRole('button', { name: 'AI Chat' })`. Sugeruje to że text content zawiera dodatkowe białe znaki, znaki zerowej szerokości, lub accessible name jest ustawione przez aria-label.
+
+## Solution
+
+Ujednolicić text content z accessible name. Usunąć zbędne białe znaki lub dodać jawny text content.
+
+## Pliki do zmiany
+
+| Plik | Zmiana |
+|------|--------|
+| `src/app/header/header.component.html` | Sprawdzić text content przycisku AI Chat — usunąć zbędne spacje/znaki |
+
+## Kolejność implementacji
+
+1. Sprawdzić text content przycisku AI Chat w header.component.html
+2. Usunąć zbędne białe znaki
+3. Sprawdzić czy aria-label jest spójny z text content
+
+## MVP
+
+- `textContent().trim() === 'AI Chat'` zwraca true
+- `getByRole('button', { name: 'AI Chat' })` nadal działa
+
+## Done when
+
+- Text content przycisku jest "AI Chat" (bez zbędnych znaków)
+- `npm test` succeeds
+
+## Status
+
+OPEN
+
+---
+
+# P38: Nieobserwowalne requesty sieciowe podczas AI Chat
+
+**Źródło:** [`test-results/qa-crash-test-report.md`](test-results/qa-crash-test-report.md) — P2
+
+## Motivation
+
+Podczas interakcji z AI Chat, standardowe monitorowanie network requests nie wykazuje żadnych zapytań. Chat używa NDJSON streamingu, który nie jest przechwytywany przez standardowe narzędzia. Utrudnia to debugowanie API, weryfikację obsługi błędów i monitorowanie postępu streamingu.
+
+## Solution
+
+Dodać jawny logging requestów/responseów po stronie frontendu (Angular `HttpClient` interceptor) lub dodać dedykowany endpoint health-check dla czatu. Backend już wysyła eventy NDJSON — frontend powinien logować rozpoczęcie/zakończenie streamingu.
+
+## Pliki do zmiany
+
+| Plik | Zmiana |
+|------|--------|
+| `src/app/chat/services/chat.service.ts` | Dodać logging: `console.debug` przy starcie/końcu streamingu, błędach |
+| `src/app/services/chat-api.service.ts` | Dodać interceptable logging przez `HttpClient` |
+
+## Kolejność implementacji
+
+1. Dodać logging w `ChatService.send()` — start streamingu, pierwszy token, błąd, koniec
+2. Dodać logging w `ChatApiService` — URL, status, czas trwania
+3. Opcjonalnie: dodać endpoint `GET /api/chat/health` w backendzie
+
+## MVP
+
+- Network requests są widoczne w logach konsoli
+- Można zweryfikować czy API zostało wywołane
+
+## Done when
+
+- `ChatService` loguje start/koniec streamingu
+- `ChatApiService` loguje URL i status odpowiedzi
+- `npm test` succeeds
+
+## Status
+
+OPEN
+
+---
+
+# P30: Mobile redesign — responsywny układ gryfu i paneli
+
+**Źródło:** [`plans/ux-ui-audit-2026-10-05.md`](plans/ux-ui-audit-2026-10-05.md) — Problem 1
+**Plan implementacji:** [`plans/mobile-redesign.md`](plans/mobile-redesign.md)
+
+## Motivation
+
+Na 390 px szerokości pasek wyboru skali/akordu nie mieści się w widoku, gryf pokazuje tylko część progów, a użytkownik musi jednocześnie przewijać stronę pionowo i elementy poziomo. Przy relacji dochodzą ucięta legenda i obok siebie dwie kolumny szczegółów, z których druga wypada poza ekran. Nauka wymaga widzieć nuty i ich relacje przestrzenne — niewidoczny fragment gryfu utrudnia ćwiczenie.
+
+## Solution
+
+Na wąskim ekranie składać wybór w krótkie, zawijane sekcje lub kompaktowy pasek. Pokazywać jawny zakres widocznych progów i proste sterowanie przesuwaniem gryfu. Szczegóły porównania układać w pionie, legendę zawijać albo udostępniać jako czytelny panel dostępny przy gryfie. Nie zmniejszać gryfu do nieczytelnych markerów.
+
+Szczegółowy plan: [`plans/mobile-redesign.md`](plans/mobile-redesign.md)
+
+## Status
+
+OPEN
