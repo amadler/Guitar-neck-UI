@@ -10,14 +10,14 @@
       <div class="pattern-card__body">
         <!-- Notes row -->
         <div class="pattern-card__notes">
-          @for (note of p.notes; track note) {
+          @for (note of p.notes; track $index) {
             <span class="pattern-card__note">{{ note }}</span>
           }
         </div>
         <!-- Intervals row -->
         <div class="pattern-card__intervals">
           <span class="pattern-card__interval-paren">(</span>
-          @for (interval of p.intervals; track interval; let last = $last) {
+          @for (interval of p.intervals; track $index; let last = $last) {
             <span class="pattern-card__interval">
               {{ interval }}@if (!last) {
               <span> </span>
@@ -37,13 +37,13 @@
         </div>
         <div class="pattern-card__body">
           <div class="pattern-card__notes">
-            @for (note of rc.notes; track note) {
+            @for (note of rc.notes; track $index) {
               <span class="pattern-card__note">{{ note }}</span>
             }
           </div>
           <div class="pattern-card__intervals">
             <span class="pattern-card__interval-paren">(</span>
-            @for (interval of rc.intervals; track interval; let last = $last) {
+            @for (interval of rc.intervals; track $index; let last = $last) {
               <span class="pattern-card__interval">
                 {{ interval }}@if (!last) {
                 <span> </span>
@@ -59,13 +59,13 @@
   <div class="pattern-card__grid">
     <span class="pattern-card__grid-label">Semitones</span>
     <span class="pattern-card__grid-value">
-      @for (semi of p.semitones; track semi) {
+      @for (semi of p.semitones; track $index) {
         <span class="pattern-card__grid-item">{{ semi }}</span>
       }
     </span>
     <span class="pattern-card__grid-label">Steps</span>
     <span class="pattern-card__grid-value">
-      @for (step of p.steps; track step) {
+      @for (step of p.steps; track $index) {
         <span class="pattern-card__grid-item">{{ step }}</span>
       }
     </span>
@@ -73,7 +73,7 @@
   <div class="pattern-card__prompts">
     <div class="pattern-card__prompts-title">Practice ideas</div>
     <ul class="pattern-card__prompts-list">
-      @for (prompt of getPromptsForType(p.type); track prompt) {
+      @for (prompt of getPromptsForType(p.type); track $index) {
         <li class="pattern-card__prompt-item">{{ prompt }}</li>
       }
     </ul>
@@ -92,13 +92,13 @@
       </div>
       <div class="pattern-card__body">
         <div class="pattern-card__notes">
-          @for (note of p.notes; track note) {
+          @for (note of p.notes; track $index) {
             <span class="pattern-card__note">{{ note }}</span>
           }
         </div>
         <div class="pattern-card__intervals">
           <span class="pattern-card__interval-paren">(</span>
-          @for (interval of p.intervals; track interval; let last = $last) {
+          @for (interval of p.intervals; track $index; let last = $last) {
             <span class="pattern-card__interval">
               {{ interval }}@if (!last) {
               <span> </span>
@@ -112,13 +112,13 @@
     <div class="pattern-card__grid">
       <span class="pattern-card__grid-label">Semitones</span>
       <span class="pattern-card__grid-value">
-        @for (semi of p.semitones; track semi) {
+        @for (semi of p.semitones; track $index) {
           <span class="pattern-card__grid-item">{{ semi }}</span>
         }
       </span>
       <span class="pattern-card__grid-label">Steps</span>
       <span class="pattern-card__grid-value">
-        @for (step of p.steps; track step) {
+        @for (step of p.steps; track $index) {
           <span class="pattern-card__grid-item">{{ step }}</span>
         }
       </span>
@@ -133,13 +133,13 @@
       </div>
       <div class="pattern-card__body">
         <div class="pattern-card__notes">
-          @for (note of rc.notes; track note) {
+          @for (note of rc.notes; track $index) {
             <span class="pattern-card__note">{{ note }}</span>
           }
         </div>
         <div class="pattern-card__intervals">
           <span class="pattern-card__interval-paren">(</span>
-          @for (interval of rc.intervals; track interval; let last = $last) {
+          @for (interval of rc.intervals; track $index; let last = $last) {
             <span class="pattern-card__interval">
               {{ interval }}@if (!last) {
               <span> </span>
