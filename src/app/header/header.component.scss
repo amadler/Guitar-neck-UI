@@ -82,9 +82,25 @@
   height: 22px;
 }
 
+.ai-toggle {
+  width: auto;
+  height: auto;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+}
+
 .ai-toggle.active {
   color: var(--md-primary);
   background: var(--md-primary-container);
+}
+
+.ai-toggle__label {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 /* ── Help modal ── */

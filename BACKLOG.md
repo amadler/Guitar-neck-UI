@@ -1099,7 +1099,7 @@ Ujednolicić text content z accessible name. Usunąć zbędne białe znaki lub d
 
 ## Status
 
-OPEN
+DONE — dodano `<span class="ai-toggle__label">AI Chat</span>` obok SVG w przycisku, usunięto fixed width/height z `.ai-toggle` w SCSS, dodano style dla etykiety. Text content przycisku to teraz "AI Chat" — zgodny z `aria-label`.
 
 ---
 
