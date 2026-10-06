@@ -1131,3 +1131,70 @@ Szczegółowy plan: [`plans/mobile-redesign.md`](plans/mobile-redesign.md)
 ## Status
 
 OPEN
+
+---
+
+# P39: Brakujące enharmoniczne odpowiedniki w CHROMA_MAP — nuty z podwójnymi znakami nie mają koloru interwału
+
+**Źródło:** Debug session 2026-10-06
+
+## Motivation
+
+`CHROMA_MAP` w [`src/app/shared/note-utils.ts`](src/app/shared/note-utils.ts) nie zawiera wszystkich enharmonicznych odpowiedników nut. Gdy Tonal.js zwraca nuty z podwójnymi znakami chromatycznymi (np. 'E#' dla C# dur, 'B#' dla F# dur), `noteToChroma()` zwraca -1, co powoduje że `intervalBetween()` w [`src/app/services/tonal-facade.service.ts`](src/app/services/tonal-facade.service.ts) zwraca pusty string. W efekcie `mapInterval('')` zwraca '' i nuta nie dostaje koloru interwału.
+
+## Dotknięte skale
+
+| Skala | Nuty bez koloru |
+|-------|-----------------|
+| C# dur | F (E#), C (B#) |
+| F# dur | F (E#) |
+| D# dur | F, C, G, D (E#, A#, D#, G# → podwójne krzyżyki) |
+| Wszystkie skale z ♯♯/♭♭ | Zależnie od ilości znaków |
+
+W akordach problem jest mniej widoczny bo mają mniej nut.
+
+## Rozwiązanie
+
+Dodać brakujące wpisy do `CHROMA_MAP` w [`src/app/shared/note-utils.ts`](src/app/shared/note-utils.ts):
+
+- `'E#'` → 4 (enharmoniczny F)
+- `'B#'` → 11 (enharmoniczny C)
+- `'F##'` → 6 (enharmoniczny G)
+- `'C##'` → 0 (enharmoniczny D)
+- `'G##'` → 8 (enharmoniczny A)
+- `'D##'` → 2 (enharmoniczny E)
+- `'A##'` → 10 (enharmoniczny B)
+- `'E##'` → 4 (enharmoniczny F## → G)
+- `'B##'` → 11 (enharmoniczny C## → D)
+- Oraz odpowiedniki z podwójnymi bemolami: `'Fbb'`, `'Cbb'`, `'Gbb'`, `'Dbb'`, `'Abb'`, `'Ebb'`, `'Bbb'`
+
+## Pliki do zmiany
+
+| Plik | Zmiana |
+|------|--------|
+| `src/app/shared/note-utils.ts` | Dodać brakujące wpisy do `CHROMA_MAP` |
+
+## Kolejność implementacji
+
+1. Dodać brakujące wpisy do `CHROMA_MAP`
+2. Zweryfikować że `noteToChroma('E#')` zwraca 4, a `noteToChroma('B#')` zwraca 11
+3. Sprawdzić czy `npm test` przechodzi
+4. Zweryfikować manualnie na C# dur, F# dur, D# dur
+
+## MVP
+
+- `noteToChroma('E#')` zwraca 4 (zamiast -1)
+- `noteToChroma('B#')` zwraca 11 (zamiast -1)
+- Wszystkie nuty w C# dur mają kolory interwałów
+- `npm test` succeeds
+
+## Done when
+
+- `CHROMA_MAP` zawiera wszystkie enharmoniczne odpowiedniki dla standardowych i podwójnych znaków
+- `intervalBetween()` nie zwraca pustego stringa dla żadnej nuty z popularnych skal
+- Wszystkie testy przechodzą
+- C# dur, F# dur, D# dur wyświetlają się z poprawnymi kolorami interwałów
+
+## Status
+
+OPEN
