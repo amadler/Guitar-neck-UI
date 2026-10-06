@@ -394,10 +394,13 @@ PARTIALLY DONE — kroki 1-2 wdrożone, krok 3 (testy) do zrobienia. Plik `exerc
 
 ## Status
 
-PARTIALLY DONE — tylko cleanup package.json zrobiony. Pozostało:
-- 8 plików `*.spec.ts` z importami z vitest (w tym 7 z `MockedObject`, 1 z `{ describe, expect, it }`)
-- 7 plików `*.spec.ts` używających `MockedObject<T>` zamiast `vi.Mocked<T>`
-- `AGENTS.md` — aktualizacja reguły o globals
+DONE — zrealizowane na branchu `feature/P19-vitest-cleanup`.
+
+**Zrobione:**
+- Usunięto `import { describe, expect, it } from "vitest"` z `src/app/chat/services/helpers.spec.ts`
+- Zachowano `import type { MockedObject } from "vitest"` w 7 plikach — `vi.Mocked<T>` jest niepoprawny, ponieważ `vi` to runtime'owy global, a nie przestrzeń nazw typów TypeScript
+- Zaktualizowano `AGENTS.md` z regułą: globals dotyczą funkcji testowych (`describe`, `it`, `expect`, `vi`), ale typy (`MockedObject`) wymagają jawnego importu
+- Wszystkie 316 testów przechodzi, build Angulara OK
 
 ---
 

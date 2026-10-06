@@ -35,6 +35,7 @@ This repository uses the following skills (located in `~/.roo/skills/`):
 - **`tsconfig.app.json` suppresses** `nullishCoalescingNotNullable` and `optionalChainNotNullable` diagnostics.
 - **DomainState is immutable** — updated via `signal.set()`/`.update()`, never mutated in place.
 - **`spellNote()` in `note-utils.ts`** handles enharmonic spelling: minor intervals (`b2`, `b3`, etc.) get flat spelling, major/perfect get sharp spelling.
+- **Vitest globals are available without imports** — `tsconfig.spec.json` includes `"vitest/globals"` in `types`, making `describe`, `it`, `expect`, `vi`, etc. available globally. Do NOT add explicit `import { describe, expect, it, ... } from "vitest"` in spec files. However, type-only imports like `import type { MockedObject } from "vitest"` are still required — `vi` is a runtime global, not a TypeScript type namespace, so `vi.Mocked<T>` does not work.
 
 ## Code Style
 
@@ -46,3 +47,12 @@ This repository uses the following skills (located in `~/.roo/skills/`):
 - **`@Injectable({ providedIn: 'root' })`** for all services — no manual providers
 - **`inject()` function** over constructor injection (Angular 14+ pattern)
 - **Signals** for state management (`signal<T>()`, `.asReadonly()`) — no RxJS Subjects for state
+
+## Environment
+
+- **Platform:** Windows 10 (win32)
+- **Shell:** `cmd.exe` (default). Use `cmd` for all shell commands — do NOT use PowerShell or Python.
+- **Package manager:** npm (comes with Node.js)
+- **Node.js:** 20+ (required by project)
+- **Docker:** Available via `docker compose` (for PostgreSQL)
+- **No sandbox** — this is a local Windows machine, not a sandbox or container.

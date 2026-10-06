@@ -1,4 +1,3 @@
-﻿import { describe, expect, it } from "vitest";
 import { renderMarkdown } from "./helpers";
 
 describe("renderMarkdown", () => {
