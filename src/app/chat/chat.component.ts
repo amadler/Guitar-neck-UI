@@ -12,7 +12,7 @@ import { renderMarkdown } from "./services/helpers";
   template: `
     <div class="chat">
       <div class="messages">
-        @for (msg of chatService.messages(); track msg) {
+        @for (msg of chatService.messages(); track $index) {
           <div class="msg" [class.user]="msg.role === 'user'" [class.assistant]="msg.role === 'assistant'" [class.streaming]="msg.streaming">
             @if (msg.reasoning) {
               <div class="reasoning">{{ msg.reasoning }}</div>
