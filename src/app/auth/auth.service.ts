@@ -53,4 +53,19 @@ export class AuthService {
     this.user.set(null);
     this.router.navigate(['/']);
   }
+
+  /** Change the logged-in user's password. Throws with backend error message on failure. */
+  async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+    await this.api.changePassword(currentPassword, newPassword);
+  }
+
+  /** Request a password reset email. Always succeeds to prevent email enumeration. */
+  async requestPasswordReset(email: string): Promise<void> {
+    await this.api.requestPasswordReset(email);
+  }
+
+  /** Set a new password using a one-time reset token. No session is created. */
+  async resetPassword(token: string, newPassword: string): Promise<void> {
+    await this.api.resetPassword(token, newPassword);
+  }
 }

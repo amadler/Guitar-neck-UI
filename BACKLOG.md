@@ -1197,4 +1197,45 @@ Dodać brakujące wpisy do `CHROMA_MAP` w [`src/app/shared/note-utils.ts`](src/a
 
 ## Status
 
-OPEN
+DONE — zaimplementowane na branchu `new-fe-endpoints` (2026-10-13).
+
+---
+
+# P40: Nowe endpointy auth (zmiana/reset hasła) + guard + progress wiring
+
+**Źródło:** BE integration instructions — [`C:\code\Guitar-neck-app\guitar-neck-agent\docs\frontend-integration-instructions.md`](file:///C:/code/Guitar-neck-app/guitar-neck-agent/docs/frontend-integration-instructions.md) (sekcja 1A)
+
+## Motivation
+
+Backend dodał endpointy zarządzania hasłem (2026-10-06): `PUT /api/auth/password`,
+`POST /api/auth/forgot-password`, `POST /api/auth/reset-password`. Frontend miał już
+auth (login/register/logout/me), credentials i progress API, ale brakowało:
+stron forgot/reset hasła, sekcji zmiany hasła w Settings, guarda sprawdzającego
+`GET /api/me` oraz faktycznego zapisu progresu (serwisy istniały, ale nie były
+podpięte do przepływu lekcji/ćwiczeń).
+
+## Zmiany
+
+| Plik | Zmiana |
+|------|--------|
+| `src/app/services/auth-api.service.ts` | Dodane `changePassword()`, `requestPasswordReset()`, `resetPassword()` + `OkResponse` |
+| `src/app/auth/auth.service.ts` | Fasady `changePassword()`, `requestPasswordReset()`, `resetPassword()` |
+| `src/app/auth/auth.guard.ts` | **NOWY** — guard `authGuard` sprawdzający sesję via `GET /api/me`, redirect do `/login` |
+| `src/app/auth/forgot-password/` | **NOWY** — strona `/forgot-password` (zawsze komunikat sukcesu — brak enumeracji emaili) |
+| `src/app/auth/reset-password/` | **NOWY** — strona `/reset-password?token=` (stany: form / link wygasł / sukces) |
+| `src/app/auth/login/login.component.html` | Link "Zapomniałem hasła?" |
+| `src/app/app.routes.ts` | Route `/forgot-password`, `/reset-password`; `authGuard` na `/app` i `/settings` |
+| `src/app/settings/settings.component.ts/html` | Sekcja "Zmień hasło" (`PUT /api/auth/password`, obsługa 401) |
+| `src/app/chat/services/chat.service.ts` | Progress wiring: `PUT /api/progress/:lessonId` (in_progress) na starcie lekcji + `POST /api/progress/exercises/result` po zgłoszeniu ćwiczenia |
+| Spec-y | `auth-api.service.spec.ts`, `auth.service.spec.ts`, `auth.guard.spec.ts`, `forgot-password.component.spec.ts`, `reset-password.component.spec.ts`, `settings.component.spec.ts`, rozszerzony `chat.service.spec.ts` |
+
+## Zasady wdrożone
+
+1. **Wszystkie requesty** z `withCredentials` (interceptor + `credentials: 'include'` w fetch) — już było, zachowane.
+2. **Agent nie zapisuje do DB** — to Angular wysyła progress po `DomainCommand` (`start-exercise` → wynik ćwiczenia, `startLesson` → `in_progress`).
+3. **Auth guard** — `GET /api/me` przed wejściem do chronionych ścieżek; 401 → login.
+4. **Reset hasła** — token jednorazowy; 400 `Invalid or expired token` → stan "link wygasł lub już użyty" + przycisk "Wyślij nowy link".
+
+## Status
+
+DONE — testy (`npm test`) 37 files / 341 tests passed, `tsc` clean, `npm run build:prod` success (2026-10-13).

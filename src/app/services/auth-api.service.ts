@@ -7,6 +7,10 @@ export interface UserResponse {
   user: { id: string; email: string };
 }
 
+export interface OkResponse {
+  ok: true;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthApiService {
   private http = inject(HttpClient);
@@ -39,5 +43,26 @@ export class AuthApiService {
       if (e instanceof Error && e.message.includes('401')) return null;
       return null;
     }
+  }
+
+  /** Change the logged-in user's password. Requires session. */
+  changePassword(currentPassword: string, newPassword: string): Promise<OkResponse> {
+    return firstValueFrom(
+      this.http.put<OkResponse>(`${this.baseUrl}/api/auth/password`, { currentPassword, newPassword })
+    );
+  }
+
+  /** Send a password-reset link. Public — always succeeds (no email enumeration). */
+  requestPasswordReset(email: string): Promise<OkResponse> {
+    return firstValueFrom(
+      this.http.post<OkResponse>(`${this.baseUrl}/api/auth/forgot-password`, { email })
+    );
+  }
+
+  /** Set a new password with a one-time reset token. Public. */
+  resetPassword(token: string, newPassword: string): Promise<OkResponse> {
+    return firstValueFrom(
+      this.http.post<OkResponse>(`${this.baseUrl}/api/auth/reset-password`, { token, newPassword })
+    );
   }
 }

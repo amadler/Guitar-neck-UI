@@ -3,6 +3,7 @@ import { AIMessage, HumanMessage, ToolMessage } from "@langchain/core/messages";
 import { ChatService } from "./chat.service";
 import { DomainService } from "../../domain/domain.service";
 import { ChatApiService } from "../../services/chat-api.service";
+import { ProgressService } from "../../services/progress.service";
 
 /**
  * Helper: create an async iterable from an array.
@@ -48,8 +49,13 @@ describe("ChatService", () => {
   let service: ChatService;
   let mockDomainService: { execute: ReturnType<typeof vi.fn>; query: ReturnType<typeof vi.fn>; currentState: ReturnType<typeof vi.fn> };
   let mockAgentApi: { send: ReturnType<typeof vi.fn> };
+  let mockProgressService: { updateProgress: ReturnType<typeof vi.fn>; saveExerciseResult: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
+    mockProgressService = {
+      updateProgress: vi.fn().mockResolvedValue(undefined),
+      saveExerciseResult: vi.fn().mockResolvedValue(undefined),
+    };
     mockDomainService = {
       execute: vi.fn().mockReturnValue({ success: true, action: "test", message: "ok" }),
       query: vi.fn().mockReturnValue({ success: true, data: {} }),
@@ -74,6 +80,7 @@ describe("ChatService", () => {
         ChatService,
         { provide: DomainService, useValue: mockDomainService },
         { provide: ChatApiService, useValue: mockAgentApi },
+        { provide: ProgressService, useValue: mockProgressService },
       ],
     });
 
@@ -212,6 +219,47 @@ describe("ChatService", () => {
       await service.startLesson('test');
 
       expect((service as any)._lessonMode).toBe(true);
+    });
+
+    it("should report lesson as in_progress to the backend", async () => {
+      globalThis.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        text: () => Promise.resolve("# Test lesson content"),
+      });
+
+      const mockRegistry = {
+        getLesson: vi.fn().mockReturnValue({ id: 'test', title: 'Test', description: '', level: 'podstawowy' }),
+      };
+      (service as any).lessonRegistry = mockRegistry;
+
+      mockAgentApi.send.mockImplementation(async (_body: any, onEvent: any) => {
+        onEvent({ type: "done" });
+      });
+
+      await service.startLesson('test');
+
+      expect(mockProgressService.updateProgress).toHaveBeenCalledWith('test', { status: 'in_progress' });
+    });
+
+    it("should report exercise result when submitted during a lesson", async () => {
+      (service as any)._lessonMode = true;
+      (service as any)._lessonId = 'interwały';
+      (service as any)._exerciseId = 'Find all fifths';
+      mockDomainService.currentState.mockReturnValue({
+        lastExerciseResult: { correct: [true], correctCount: 1, incorrectCount: 0 },
+      });
+
+      mockAgentApi.send.mockImplementation(async (_body: any, onEvent: any) => {
+        onEvent({ type: "done" });
+      });
+
+      await service.notifyExerciseSubmitted();
+
+      expect(mockProgressService.saveExerciseResult).toHaveBeenCalledWith(
+        'interwały',
+        'Find all fifths',
+        expect.objectContaining({ correct: [true] }),
+      );
     });
   });
 });

@@ -1,6 +1,7 @@
 import { Route } from '@angular/router';
 import { LandingPageComponent } from './landing-page/landing-page.component';
 import { AppPageComponent } from './app-page/app-page.component';
+import { authGuard } from './auth/auth.guard';
 
 export const routes: Route[] = [
   {
@@ -10,6 +11,7 @@ export const routes: Route[] = [
   {
     path: 'app',
     component: AppPageComponent,
+    canActivate: [authGuard],
   },
   {
     path: 'login',
@@ -20,7 +22,16 @@ export const routes: Route[] = [
     loadComponent: () => import('./auth/register/register.component').then(m => m.RegisterComponent),
   },
   {
+    path: 'forgot-password',
+    loadComponent: () => import('./auth/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent),
+  },
+  {
+    path: 'reset-password',
+    loadComponent: () => import('./auth/reset-password/reset-password.component').then(m => m.ResetPasswordComponent),
+  },
+  {
     path: 'settings',
     loadComponent: () => import('./settings/settings.component').then(m => m.SettingsComponent),
+    canActivate: [authGuard],
   },
 ];

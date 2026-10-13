@@ -2,6 +2,7 @@ import { Injectable, inject, signal } from "@angular/core";
 import { DomainService } from "../../domain/domain.service";
 import { ChatMessage } from "../models";
 import { LessonRegistryService } from "../../services/lesson-registry.service";
+import { ProgressService } from "../../services/progress.service";
 import { addMessage, showError, updateLastAssistant, getCommandLabel } from "./helpers";
 import { ChatApiService } from "../../services/chat-api.service";
 
@@ -11,6 +12,7 @@ export class ChatService {
   private domainService = inject(DomainService);
   private lessonRegistry = inject(LessonRegistryService);
   private agentApi = inject(ChatApiService);
+  private progressService = inject(ProgressService);
 
   readonly messages = signal<ChatMessage[]>([]);
   readonly loading = signal(false);
@@ -19,12 +21,20 @@ export class ChatService {
   /** Whether a lesson is currently active. */
   private _lessonMode = false;
 
+  /** Id of the active lesson (set by startLesson), used for progress reporting. */
+  private _lessonId: string | null = null;
+
+  /** Id of the currently-running exercise (derived from the start-exercise command). */
+  private _exerciseId: string | null = null;
+
   private _waitingForUser = false;
 
   /** Clear the cached agent so the next send() rebuilds it with fresh config. */
   resetAgent(): void {
     this._threadId = crypto.randomUUID();
     this._lessonMode = false;
+    this._lessonId = null;
+    this._exerciseId = null;
     this._waitingForUser = false;
   }
 
@@ -44,6 +54,14 @@ export class ChatService {
     }
 
     this._lessonMode = true;
+    this._lessonId = lessonId;
+
+    // Report lesson start to the backend (fire-and-forget — must not block the lesson).
+    void this.progressService
+      .updateProgress(lessonId, { status: 'in_progress' })
+      .catch(() => {
+        // Progress persistence is best-effort — ignore backend failures.
+      });
 
     // Load lesson content from markdown file in assets
     try {
@@ -107,7 +125,11 @@ export class ChatService {
               }
               break;
 
-            case 'domain-command':
+            case 'domain-command': {
+              if (event.command.type === 'start-exercise') {
+                // Track the exercise id for progress reporting when the user submits.
+                this._exerciseId = event.command.question;
+              }
               this.domainService.execute(event.command);
               // Add to last assistant message as clickable history
               if (options.showAssistantOutput) {
@@ -122,6 +144,7 @@ export class ChatService {
                 }
               }
               break;
+            }
 
             case 'interrupt':
               this._waitingForUser = event.waitingForUser;
@@ -177,8 +200,11 @@ export class ChatService {
   /**
    * Notify the agent that the user has submitted an exercise.
    * The agent should call get_exercise_result to read the result and comment.
+   * Also reports the exercise result to the backend (progress tracking).
    */
   async notifyExerciseSubmitted(): Promise<void> {
+    this.reportExerciseResult();
+
     const message =
       "Użytkownik kliknął Sprawdź. Ćwiczenie zostało zweryfikowane. " +
       "Użyj narzędzia get_exercise_result aby zobaczyć wynik i skomentuj odpowiedź użytkownika.";
@@ -189,10 +215,28 @@ export class ChatService {
     });
   }
 
+  /**
+   * Persist the last exercise result to the backend (fire-and-forget).
+   * Only sent when a lesson and an exercise are active (exercise results belong to a lesson).
+   */
+  private reportExerciseResult(): void {
+    const state = this.domainService.currentState();
+    if (!this._lessonId || !this._exerciseId || !state.lastExerciseResult) return;
+
+    const result = { ...state.lastExerciseResult };
+    void this.progressService
+      .saveExerciseResult(this._lessonId, this._exerciseId, result)
+      .catch(() => {
+        // Progress persistence is best-effort — ignore backend failures.
+      });
+  }
+
   reset(): void {
     this.messages.set([]);
     this._threadId = crypto.randomUUID();
     this._lessonMode = false;
+    this._lessonId = null;
+    this._exerciseId = null;
     this._waitingForUser = false;
   }
 

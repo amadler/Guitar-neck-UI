@@ -53,6 +53,60 @@
       }
     </section>
 
+    <!-- Change password -->
+    <section>
+      <h3>Zmień hasło</h3>
+      <p class="desc">
+        Zaktualizuj hasło do swojego konta. Sesja pozostanie aktywna.
+      </p>
+
+      <form (ngSubmit)="changePassword()">
+        <label>
+          Obecne hasło
+          <input
+            type="password"
+            [(ngModel)]="currentPassword"
+            name="currentPassword"
+            required
+            autocomplete="current-password"
+          />
+        </label>
+
+        <label>
+          Nowe hasło
+          <input
+            type="password"
+            [(ngModel)]="newPassword"
+            name="newPassword"
+            required
+            autocomplete="new-password"
+          />
+        </label>
+
+        <label>
+          Potwierdź nowe hasło
+          <input
+            type="password"
+            [(ngModel)]="confirmPassword"
+            name="confirmPassword"
+            required
+            autocomplete="new-password"
+          />
+        </label>
+
+        <button type="submit" class="btn btn--primary" [disabled]="changingPassword()">
+          {{ changingPassword() ? 'Zapisywanie...' : 'Zmień hasło' }}
+        </button>
+      </form>
+
+      @if (passwordError()) {
+        <p class="error">{{ passwordError() }}</p>
+      }
+      @if (passwordSuccess()) {
+        <p class="success">{{ passwordSuccess() }}</p>
+      }
+    </section>
+
     <div class="nav-back">
       <a routerLink="/app">← Powrót do aplikacji</a>
     </div>
