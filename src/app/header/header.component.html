@@ -37,10 +37,25 @@
     </button>
 
     @if (auth.user(); as user) {
-      <span class="user-email">{{ user.email }}</span>
-      <a class="nav-link" routerLink="/settings">Ustawienia</a>
-      <a class="nav-link" routerLink="/change-password">Zmień hasło</a>
-      <button class="nav-link" (click)="auth.logout()">Wyloguj</button>
+      <div class="user-dropdown">
+        <button
+          class="user-dropdown__toggle"
+          type="button"
+          (click)="toggleDropdown()"
+          aria-haspopup="true"
+          [attr.aria-expanded]="dropdownOpen"
+        >
+          {{ user.email }}
+          <span class="user-dropdown__arrow"></span>
+        </button>
+        @if (dropdownOpen) {
+          <div class="user-dropdown__menu">
+            <a class="user-dropdown__item" routerLink="/settings">Ustawienia</a>
+            <a class="user-dropdown__item" routerLink="/change-password">Zmień hasło</a>
+            <button class="user-dropdown__item" type="button" (click)="auth.logout()">Wyloguj</button>
+          </div>
+        }
+      </div>
     } @else {
       <a class="nav-link" routerLink="/login">Zaloguj</a>
       <a class="nav-link" routerLink="/register">Rejestracja</a>
