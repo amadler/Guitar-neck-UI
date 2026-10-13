@@ -13,13 +13,16 @@ a projekt stosuje [Semantic Versioning](https://semver.org/).
 - **P40: Nowe endpointy auth (zmiana/reset hasła)** — `changePassword()` (PUT `/api/auth/password`), `requestPasswordReset()` (POST `/api/auth/forgot-password`), `resetPassword()` (POST `/api/auth/reset-password`) w [`AuthApiService`](src/app/services/auth-api.service.ts) i [`AuthService`](src/app/auth/auth.service.ts) ([`BACKLOG.md`](BACKLOG.md:1202))
 - **`authGuard`** — sprawdza sesję via `GET /api/me` przed wejściem na `/app` i `/settings`, redirect do `/login` przy 401 ([`src/app/auth/auth.guard.ts`](src/app/auth/auth.guard.ts))
 - **Strona `/forgot-password`** — formularz email → zawsze komunikat "Sprawdź skrzynkę" (ochrona przed enumeracją emaili) + link "Zapomniałem hasła?" na loginie ([`src/app/auth/forgot-password/forgot-password.component.ts`](src/app/auth/forgot-password/forgot-password.component.ts))
-- **Strona `/reset-password?token=`** — nowe hasło + potwierdzenie; obsługa `Invalid or expired token` (stan "link wygasł" + przycisk "Wyślij nowy link") i redirect na login po sukcesie ([`src/app/auth/reset-password/reset-password.component.ts`](src/app/auth/reset-password/reset-password.component.ts))
+- **Strona `/reset-password?token=`** — nowe hasło + potwierdzenie; obsługa `Invalid or expired token` (stan "link wygasł" + przycisk "Wyślij nowy link"); po sukcesie redirect na `/login?passwordChanged=1` (zgodnie ze spec: "redirect na login z informacją") ([`src/app/auth/reset-password/reset-password.component.ts`](src/app/auth/reset-password/reset-password.component.ts))
+- **Strona `/change-password`** — dedykowana, chroniona strona zmiany hasła (`currentPassword` + `newPassword` + potwierdzenie, obsługa 401), link w menu nagłówka; widoczny komunikat "✅ Hasło zostało zmienione." po sukcesie ([`src/app/auth/change-password/change-password.component.ts`](src/app/auth/change-password/change-password.component.ts))
+- **Login: baner sukcesu** — po zmianie/resecie hasła (`?passwordChanged=1`) login pokazuje "Hasło zostało zmienione. Zaloguj się nowym hasłem." ([`src/app/auth/login/login.component.ts`](src/app/auth/login/login.component.ts))
 - **Sekcja "Zmień hasło" w Settings** — obecne + nowe hasło z walidacją FE, obsługa 401 z komunikatem backendu ([`src/app/settings/settings.component.ts`](src/app/settings/settings.component.ts))
 - **Progress wiring** — `ChatService` wysyła `PUT /api/progress/:lessonId` (status `in_progress`) na starcie lekcji oraz `POST /api/progress/exercises/result` po zgłoszeniu ćwiczenia ([`src/app/chat/services/chat.service.ts`](src/app/chat/services/chat.service.ts))
-- **Testy** — `auth-api.service.spec.ts`, `auth.service.spec.ts`, `auth.guard.spec.ts`, `forgot-password.component.spec.ts`, `reset-password.component.spec.ts`, `settings.component.spec.ts`; rozszerzony `chat.service.spec.ts` o progress reporting
+- **Testy** — `auth-api.service.spec.ts`, `auth.service.spec.ts`, `auth.guard.spec.ts`, `forgot-password.component.spec.ts`, `reset-password.component.spec.ts`, `change-password.component.spec.ts`, `settings.component.spec.ts`; rozszerzony `chat.service.spec.ts` o progress reporting
 
 ### Changed
-- **`app.routes.ts`** — dodane route `/forgot-password` i `/reset-password`; `authGuard` na `/app` i `/settings` ([`src/app/app.routes.ts`](src/app/app.routes.ts))
+- **`app.routes.ts`** — dodane route `/forgot-password`, `/reset-password` i `/change-password`; `authGuard` na `/app`, `/settings`, `/change-password` ([`src/app/app.routes.ts`](src/app/app.routes.ts))
+- **`header.component.html`** — link "Zmień hasło" w menu użytkownika ([`src/app/header/header.component.html`](src/app/header/header.component.html))
 
 ---
 

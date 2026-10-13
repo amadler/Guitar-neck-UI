@@ -1195,7 +1195,7 @@ Dodać brakujące wpisy do `CHROMA_MAP` w [`src/app/shared/note-utils.ts`](src/a
 - Wszystkie testy przechodzą
 - C# dur, F# dur, D# dur wyświetlają się z poprawnymi kolorami interwałów
 
-## Status
+DONE — testy (`npm test`) 37 files / 341 tests passed, `tsc` clean, `npm run build:prod` success (2026-10-13).
 
 DONE — zaimplementowane na branchu `new-fe-endpoints` (2026-10-13).
 
@@ -1223,11 +1223,13 @@ podpięte do przepływu lekcji/ćwiczeń).
 | `src/app/auth/auth.guard.ts` | **NOWY** — guard `authGuard` sprawdzający sesję via `GET /api/me`, redirect do `/login` |
 | `src/app/auth/forgot-password/` | **NOWY** — strona `/forgot-password` (zawsze komunikat sukcesu — brak enumeracji emaili) |
 | `src/app/auth/reset-password/` | **NOWY** — strona `/reset-password?token=` (stany: form / link wygasł / sukces) |
-| `src/app/auth/login/login.component.html` | Link "Zapomniałem hasła?" |
-| `src/app/app.routes.ts` | Route `/forgot-password`, `/reset-password`; `authGuard` na `/app` i `/settings` |
+| `src/app/auth/login/login.component.html` | Link "Zapomniałem hasła?" + baner sukcesu `?passwordChanged=1` po zmianie/resecie hasła |
+| `src/app/app.routes.ts` | Route `/forgot-password`, `/reset-password`, `/change-password`; `authGuard` na `/app`, `/settings`, `/change-password` |
+| `src/app/auth/change-password/` | **NOWY** — dedykowana strona `/change-password` (guarded) z formularzem + potwierdzeniem sukcesu |
 | `src/app/settings/settings.component.ts/html` | Sekcja "Zmień hasło" (`PUT /api/auth/password`, obsługa 401) |
+| `src/app/header/header.component.html` | Link "Zmień hasło" w menu użytkownika |
 | `src/app/chat/services/chat.service.ts` | Progress wiring: `PUT /api/progress/:lessonId` (in_progress) na starcie lekcji + `POST /api/progress/exercises/result` po zgłoszeniu ćwiczenia |
-| Spec-y | `auth-api.service.spec.ts`, `auth.service.spec.ts`, `auth.guard.spec.ts`, `forgot-password.component.spec.ts`, `reset-password.component.spec.ts`, `settings.component.spec.ts`, rozszerzony `chat.service.spec.ts` |
+| Spec-y | `auth-api.service.spec.ts`, `auth.service.spec.ts`, `auth.guard.spec.ts`, `forgot-password.component.spec.ts`, `reset-password.component.spec.ts`, `change-password.component.spec.ts`, `settings.component.spec.ts`, rozszerzony `chat.service.spec.ts` |
 
 ## Zasady wdrożone
 
@@ -1238,4 +1240,4 @@ podpięte do przepływu lekcji/ćwiczeń).
 
 ## Status
 
-DONE — testy (`npm test`) 37 files / 341 tests passed, `tsc` clean, `npm run build:prod` success (2026-10-13).
+DONE — testy (`npm test`) 38 files / 345 tests passed, `tsc` clean, `npm run build:prod` success (2026-10-13).

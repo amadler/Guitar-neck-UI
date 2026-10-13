@@ -45,7 +45,7 @@ describe('ResetPasswordComponent', () => {
     expect(component.state()).toBe('expired');
   });
 
-  it('should call resetPassword with token and new password', async () => {
+  it('should call resetPassword with token and new password, then redirect to login with info', async () => {
     await createComponent('valid-token');
     mockAuth.resetPassword.mockResolvedValue(undefined);
     component.password = 'newpass1';
@@ -54,7 +54,10 @@ describe('ResetPasswordComponent', () => {
     await component.onSubmit();
 
     expect(mockAuth.resetPassword).toHaveBeenCalledWith('valid-token', 'newpass1');
-    expect(component.state()).toBe('success');
+    expect(mockRouter.navigate).toHaveBeenCalledWith(
+      ['/login'],
+      { queryParams: { passwordChanged: '1' } },
+    );
   });
 
   it('should show expired state on 400 (invalid or expired token)', async () => {

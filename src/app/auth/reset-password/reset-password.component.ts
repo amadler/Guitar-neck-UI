@@ -4,7 +4,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../auth.service';
 
-type ResetState = 'form' | 'expired' | 'success';
+type ResetState = 'form' | 'expired';
 
 @Component({
   selector: 'app-reset-password',
@@ -49,7 +49,8 @@ export class ResetPasswordComponent {
     this.sending = true;
     try {
       await this.auth.resetPassword(this.token, this.password);
-      this.state.set('success');
+      // Redirect to login with a success banner (per spec: "sukces → redirect na login z informacją").
+      this.router.navigate(['/login'], { queryParams: { passwordChanged: '1' } });
     } catch (err) {
       if (err instanceof HttpErrorResponse && err.status === 400) {
         // "Invalid or expired token" — one-time token already used or past its 1h validity.
@@ -60,10 +61,6 @@ export class ResetPasswordComponent {
     } finally {
       this.sending = false;
     }
-  }
-
-  goToLogin(): void {
-    this.router.navigate(['/login']);
   }
 
   goToForgotPassword(): void {

@@ -2,6 +2,10 @@
   <div class="auth-card">
     <h2>Zaloguj się</h2>
 
+    @if (info()) {
+      <p class="success">{{ info() }}</p>
+    }
+
     <form (ngSubmit)="onSubmit()">
       <label>
         Email

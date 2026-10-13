@@ -1,6 +1,6 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AuthService } from '../auth.service';
 
 @Component({
@@ -12,11 +12,20 @@ import { AuthService } from '../auth.service';
 })
 export class LoginComponent {
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   protected auth = inject(AuthService);
 
   email = '';
   password = '';
   error = '';
+  info = signal('');
+
+  constructor() {
+    // Show a success banner when redirected here after changing/resetting the password.
+    if (this.route.snapshot.queryParamMap.get('passwordChanged') === '1') {
+      this.info.set('Hasło zostało zmienione. Zaloguj się nowym hasłem.');
+    }
+  }
 
   async onSubmit(): Promise<void> {
     this.error = '';
